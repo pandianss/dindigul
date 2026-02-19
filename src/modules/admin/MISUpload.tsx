@@ -70,7 +70,7 @@ const MISUpload: React.FC = () => {
                     type="file"
                     accept=".csv"
                     onChange={handleFileChange}
-                    className="absolute inset-x-0 w-full h-48 opacity-0 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
                 {file && (
                     <div className="mt-4 p-3 bg-bank-navy bg-opacity-5 rounded-lg border border-bank-navy border-opacity-20 flex items-center space-x-3">

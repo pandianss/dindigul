@@ -31,12 +31,17 @@ interface SidebarItemProps {
 
 const SidebarItem = ({ icon: Icon, label, active }: SidebarItemProps) => (
     <div className={cn(
-        "nav-item",
-        active && "nav-item-active"
+        "nav-item relative group",
+        active && "bg-bank-navy/5 text-bank-navy font-bold shadow-sm"
     )}>
-        <Icon size={20} />
-        <span className="flex-1 whitespace-nowrap">{label}</span>
-        {active && <ChevronRight size={16} />}
+        {active && (
+            <div className="absolute left-[-8px] top-2 bottom-2 w-1.5 bg-bank-navy rounded-r-full" />
+        )}
+        <Icon size={20} className={cn("shrink-0 transition-transform", active && "scale-110")} />
+        <span className="flex-1 whitespace-nowrap overflow-hidden transition-all duration-300">
+            {label}
+        </span>
+        {active && <ChevronRight size={14} className="text-bank-navy/40" />}
     </div>
 );
 

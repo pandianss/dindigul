@@ -50,7 +50,6 @@
   }
 
   .nav-item-active {
-    background-color: color-mix(in srgb, var(--bank-navy), transparent 90%);
-    @apply text-bank-navy font-semibold;
+    @apply bg-bank-navy/5 text-bank-navy font-bold;
   }
 }

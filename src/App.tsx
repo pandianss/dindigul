@@ -13,6 +13,7 @@ import ExpenditureManager from './modules/ExpenditureManager';
 import LegalManager from './modules/LegalManager';
 import AuditManager from './modules/AuditManager';
 import AssetManager from './modules/AssetManager';
+import MagazineGenerator from './modules/MagazineGenerator';
 
 interface Snapshot {
   id: string;
@@ -112,14 +113,7 @@ function App() {
       {activeView === 'audit' && <AuditManager />}
       {activeView === 'assets' && <AssetManager />}
 
-      {['magazine'].includes(activeView) && (
-        <div className="flex items-center justify-center h-full text-gray-400">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2 uppercase tracking-widest">{t(`nav.${activeView}`)}</h2>
-            <p>This module is scheduled for implementation in the next phase.</p>
-          </div>
-        </div>
-      )}
+      {activeView === 'magazine' && <MagazineGenerator />}
     </Layout>
   )
 }

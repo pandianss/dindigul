@@ -15,6 +15,7 @@ import expenditureRoutes from './routes/expenditure';
 import legalRoutes from './routes/legal';
 import auditRoutes from './routes/audit';
 import assetRoutes from './routes/asset';
+import calendarRoutes from './routes/calendar';
 import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use('/api/expenditure', expenditureRoutes);
 app.use('/api/legal', legalRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/assets', assetRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
