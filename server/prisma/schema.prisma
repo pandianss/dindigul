@@ -1,0 +1,395 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  fullNameEn   String
+  fullNameTa   String?
+  fullNameHi   String?
+  role         String   @default("BRANCH_USER") // ADMIN, RO_MANAGER, SECTION_USER, BRANCH_USER
+  photo        Photo?   @relation(fields: [photoId], references: [id])
+  photoId      String?
+  section      String?  // The specific section (e.g., "Accounts", "Planning", "IT", "HR")
+  branch       Branch?  @relation(fields: [branchId], references: [id])
+  branchId     String?
+  preparedNotes OfficeNote[] @relation("NotePreparer")
+  approvedNotes OfficeNote[] @relation("NoteApprover")
+  requests     BranchRequest[]
+  comments     Comment[]
+  actionPoints ActionPoint[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Committee {
+  id        String    @id @default(uuid())
+  nameEn    String
+  code      String    @unique // e.g., "OLC", "LSC"
+  frequency String    @default("MONTHLY") // MONTHLY, QUARTERLY, ADHOC
+  meetings  Meeting[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("committees")
+}
+
+model Meeting {
+  id           String        @id @default(uuid())
+  committee    Committee     @relation(fields: [committeeId], references: [id])
+  committeeId  String
+  date         DateTime
+  venue        String        @default("Conference Room")
+  status       String        @default("DRAFT") // DRAFT, FINALIZED
+  minutesJson  String?       // JSON blob for detailed minutes
+  actionPoints ActionPoint[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("meetings")
+}
+
+model ActionPoint {
+  id               String   @id @default(uuid())
+  meeting          Meeting  @relation(fields: [meetingId], references: [id])
+  meetingId        String
+  content          String
+  dueDate          DateTime?
+  status           String   @default("PENDING") // PENDING, COMPLETED, OVERDUE
+  assignedTo       User?    @relation(fields: [assignedToUserId], references: [id])
+  assignedToUserId String?
+  completionDate   DateTime?
+  remarks          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("action_points")
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  nameEn    String
+  nameTa    String?
+  nameHi    String?
+  type      String   // METRO, URBAN, SEMI_URBAN, RURAL
+  ifsc      String?
+  address   String?
+  users     User[]
+  snapshots Snapshot[]
+  notices   Notice[]
+  letters   Letter[]
+  requests  BranchRequest[]
+  stationeryMovements StationeryMovement[]
+  recoveryActions     RecoveryAction[]
+  auditObservations   AuditObservation[]
+  regionalAssets      RegionalAsset[]
+
+  @@map("branches")
+}
+
+model Letter {
+  id           String   @id @default(uuid())
+  type         String   // APPRECIATION, EXPLANATION, OP_RISK, CAMPAIGN_ALERT
+  status       String   @default("DRAFT") // DRAFT, SENT, ACKNOWLEDGED
+  titleEn      String
+  contentEn    String
+  titleTa      String?
+  contentTa    String?
+  branch       Branch   @relation(fields: [branchId], references: [id])
+  branchId     String
+  parameter    Parameter? @relation(fields: [parameterId], references: [id])
+  parameterId  String?
+  valueAtTime  Float?
+  budgetAtTime Float?
+  period       String?  // e.g., "August 2025" or "Q2 2025"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("letters")
+}
+
+model OfficeNote {
+  id          String   @id @default(uuid())
+  type        String   // DD_AUTHORIZATION, GL_HEAD_ACTIVATION, VISIT_REPORT, CUSTOM
+  status      String   @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
+  titleEn     String
+  contentJson String   // Rich JSON data for specific templates
+  preparer    User     @relation("NotePreparer", fields: [preparerId], references: [id])
+  preparerId  String
+  approver    User?    @relation("NoteApprover", fields: [approverId], references: [id])
+  approverId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("office_notes")
+}
+
+model BranchRequest {
+  id               String   @id @default(uuid())
+  titleEn          String
+  contentEn        String
+  category         String   // STATIONERY, HR, IT, PREMISES, OTHER
+  status           String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  priority         String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  branch           Branch   @relation(fields: [branchId], references: [id])
+  branchId         String
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String
+  assignedSection  String?  // e.g., "IT", "HR", "Planning"
+  resolutionNotes  String?
+  comments         Comment[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("branch_requests")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  request   BranchRequest @relation(fields: [requestId], references: [id])
+  requestId String
+  createdAt DateTime @default(now())
+
+  @@map("comments")
+}
+
+model Photo {
+  id          String   @id @default(uuid())
+  data        String   // Base64 or local file path
+  checksum    String?
+  aspectRatio String   @default("4:5")
+  createdAt   DateTime @default(now())
+  User        User[]
+
+  @@map("photos")
+}
+
+model Holiday {
+  id          String   @id @default(uuid())
+  date        DateTime @unique
+  nameEn      String
+  nameTa      String?
+  nameHi      String?
+  type        String   // PUBLIC_HOLIDAY, RBI_HOLIDAY, etc.
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@map("holidays")
+}
+
+model Parameter {
+  id          String   @id @default(uuid())
+  code        String   @unique // e.g., "TOTAL_DEPOSITS"
+  nameEn      String
+  nameTa      String?
+  nameHi      String?
+  category    String   // DEPOSITS, ADVANCES, etc.
+  unit        String   @default("Cr")
+  snapshots   Snapshot[]
+  letters     Letter[]
+
+  @@map("parameters")
+}
+
+model Snapshot {
+  id          String   @id @default(uuid())
+  date        DateTime
+  parameter   Parameter @relation(fields: [parameterId], references: [id])
+  parameterId String
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+  branchId    String?
+  value       Float
+  budget      Float?
+  status      String?   // LAGGING, SURPASSED, etc.
+  createdAt   DateTime @default(now())
+
+  @@index([date])
+  @@map("snapshots")
+}
+
+model Notice {
+  id          String   @id @default(uuid())
+  titleEn     String
+  titleTa     String?
+  contentEn   String
+  contentTa   String?
+  category    String   // OPERATIONAL, COMPLIANCE, HR, GENERAL
+  priority    String   @default("NORMAL") // NORMAL, URGENT, REGULATORY
+  isPinned    Boolean  @default(false)
+  branch      Branch?  @relation(fields: [branchId], references: [id])
+  branchId    String?  // Null if for all branches or RO
+  targetRole  String?  // Optional target role
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("notices")
+}
+
+model DispatchRecord {
+  id            String   @id @default(uuid())
+  type          String   // INWARD, OUTWARD
+  subject       String
+  sender        String
+  recipient     String
+  referenceNo   String?  // Internal reference
+  consignmentNo String?  // Courier/Speed Post tracked number
+  status        String   @default("PENDING") // PENDING, RECEIVED, DELIVERED
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("dispatch_records")
+}
+
+model StationeryItem {
+  id         String               @id @default(uuid())
+  nameEn     String               @unique
+  stockLevel Int                  @default(0)
+  movements  StationeryMovement[]
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@map("stationery_items")
+}
+
+model StationeryMovement {
+  id        String         @id @default(uuid())
+  item      StationeryItem @relation(fields: [itemId], references: [id])
+  itemId    String
+  branch    Branch?        @relation(fields: [branchId], references: [id])
+  branchId  String?
+  quantity  Int
+  type      String         // ISSUE (to branch), RECEIPT (from vendor)
+  date      DateTime       @default(now())
+  remarks   String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@map("stationery_movements")
+}
+
+model Budget {
+  id               String            @id @default(uuid())
+  section          String            // IT, HR, Premises, Accounts, Stationery, etc.
+  financialYear    String            // e.g., "2025-26"
+  allocationAmount Float
+  spentAmount      Float             @default(0)
+  sanctions        ExpenseSanction[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([section, financialYear])
+  @@map("budgets")
+}
+
+model ExpenseSanction {
+  id           String   @id @default(uuid())
+  title        String
+  sanctionDate DateTime @default(now())
+  amount       Float
+  section      String   // IT, HR, Premises, etc.
+  vendorName   String?
+  billNo       String?
+  status       String   @default("APPROVED") // DRAFT, APPROVED, PAID, CANCELLED
+  type         String   @default("REVENUE") // CAPITAL, REVENUE
+  budget       Budget   @relation(fields: [budgetId], references: [id])
+  budgetId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("expense_sanctions")
+}
+
+model LegalCase {
+  id               String   @id @default(uuid())
+  caseNo           String   @unique
+  courtName        String
+  parties          String   // e.g., "Bank vs. John Doe"
+  nextHearingDate  DateTime?
+  advocateName     String?
+  status           String   @default("PENDING") // PENDING, DECIDED, APPEAL
+  category         String   @default("CIVIL")   // CIVIL, CRIMINAL, CONSUMER, LABOUR
+  hearingHistory   String?  // JSON string or long text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("legal_cases")
+}
+
+model RecoveryAction {
+  id             String   @id @default(uuid())
+  accountName    String
+  amountInvolved Float
+  type           String   // SARFAESI, DRT, OTS, CIVIL_SUIT
+  status         String   @default("NOTIFIED") // NOTIFIED, POSSESSION_TAKEN, AUCTION_PENDING, SETTLED
+  branch         Branch   @relation(fields: [branchId], references: [id])
+  branchId       String
+  remarks        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("recovery_actions")
+}
+
+model AuditObservation {
+  id                   String   @id @default(uuid())
+  auditType            String   // CONCURRENT, STATUTORY, LFAR, INTERNAL
+  observation          String
+  riskLevel            String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  status               String   @default("PENDING") // PENDING, RECTIFIED, DROPPED
+  rectificationDetails String?
+  targetDate           DateTime
+  auditDate            DateTime @default(now())
+  branch               Branch   @relation(fields: [branchId], references: [id])
+  branchId             String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("audit_observations")
+}
+
+model RegionalAsset {
+  id                String              @id @default(uuid())
+  assetCode         String              @unique
+  category          String              // FURNITURE, IT_HARDWARE, MACHINERY, LOCKER
+  description       String
+  purchaseDate      DateTime
+  purchaseValue     Float
+  condition         String              @default("GOOD") // GOOD, REPAIR_REQUIRED, SCRAP
+  amcExpiry         DateTime?
+  branch            Branch              @relation(fields: [branchId], references: [id])
+  branchId          String
+  maintenanceRecords MaintenanceRecord[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@map("regional_assets")
+}
+
+model MaintenanceRecord {
+  id               String        @id @default(uuid())
+  serviceDate      DateTime
+  serviceProvider  String
+  cost             Float
+  remarks          String?
+  nextServiceDue   DateTime
+  asset            RegionalAsset @relation(fields: [assetId], references: [id])
+  assetId          String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@map("maintenance_records")
+}

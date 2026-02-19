@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bank-navy: #1B3A6B;
+  --color-bank-gold: #C5A059;
+  --color-bank-teal: #008080;
+
+  --color-iron-navy: #1B3A6B;
+  --color-iron-gold: #C5A059;
+  --color-iron-teal: #008080;
+
+  --font-sans: "Inter", "Arial", sans-serif;
+  --font-tamil: "Noto Sans Tamil", sans-serif;
+  --font-hindi: "Noto Sans Devanagari", sans-serif;
+}
+
+:root {
+  --bank-navy: #1B3A6B;
+  --bank-gold: #C5A059;
+  --bank-teal: #008080;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased bg-gray-50 text-gray-900;
+  }
+
+  /* Language specific font overrides */
+  [lang="ta"] {
+    @apply font-tamil;
+  }
+
+  [lang="hi"] {
+    @apply font-hindi;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-bank-navy text-white px-4 py-2 rounded-md hover:opacity-90 transition-all font-medium;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-bank-navy transition-colors rounded-lg mx-2;
+  }
+
+  .nav-item-active {
+    background-color: color-mix(in srgb, var(--bank-navy), transparent 90%);
+    @apply text-bank-navy font-semibold;
+  }
+}

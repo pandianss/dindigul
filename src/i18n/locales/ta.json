@@ -1,0 +1,34 @@
+{
+    "nav": {
+        "dashboard": "கட்டுப்பாட்டுப் பலகை",
+        "noticeBoard": "அறிவிப்பு பலகை",
+        "mis": "தகவல் மேலாண்மை அமைப்பு",
+        "letters": "கடிதங்கள்",
+        "officeNotes": "அலுவலக குறிப்புகள்",
+        "requests": "கோரிக்கைகள்",
+        "calendar": "நிகழ்வு நாட்காட்டி",
+        "dispatch": "அனுப்புகை பதிவேடு",
+        "committees": "குழுக்கள்",
+        "magazine": "மாதாந்திர பத்திரிகை",
+        "settings": "அமைப்புகள்",
+        "logout": "வெளியேறு"
+    },
+    "mis": {
+        "totalDeposits": "மொத்த வைப்புகள்",
+        "totalAdvances": "மொத்த கடன்கள்",
+        "grossNpa": "மொத்த NPA",
+        "casaRatio": "CASA விகிதம்",
+        "feeIncome": "கட்டண வருமானம்",
+        "currentActual": "தற்போதைய இருப்பு",
+        "previousWorkingDay": "முந்தைய பணி நாள்",
+        "budget": "பட்ஜெட்",
+        "gapToBudget": "பட்ஜெட் இடைவெளி",
+        "paceIndicator": "வேக குறிகாட்டி"
+    },
+    "status": {
+        "surpassed": "மிகைப்படுத்தப்பட்டது",
+        "positive": "நேர்மறை",
+        "lagging": "பின்தங்கியுள்ளது",
+        "negative": "எதிர்மறை"
+    }
+}

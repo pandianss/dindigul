@@ -1,0 +1,38 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "noticeBoard": "Notice Board",
+        "mis": "MIS / Business Snapshot",
+        "letters": "Correspondence",
+        "officeNotes": "Office Notes",
+        "requests": "Requests",
+        "calendar": "Calendar of Events",
+        "dispatch": "Dispatch Register",
+        "expenditure": "Expenditure & Budgets",
+        "legal": "Legal & Recovery",
+        "audit": "Audit & Compliance",
+        "assets": "Regional Assets",
+        "committees": "Committees",
+        "magazine": "Monthly Regional Magazine",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
+    "mis": {
+        "totalDeposits": "Total Deposits",
+        "totalAdvances": "Total Advances",
+        "grossNpa": "Gross NPA",
+        "casaRatio": "CASA Ratio",
+        "feeIncome": "Fee Income",
+        "currentActual": "Current Actual",
+        "previousWorkingDay": "Previous Working Day",
+        "budget": "Budget",
+        "gapToBudget": "Gap to Budget",
+        "paceIndicator": "Pace Indicator"
+    },
+    "status": {
+        "surpassed": "SURPASSED",
+        "positive": "POSITIVE",
+        "lagging": "LAGGING",
+        "negative": "NEGATIVE"
+    }
+}
