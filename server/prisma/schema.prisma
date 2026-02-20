@@ -1,10 +1,11 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 model User {
@@ -20,6 +21,10 @@ model User {
   section      String?  // The specific section (e.g., "Accounts", "Planning", "IT", "HR")
   branch       Branch?  @relation(fields: [branchId], references: [id])
   branchId     String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+  designation  Designation? @relation(fields: [designationId], references: [id])
+  designationId String?
   preparedNotes OfficeNote[] @relation("NotePreparer")
   approvedNotes OfficeNote[] @relation("NoteApprover")
   requests     BranchRequest[]
@@ -76,25 +81,71 @@ model ActionPoint {
 }
 
 model Branch {
+  id                String   @id @default(uuid())
+  code              String   @unique
+  officeId          Int?
+  nameEn            String
+  nameTa            String?
+  nameHi            String?
+  type              String   // RO, LPC, BRANCH
+  populationGroup   String?  // METRO, URBAN, SEMI_URBAN, RURAL
+  riskCategory      String?  // LOW, MEDIUM, HIGH
+  riskEffectiveDate DateTime?
+  specialStatus     String?  // JSON string for special tags
+  ifsc              String?
+  address           String?
+  users             User[]
+  snapshots         Snapshot[]
+  notices           Notice[]
+  letters           Letter[]
+  requests          BranchRequest[]
+  stationeryMovements StationeryMovement[]
+  recoveryActions     RecoveryAction[]
+  auditObservations   AuditObservation[]
+  regionalAssets      RegionalAsset[]
+  history             BranchHistory[]
+
+  @@map("branches")
+}
+
+model Department {
   id        String   @id @default(uuid())
   code      String   @unique
   nameEn    String
   nameTa    String?
   nameHi    String?
-  type      String   // METRO, URBAN, SEMI_URBAN, RURAL
-  ifsc      String?
-  address   String?
   users     User[]
-  snapshots Snapshot[]
-  notices   Notice[]
-  letters   Letter[]
-  requests  BranchRequest[]
-  stationeryMovements StationeryMovement[]
-  recoveryActions     RecoveryAction[]
-  auditObservations   AuditObservation[]
-  regionalAssets      RegionalAsset[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("branches")
+  @@map("departments")
+}
+
+model Designation {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  nameEn    String
+  nameTa    String?
+  nameHi    String?
+  workId    Int?
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("designations")
+}
+
+model BranchHistory {
+  id           String   @id @default(uuid())
+  branch       Branch   @relation(fields: [branchId], references: [id])
+  branchId     String
+  fieldChanged String
+  oldValue     String?
+  newValue     String?
+  changedBy    String
+  changedAt    DateTime @default(now())
+
+  @@map("branch_history")
 }
 
 model Letter {

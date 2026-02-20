@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Search, Pin, Calendar, Tag } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface Notice {
     id: string;
@@ -25,8 +26,8 @@ const NoticeBoard: React.FC = () => {
     const [filter, setFilter] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/notices')
-            .then(res => res.json())
+        api.get('/notices')
+            .then(res => res.data)
             .then(data => {
                 setNotices(data);
                 setLoading(false);

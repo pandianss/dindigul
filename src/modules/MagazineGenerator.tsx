@@ -11,6 +11,7 @@ import {
     BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface MagazineNotice {
     id: string;
@@ -37,12 +38,12 @@ const MagazineGenerator: React.FC = () => {
         const fetchMonthData = async () => {
             try {
                 const [noticesRes, eventsRes] = await Promise.all([
-                    fetch('http://localhost:5000/api/notices'),
-                    fetch('http://localhost:5000/api/calendar/holidays')
+                    api.get('/notices'),
+                    api.get('/calendar/holidays')
                 ]);
 
-                const allNotices = await noticesRes.json();
-                const allEvents = await eventsRes.json();
+                const allNotices = noticesRes.data;
+                const allEvents = eventsRes.data;
 
                 const monthStr = format(selectedMonth, 'yyyy-MM');
                 setNotices(allNotices.filter((n: any) => n.createdAt.startsWith(monthStr)));

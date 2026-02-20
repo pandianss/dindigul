@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import api from '../../services/api';
 
 const MISUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -23,14 +24,10 @@ const MISUpload: React.FC = () => {
         reader.onload = async (e) => {
             const csvData = e.target?.result;
             try {
-                const response = await fetch('http://localhost:5000/api/mis/upload', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ csvData, date })
-                });
+                const response = await api.post('/mis/upload', { csvData, date });
 
-                const data = await response.json();
-                if (response.ok) {
+                const data = response.data;
+                if (response.status === 200) {
                     setMessage({ type: 'success', text: data.message });
                     setFile(null);
                 } else {
@@ -58,7 +55,7 @@ const MISUpload: React.FC = () => {
                 </div>
             </div>
 
-            <div className="card p-8 border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center space-y-4">
+            <div className="card p-8 border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center space-y-4 relative">
                 <div className="bg-white p-4 rounded-full shadow-sm text-bank-navy">
                     <Upload size={32} />
                 </div>

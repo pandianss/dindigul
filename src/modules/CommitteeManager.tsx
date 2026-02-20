@@ -10,6 +10,7 @@ import {
     Save
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface Committee {
     id: string;
@@ -56,11 +57,11 @@ const CommitteeManager: React.FC = () => {
         setLoading(true);
         try {
             const [commRes, apRes] = await Promise.all([
-                fetch('http://localhost:5000/api/committees'),
-                fetch('http://localhost:5000/api/committees/action-points/admin') // Mock user
+                api.get('/committees'),
+                api.get('/committees/action-points/admin') // Mock user
             ]);
-            setCommittees(await commRes.json());
-            setMyActionPoints(await apRes.json());
+            setCommittees(commRes.data);
+            setMyActionPoints(apRes.data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching dashboard:', error);
@@ -84,15 +85,11 @@ const CommitteeManager: React.FC = () => {
         if (!selectedCommittee) return;
 
         try {
-            await fetch(`http://localhost:5000/api/committees/${selectedCommittee.id}/meetings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date: minutesData.date,
-                    venue: minutesData.venue,
-                    minutesJson: JSON.stringify({ content: minutesData.content }),
-                    actionPoints: minutesData.actionPoints.filter(ap => ap.content.trim())
-                })
+            await api.post(`/committees/${selectedCommittee.id}/meetings`, {
+                date: minutesData.date,
+                venue: minutesData.venue,
+                minutesJson: JSON.stringify({ content: minutesData.content }),
+                actionPoints: minutesData.actionPoints.filter(ap => ap.content.trim())
             });
             setShowMinutesForm(false);
             fetchDashboardData();
@@ -103,10 +100,9 @@ const CommitteeManager: React.FC = () => {
 
     const handleUpdateAPStatus = async (id: string, status: string) => {
         try {
-            await fetch(`http://localhost:5000/api/committees/action-points/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, completionDate: status === 'COMPLETED' ? new Date() : null })
+            await api.patch(`/committees/action-points/${id}`, {
+                status,
+                completionDate: status === 'COMPLETED' ? new Date() : null
             });
             fetchDashboardData();
         } catch (error) {

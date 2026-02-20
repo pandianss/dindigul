@@ -15,6 +15,7 @@ import {
     Save
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface LegalCase {
     id: string;
@@ -71,13 +72,13 @@ const LegalManager: React.FC = () => {
         setLoading(true);
         try {
             const [casesRes, recoveryRes, branchesRes] = await Promise.all([
-                fetch('http://localhost:5000/api/legal/cases'),
-                fetch('http://localhost:5000/api/legal/recovery'),
-                fetch('http://localhost:5000/api/branches')
+                api.get('/legal/cases'),
+                api.get('/legal/recovery'),
+                api.get('/branches')
             ]);
-            setCases(await casesRes.json());
-            setRecovery(await recoveryRes.json());
-            setBranches(await branchesRes.json());
+            setCases(casesRes.data);
+            setRecovery(recoveryRes.data);
+            setBranches(branchesRes.data);
         } catch (error) {
             console.error('Error fetching legal data:', error);
         } finally {
@@ -92,12 +93,8 @@ const LegalManager: React.FC = () => {
     const handleSaveCase = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/legal/cases', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(caseForm)
-            });
-            if (response.ok) {
+            const response = await api.post('/legal/cases', caseForm);
+            if (response.status === 200) {
                 setShowForm(false);
                 fetchData();
             }
@@ -109,12 +106,8 @@ const LegalManager: React.FC = () => {
     const handleSaveRecovery = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/legal/recovery', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(recoveryForm)
-            });
-            if (response.ok) {
+            const response = await api.post('/legal/recovery', recoveryForm);
+            if (response.status === 200) {
                 setShowForm(false);
                 fetchData();
             }

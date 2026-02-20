@@ -14,6 +14,8 @@ import LegalManager from './modules/LegalManager';
 import AuditManager from './modules/AuditManager';
 import AssetManager from './modules/AssetManager';
 import MagazineGenerator from './modules/MagazineGenerator';
+import api from './services/api';
+import SettingsManager from './modules/SettingsManager';
 
 interface Snapshot {
   id: string;
@@ -34,10 +36,9 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/mis/snapshots')
-      .then(res => res.json())
-      .then(data => {
-        setSnapshots(data);
+    api.get('/mis/snapshots')
+      .then(res => {
+        setSnapshots(res.data);
         setLoading(false);
       })
       .catch(err => {
@@ -114,6 +115,7 @@ function App() {
       {activeView === 'assets' && <AssetManager />}
 
       {activeView === 'magazine' && <MagazineGenerator />}
+      {activeView === 'settings' && <SettingsManager />}
     </Layout>
   )
 }

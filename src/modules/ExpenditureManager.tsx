@@ -14,6 +14,7 @@ import {
     DollarSign
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface Budget {
     id: string;
@@ -59,11 +60,11 @@ const ExpenditureManager: React.FC = () => {
         setLoading(true);
         try {
             const [budgetsRes, sanctionsRes] = await Promise.all([
-                fetch('http://localhost:5000/api/expenditure/budgets'),
-                fetch(`http://localhost:5000/api/expenditure/sanctions${filterSection ? `?section=${filterSection}` : ''}`)
+                api.get('/expenditure/budgets'),
+                api.get(`/expenditure/sanctions${filterSection ? `?section=${filterSection}` : ''}`)
             ]);
-            setBudgets(await budgetsRes.json());
-            setSanctions(await sanctionsRes.json());
+            setBudgets(budgetsRes.data);
+            setSanctions(sanctionsRes.data);
         } catch (error) {
             console.error('Error fetching expenditure data:', error);
         } finally {
@@ -78,16 +79,12 @@ const ExpenditureManager: React.FC = () => {
     const handleSaveSanction = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/expenditure/sanctions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            const response = await api.post('/expenditure/sanctions', {
                     ...form,
                     sanctionDate: form.date,
                     status: 'APPROVED'
-                })
-            });
-            if (response.ok) {
+                });
+            if (response.status === 200) {
                 setShowForm(false);
                 fetchData();
             }

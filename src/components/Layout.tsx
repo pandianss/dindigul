@@ -112,7 +112,16 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange }) =
                 </nav>
 
                 <div className="p-4 border-t border-gray-100 space-y-1">
-                    <SidebarItem icon={Settings} label={isSidebarOpen ? t('nav.settings') : ''} />
+                    <button
+                        onClick={() => onViewChange('settings')}
+                        className="w-full text-left"
+                    >
+                        <SidebarItem
+                            icon={Settings}
+                            label={isSidebarOpen ? t('nav.settings') : ''}
+                            active={activeView === 'settings'}
+                        />
+                    </button>
                     <SidebarItem icon={LogOut} label={isSidebarOpen ? t('nav.logout') : ''} />
                 </div>
             </aside>

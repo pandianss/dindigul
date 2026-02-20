@@ -9,6 +9,7 @@ import {
     Tag,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface BranchRequest {
     id: string;
@@ -64,10 +65,9 @@ const RequestManager: React.FC = () => {
     const fetchRequests = () => {
         setLoading(true);
         const query = viewMode === 'RO' ? '?assignedSection=IT' : '?branchId=B001'; // Mock filters
-        fetch(`http://localhost:5000/api/requests${query}`)
-            .then(res => res.json())
-            .then(data => {
-                setRequests(data);
+        api.get(`/requests${query}`)
+            .then(res => {
+                setRequests(res.data);
                 setLoading(false);
             })
             .catch(err => {
@@ -83,14 +83,10 @@ const RequestManager: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await fetch('http://localhost:5000/api/requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    branchId: 'B001', // Mock branch
-                    userId: 'admin' // Mock user
-                })
+            await api.post('/requests', {
+                ...formData,
+                branchId: 'B001', // Mock branch
+                userId: 'admin' // Mock user
             });
             setShowForm(false);
             fetchRequests();
@@ -101,11 +97,7 @@ const RequestManager: React.FC = () => {
 
     const handleUpdateStatus = async (id: string, status: string) => {
         try {
-            await fetch(`http://localhost:5000/api/requests/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
-            });
+            await api.patch(`/requests/${id}`, { status });
             fetchRequests();
             if (selectedRequest?.id === id) {
                 setSelectedRequest(prev => prev ? { ...prev, status: status as any } : null);
@@ -120,15 +112,11 @@ const RequestManager: React.FC = () => {
         if (!selectedRequest || !newComment.trim()) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/requests/${selectedRequest.id}/comments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: newComment,
-                    userId: 'admin'
-                })
+            const response = await api.post(`/requests/${selectedRequest.id}/comments`, {
+                content: newComment,
+                userId: 'admin'
             });
-            const comment = await response.json();
+            const comment = response.data;
             setSelectedRequest(prev => prev ? { ...prev, comments: [...prev.comments, comment] } : null);
             setNewComment('');
         } catch (error) {

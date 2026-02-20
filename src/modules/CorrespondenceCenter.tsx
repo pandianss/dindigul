@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface Letter {
     id: string;
@@ -20,8 +21,8 @@ const CorrespondenceCenter: React.FC = () => {
 
     const fetchLetters = () => {
         setLoading(true);
-        fetch('http://localhost:5000/api/letters')
-            .then(res => res.json())
+        api.get('/letters')
+            .then(res => res.data)
             .then(data => {
                 setLetters(data);
                 setLoading(false);
@@ -39,12 +40,10 @@ const CorrespondenceCenter: React.FC = () => {
     const handleGenerate = async () => {
         setGenerating(true);
         try {
-            const response = await fetch('http://localhost:5000/api/letters/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ period: format(new Date(), 'MMM yyyy') })
+            const response = await api.post('/letters/generate', {
+                period: format(new Date(), 'MMM yyyy')
             });
-            if (response.ok) {
+            if (response.status === 200) {
                 fetchLetters();
             }
         } catch (error) {
@@ -56,11 +55,7 @@ const CorrespondenceCenter: React.FC = () => {
 
     const updateStatus = async (id: string, status: string) => {
         try {
-            await fetch(`http://localhost:5000/api/letters/${id}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status })
-            });
+            await api.patch(`/letters/${id}/status`, { status });
             fetchLetters();
         } catch (error) {
             console.error('Error updating status:', error);
@@ -103,7 +98,7 @@ const CorrespondenceCenter: React.FC = () => {
                                             <div className="flex items-center space-x-2">
                                                 <h3 className="font-bold text-bank-navy text-lg">{letter.titleEn}</h3>
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${letter.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
-                                                        letter.status === 'SENT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                                                    letter.status === 'SENT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
                                                     }`}>
                                                     {letter.status}
                                                 </span>

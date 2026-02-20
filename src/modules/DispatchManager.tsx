@@ -13,6 +13,7 @@ import {
     PackageMinus
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface DispatchRecord {
     id: string;
@@ -62,11 +63,11 @@ const DispatchManager: React.FC = () => {
         setLoading(true);
         try {
             const [dispatchRes, logisticsRes] = await Promise.all([
-                fetch('http://localhost:5000/api/dispatch'),
-                fetch('http://localhost:5000/api/logistics/stock')
+                api.get('/dispatch'),
+                api.get('/logistics/stock')
             ]);
-            setRecords(await dispatchRes.json());
-            setStationery(await logisticsRes.json());
+            setRecords(dispatchRes.data);
+            setStationery(logisticsRes.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -81,11 +82,7 @@ const DispatchManager: React.FC = () => {
     const handleSaveDispatch = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await fetch('http://localhost:5000/api/dispatch', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...dispatchForm, type: activeTab === 'LOGISTICS' ? 'OUTWARD' : activeTab })
-            });
+            await api.post('/dispatch', { ...dispatchForm, type: activeTab === 'LOGISTICS' ? 'OUTWARD' : activeTab });
             setShowForm(false);
             fetchData();
         } catch (error) {
@@ -96,11 +93,7 @@ const DispatchManager: React.FC = () => {
     const handleSaveMovement = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await fetch('http://localhost:5000/api/logistics/movement', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(stockForm)
-            });
+            await api.post('/logistics/movement', stockForm);
             setShowForm(false);
             fetchData();
         } catch (error) {

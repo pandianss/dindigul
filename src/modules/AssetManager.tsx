@@ -14,6 +14,7 @@ import {
     History
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface RegionalAsset {
     id: string;
@@ -60,13 +61,13 @@ const AssetManager: React.FC = () => {
         setLoading(true);
         try {
             const [assetsRes, alertsRes, branchesRes] = await Promise.all([
-                fetch('http://localhost:5000/api/assets'),
-                fetch('http://localhost:5000/api/assets/alerts'),
-                fetch('http://localhost:5000/api/branches')
+                api.get('/assets'),
+                api.get('/assets/alerts'),
+                api.get('/branches')
             ]);
-            setAssets(await assetsRes.json());
-            setAlerts(await alertsRes.json());
-            setBranches(await branchesRes.json());
+            setAssets(assetsRes.data);
+            setAlerts(alertsRes.data);
+            setBranches(branchesRes.data);
         } catch (error) {
             console.error('Error fetching asset data:', error);
         } finally {
@@ -81,12 +82,8 @@ const AssetManager: React.FC = () => {
     const handleSaveAsset = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/assets', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
-            });
-            if (response.ok) {
+            const response = await api.post('/assets', form);
+            if (response.status === 200) {
                 setShowForm(false);
                 fetchData();
             }
@@ -104,19 +101,15 @@ const AssetManager: React.FC = () => {
         if (!nextDate) return;
 
         try {
-            const response = await fetch('http://localhost:5000/api/assets/maintenance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    assetId,
-                    serviceDate: new Date(),
-                    serviceProvider: provider,
-                    cost: parseFloat(cost),
-                    nextServiceDue: nextDate,
-                    remarks: 'Scheduled maintenance recorded via Portal'
-                })
+            const response = await api.post('/assets/maintenance', {
+                assetId,
+                serviceDate: new Date(),
+                serviceProvider: provider,
+                cost: parseFloat(cost),
+                nextServiceDue: nextDate,
+                remarks: 'Scheduled maintenance recorded via Portal'
             });
-            if (response.ok) {
+            if (response.status === 200) {
                 fetchData();
             }
         } catch (error) {
@@ -276,7 +269,7 @@ const AssetManager: React.FC = () => {
 
                                     <div className="space-y-4">
                                         {selectedAsset.maintenanceRecords?.length ? (
-                                            selectedAsset.maintenanceRecords.map((record, i) => (
+                                            selectedAsset.maintenanceRecords.map((record) => (
                                                 <div key={record.id} className="relative pl-6 pb-2 border-l border-gray-100 last:pb-0">
                                                     <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-bank-teal border-2 border-white shadow-sm" />
                                                     <div className="flex justify-between items-start mb-1">

@@ -13,6 +13,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
+import api from '../services/api';
 
 interface AuditObservation {
     id: string;
@@ -54,13 +55,13 @@ const AuditManager: React.FC = () => {
         setLoading(true);
         try {
             const [obsRes, statsRes, branchesRes] = await Promise.all([
-                fetch(`http://localhost:5000/api/audit/observations${filterType ? `?auditType=${filterType}` : ''}`),
-                fetch('http://localhost:5000/api/audit/stats'),
-                fetch('http://localhost:5000/api/branches')
+                api.get(`/audit/observations${filterType ? `?auditType=${filterType}` : ''}`),
+                api.get('/audit/stats'),
+                api.get('/branches')
             ]);
-            setObservations(await obsRes.json());
-            setStats(await statsRes.json());
-            setBranches(await branchesRes.json());
+            setObservations(obsRes.data);
+            setStats(statsRes.data);
+            setBranches(branchesRes.data);
         } catch (error) {
             console.error('Error fetching audit data:', error);
         } finally {
@@ -75,12 +76,8 @@ const AuditManager: React.FC = () => {
     const handleSaveObservation = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/audit/observations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
-            });
-            if (response.ok) {
+            const response = await api.post('/audit/observations', form);
+            if (response.status === 200) {
                 setShowForm(false);
                 fetchData();
             }
@@ -94,12 +91,11 @@ const AuditManager: React.FC = () => {
         if (!details) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/audit/observations/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'RECTIFIED', rectificationDetails: details })
+            const response = await api.patch(`/audit/observations/${id}`, {
+                status: 'RECTIFIED',
+                rectificationDetails: details
             });
-            if (response.ok) {
+            if (response.status === 200) {
                 fetchData();
             }
         } catch (error) {
