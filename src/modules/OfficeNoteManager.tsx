@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Clock, User, ChevronRight, Download, Eye, Building2, IndianRupee, LayoutDashboard } from 'lucide-react';
+import { FileText, Plus, Clock, User, Download, Eye, Building2, IndianRupee, LayoutDashboard } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 
