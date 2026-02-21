@@ -11,7 +11,8 @@ import {
     Trash2,
     Edit2,
     X,
-    Hash
+    Hash,
+    Upload
 } from 'lucide-react';
 
 type Tab = 'departments' | 'units' | 'designations' | 'staff';
@@ -35,6 +36,13 @@ interface MasterItem {
     officeId?: number;
     workId?: number;
     role?: string;
+    grade?: string;
+    designationId?: string;
+    branchId?: string;
+    departmentId?: string;
+    designation?: { nameEn: string };
+    branch?: { nameEn: string };
+    department?: { nameEn: string };
     photo?: { data: string };
     photoData?: string | ArrayBuffer | null;
 }
@@ -50,6 +58,9 @@ const SettingsManager: React.FC = () => {
 
     // Form States
     const [formData, setFormData] = useState<MasterItem>({});
+    const [designations, setDesignations] = useState<MasterItem[]>([]);
+    const [branches, setBranches] = useState<MasterItem[]>([]);
+    const [departments, setDepartments] = useState<MasterItem[]>([]);
 
     const getEndpoint = (tab: Tab) => {
         if (tab === 'units') return '/branches';
@@ -62,8 +73,18 @@ const SettingsManager: React.FC = () => {
         try {
             const endpoint = getEndpoint(activeTab);
             const res = await api.get(endpoint);
-            const json = res.data;
-            setData(json);
+            setData(res.data);
+
+            if (activeTab === 'staff') {
+                const [desigRes, branchRes, deptRes] = await Promise.all([
+                    api.get('/designations'),
+                    api.get('/branches'),
+                    api.get('/departments')
+                ]);
+                setDesignations(desigRes.data);
+                setBranches(branchRes.data);
+                setDepartments(deptRes.data);
+            }
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -123,6 +144,30 @@ const SettingsManager: React.FC = () => {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const csvContent = event.target?.result as string;
+            setLoading(true);
+            try {
+                const endpoint = getEndpoint(activeTab);
+                await api.post(`${endpoint}/bulk`, { csvContent });
+                fetchData();
+                alert(`Successfully processed ${activeTab} upload.`);
+            } catch (err) {
+                setError(getErrorMessage(err));
+            } finally {
+                setLoading(false);
+                // Reset file input
+                e.target.value = '';
+            }
+        };
+        reader.readAsText(file);
     };
 
     const startEdit = (item: MasterItem) => {
@@ -419,6 +464,65 @@ const SettingsManager: React.FC = () => {
                                 required
                             />
                         </div>
+
+                        {/* Organizational Details */}
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Designation</label>
+                            <select
+                                className="w-full p-2 border rounded"
+                                value={formData.designationId || ''}
+                                onChange={e => setFormData({ ...formData, designationId: e.target.value })}
+                            >
+                                <option value="">Select Designation</option>
+                                {designations.map(d => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Grade</label>
+                            <input
+                                className="w-full p-2 border rounded"
+                                value={formData.grade || ''}
+                                onChange={e => setFormData({ ...formData, grade: e.target.value })}
+                                placeholder="e.g. SCALE-I, CLERK"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Branch / Unit</label>
+                            <select
+                                className="w-full p-2 border rounded"
+                                value={formData.branchId || ''}
+                                onChange={e => setFormData({ ...formData, branchId: e.target.value })}
+                            >
+                                <option value="">Select Branch</option>
+                                {branches.map(b => <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Department</label>
+                            <select
+                                className="w-full p-2 border rounded"
+                                value={formData.departmentId || ''}
+                                onChange={e => setFormData({ ...formData, departmentId: e.target.value })}
+                            >
+                                <option value="">Select Department</option>
+                                {departments.map(d => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">System Role</label>
+                            <select
+                                className="w-full p-2 border rounded"
+                                value={formData.role || 'BRANCH_USER'}
+                                onChange={e => setFormData({ ...formData, role: e.target.value })}
+                            >
+                                <option value="ADMIN">System Admin</option>
+                                <option value="RO_MANAGER">RO Manager</option>
+                                <option value="SECTION_USER">Section User</option>
+                                <option value="BRANCH_USER">Branch User</option>
+                            </select>
+                        </div>
+
                         <div className="col-span-2">
                             <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Full Name (Tamil) - தமிழ்</label>
                             <input
@@ -453,13 +557,33 @@ const SettingsManager: React.FC = () => {
                     <p className="text-gray-500">Manage trilingual masters and organizational structure</p>
                 </div>
                 {!showForm && (
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="btn-primary flex items-center space-x-2 bg-bank-teal text-white px-4 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
-                    >
-                        <Plus size={18} />
-                        <span>Add New Entry</span>
-                    </button>
+                    <div className="flex gap-2">
+                        <input
+                            type="file"
+                            id="csv-upload"
+                            className="hidden"
+                            accept=".csv"
+                            onChange={handleBulkUpload}
+                        />
+                        <button
+                            onClick={() => document.getElementById('csv-upload')?.click()}
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                        >
+                            <Upload size={18} />
+                            Upload CSV
+                        </button>
+                        <button
+                            onClick={() => {
+                                setFormData({});
+                                setEditingItem(null);
+                                setShowForm(true);
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-bank-teal text-white rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
+                        >
+                            <Plus size={18} />
+                            Add New Entry
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -552,8 +676,16 @@ const SettingsManager: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="font-bold text-bank-navy tracking-wide">{item.code || item.username}</p>
-                                            {activeTab === 'units' && <p className="text-[10px] text-gray-400 font-bold uppercase">ID: {item.officeId} | {item.type}</p>}
-                                            {activeTab === 'designations' && <p className="text-[10px] text-gray-400 font-bold uppercase">Work Order: {item.workId}</p>}
+                                            {activeTab === 'staff' && (
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                                                    {item.designation?.nameEn || 'No Designation'} • {item.branch?.nameEn || 'No Branch'} • {item.grade || 'No Grade'}
+                                                </p>
+                                            )}
+                                            {activeTab === 'units' && (
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                                                    {item.type} • {item.populationGroup}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </td>
