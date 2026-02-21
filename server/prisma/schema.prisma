@@ -15,23 +15,35 @@ model User {
   fullNameEn   String
   fullNameTa   String?
   fullNameHi   String?
+  grade        String?
   role         String   @default("BRANCH_USER") // ADMIN, RO_MANAGER, SECTION_USER, BRANCH_USER
   photo        Photo?   @relation(fields: [photoId], references: [id])
   photoId      String?
   section      String?  // The specific section (e.g., "Accounts", "Planning", "IT", "HR")
-  branch       Branch?  @relation(fields: [branchId], references: [id])
+  
+  branch       Branch?  @relation("BranchMembers", fields: [branchId], references: [id])
   branchId     String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId String?
-  designation  Designation? @relation(fields: [designationId], references: [id])
-  designationId String?
-  preparedNotes OfficeNote[] @relation("NotePreparer")
-  approvedNotes OfficeNote[] @relation("NoteApprover")
-  requests     BranchRequest[]
-  comments     Comment[]
-  actionPoints ActionPoint[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  
+  // Leadership roles
+  isRegionHead     Boolean @default(false)
+  isSecondLine     Boolean @default(false)
+  headedBranch     Branch? @relation("BranchHead")
+  secondLineBranch Branch? @relation("BranchSecondLine")
+
+  departments      Department[] @relation("UserDepartments")
+  managedDepartments Department[] @relation("DepartmentHeads")
+
+  designation      Designation? @relation(fields: [designationId], references: [id])
+  designationId    String?
+  
+  preparedNotes    OfficeNote[] @relation("NotePreparer")
+  approvedNotes    OfficeNote[] @relation("NoteApprover")
+  requests         BranchRequest[]
+  comments         Comment[]
+  actionPoints     ActionPoint[]
+  postingHistory   PostingHistory[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@map("users")
 }
@@ -39,8 +51,8 @@ model User {
 model Committee {
   id        String    @id @default(uuid())
   nameEn    String
-  code      String    @unique // e.g., "OLC", "LSC"
-  frequency String    @default("MONTHLY") // MONTHLY, QUARTERLY, ADHOC
+  code      String    @unique
+  frequency String    @default("MONTHLY")
   meetings  Meeting[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -54,8 +66,8 @@ model Meeting {
   committeeId  String
   date         DateTime
   venue        String        @default("Conference Room")
-  status       String        @default("DRAFT") // DRAFT, FINALIZED
-  minutesJson  String?       // JSON blob for detailed minutes
+  status       String        @default("DRAFT")
+  minutesJson  String?
   actionPoints ActionPoint[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -69,7 +81,7 @@ model ActionPoint {
   meetingId        String
   content          String
   dueDate          DateTime?
-  status           String   @default("PENDING") // PENDING, COMPLETED, OVERDUE
+  status           String   @default("PENDING")
   assignedTo       User?    @relation(fields: [assignedToUserId], references: [id])
   assignedToUserId String?
   completionDate   DateTime?
@@ -82,19 +94,33 @@ model ActionPoint {
 
 model Branch {
   id                String   @id @default(uuid())
+  sNo               Int?
   code              String   @unique
   officeId          Int?
   nameEn            String
   nameTa            String?
   nameHi            String?
-  type              String   // RO, LPC, BRANCH
-  populationGroup   String?  // METRO, URBAN, SEMI_URBAN, RURAL
-  riskCategory      String?  // LOW, MEDIUM, HIGH
+  type              String
+  openDate          String?
+  district          String?
+  populationGroup   String?
+  riskCategory      String?
   riskEffectiveDate DateTime?
-  specialStatus     String?  // JSON string for special tags
+  specialStatus     String?
   ifsc              String?
   address           String?
-  users             User[]
+  latitude          Float?
+  longitude         Float?
+  pincode           String?
+
+  // Leadership
+  headUser          User?    @relation("BranchHead", fields: [headUserId], references: [id])
+  headUserId        String?  @unique
+  secondLineUser    User?    @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
+  secondLineUserId  String?  @unique
+
+  users             User[]   @relation("BranchMembers")
+  
   snapshots         Snapshot[]
   notices           Notice[]
   letters           Letter[]
@@ -104,6 +130,7 @@ model Branch {
   auditObservations   AuditObservation[]
   regionalAssets      RegionalAsset[]
   history             BranchHistory[]
+  postingHistory      PostingHistory[]
 
   @@map("branches")
 }
@@ -114,7 +141,8 @@ model Department {
   nameEn    String
   nameTa    String?
   nameHi    String?
-  users     User[]
+  users     User[]   @relation("UserDepartments")
+  heads     User[]   @relation("DepartmentHeads")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -129,6 +157,7 @@ model Designation {
   nameHi    String?
   workId    Int?
   users     User[]
+  postingHistory PostingHistory[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -150,9 +179,9 @@ model BranchHistory {
 
 model Letter {
   id           String   @id @default(uuid())
-  type         String   // APPRECIATION, EXPLANATION, OP_RISK, CAMPAIGN_ALERT
-  status       String   @default("DRAFT") // DRAFT, SENT, ACKNOWLEDGED
-  titleEn      String
+  type         String
+  status       String   @default("DRAFT")
+  titleEn     String
   contentEn    String
   titleTa      String?
   contentTa    String?
@@ -162,7 +191,7 @@ model Letter {
   parameterId  String?
   valueAtTime  Float?
   budgetAtTime Float?
-  period       String?  // e.g., "August 2025" or "Q2 2025"
+  period       String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -171,10 +200,10 @@ model Letter {
 
 model OfficeNote {
   id          String   @id @default(uuid())
-  type        String   // DD_AUTHORIZATION, GL_HEAD_ACTIVATION, VISIT_REPORT, CUSTOM
-  status      String   @default("DRAFT") // DRAFT, PENDING, APPROVED, REJECTED
+  type        String
+  status      String   @default("DRAFT")
   titleEn     String
-  contentJson String   // Rich JSON data for specific templates
+  contentJson String
   preparer    User     @relation("NotePreparer", fields: [preparerId], references: [id])
   preparerId  String
   approver    User?    @relation("NoteApprover", fields: [approverId], references: [id])
@@ -189,14 +218,14 @@ model BranchRequest {
   id               String   @id @default(uuid())
   titleEn          String
   contentEn        String
-  category         String   // STATIONERY, HR, IT, PREMISES, OTHER
-  status           String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-  priority         String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  category         String
+  status           String   @default("OPEN")
+  priority         String   @default("MEDIUM")
   branch           Branch   @relation(fields: [branchId], references: [id])
   branchId         String
   user             User     @relation(fields: [userId], references: [id])
   userId           String
-  assignedSection  String?  // e.g., "IT", "HR", "Planning"
+  assignedSection  String?
   resolutionNotes  String?
   comments         Comment[]
   createdAt        DateTime @default(now())
@@ -219,7 +248,7 @@ model Comment {
 
 model Photo {
   id          String   @id @default(uuid())
-  data        String   // Base64 or local file path
+  data        String
   checksum    String?
   aspectRatio String   @default("4:5")
   createdAt   DateTime @default(now())
@@ -234,7 +263,7 @@ model Holiday {
   nameEn      String
   nameTa      String?
   nameHi      String?
-  type        String   // PUBLIC_HOLIDAY, RBI_HOLIDAY, etc.
+  type        String
   description String?
   createdAt   DateTime @default(now())
 
@@ -243,11 +272,11 @@ model Holiday {
 
 model Parameter {
   id          String   @id @default(uuid())
-  code        String   @unique // e.g., "TOTAL_DEPOSITS"
+  code        String   @unique
   nameEn      String
   nameTa      String?
   nameHi      String?
-  category    String   // DEPOSITS, ADVANCES, etc.
+  category    String
   unit        String   @default("Cr")
   snapshots   Snapshot[]
   letters     Letter[]
@@ -264,7 +293,7 @@ model Snapshot {
   branchId    String?
   value       Float
   budget      Float?
-  status      String?   // LAGGING, SURPASSED, etc.
+  status      String?
   createdAt   DateTime @default(now())
 
   @@index([date])
@@ -277,12 +306,12 @@ model Notice {
   titleTa     String?
   contentEn   String
   contentTa   String?
-  category    String   // OPERATIONAL, COMPLIANCE, HR, GENERAL
-  priority    String   @default("NORMAL") // NORMAL, URGENT, REGULATORY
+  category    String
+  priority    String   @default("NORMAL")
   isPinned    Boolean  @default(false)
   branch      Branch?  @relation(fields: [branchId], references: [id])
-  branchId    String?  // Null if for all branches or RO
-  targetRole  String?  // Optional target role
+  branchId    String?
+  targetRole  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -291,13 +320,13 @@ model Notice {
 
 model DispatchRecord {
   id            String   @id @default(uuid())
-  type          String   // INWARD, OUTWARD
+  type          String
   subject       String
   sender        String
   recipient     String
-  referenceNo   String?  // Internal reference
-  consignmentNo String?  // Courier/Speed Post tracked number
-  status        String   @default("PENDING") // PENDING, RECEIVED, DELIVERED
+  referenceNo   String?
+  consignmentNo String?
+  status        String   @default("PENDING")
   date          DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -323,7 +352,7 @@ model StationeryMovement {
   branch    Branch?        @relation(fields: [branchId], references: [id])
   branchId  String?
   quantity  Int
-  type      String         // ISSUE (to branch), RECEIPT (from vendor)
+  type      String
   date      DateTime       @default(now())
   remarks   String?
   createdAt DateTime       @default(now())
@@ -334,8 +363,8 @@ model StationeryMovement {
 
 model Budget {
   id               String            @id @default(uuid())
-  section          String            // IT, HR, Premises, Accounts, Stationery, etc.
-  financialYear    String            // e.g., "2025-26"
+  section          String
+  financialYear    String
   allocationAmount Float
   spentAmount      Float             @default(0)
   sanctions        ExpenseSanction[]
@@ -351,11 +380,11 @@ model ExpenseSanction {
   title        String
   sanctionDate DateTime @default(now())
   amount       Float
-  section      String   // IT, HR, Premises, etc.
+  section      String
   vendorName   String?
   billNo       String?
-  status       String   @default("APPROVED") // DRAFT, APPROVED, PAID, CANCELLED
-  type         String   @default("REVENUE") // CAPITAL, REVENUE
+  status       String   @default("APPROVED")
+  type         String   @default("REVENUE")
   budget       Budget   @relation(fields: [budgetId], references: [id])
   budgetId     String
   createdAt    DateTime @default(now())
@@ -368,12 +397,12 @@ model LegalCase {
   id               String   @id @default(uuid())
   caseNo           String   @unique
   courtName        String
-  parties          String   // e.g., "Bank vs. John Doe"
+  parties          String
   nextHearingDate  DateTime?
   advocateName     String?
-  status           String   @default("PENDING") // PENDING, DECIDED, APPEAL
-  category         String   @default("CIVIL")   // CIVIL, CRIMINAL, CONSUMER, LABOUR
-  hearingHistory   String?  // JSON string or long text
+  status           String   @default("PENDING")
+  category         String   @default("CIVIL")
+  hearingHistory   String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -384,8 +413,8 @@ model RecoveryAction {
   id             String   @id @default(uuid())
   accountName    String
   amountInvolved Float
-  type           String   // SARFAESI, DRT, OTS, CIVIL_SUIT
-  status         String   @default("NOTIFIED") // NOTIFIED, POSSESSION_TAKEN, AUCTION_PENDING, SETTLED
+  type           String
+  status         String   @default("NOTIFIED")
   branch         Branch   @relation(fields: [branchId], references: [id])
   branchId       String
   remarks        String?
@@ -397,10 +426,10 @@ model RecoveryAction {
 
 model AuditObservation {
   id                   String   @id @default(uuid())
-  auditType            String   // CONCURRENT, STATUTORY, LFAR, INTERNAL
+  auditType            String
   observation          String
-  riskLevel            String   @default("MEDIUM") // HIGH, MEDIUM, LOW
-  status               String   @default("PENDING") // PENDING, RECTIFIED, DROPPED
+  riskLevel            String   @default("MEDIUM")
+  status               String   @default("PENDING")
   rectificationDetails String?
   targetDate           DateTime
   auditDate            DateTime @default(now())
@@ -415,11 +444,11 @@ model AuditObservation {
 model RegionalAsset {
   id                String              @id @default(uuid())
   assetCode         String              @unique
-  category          String              // FURNITURE, IT_HARDWARE, MACHINERY, LOCKER
+  category          String
   description       String
   purchaseDate      DateTime
   purchaseValue     Float
-  condition         String              @default("GOOD") // GOOD, REPAIR_REQUIRED, SCRAP
+  condition         String              @default("GOOD")
   amcExpiry         DateTime?
   branch            Branch              @relation(fields: [branchId], references: [id])
   branchId          String
@@ -443,4 +472,21 @@ model MaintenanceRecord {
   updatedAt        DateTime      @updatedAt
 
   @@map("maintenance_records")
+}
+
+model PostingHistory {
+  id            String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  branch        Branch      @relation(fields: [branchId], references: [id])
+  branchId      String
+  designation   Designation? @relation(fields: [designationId], references: [id])
+  designationId String?
+  startDate     DateTime    @default(now())
+  endDate       DateTime?
+  isCurrent     Boolean     @default(true)
+  remarks       String?
+  createdAt     DateTime    @default(now())
+
+  @@map("posting_history")
 }
