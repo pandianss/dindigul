@@ -4,7 +4,7 @@ import { REGIONAL_OFFICE_DATA, DEPARTMENTS } from '@/constants/organization';
 interface NoteDocumentProps {
     note: {
         titleEn: string;
-        contentJson: any;
+        contentJson: string | Record<string, any>;
         createdAt: string;
         preparer: { fullNameEn: string };
         type: string;
@@ -30,7 +30,7 @@ const STYLES = {
 };
 
 const NoteDocument: React.FC<NoteDocumentProps> = ({ note }) => {
-    let details: any = {};
+    let details: Record<string, any> = {};
     try {
         details = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : (note.contentJson || {});
     } catch (e) {

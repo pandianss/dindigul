@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useAuth } from '../context/AuthContext';
+import ChatPanel from '../ui/chat/ChatPanel';
 
 interface SidebarItemProps {
     icon: React.ElementType;
@@ -67,6 +68,7 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
     const { t, i18n } = useTranslation();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isChatOpen, setChatOpen] = useState(false);
 
     const changeLanguage = (lng: string) => {
         i18n.changeLanguage(lng);
@@ -189,6 +191,16 @@ const Layout: React.FC<LayoutProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-8">
+                        {portalMode === 'region' && (
+                            <button
+                                onClick={() => setChatOpen(true)}
+                                className="relative p-2 bg-gray-100/50 hover:bg-bank-navy/5 rounded-xl transition-all text-gray-400 hover:text-bank-navy"
+                                title="Group Chat"
+                            >
+                                <MessageSquare size={20} />
+                                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+                            </button>
+                        )}
                         {/* Language Switcher */}
                         <div className="flex items-center bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
                             {[
@@ -235,6 +247,9 @@ const Layout: React.FC<LayoutProps> = ({
                     </div>
                 </main>
             </div>
+            {portalMode === 'region' && (
+                <ChatPanel open={isChatOpen} onClose={() => setChatOpen(false)} />
+            )}
         </div>
     );
 };

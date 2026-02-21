@@ -40,7 +40,7 @@ const AuditManager: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [filterType, setFilterType] = useState('');
-    const [branches, setBranches] = useState<any[]>([]);
+    const [branches, setBranches] = useState<Record<string, any>[]>([]);
 
     const [form, setForm] = useState({
         auditType: 'CONCURRENT',
@@ -71,6 +71,7 @@ const AuditManager: React.FC = () => {
 
     useEffect(() => {
         fetchData();
+         
     }, [filterType]);
 
     const handleSaveObservation = async (e: React.FormEvent) => {

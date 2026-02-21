@@ -70,6 +70,7 @@ const CommitteeManager: React.FC = () => {
     };
 
     useEffect(() => {
+         
         fetchDashboardData();
     }, []);
 

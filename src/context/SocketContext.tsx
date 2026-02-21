@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { socket } from '../services/socket';
@@ -35,26 +36,34 @@ export function SocketProvider({ children }: { children: ReactNode }) {
             setMessages((prev) => [...prev, message]);
         }
 
+        function onHistory(history: Message[]) {
+            setMessages(history);
+        }
+
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
-        socket.on('message', onMessage);
+        socket.on('receive_message', onMessage);
+        socket.on('chat_history', onHistory);
 
         socket.connect();
 
         return () => {
             socket.off('connect', onConnect);
             socket.off('disconnect', onDisconnect);
-            socket.off('message', onMessage);
+            socket.off('receive_message', onMessage);
+            socket.off('chat_history', onHistory);
             socket.disconnect();
         };
     }, []);
 
     const sendMessage = (text: string, roomId = 'global') => {
-        socket.emit('send-message', { text, roomId });
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        socket.emit('send_message', { text, room: roomId, user: user.name || 'Staff' });
     };
 
     const joinRoom = (roomId: string) => {
-        socket.emit('join-room', roomId);
+        setMessages([]); // Clear chat history on room change
+        socket.emit('join_room', roomId);
     };
 
     return (

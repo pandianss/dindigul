@@ -44,7 +44,7 @@ const AssetManager: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [selectedAsset, setSelectedAsset] = useState<RegionalAsset | null>(null);
-    const [branches, setBranches] = useState<any[]>([]);
+    const [branches, setBranches] = useState<Record<string, any>[]>([]);
 
     const [form, setForm] = useState({
         assetCode: '',

@@ -98,6 +98,7 @@ const SettingsManager: React.FC = () => {
         setShowForm(false);
         setEditingItem(null);
         setFormData({});
+
     }, [activeTab]);
 
     const handleSave = async (e: React.FormEvent) => {
@@ -171,13 +172,13 @@ const SettingsManager: React.FC = () => {
     };
 
     const startEdit = (item: MasterItem) => {
-        let parsedFormData = { ...item };
+        const parsedFormData = { ...item };
 
         // Parse specialStatus if it's a JSON string
         if (activeTab === 'units' && item.specialStatus && typeof item.specialStatus === 'string') {
             try {
                 parsedFormData.specialStatus = JSON.parse(item.specialStatus);
-            } catch (e) {
+            } catch {
                 parsedFormData.specialStatus = [];
             }
         }
@@ -719,7 +720,7 @@ const SettingsManager: React.FC = () => {
                                                             </div>
                                                         );
                                                     }
-                                                } catch (e) { return null; }
+                                                } catch { return null; }
                                             })()}
                                         </div>
                                     </td>
@@ -728,7 +729,7 @@ const SettingsManager: React.FC = () => {
                                 <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.nameTa || item.fullNameTa || '-'}</td>
                                 <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.nameHi || item.fullNameHi || '-'}</td>
                                 <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
                                         <button
                                             onClick={() => startEdit(item)}
                                             className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"

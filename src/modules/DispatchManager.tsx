@@ -31,7 +31,7 @@ interface StationeryItem {
     id: string;
     nameEn: string;
     stockLevel: number;
-    movements: any[];
+    movements: Record<string, any>[];
 }
 
 const DispatchManager: React.FC = () => {
@@ -170,7 +170,7 @@ const DispatchManager: React.FC = () => {
                                         <h3 className="text-lg font-bold text-bank-navy mb-1">{item.nameEn}</h3>
                                         <div className="space-y-2 mt-4">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Recent Movement</p>
-                                            {item.movements.map((mv: any, idx: number) => (
+                                            {item.movements.map((mv: Record<string, any>, idx: number) => (
                                                 <div key={idx} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-50">
                                                     <div className="flex items-center space-x-2">
                                                         {mv.type === 'RECEIPT' ? <Plus size={12} className="text-green-500" /> : <ArrowUpRight size={12} className="text-amber-500" />}

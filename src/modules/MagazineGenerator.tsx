@@ -46,8 +46,8 @@ const MagazineGenerator: React.FC = () => {
                 const allEvents = eventsRes.data;
 
                 const monthStr = format(selectedMonth, 'yyyy-MM');
-                setNotices(allNotices.filter((n: any) => n.createdAt.startsWith(monthStr)));
-                setEvents(allEvents.filter((e: any) => e.date.startsWith(monthStr)));
+                setNotices(allNotices.filter((n: Record<string, any>) => n.createdAt.startsWith(monthStr)));
+                setEvents(allEvents.filter((e: Record<string, any>) => e.date.startsWith(monthStr)));
             } catch (error) {
                 console.error('Error fetching magazine data:', error);
             }

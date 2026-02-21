@@ -96,6 +96,25 @@ async function main() {
             return normalized;
         });
 
+        // Designations Seed Start
+        console.log(`Extracting unique designations from Staff records...`);
+        const uniqueDesignations = new Set<string>();
+        for (const record of staffRecords) {
+            if (record['Designation']) {
+                uniqueDesignations.add(record['Designation'].trim());
+            }
+        }
+
+        for (const desigName of uniqueDesignations) {
+            const desigCode = desigName.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+            await prisma.designation.upsert({
+                where: { code: desigCode },
+                update: { nameEn: desigName },
+                create: { code: desigCode, nameEn: desigName, workId: 0 }
+            });
+        }
+        console.log('DESIGNATIONS UPSERTED');
+
         console.log(`Total staff records in CSV: ${staffRecords.length}`);
         const roStaffIds: string[] = [];
 
@@ -112,12 +131,16 @@ async function main() {
             const isIline = designation.includes('I line');
             const isIIline = designation.includes('II line');
 
+            const desigCode = designation.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+            const desigRecord = designation ? await prisma.designation.findUnique({ where: { code: desigCode } }) : null;
+
             const user = await prisma.user.upsert({
                 where: { username: roll },
                 update: {
                     fullNameEn: record['Name'],
                     grade: record['Grade'],
                     branchId: branch.id,
+                    designationId: desigRecord?.id || null,
                     isRegionHead: isSRM,
                     isSecondLine: isIIline,
                     role: isSRM || designation.includes('CHIEF MANAGER') ? 'RO_MANAGER' : (brCode === '3933' ? 'SECTION_USER' : 'BRANCH_USER')
@@ -128,14 +151,15 @@ async function main() {
                     fullNameEn: record['Name'],
                     grade: record['Grade'],
                     branchId: branch.id,
+                    designationId: desigRecord?.id || null,
                     isRegionHead: isSRM,
                     isSecondLine: isIIline,
                     role: isSRM || designation.includes('CHIEF MANAGER') ? 'RO_MANAGER' : (brCode === '3933' ? 'SECTION_USER' : 'BRANCH_USER')
                 }
             });
 
-            if (isIline && !isSRM) { await prisma.branch.update({ where: { id: branch.id }, data: { headUserId: user.id } }); }
-            if (isIIline && !isSRM && brCode !== '3933') { await prisma.branch.update({ where: { id: branch.id }, data: { secondLineUserId: user.id } }); }
+            if (isIline && !isSRM) { await prisma.branch.update({ where: { id: branch.id }, data: { headUser: { connect: { id: user.id } } } }); }
+            if (isIIline && !isSRM && brCode !== '3933') { await prisma.branch.update({ where: { id: branch.id }, data: { secondLineUser: { connect: { id: user.id } } } }); }
 
             if (brCode === '3933') roStaffIds.push(user.id);
             if (i % 50 === 0) console.log(`Processed ${i} staff...`);

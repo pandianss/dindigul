@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 export type Role = 'ADMIN' | 'RO' | 'BRANCH' | 'GUEST';
@@ -18,15 +19,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored session/token
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
     // Set dummy user for now if needed, or just let it be null
     // setUser({ name: 'Anand Kumar', role: 'RO' });
     setIsLoading(false);

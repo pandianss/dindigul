@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -30,6 +30,8 @@ model User {
   headedBranch     Branch? @relation("BranchHead")
   secondLineBranch Branch? @relation("BranchSecondLine")
 
+  departmentId     String?
+  department       Department? @relation("UserDepartment", fields: [departmentId], references: [id])
   departments      Department[] @relation("UserDepartments")
   managedDepartments Department[] @relation("DepartmentHeads")
 
@@ -150,6 +152,7 @@ model Department {
   nameTa    String?
   nameHi    String?
   users     User[]   @relation("UserDepartments")
+  mainUsers User[]   @relation("UserDepartment")
   heads     User[]   @relation("DepartmentHeads")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -33,7 +33,7 @@ const MISUpload: React.FC = () => {
                 } else {
                     setMessage({ type: 'error', text: data.error || 'Upload failed' });
                 }
-            } catch (error) {
+            } catch {
                 setMessage({ type: 'error', text: 'Network error during upload' });
             } finally {
                 setUploading(false);

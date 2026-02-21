@@ -87,6 +87,7 @@ const LegalManager: React.FC = () => {
     };
 
     useEffect(() => {
+         
         fetchData();
     }, []);
 

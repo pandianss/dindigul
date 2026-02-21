@@ -52,7 +52,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
@@ -87,15 +87,29 @@ const io = new Server(httpServer, {
     }
 });
 
+// In-memory chat history per room (keeps last 100 messages)
+const chatHistory = new Map<string, any[]>();
+
 io.on('connection', (socket: Socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
     socket.on('join_room', (room: string) => {
         socket.join(room);
+        const history = chatHistory.get(room) || [];
+        // Send history directly back to the joining socket
+        socket.emit('chat_history', history);
     });
 
     socket.on('send_message', (data: { room: string;[key: string]: any }) => {
-        io.to(data.room || 'global').emit('receive_message', data);
+        const targetRoom = data.room || 'global';
+
+        // Store in memory
+        const history = chatHistory.get(targetRoom) || [];
+        history.push(data);
+        if (history.length > 100) history.shift();
+        chatHistory.set(targetRoom, history);
+
+        io.to(targetRoom).emit('receive_message', data);
     });
 
     socket.on('disconnect', () => {

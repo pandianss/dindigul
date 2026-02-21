@@ -178,13 +178,13 @@ async function main() {
             if (isIline && !isSRM) {
                 await prisma.branch.update({
                     where: { id: branch.id },
-                    data: { headUserId: user.id }
+                    data: { headUser: { connect: { id: user.id } } }
                 });
             }
             if (isIIline && !isSRM && brCode !== '3933') {
                 await prisma.branch.update({
                     where: { id: branch.id },
-                    data: { secondLineUserId: user.id }
+                    data: { secondLineUser: { connect: { id: user.id } } }
                 });
             }
 

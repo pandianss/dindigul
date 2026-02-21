@@ -66,11 +66,11 @@ const RequestManager: React.FC = () => {
         setLoading(true);
         const query = viewMode === 'RO' ? '?assignedSection=IT' : '?branchId=B001'; // Mock filters
         api.get(`/requests${query}`)
-            .then(res => {
+            .then((res: Record<string, any>) => {
                 setRequests(res.data);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err: unknown) => {
                 console.error('Error fetching requests:', err);
                 setLoading(false);
             });
@@ -78,6 +78,7 @@ const RequestManager: React.FC = () => {
 
     useEffect(() => {
         fetchRequests();
+         
     }, [viewMode]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -100,7 +101,7 @@ const RequestManager: React.FC = () => {
             await api.patch(`/requests/${id}`, { status });
             fetchRequests();
             if (selectedRequest?.id === id) {
-                setSelectedRequest(prev => prev ? { ...prev, status: status as any } : null);
+                setSelectedRequest(prev => prev ? { ...prev, status: status as BranchRequest['status'] } : null);
             }
         } catch (error) {
             console.error('Error updating status:', error);

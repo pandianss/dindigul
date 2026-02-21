@@ -20,7 +20,7 @@ type ChartType = "line" | "bar" | "area" | "pie" | "heatmap";
 
 interface Props {
     type: ChartType;
-    dataset: any[];
+    dataset: Record<string, any>[];
     xKey: string;
     yKey: string;
     height?: number;
