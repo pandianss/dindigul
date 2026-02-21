@@ -2,13 +2,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bank-navy: #1B3A6B;
-  --color-bank-gold: #C5A059;
-  --color-bank-teal: #008080;
+  --color-bank-navy: #21357f;
+  --color-bank-gold: #D4AF37;
+  --color-bank-teal: #00A693;
 
-  --color-iron-navy: #1B3A6B;
-  --color-iron-gold: #C5A059;
-  --color-iron-teal: #008080;
+  --color-iron-navy: #21357f;
+  --color-iron-gold: #D4AF37;
+  --color-iron-teal: #00A693;
 
   --font-sans: "Inter", "Arial", sans-serif;
   --font-tamil: "Noto Sans Tamil", sans-serif;
@@ -16,9 +16,9 @@
 }
 
 :root {
-  --bank-navy: #1B3A6B;
-  --bank-gold: #C5A059;
-  --bank-teal: #008080;
+  --bank-navy: #21357f;
+  --bank-gold: #D4AF37;
+  --bank-teal: #00A693;
 }
 
 @layer base {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { getErrorMessage } from '../utils/handleError';
 import {
     Settings,
     Building2,
@@ -15,12 +16,20 @@ import {
 
 type Tab = 'departments' | 'units' | 'designations' | 'staff';
 
+interface Department { id: string; nameEn: string; nameTa?: string; nameHi?: string; code: string; }
+interface Branch { id: string; code: string; nameEn: string; nameTa?: string; nameHi?: string; type: string; populationGroup?: string; address?: string; riskCategory?: string; riskEffectiveDate?: string; specialStatus?: string | string[]; officeId?: number; }
+interface Designation { id: string; nameEn: string; nameTa?: string; nameHi?: string; code: string; workId?: number; }
+interface StaffUser { id: string; username: string; fullNameEn: string; fullNameTa?: string; fullNameHi?: string; role: string; branchId?: string; photo?: { data: string }; photoData?: string | ArrayBuffer | null; }
+
+type TabData = Department | Branch | Designation | StaffUser;
+
 const SettingsManager: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('departments');
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<TabData[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState<any | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Form States
     const [formData, setFormData] = useState<any>({});
@@ -39,7 +48,7 @@ const SettingsManager: React.FC = () => {
             const json = res.data;
             setData(json);
         } catch (err) {
-            console.error('Fetch error:', err);
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -73,7 +82,7 @@ const SettingsManager: React.FC = () => {
                 fetchData();
             }
         } catch (err) {
-            console.error('Save error:', err);
+            setError(getErrorMessage(err));
         }
     };
 
@@ -84,7 +93,7 @@ const SettingsManager: React.FC = () => {
             await api.delete(`${endpoint}/${id}`);
             fetchData();
         } catch (err) {
-            console.error('Delete error:', err);
+            setError(getErrorMessage(err));
         }
     };
 
@@ -478,6 +487,12 @@ const SettingsManager: React.FC = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+            )}
+
+            {error && (
+                <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 font-bold mb-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    {error}
                 </div>
             )}
 

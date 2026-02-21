@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 router.post('/register', async (req, res) => {
@@ -38,7 +38,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { id: user.id, username: user.username, role: user.role },
             JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '8h' }
         );
 
         res.json({

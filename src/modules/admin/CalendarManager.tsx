@@ -71,43 +71,43 @@ const CalendarManager: React.FC = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="card p-4 flex items-center space-x-4">
-                    <div className="bg-bank-navy bg-opacity-10 p-3 rounded-lg text-bank-navy">
-                        <CalendarIcon size={24} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+                <div className="card p-3 xl:p-4 flex items-center space-x-3 xl:space-x-4">
+                    <div className="bg-bank-navy bg-opacity-10 p-2 xl:p-3 rounded-lg text-bank-navy shrink-0">
+                        <CalendarIcon size={20} className="xl:w-6 xl:h-6" />
                     </div>
-                    <div>
-                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">FY Working Days</div>
-                        <div className="text-xl font-bold text-bank-navy">
+                    <div className="min-w-0">
+                        <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">FY Working Days</div>
+                        <div className="text-lg xl:text-xl font-black text-bank-navy truncate">
                             {stats.fy.elapsed} / {stats.fy.total}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-medium">1 April - 31 March</div>
+                        <div className="text-[9px] text-gray-400 font-medium truncate">1 April - 31 March</div>
                     </div>
                 </div>
 
-                <div className="card p-4 flex items-center space-x-4">
-                    <div className="bg-bank-teal bg-opacity-10 p-3 rounded-lg text-bank-teal">
-                        <Settings size={24} />
+                <div className="card p-3 xl:p-4 flex items-center space-x-3 xl:space-x-4">
+                    <div className="bg-bank-teal bg-opacity-10 p-2 xl:p-3 rounded-lg text-bank-teal shrink-0">
+                        <Settings size={20} className="xl:w-6 xl:h-6" />
                     </div>
-                    <div>
-                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Quarter Pace</div>
-                        <div className="text-xl font-bold text-bank-navy">
+                    <div className="min-w-0">
+                        <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">Quarter Pace</div>
+                        <div className="text-lg xl:text-xl font-black text-bank-navy truncate">
                             {((stats.quarter.elapsed / stats.quarter.total) * 100).toFixed(1)}%
                         </div>
-                        <div className="text-[10px] text-gray-400 font-medium">Q2: {stats.quarter.elapsed} of {stats.quarter.total} days</div>
+                        <div className="text-[9px] text-gray-400 font-medium truncate">Q2: {stats.quarter.elapsed} of {stats.quarter.total}</div>
                     </div>
                 </div>
 
-                <div className="card p-4 flex items-center space-x-4">
-                    <div className="bg-bank-gold bg-opacity-10 p-3 rounded-lg text-bank-gold">
-                        <Info size={24} />
+                <div className="card p-3 xl:p-4 flex items-center space-x-3 xl:space-x-4 sm:col-span-2 xl:col-span-1">
+                    <div className="bg-bank-gold bg-opacity-10 p-2 xl:p-3 rounded-lg text-bank-gold shrink-0">
+                        <Info size={20} className="xl:w-6 xl:h-6" />
                     </div>
-                    <div>
-                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Current Month</div>
-                        <div className="text-xl font-bold text-bank-navy">
+                    <div className="min-w-0">
+                        <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate">Current Month</div>
+                        <div className="text-lg xl:text-xl font-black text-bank-navy truncate">
                             {stats.month.elapsed} / {stats.month.total}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-medium">{format(currentMonth, 'MMMM yyyy')}</div>
+                        <div className="text-[9px] text-gray-400 font-medium truncate">{format(currentMonth, 'MMMM yyyy')}</div>
                     </div>
                 </div>
             </div>

@@ -4,8 +4,15 @@ import App from './App.tsx'
 import './index.css'
 import './i18n/config'
 
+import { AuthProvider } from './context/AuthContext'
+import { SocketProvider } from './context/SocketContext'
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <SocketProvider>
+        <App />
+      </SocketProvider>
+    </AuthProvider>
   </React.StrictMode>,
 )

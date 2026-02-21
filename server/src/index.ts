@@ -23,12 +23,12 @@ import calendarRoutes from './routes/calendar';
 import departmentRoutes from './routes/department';
 import designationRoutes from './routes/designation';
 import unitRoutes from './routes/unit';
-import { PrismaClient } from '@prisma/client';
+import prisma from './lib/prisma';
 
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient(); // Removed in favor of shared prisma
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
@@ -94,7 +94,7 @@ io.on('connection', (socket: Socket) => {
         socket.join(room);
     });
 
-    socket.on('send_message', (data: any) => {
+    socket.on('send_message', (data: { room: string;[key: string]: any }) => {
         io.to(data.room || 'global').emit('receive_message', data);
     });
 

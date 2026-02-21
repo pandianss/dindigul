@@ -1,123 +1,108 @@
-import { useState, useEffect } from 'react'
-import Layout from './components/Layout'
-import CalendarManager from './modules/admin/CalendarManager'
-import { useTranslation } from 'react-i18next'
-import MISUpload from './modules/admin/MISUpload'
-import NoticeBoard from './modules/NoticeBoard'
-import CorrespondenceCenter from './modules/CorrespondenceCenter'
-import OfficeNoteManager from './modules/OfficeNoteManager'
-import RequestManager from './modules/RequestManager'
-import CommitteeManager from './modules/CommitteeManager'
-import DispatchManager from './modules/DispatchManager';
-import ExpenditureManager from './modules/ExpenditureManager';
-import LegalManager from './modules/LegalManager';
-import AuditManager from './modules/AuditManager';
-import AssetManager from './modules/AssetManager';
-import MagazineGenerator from './modules/MagazineGenerator';
-import api from './services/api';
-import SettingsManager from './modules/SettingsManager';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from './context/AuthContext';
+import Layout from './components/Layout';
+import LoginScreen from './components/LoginScreen';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-interface Snapshot {
-  id: string;
-  value: number;
-  budget: number | null;
-  status: string;
-  parameter: {
-    code: string;
-    nameEn: string;
-    unit: string;
-  };
-}
+// Modules
+import NoticeBoard from './modules/NoticeBoard';
+import MISUpload from './modules/admin/MISUpload';
+import OfficeNoteManager from './modules/OfficeNoteManager';
+import SettingsManager from './modules/SettingsManager';
+import AssetManager from './modules/AssetManager';
+import CalendarManager from './modules/admin/CalendarManager';
 
 function App() {
-  const { t } = useTranslation();
-  const [activeView, setActiveView] = useState('dashboard');
-  const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
-  const [loading, setLoading] = useState(true);
+    const { t } = useTranslation();
+    const { user, login, isLoading } = useAuth();
+    const [activeView, setActiveView] = useState('dashboard');
 
-  useEffect(() => {
-    api.get('/mis/snapshots')
-      .then(res => {
-        setSnapshots(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching snapshots:', err);
-        setLoading(false);
-      });
-  }, []);
-
-  const getSnapshot = (code: string) => snapshots.find(s => s.parameter.code === code);
-
-  return (
-    <Layout activeView={activeView} onViewChange={setActiveView}>
-      {activeView === 'dashboard' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-bank-navy">Regional Snapshot</h2>
-            <div className="flex space-x-3 text-sm font-medium text-gray-500">
-              <span>FY: 2025-26</span>
-              <span>|</span>
-              <span>{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-bank-navy flex flex-col items-center justify-center p-6">
+                <div className="w-16 h-16 border-4 border-bank-teal/20 border-t-bank-teal rounded-full animate-spin mb-4" />
+                <p className="text-white/50 animate-pulse font-bold tracking-widest text-[10px] uppercase">Decrypting Terminal Session...</p>
             </div>
-          </div>
+        );
+    }
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { code: 'TOTAL_DEPOSITS', label: 'mis.totalDeposits', color: 'amber' },
-              { code: 'TOTAL_ADVANCES', label: 'mis.totalAdvances', color: 'bank-teal' },
-              { code: 'CASA_RATIO', label: 'mis.casaRatio', color: 'blue' },
-              { code: 'GROSS_NPA', label: 'mis.grossNpa', color: 'red' }
-            ].map(param => {
-              const snapshot = getSnapshot(param.code);
-              return (
-                <div key={param.code} className="card p-6">
-                  <h3 className="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-1">{t(param.label)}</h3>
-                  <div className="text-2xl font-bold text-bank-navy">
-                    {snapshot ? `₹ ${snapshot.value.toLocaleString()} ${snapshot.parameter.unit}` : loading ? '...' : '--'}
-                  </div>
-                  {snapshot && (
-                    <div className={`mt-2 text-xs font-bold text-${snapshot.status === 'SURPASSED' ? 'green' : 'red'}-600 bg-${snapshot.status === 'SURPASSED' ? 'green' : 'red'}-50 inline-block px-2 py-1 rounded`}>
-                      {t(`status.${snapshot.status.toLowerCase()}`)}
+    if (!user) {
+        return <LoginScreen onLogin={login} />;
+    }
+
+    const renderModule = () => {
+        switch (activeView) {
+            case 'dashboard':
+                return (
+                    <div className="space-y-8">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-3xl font-black text-bank-navy tracking-tight">{t('nav.dashboard')}</h2>
+                                <p className="text-gray-500 mt-1 font-medium italic">Welcome to the Regional Operations Command Center</p>
+                            </div>
+                            <div className="px-4 py-2 bg-bank-gold/10 border border-bank-gold/20 rounded-xl">
+                                <span className="text-[10px] font-black text-bank-gold uppercase tracking-widest inline-flex items-center">
+                                    <span className="w-1.5 h-1.5 bg-bank-gold rounded-full mr-2 animate-ping" />
+                                    Live System Status: Secured
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-8">
+                                <ErrorBoundary>
+                                    <NoticeBoard />
+                                </ErrorBoundary>
+                            </div>
+                            <div className="space-y-8">
+                                <div className="card p-6 bg-bank-navy text-white relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
+                                    <h3 className="text-lg font-black uppercase tracking-tight mb-4 relative z-10">Quick Actions</h3>
+                                    <div className="grid grid-cols-2 gap-3 relative z-10">
+                                        <button onClick={() => setActiveView('officeNotes')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">New Note</button>
+                                        <button onClick={() => setActiveView('mis')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">MIS Upload</button>
+                                    </div>
+                                </div>
+                                <ErrorBoundary>
+                                    <CalendarManager />
+                                </ErrorBoundary>
+                            </div>
+                        </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+            case 'noticeBoard':
+                return <ErrorBoundary><NoticeBoard /></ErrorBoundary>;
+            case 'mis':
+                return <ErrorBoundary><MISUpload /></ErrorBoundary>;
+            case 'officeNotes':
+                return <ErrorBoundary><OfficeNoteManager /></ErrorBoundary>;
+            case 'settings':
+                return <ErrorBoundary><SettingsManager /></ErrorBoundary>;
+            case 'assets':
+                return <ErrorBoundary><AssetManager /></ErrorBoundary>;
+            case 'calendar':
+                return <ErrorBoundary><CalendarManager /></ErrorBoundary>;
+            default:
+                return (
+                    <div className="flex flex-col items-center justify-center py-20 card bg-gray-50/50 border-dashed">
+                        <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300 mb-4">
+                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-400">Module Under Construction</h3>
+                        <p className="text-gray-400 text-sm mt-1">This operational area is currently being provisioned.</p>
+                    </div>
+                );
+        }
+    };
 
-          <div className="card p-8 bg-bank-navy text-white flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold mb-2">Welcome Back, RO Administrator</h2>
-              <p className="text-blue-100 text-sm max-w-lg">
-                The regional MIS has been updated as of 06:45 AM today.
-                3 branches have triggered Operational Risk alerts. Please review the explanation letters.
-              </p>
-            </div>
-            <button className="bg-bank-gold text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-lg ring-2 ring-white ring-offset-2 ring-offset-bank-navy">
-              Review Alerts
-            </button>
-          </div>
-        </div>
-      )}
-
-      {activeView === 'calendar' && <CalendarManager />}
-      {activeView === 'mis' && <MISUpload />}
-      {activeView === 'noticeBoard' && <NoticeBoard />}
-      {activeView === 'letters' && <CorrespondenceCenter />}
-      {activeView === 'officeNotes' && <OfficeNoteManager />}
-      {activeView === 'requests' && <RequestManager />}
-      {activeView === 'committees' && <CommitteeManager />}
-      {activeView === 'dispatch' && <DispatchManager />}
-      {activeView === 'expenditure' && <ExpenditureManager />}
-      {activeView === 'legal' && <LegalManager />}
-      {activeView === 'audit' && <AuditManager />}
-      {activeView === 'assets' && <AssetManager />}
-
-      {activeView === 'magazine' && <MagazineGenerator />}
-      {activeView === 'settings' && <SettingsManager />}
-    </Layout>
-  )
+    return (
+        <Layout activeView={activeView} onViewChange={setActiveView}>
+            {renderModule()}
+        </Layout>
+    );
 }
 
-export default App
+export default App;
