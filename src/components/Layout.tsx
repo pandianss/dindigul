@@ -54,9 +54,17 @@ interface LayoutProps {
     children: React.ReactNode;
     activeView: string;
     onViewChange: (view: string) => void;
+    portalMode: 'guest' | 'region';
+    onExitPortal: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange }) => {
+const Layout: React.FC<LayoutProps> = ({
+    children,
+    activeView,
+    onViewChange,
+    portalMode,
+    onExitPortal
+}) => {
     const { t, i18n } = useTranslation();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
 
@@ -69,21 +77,32 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange }) =
     const menuItems = [
         { icon: LayoutDashboard, label: t('nav.dashboard'), key: 'dashboard' },
         { icon: Bell, label: t('nav.noticeBoard'), key: 'noticeBoard' },
-        { icon: BarChart3, label: t('nav.mis'), key: 'mis' },
-        { icon: FileText, label: t('nav.officeNotes'), key: 'officeNotes' },
-        { icon: MessageSquare, label: t('nav.requests'), key: 'requests' },
+        { icon: BarChart3, label: t('nav.mis'), key: 'mis', restricted: true },
+        { icon: FileText, label: t('nav.officeNotes'), key: 'officeNotes', restricted: true },
+        { icon: MessageSquare, label: t('nav.requests'), key: 'requests', restricted: true },
         { icon: Calendar, label: t('nav.calendar'), key: 'calendar' },
-        { icon: IndianRupee, label: t('nav.expenditure'), key: 'expenditure' },
-        { icon: Scale, label: t('nav.legal'), key: 'legal' },
-        { icon: ShieldCheck, label: t('nav.audit'), key: 'audit' },
-        { icon: Package, label: t('nav.assets'), key: 'assets' },
+        { icon: IndianRupee, label: t('nav.expenditure'), key: 'expenditure', restricted: true },
+        { icon: Scale, label: t('nav.legal'), key: 'legal', restricted: true },
+        { icon: ShieldCheck, label: t('nav.audit'), key: 'audit', restricted: true },
+        { icon: Package, label: t('nav.assets'), key: 'assets', restricted: true },
     ];
+
+    const visibleItems = portalMode === 'guest'
+        ? menuItems.filter(item => !item.restricted)
+        : menuItems;
 
     const allItems = [
         ...menuItems,
         { key: 'settings', label: t('nav.settings'), icon: Settings }
     ];
     const currentTitle = allItems.find(item => item.key === activeView)?.label ?? t('nav.dashboard');
+
+    const handleExit = () => {
+        if (portalMode === 'region') {
+            logout();
+        }
+        onExitPortal();
+    };
 
     return (
         <div className="flex h-screen bg-[#FDFDFD] text-gray-900 overflow-hidden font-sans" lang={i18n.language}>
@@ -96,15 +115,16 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange }) =
                     <img
                         src={isSidebarOpen ? "/assets/logo_full.svg" : "/assets/logo_center.svg"}
                         alt="Logo"
+                        onClick={onExitPortal}
                         className={cn(
-                            "h-8 transition-all duration-500 shrink-0",
+                            "h-8 transition-all duration-500 shrink-0 cursor-pointer hover:scale-105",
                             isSidebarOpen ? "w-auto" : "w-8 object-contain scale-125"
                         )}
                     />
                 </div>
 
                 <nav className="flex-1 overflow-y-auto px-2 py-6 space-y-1 custom-scrollbar">
-                    {menuItems.map((item) => (
+                    {visibleItems.map((item) => (
                         <button
                             key={item.key}
                             onClick={() => onViewChange(item.key)}
@@ -121,24 +141,30 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange }) =
                 </nav>
 
                 <div className="p-2 pb-6 space-y-1 border-t border-gray-50 bg-gray-50/30">
-                    <button
-                        onClick={() => onViewChange('settings')}
-                        className="w-full text-left"
-                    >
-                        <SidebarItem
-                            icon={Settings}
-                            label={t('nav.settings')}
-                            active={activeView === 'settings'}
-                            minimized={!isSidebarOpen}
-                        />
-                    </button>
-                    <button onClick={logout} className="w-full text-left group mt-1">
+                    {portalMode === 'region' && (
+                        <button
+                            onClick={() => onViewChange('settings')}
+                            className="w-full text-left"
+                        >
+                            <SidebarItem
+                                icon={Settings}
+                                label={t('nav.settings')}
+                                active={activeView === 'settings'}
+                                minimized={!isSidebarOpen}
+                            />
+                        </button>
+                    )}
+                    <button onClick={handleExit} className="w-full text-left group mt-1">
                         <div className={cn(
                             "nav-item flex items-center text-red-500/70 hover:bg-red-50 hover:text-red-600 transition-all rounded-lg",
                             isSidebarOpen ? "gap-3 px-4 py-3 mx-2" : "justify-center px-0 mx-0 h-12 w-12 mx-auto"
                         )}>
                             <LogOut size={18} className={cn("shrink-0 transition-transform", isSidebarOpen && "group-hover:-translate-x-1")} />
-                            {isSidebarOpen && <span className="flex-1 font-bold text-sm tracking-tight">{t('nav.logout')}</span>}
+                            {isSidebarOpen && (
+                                <span className="flex-1 font-bold text-sm tracking-tight">
+                                    {portalMode === 'guest' ? 'Exit Portal' : t('nav.logout')}
+                                </span>
+                            )}
                         </div>
                     </button>
                 </div>

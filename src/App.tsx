@@ -1,22 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import LoginScreen from './components/LoginScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Modules
-import NoticeBoard from './modules/NoticeBoard';
-import MISUpload from './modules/admin/MISUpload';
-import OfficeNoteManager from './modules/OfficeNoteManager';
-import SettingsManager from './modules/SettingsManager';
-import AssetManager from './modules/AssetManager';
-import CalendarManager from './modules/admin/CalendarManager';
+// Lazy load major modules
+const PortalLanding = lazy(() => import('./modules/PortalLanding'));
+const NoticeBoard = lazy(() => import('./modules/NoticeBoard'));
+const MISUpload = lazy(() => import('./modules/admin/MISUpload'));
+const OfficeNoteManager = lazy(() => import('./modules/OfficeNoteManager'));
+const SettingsManager = lazy(() => import('./modules/SettingsManager'));
+const AssetManager = lazy(() => import('./modules/AssetManager'));
+const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
+
+// Loading fallback component
+const ModuleLoader = () => (
+    <div className="flex flex-col items-center justify-center py-20 bg-gray-50/30 rounded-2xl border border-dashed border-gray-200 animate-pulse">
+        <div className="w-10 h-10 border-4 border-bank-teal/20 border-t-bank-teal rounded-full animate-spin mb-3" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-bank-teal/50">Initializing Module...</p>
+    </div>
+);
 
 function App() {
     const { t } = useTranslation();
     const { user, login, isLoading } = useAuth();
     const [activeView, setActiveView] = useState('dashboard');
+    const [portalMode, setPortalMode] = useState<'landing' | 'guest' | 'region'>('landing');
+
+    // Auto-select portal if already logged in
+    useEffect(() => {
+        if (user) {
+            setPortalMode('region');
+        }
+    }, [user]);
 
     if (isLoading) {
         return (
@@ -27,11 +44,26 @@ function App() {
         );
     }
 
-    if (!user) {
+    // Portal Selection Entry Point
+    if (portalMode === 'landing') {
+        return (
+            <Suspense fallback={<ModuleLoader />}>
+                <PortalLanding onSelectPortal={(mode) => setPortalMode(mode)} />
+            </Suspense>
+        );
+    }
+
+    // Regional User Portal (Requires Login)
+    if (portalMode === 'region' && !user) {
         return <LoginScreen onLogin={login} />;
     }
 
     const renderModule = () => {
+        // Guest mode has limited modules
+        if (portalMode === 'guest' && !['dashboard', 'noticeBoard', 'calendar'].includes(activeView)) {
+            setActiveView('dashboard');
+        }
+
         switch (activeView) {
             case 'dashboard':
                 return (
@@ -39,12 +71,14 @@ function App() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-3xl font-black text-bank-navy tracking-tight">{t('nav.dashboard')}</h2>
-                                <p className="text-gray-500 mt-1 font-medium italic">Welcome to the Regional Operations Command Center</p>
+                                <p className="text-gray-500 mt-1 font-medium italic">
+                                    {portalMode === 'guest' ? 'Public Information Access' : 'Welcome to the Regional Operations Command Center'}
+                                </p>
                             </div>
                             <div className="px-4 py-2 bg-bank-gold/10 border border-bank-gold/20 rounded-xl">
                                 <span className="text-[10px] font-black text-bank-gold uppercase tracking-widest inline-flex items-center">
                                     <span className="w-1.5 h-1.5 bg-bank-gold rounded-full mr-2 animate-ping" />
-                                    Live System Status: Secured
+                                    {portalMode === 'guest' ? 'Public Access Session' : 'Live System Status: Secured'}
                                 </span>
                             </div>
                         </div>
@@ -52,37 +86,43 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2 space-y-8">
                                 <ErrorBoundary>
-                                    <NoticeBoard />
+                                    <Suspense fallback={<ModuleLoader />}>
+                                        <NoticeBoard />
+                                    </Suspense>
                                 </ErrorBoundary>
                             </div>
                             <div className="space-y-8">
-                                <div className="card p-6 bg-bank-navy text-white relative overflow-hidden group">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
-                                    <h3 className="text-lg font-black uppercase tracking-tight mb-4 relative z-10">Quick Actions</h3>
-                                    <div className="grid grid-cols-2 gap-3 relative z-10">
-                                        <button onClick={() => setActiveView('officeNotes')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">New Note</button>
-                                        <button onClick={() => setActiveView('mis')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">MIS Upload</button>
+                                {portalMode === 'region' && (
+                                    <div className="card p-6 bg-bank-navy text-white relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
+                                        <h3 className="text-lg font-black uppercase tracking-tight mb-4 relative z-10">Quick Actions</h3>
+                                        <div className="grid grid-cols-2 gap-3 relative z-10">
+                                            <button onClick={() => setActiveView('officeNotes')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">New Note</button>
+                                            <button onClick={() => setActiveView('mis')} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">MIS Upload</button>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                                 <ErrorBoundary>
-                                    <CalendarManager />
+                                    <Suspense fallback={<ModuleLoader />}>
+                                        <CalendarManager />
+                                    </Suspense>
                                 </ErrorBoundary>
                             </div>
                         </div>
                     </div>
                 );
             case 'noticeBoard':
-                return <ErrorBoundary><NoticeBoard /></ErrorBoundary>;
+                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><NoticeBoard /></Suspense></ErrorBoundary>;
             case 'mis':
-                return <ErrorBoundary><MISUpload /></ErrorBoundary>;
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MISUpload /></Suspense></ErrorBoundary> : null;
             case 'officeNotes':
-                return <ErrorBoundary><OfficeNoteManager /></ErrorBoundary>;
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><OfficeNoteManager /></Suspense></ErrorBoundary> : null;
             case 'settings':
-                return <ErrorBoundary><SettingsManager /></ErrorBoundary>;
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><SettingsManager /></Suspense></ErrorBoundary> : null;
             case 'assets':
-                return <ErrorBoundary><AssetManager /></ErrorBoundary>;
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AssetManager /></Suspense></ErrorBoundary> : null;
             case 'calendar':
-                return <ErrorBoundary><CalendarManager /></ErrorBoundary>;
+                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CalendarManager /></Suspense></ErrorBoundary>;
             default:
                 return (
                     <div className="flex flex-col items-center justify-center py-20 card bg-gray-50/50 border-dashed">
@@ -99,7 +139,12 @@ function App() {
     };
 
     return (
-        <Layout activeView={activeView} onViewChange={setActiveView}>
+        <Layout
+            activeView={activeView}
+            onViewChange={setActiveView}
+            portalMode={portalMode}
+            onExitPortal={() => setPortalMode('landing')}
+        >
             {renderModule()}
         </Layout>
     );

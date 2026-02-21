@@ -42,6 +42,14 @@ model User {
   comments         Comment[]
   actionPoints     ActionPoint[]
   postingHistory   PostingHistory[]
+  
+  // Chat relations
+  chatMemberships  ChatMember[]
+  createdChatGroups ChatGroup[]
+  messagesSent     ChatMessage[]
+  messageAcks      MessageAck[]
+  auditLogs        ChatAuditLog[]
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -489,4 +497,78 @@ model PostingHistory {
   createdAt     DateTime    @default(now())
 
   @@map("posting_history")
+}
+
+model ChatGroup {
+  id               String       @id @default(uuid())
+  name             String
+  type             String       @default("CUSTOM") // DEFAULT, CUSTOM, DISTRICT, POPULATION
+  announcementMode Boolean      @default(false)
+  createdBy        String?
+  creator          User?        @relation(fields: [createdBy], references: [id])
+  members          ChatMember[]
+  messages         ChatMessage[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("chat_groups")
+}
+
+model ChatMember {
+  id           String    @id @default(uuid())
+  groupId      String
+  group        ChatGroup @relation(fields: [groupId], references: [id])
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  roleInGroup  String    @default("MEMBER") // GROUP_ADMIN, MEMBER
+  isMuted      Boolean   @default(false)
+  isSuspended  Boolean   @default(false)
+  suspendedBy  String?
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([groupId, userId])
+  @@map("chat_group_members")
+}
+
+model ChatMessage {
+  id               String       @id @default(uuid())
+  groupId          String
+  group            ChatGroup    @relation(fields: [groupId], references: [id])
+  senderId         String
+  sender           User         @relation(fields: [senderId], references: [id])
+  content          String
+  messageType      String       @default("TEXT") // TEXT, DIRECTIVE, MEDIA, SYSTEM
+  classification   String?      // General, Urgent, Compliance
+  correlationId    String?      @unique
+  softDeleteAt     DateTime?
+  acks             MessageAck[]
+  createdAt        DateTime     @default(now())
+
+  @@map("chat_messages")
+}
+
+model MessageAck {
+  id               String      @id @default(uuid())
+  messageId        String
+  message          ChatMessage @relation(fields: [messageId], references: [id])
+  userId           String
+  user             User        @relation(fields: [userId], references: [id])
+  acknowledgedAt   DateTime    @default(now())
+  correlationId    String?
+
+  @@unique([messageId, userId])
+  @@map("chat_message_acks")
+}
+
+model ChatAuditLog {
+  id            String   @id @default(uuid())
+  actorId       String
+  actor         User     @relation(fields: [actorId], references: [id])
+  action        String   // USER_SUSPENDED, GROUP_CREATED, ROLE_UPDATED, MSG_DELETED
+  targetId      String?  // Id of the affected user/group/msg
+  details       String?  // JSON string for metadata
+  correlationId String?
+  timestamp     DateTime @default(now())
+
+  @@map("chat_audit_logs")
 }

@@ -8,6 +8,21 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          charts: ['echarts', 'recharts'],
+          i18n: ['i18next', 'react-i18next']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+    exclude: ['echarts', 'recharts']
+  },
+  cacheDir: 'node_modules/.vite',
   server: {
     proxy: {
       '/api': {
