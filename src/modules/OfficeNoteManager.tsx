@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Clock, User, Download, Eye, Building2, IndianRupee, LayoutDashboard } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
+import { getErrorMessage } from '../utils/handleError';
+
 
 interface OfficeNote {
     id: string;
@@ -39,7 +41,7 @@ const OfficeNoteManager: React.FC = () => {
                 setLoading(false);
             })
             .catch(err => {
-                console.error('Error fetching notes:', err);
+                alert(getErrorMessage(err));
                 setLoading(false);
             });
     };
@@ -66,7 +68,7 @@ const OfficeNoteManager: React.FC = () => {
             });
             fetchNotes();
         } catch (error) {
-            console.error('Error creating note:', error);
+            alert(getErrorMessage(error));
         }
     };
 
@@ -83,8 +85,7 @@ const OfficeNoteManager: React.FC = () => {
             link.click();
             link.remove();
         } catch (error) {
-            console.error('Error downloading PDF:', error);
-            alert('Failed to generate PDF. Is the background server running?');
+            alert(getErrorMessage(error));
         }
     };
 

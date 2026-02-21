@@ -16,23 +16,40 @@ import {
 
 type Tab = 'departments' | 'units' | 'designations' | 'staff';
 
-interface Department { id: string; nameEn: string; nameTa?: string; nameHi?: string; code: string; }
-interface Branch { id: string; code: string; nameEn: string; nameTa?: string; nameHi?: string; type: string; populationGroup?: string; address?: string; riskCategory?: string; riskEffectiveDate?: string; specialStatus?: string | string[]; officeId?: number; }
-interface Designation { id: string; nameEn: string; nameTa?: string; nameHi?: string; code: string; workId?: number; }
-interface StaffUser { id: string; username: string; fullNameEn: string; fullNameTa?: string; fullNameHi?: string; role: string; branchId?: string; photo?: { data: string }; photoData?: string | ArrayBuffer | null; }
+interface MasterItem {
+    id?: string;
+    nameEn?: string;
+    fullNameEn?: string;
+    nameTa?: string;
+    fullNameTa?: string;
+    nameHi?: string;
+    fullNameHi?: string;
+    code?: string;
+    username?: string;
+    type?: string;
+    populationGroup?: string;
+    address?: string;
+    riskCategory?: string;
+    riskEffectiveDate?: string;
+    specialStatus?: string | string[];
+    officeId?: number;
+    workId?: number;
+    role?: string;
+    photo?: { data: string };
+    photoData?: string | ArrayBuffer | null;
+}
 
-type TabData = Department | Branch | Designation | StaffUser;
 
 const SettingsManager: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('departments');
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<TabData[]>([]);
+    const [data, setData] = useState<MasterItem[]>([]);
     const [showForm, setShowForm] = useState(false);
-    const [editingItem, setEditingItem] = useState<any | null>(null);
+    const [editingItem, setEditingItem] = useState<MasterItem | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // Form States
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<MasterItem>({});
 
     const getEndpoint = (tab: Tab) => {
         if (tab === 'units') return '/branches';
@@ -108,7 +125,7 @@ const SettingsManager: React.FC = () => {
         }
     };
 
-    const startEdit = (item: any) => {
+    const startEdit = (item: MasterItem) => {
         let parsedFormData = { ...item };
 
         // Parse specialStatus if it's a JSON string
@@ -194,7 +211,7 @@ const SettingsManager: React.FC = () => {
                                 type="number"
                                 className="w-full p-2 border rounded"
                                 value={formData.workId || ''}
-                                onChange={e => setFormData({ ...formData, workId: e.target.value })}
+                                onChange={e => setFormData({ ...formData, workId: parseInt(e.target.value) || 0 })}
                                 required
                             />
                         </div>
@@ -243,7 +260,7 @@ const SettingsManager: React.FC = () => {
                                 type="number"
                                 className="w-full p-2 border rounded"
                                 value={formData.officeId || ''}
-                                onChange={e => setFormData({ ...formData, officeId: e.target.value })}
+                                onChange={e => setFormData({ ...formData, officeId: parseInt(e.target.value) || 0 })}
                                 required
                             />
                         </div>
@@ -377,7 +394,7 @@ const SettingsManager: React.FC = () => {
                                 <div className="w-24 h-30 bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 flex items-center justify-center">
                                     {formData.photoData || (editingItem?.photo?.data) ? (
                                         <img
-                                            src={formData.photoData || editingItem.photo.data}
+                                            src={(formData.photoData as string) || editingItem?.photo?.data}
                                             alt="Preview"
                                             className="w-full h-full object-cover"
                                         />
@@ -513,7 +530,7 @@ const SettingsManager: React.FC = () => {
                             <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">Loading master data...</td></tr>
                         ) : data.length === 0 ? (
                             <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">No entries found for this category.</td></tr>
-                        ) : data.map((item: any) => (
+                        ) : data.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center space-x-3">
@@ -587,7 +604,7 @@ const SettingsManager: React.FC = () => {
                                             <Edit2 size={16} />
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(item.id)}
+                                            onClick={() => handleDelete(item.id || '')}
                                             className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
                                         >
                                             <Trash2 size={16} />

@@ -60,17 +60,22 @@ router.post('/photo', authenticateToken, async (req: any, res) => {
 // Get all users
 router.get('/', async (req, res) => {
     try {
-        console.log("Fetching users via raw SQL...");
-        const users: any[] = await prisma.$queryRaw`SELECT * FROM users ORDER BY "createdAt" DESC`;
-        console.log(`Found ${users.length} users`);
-
+        const users = await prisma.user.findMany({
+            include: {
+                photo: true,
+                branch: true,
+                department: true,
+                designation: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
         const safeUsers = users.map(u => {
             const { passwordHash, ...safe } = u;
             return safe;
         });
         res.json(safeUsers);
     } catch (error) {
-        console.error("Fetch users raw error:", error);
+        console.error("Fetch users error:", error);
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
