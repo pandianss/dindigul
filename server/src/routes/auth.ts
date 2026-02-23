@@ -1,15 +1,12 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import { authenticateToken } from '../middleware/auth';
+import { AuthService } from '../services/authService';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCKOUT_MINUTES = 15;
 
 router.post('/register', async (req, res) => {
     const { username, password, fullNameEn, role, section } = req.body;
@@ -27,14 +24,11 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await AuthService.findUserByUsername(username);
         if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
-        // GAP 05: Check account lockout
-        if ((user as any).lockedUntil && new Date((user as any).lockedUntil) > new Date()) {
-            const minutesLeft = Math.ceil(
-                (new Date((user as any).lockedUntil).getTime() - Date.now()) / 60000
-            );
+        if (AuthService.isLocked(user)) {
+            const minutesLeft = AuthService.getLockoutMinutesLeft(user);
             return res.status(423).json({
                 error: `Account locked due to too many failed attempts. Try again in ${minutesLeft} minute(s).`
             });
@@ -43,37 +37,26 @@ router.post('/login', async (req, res) => {
         const isValid = await bcrypt.compare(password, user.passwordHash);
 
         if (!isValid) {
-            // Increment failure counter
-            const attempts = ((user as any).failedLoginAttempts || 0) + 1;
-            const updateData: any = { failedLoginAttempts: attempts };
-            if (attempts >= MAX_FAILED_ATTEMPTS) {
-                updateData.lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000);
-            }
-            await prisma.user.update({ where: { username }, data: updateData });
+            await AuthService.incrementFailedAttempts(username, user.failedLoginAttempts);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         // Successful login — reset lockout fields
-        await prisma.user.update({
-            where: { username },
-            data: { failedLoginAttempts: 0, lockedUntil: null } as any
-        });
+        await AuthService.resetFailedAttempts(username);
 
-        // GAP 04: Check if MFA is required
-        if ((user as any).mfaEnabled) {
-            const tempToken = jwt.sign(
+        if (user.mfaEnabled) {
+            const tempToken = AuthService.generateToken(
                 { id: user.id, username: user.username, mfaPending: true },
-                JWT_SECRET,
-                { expiresIn: '5m' }
+                '5m'
             );
             return res.json({ requiresMfa: true, tempToken });
         }
 
-        const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
-            JWT_SECRET,
-            { expiresIn: '8h' }
-        );
+        const token = AuthService.generateToken({
+            id: user.id,
+            username: user.username,
+            role: user.role
+        });
 
         res.json({
             token,
@@ -90,29 +73,28 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// GAP 04: MFA Challenge (verify code after login)
 router.post('/mfa/challenge', async (req, res) => {
     const { tempToken, code } = req.body;
     try {
-        const payload: any = jwt.verify(tempToken, JWT_SECRET);
+        const payload = AuthService.verifyToken(tempToken);
         if (!payload.mfaPending) throw new Error('Invalid token');
 
-        const user = await prisma.user.findUnique({ where: { id: payload.id } });
-        if (!user || !(user as any).mfaSecret) return res.status(401).json({ error: 'MFA not configured' });
+        const user = await AuthService.findUserById(payload.id);
+        if (!user || !user.mfaSecret) return res.status(401).json({ error: 'MFA not configured' });
 
         const verified = speakeasy.totp.verify({
-            secret: (user as any).mfaSecret,
+            secret: user.mfaSecret,
             encoding: 'base32',
             token: code
         });
 
         if (!verified) return res.status(401).json({ error: 'Invalid MFA code' });
 
-        const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
-            JWT_SECRET,
-            { expiresIn: '8h' }
-        );
+        const token = AuthService.generateToken({
+            id: user.id,
+            username: user.username,
+            role: user.role
+        });
 
         res.json({
             token,
@@ -128,16 +110,15 @@ router.post('/mfa/challenge', async (req, res) => {
     }
 });
 
-// GAP 04: MFA Setup (get secret + QR code)
 router.post('/mfa/setup', authenticateToken, async (req: any, res) => {
     try {
-        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+        const user = await AuthService.findUserById(req.user.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         const secret = speakeasy.generateSecret({ name: `DindigulPortal (${user.username})` });
         await prisma.user.update({
             where: { id: user.id },
-            data: { mfaSecret: secret.base32 } as any
+            data: { mfaSecret: secret.base32 }
         });
 
         const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url || '');
@@ -147,15 +128,14 @@ router.post('/mfa/setup', authenticateToken, async (req: any, res) => {
     }
 });
 
-// GAP 04: MFA Verify (confirm setup)
 router.post('/mfa/verify', authenticateToken, async (req: any, res) => {
     const { code } = req.body;
     try {
-        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-        if (!user || !(user as any).mfaSecret) return res.status(400).json({ error: 'MFA not initialised' });
+        const user = await AuthService.findUserById(req.user.id);
+        if (!user || !user.mfaSecret) return res.status(400).json({ error: 'MFA not initialised' });
 
         const verified = speakeasy.totp.verify({
-            secret: (user as any).mfaSecret,
+            secret: user.mfaSecret,
             encoding: 'base32',
             token: code
         });
@@ -164,7 +144,7 @@ router.post('/mfa/verify', authenticateToken, async (req: any, res) => {
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { mfaEnabled: true } as any
+            data: { mfaEnabled: true }
         });
 
         res.json({ message: 'MFA enabled successfully' });

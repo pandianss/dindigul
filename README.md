@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# Dindigul Regional Office Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A secure, modular regional office management portal for bank branches, featuring MIS dashboards, correspondence management, assets tracking, and more.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Node.js**: v18.x or later (v20+ recommended)
+- **PostgreSQL**: v14.x or later
+- **npm**: v10.x or later
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `/src`: Frontend application (React, TypeScript, Vite, Tailwind CSS)
+- `/server`: Backend server (Node.js, Express, Prisma, PostgreSQL)
 
-## Expanding the ESLint configuration
+## Setup Instructions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Backend Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd server
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Create a `.env` file in the `server` directory:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/dindigul"
+JWT_SECRET="your_very_secure_random_secret"
+FRONTEND_URL="http://localhost:5173"
+PORT=5000
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Initialize the database:
+
+```bash
+npx prisma db push
+```
+
+### 2. Frontend Setup
+
+```bash
+npm install
+```
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL="http://localhost:5000/api"
+VITE_STATIC_URL="http://localhost:5000"
+```
+
+### 3. Running the Application
+
+**Backend:**
+```bash
+cd server
+npm run dev
+```
+
+**Frontend:**
+```bash
+npm run dev
+```
+
+## Security & Hardening
+
+This project has been hardened with the following features:
+- **Centralized Authentication**: Robust `AuthService` handling MFA and lockout.
+- **Environment Validation**: Fails fast if critical secrets are missing.
+- **Structured Error Handling**: Global middleware with standardized error codes.
+- **Observability**: Structured logging using Pino.
+- **Declarative Routing**: Configuration-driven frontend views with access control.
+
+## Testing
+
+Run backend tests:
+
+```bash
+cd server
+npm test
 ```

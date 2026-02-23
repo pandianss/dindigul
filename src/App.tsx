@@ -1,28 +1,10 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import LoginScreen from './components/LoginScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
-
-// Lazy load major modules
-const PortalLanding = lazy(() => import('./modules/PortalLanding'));
-const NoticeBoard = lazy(() => import('./modules/NoticeBoard'));
-const BusinessSnapshot = lazy(() => import('./modules/BusinessSnapshot'));
-const OfficeNoteManager = lazy(() => import('./modules/OfficeNoteManager'));
-const SettingsManager = lazy(() => import('./modules/SettingsManager'));
-const Dashboard = lazy(() => import('./modules/Dashboard'));
-const AssetManager = lazy(() => import('./modules/AssetManager'));
-const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
-// GAP 07: Wire missing modules
-const AuditManager = lazy(() => import('./modules/AuditManager'));
-const CommitteeManager = lazy(() => import('./modules/CommitteeManager'));
-const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter'));
-const DispatchManager = lazy(() => import('./modules/DispatchManager'));
-const ExpenditureManager = lazy(() => import('./modules/ExpenditureManager'));
-const LegalManager = lazy(() => import('./modules/LegalManager'));
-const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
-const RequestManager = lazy(() => import('./modules/RequestManager'));
+import PortalLanding from './modules/PortalLanding';
+import { viewConfigs, type PortalMode } from './routes/config';
 
 // Loading fallback component
 const ModuleLoader = () => (
@@ -33,10 +15,9 @@ const ModuleLoader = () => (
 );
 
 function App() {
-    const { t } = useTranslation();
     const { user, login, isLoading } = useAuth();
     const [activeView, setActiveView] = useState('dashboard');
-    const [portalMode, setPortalMode] = useState<'landing' | 'guest' | 'region'>('landing');
+    const [portalMode, setPortalMode] = useState<PortalMode>('landing');
 
     // Auto-select portal if already logged in
     useEffect(() => {
@@ -44,6 +25,10 @@ function App() {
             setPortalMode('region');
         }
     }, [user]);
+
+    const currentViewConfig = useMemo(() =>
+        viewConfigs.find(v => v.id === activeView),
+        [activeView]);
 
     if (isLoading) {
         return (
@@ -58,7 +43,7 @@ function App() {
     if (portalMode === 'landing') {
         return (
             <Suspense fallback={<ModuleLoader />}>
-                <PortalLanding onSelectPortal={(mode) => setPortalMode(mode)} />
+                <PortalLanding onSelectPortal={(mode: any) => setPortalMode(mode)} />
             </Suspense>
         );
     }
@@ -69,56 +54,41 @@ function App() {
     }
 
     const renderModule = () => {
-        // Guest mode has limited modules
-        if (portalMode === 'guest' && !['dashboard', 'noticeBoard', 'calendar'].includes(activeView)) {
-            setActiveView('dashboard');
-        }
-
-        switch (activeView) {
-            case 'dashboard':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Dashboard /></Suspense></ErrorBoundary>;
-            case 'noticeBoard':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><NoticeBoard /></Suspense></ErrorBoundary>;
-            case 'mis':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><BusinessSnapshot /></Suspense></ErrorBoundary>;
-            case 'officeNotes':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><OfficeNoteManager /></Suspense></ErrorBoundary> : null;
-            case 'settings':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><SettingsManager /></Suspense></ErrorBoundary> : null;
-            case 'assets':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AssetManager /></Suspense></ErrorBoundary> : null;
-            case 'calendar':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CalendarManager /></Suspense></ErrorBoundary>;
-            case 'audit':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AuditManager /></Suspense></ErrorBoundary> : null;
-            case 'committees':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CommitteeManager /></Suspense></ErrorBoundary> : null;
-            case 'correspondence':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CorrespondenceCenter /></Suspense></ErrorBoundary> : null;
-            case 'dispatch':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><DispatchManager /></Suspense></ErrorBoundary> : null;
-            case 'expenditure':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><ExpenditureManager /></Suspense></ErrorBoundary> : null;
-            case 'legal':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><LegalManager /></Suspense></ErrorBoundary> : null;
-            case 'magazine':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MagazineGenerator /></Suspense></ErrorBoundary>;
-            case 'requests':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><RequestManager /></Suspense></ErrorBoundary> : null;
-
-            default:
-                return (
-                    <div className="flex flex-col items-center justify-center py-20 card bg-gray-50/50 border-dashed">
-                        <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300 mb-4">
-                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-400">Module Under Construction</h3>
-                        <p className="text-gray-400 text-sm mt-1">This operational area is currently being provisioned.</p>
+        if (!currentViewConfig) {
+            return (
+                <div className="flex flex-col items-center justify-center py-20 card bg-gray-50/50 border-dashed">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300 mb-4">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
                     </div>
-                );
+                    <h3 className="text-lg font-bold text-gray-400">Module Under Construction</h3>
+                    <p className="text-gray-400 text-sm mt-1">This operational area is currently being provisioned.</p>
+                </div>
+            );
         }
+
+        // Access Control
+        const isAllowed = currentViewConfig.allowedModes.includes(portalMode);
+        const authStatisfied = !currentViewConfig.requiresAuth || (user !== null);
+
+        if (!isAllowed || !authStatisfied) {
+            // Fallback to dashboard if not allowed
+            if (activeView !== 'dashboard') {
+                setActiveView('dashboard');
+            }
+            return null;
+        }
+
+        const ViewComponent = currentViewConfig.component;
+
+        return (
+            <ErrorBoundary>
+                <Suspense fallback={<ModuleLoader />}>
+                    <ViewComponent />
+                </Suspense>
+            </ErrorBoundary>
+        );
     };
 
     return (

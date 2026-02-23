@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import api from '../services/api';
 
 export type Role =
   | 'ADMIN'
@@ -11,12 +12,11 @@ export type Role =
   | 'GUEST';
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   role: Role | string;
   fullNameEn?: string;
   branchId?: string | null;
-  branch?: { code?: string; nameEn?: string } | null;
   token?: string;
 }
 
@@ -37,29 +37,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (e) {
+      return null;
+    }
   });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set dummy user for now if needed, or just let it be null
-    // setUser({ name: 'Anand Kumar', role: 'RO' });
     setIsLoading(false);
   }, []);
 
   const login = async (credentials: any) => {
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
+      const res = await api.post('/auth/login', credentials);
+      const data = res.data;
 
       const userWithToken: User = {
         ...data.user,
@@ -68,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(userWithToken);
       localStorage.setItem('user', JSON.stringify(userWithToken));
-      localStorage.setItem('token', data.token);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -78,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
   };
 
   return (

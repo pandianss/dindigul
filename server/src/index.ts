@@ -28,20 +28,26 @@ import dashboardRoutes from './routes/dashboard';
 import atmRoutes from './routes/atms';
 import prisma from './lib/prisma';
 
-dotenv.config();
+import { config } from './lib/config';
+import logger from './lib/logger';
+import { requestLogger } from './middleware/requestLogger';
+import { errorMiddleware } from './middleware/errorMiddleware';
 import { initScheduler } from './services/schedulerService';
 import path from 'path';
 
 const app = express();
 initScheduler();
 
-const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const PORT = config.port;
+const FRONTEND_URL = config.frontendUrl;
+
+// Structured Request Logging
+app.use(requestLogger);
 
 // Security Headers
 app.use(helmet());
 
-// CORS Configuration - Lockdown to specific origin
+// CORS Configuration
 app.use(cors({
     origin: FRONTEND_URL,
     credentials: true,
@@ -49,10 +55,10 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Basic Rate Limiting
+// Rate Limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // limit each IP to 500 requests per windowMs in a closed network, keep it somewhat high
+    windowMs: 15 * 60 * 1000,
+    max: 500,
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -60,13 +66,20 @@ app.use(limiter);
 
 app.use(express.json({ limit: '5mb' }));
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+app.get('/health', async (req, res) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.json({ status: 'ok', database: 'connected', version: '1.0.0' });
+    } catch (error) {
+        logger.error({ error }, 'Health check failed');
+        res.status(503).json({ status: 'error', database: 'disconnected' });
+    }
 });
 
-// Serve static uploads (GAP 06)
+// Serve static uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/mis', misRoutes);
@@ -89,6 +102,9 @@ app.use('/api/designations', designationRoutes);
 app.use('/api/branches', unitRoutes);
 app.use('/api/chat', chatRoutes);
 
+// Global Error Handling (Must be last)
+app.use(errorMiddleware);
+
 import { registerChatHandlers } from './socket/chatHandler';
 
 const httpServer = createServer(app);
@@ -102,18 +118,17 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket: Socket) => {
-    console.log(`Socket connected: ${socket.id}`);
+    logger.info({ socketId: socket.id }, 'Socket connected');
 
-    // Register handlers from separate file
     registerChatHandlers(io, socket);
 
     socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        logger.info({ socketId: socket.id }, 'Socket disconnected');
     });
 });
 
 httpServer.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`Secured Server running on port ${PORT}`);
+    logger.info(`Secured Server running on port ${PORT}`);
 });
 
 export { io, prisma };

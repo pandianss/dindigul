@@ -34,5 +34,16 @@
         "positive": "POSITIVE",
         "lagging": "LAGGING",
         "negative": "NEGATIVE"
+    },
+    "errors": {
+        "AUTH_FAILED": "Authentication failed. Please check your credentials.",
+        "MFA_REQUIRED": "Multi-factor authentication is required to proceed.",
+        "ACCOUNT_LOCKED": "Account is temporarily locked due to multiple failed attempts. Please try again later.",
+        "INTERNAL_ERROR": "A system error occurred. Our technical team has been notified.",
+        "FORBIDDEN": "You do not have permission to access this resource.",
+        "NOT_FOUND": "The requested resource could not be found.",
+        "INVALID_INPUT": "Some provided information is invalid. Please review and try again.",
+        "MFA_INVALID": "Invalid MFA verification code.",
+        "UNAUTHORIZED": "Session expired or invalid. Please log in again."
     }
 }
