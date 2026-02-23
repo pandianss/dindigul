@@ -1,0 +1,8 @@
+﻿
+> server@1.0.0 build
+> tsc
+
+src/index.ts(7,24): error TS2307: Cannot find module 'socket.io' or its corresponding type declarations.
+src/index.ts(84,22): error TS7006: Parameter 'socket' implicitly has an 'any' type.
+src/index.ts(87,29): error TS7006: Parameter 'room' implicitly has an 'any' type.
+src/index.ts(91,32): error TS7006: Parameter 'data' implicitly has an 'any' type.
