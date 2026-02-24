@@ -1,8 +1,8 @@
-import { Server, Socket } from 'socket.io';
+import type { Server, Socket } from 'socket.io';
 import { prisma } from '../index';
 import { v4 as uuidv4 } from 'uuid';
 
-export function registerChatHandlers(io: Server, socket: Socket) {
+export function registerChatHandlers(io: any, socket: any) {
     socket.on('join_room', async (room: string) => {
         // Validate room access based on role
         // For branch:{sol} rooms, checking the connection origin or validating against a token 

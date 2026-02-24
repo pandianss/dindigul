@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
+import type { Socket } from 'socket.io';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import misRoutes from './routes/mis';
@@ -101,7 +102,7 @@ const io = new Server(httpServer, {
     }
 });
 
-io.on('connection', (socket: Socket) => {
+io.on('connection', (socket: any) => {
     console.log(`Socket connected: ${socket.id}`);
 
     // Register handlers from separate file

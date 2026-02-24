@@ -53,7 +53,7 @@ model User {
   noticeAcks       NoticeAck[]
   committeeMemberships CommitteeMember[]
   notifications    Notification[]
-  claims           Claim[]
+  // claims           Claim[]
   auditLogs        ChatAuditLog[]
 
   // GAP 05: Brute-force lockout
@@ -173,11 +173,11 @@ model Branch {
   misSnapshots        MisSnapshot[]
   misExceptions       MisException[]
   noticeAcks          NoticeAck[]
-  campaignTargets     CampaignTarget[]
-  campaignPerformances CampaignPerformance[]
-  periodicReturns     PeriodicReturn[]
-  claims              Claim[]
-  achievements        Achievement[]
+  // campaignTargets     CampaignTarget[]
+  // campaignPerformances CampaignPerformance[]
+  // periodicReturns     PeriodicReturn[]
+  // claims              Claim[]
+  // achievements        Achievement[]
 
   @@map("branches")
 }
