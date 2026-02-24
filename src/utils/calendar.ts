@@ -11,18 +11,18 @@ import {
 import type { Holiday } from '../types/calendar';
 
 export const isWorkingDay = (date: Date, holidays: Holiday[]): boolean => {
-    // Sundays are never working days
-    if (isSunday(date)) return false;
-
-    // Check custom holiday list
+    // Check custom holiday list FIRST to allow overrides
     const dateStr = format(date, 'yyyy-MM-dd');
     const holiday = holidays.find(h => h.date === dateStr);
 
     if (holiday) {
         if (holiday.type === 'WORKING_DAY') return true;
-        if (holiday.type === 'HALF_DAY') return true; // Counts as 0.5 in weight, but is a working day
+        if (holiday.type === 'HALF_DAY') return true;
         return false;
     }
+
+    // Sundays are defaults
+    if (isSunday(date)) return false;
 
     // Default Saturday logic: 2nd and 4th off
     if (isSaturday(date)) {
@@ -36,8 +36,6 @@ export const isWorkingDay = (date: Date, holidays: Holiday[]): boolean => {
 };
 
 export const getWorkingDayWeight = (date: Date, holidays: Holiday[]): number => {
-    if (isSunday(date)) return 0;
-
     const dateStr = format(date, 'yyyy-MM-dd');
     const holiday = holidays.find(h => h.date === dateStr);
 
@@ -46,6 +44,8 @@ export const getWorkingDayWeight = (date: Date, holidays: Holiday[]): number => 
         if (holiday.type === 'HALF_DAY') return 0.5;
         return 0;
     }
+
+    if (isSunday(date)) return 0;
 
     if (isSaturday(date)) {
         const dayOfMonth = date.getDate();

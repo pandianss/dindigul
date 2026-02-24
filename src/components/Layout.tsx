@@ -93,6 +93,7 @@ const Layout: React.FC<LayoutProps> = ({
         { icon: FileText, label: t('nav.dispatch') || 'Dispatch', key: 'dispatch', restricted: true },
         { icon: Users, label: t('nav.committees') || 'Committees', key: 'committees', restricted: true },
         { icon: MessageSquare, label: t('nav.letters') || 'Correspondence', key: 'correspondence', restricted: true },
+        { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
         { icon: BookOpen, label: t('nav.magazine') || 'Magazine', key: 'magazine' },
     ];
 
@@ -232,7 +233,7 @@ const Layout: React.FC<LayoutProps> = ({
 
                         <div className="flex items-center space-x-4 border-l pl-8 border-gray-100">
                             <div className="flex flex-col text-right">
-                                <span className="text-sm font-black text-bank-navy leading-none tracking-tight">{authUser?.name || 'Staff Member'}</span>
+                                <span className="text-sm font-black text-bank-navy leading-none tracking-tight">{authUser?.fullNameEn || authUser?.username || 'Staff Member'}</span>
                                 <span className="text-[10px] text-bank-gold font-black uppercase tracking-widest mt-1 opacity-80">{authUser?.role || 'Portal User'}</span>
                             </div>
                             <div className="relative group cursor-pointer">

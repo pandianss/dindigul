@@ -13,6 +13,7 @@ router.get('/', authenticateToken, async (req, res) => {
         });
         res.json(units);
     } catch (error) {
+        console.error('Failed to fetch units:', error);
         res.status(500).json({ error: 'Failed to fetch units' });
     }
 });

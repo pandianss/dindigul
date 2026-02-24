@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Calendar as CalendarIcon,
@@ -7,7 +8,9 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
-    Info
+    Info,
+    X,
+    Save
 } from 'lucide-react';
 import {
     format,
@@ -21,7 +24,8 @@ import {
     isSunday,
     isSaturday,
     isAfter,
-    parseISO
+    parseISO,
+    startOfToday
 } from 'date-fns';
 import type { Holiday, DayType } from '../../types/calendar';
 import { getCalendarStats, getWorkingDayWeight } from '../../utils/calendar';
@@ -38,13 +42,20 @@ const DAY_TYPE_COLORS: Record<DayType, string> = {
 
 const CalendarManager: React.FC = () => {
     const { t } = useTranslation();
-    const [currentMonth, setCurrentMonth] = useState(new Date(2025, 7, 1)); // August 2025
-    const [holidays] = useState<Holiday[]>([
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [holidays, setHolidays] = useState<Holiday[]>([
         { id: '1', date: '2025-08-15', type: 'PUBLIC_HOLIDAY', name: 'Independence Day' },
         { id: '2', date: '2025-08-16', type: 'STATE_HOLIDAY', name: 'Local Festival' }
     ]);
 
-    const stats = useMemo(() => getCalendarStats(new Date(2025, 7, 18), holidays), [holidays]);
+    const [showModal, setShowModal] = useState(false);
+    const [newHoliday, setNewHoliday] = useState<Partial<Holiday>>({
+        date: format(startOfToday(), 'yyyy-MM-dd'),
+        type: 'PUBLIC_HOLIDAY',
+        name: ''
+    });
+
+    const stats = useMemo(() => getCalendarStats(startOfToday(), holidays), [holidays]);
 
     const daysInMonth = useMemo(() => {
         const start = startOfMonth(currentMonth);
@@ -55,6 +66,28 @@ const CalendarManager: React.FC = () => {
     const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
     const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
+    const handleAddHoliday = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newHoliday.name || !newHoliday.date || !newHoliday.type) return;
+
+        const holiday: Holiday = {
+            id: Math.random().toString(36).substr(2, 9),
+            name: newHoliday.name,
+            date: newHoliday.date,
+            type: newHoliday.type as DayType
+        };
+
+        setHolidays([...holidays, holiday]);
+        setShowModal(false);
+        setNewHoliday({ date: format(startOfToday(), 'yyyy-MM-dd'), type: 'PUBLIC_HOLIDAY', name: '' });
+    };
+
+    const handleDeleteHoliday = (id: string) => {
+        if (window.confirm('Delete this holiday?')) {
+            setHolidays(holidays.filter(h => h.id !== id));
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -63,14 +96,17 @@ const CalendarManager: React.FC = () => {
                     <p className="text-gray-500 text-sm">Manage regional holidays and track working day pace for FY 2025-26</p>
                 </div>
                 <div className="flex space-x-3">
-                    <button className="btn-primary flex items-center space-x-2">
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="btn-primary flex items-center space-x-2 shadow-lg shadow-bank-navy/20 hover:scale-[1.02] active:scale-95 transition-all"
+                    >
                         <Plus size={18} />
                         <span>Add Holiday</span>
                     </button>
                 </div>
             </div>
 
-            {/* Stats Overview */}
+            {/* ... stats sections ... */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
                 <div className="card p-3 xl:p-4 flex items-center space-x-3 xl:space-x-4">
                     <div className="bg-bank-navy bg-opacity-10 p-2 xl:p-3 rounded-lg text-bank-navy shrink-0">
@@ -116,20 +152,26 @@ const CalendarManager: React.FC = () => {
                 {/* Calendar View */}
                 <div className="lg:col-span-2 card p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-lg text-bank-navy">{format(currentMonth, 'MMMM yyyy')}</h3>
+                        <h3 className="font-bold text-xl text-bank-navy tracking-tight uppercase">{format(currentMonth, 'MMMM yyyy')}</h3>
                         <div className="flex items-center space-x-2">
-                            <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                                <ChevronLeft size={20} />
+                            <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200">
+                                <ChevronLeft size={20} className="text-gray-600" />
                             </button>
-                            <button onClick={handleNextMonth} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                                <ChevronRight size={20} />
+                            <button
+                                onClick={() => setCurrentMonth(new Date())}
+                                className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-bank-teal hover:bg-bank-teal/5 rounded-md transition-all"
+                            >
+                                Today
+                            </button>
+                            <button onClick={handleNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200">
+                                <ChevronRight size={20} className="text-gray-600" />
                             </button>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-7 gap-px bg-gray-100 border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                            <div key={day} className="bg-gray-50 py-2 text-center text-xs font-bold text-gray-500 uppercase">
+                            <div key={day} className="bg-white/50 backdrop-blur-sm py-3 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
                                 {day}
                             </div>
                         ))}
@@ -144,13 +186,13 @@ const CalendarManager: React.FC = () => {
                                 <div
                                     key={dateStr}
                                     className={cn(
-                                        "bg-white h-24 p-2 relative transition-all hover:bg-gray-50 cursor-pointer group",
-                                        !isSameMonth(day, currentMonth) && "opacity-30 pointer-events-none"
+                                        "bg-white h-28 p-3 relative transition-all hover:ring-2 hover:ring-bank-teal/20 hover:z-10 cursor-pointer group",
+                                        !isSameMonth(day, currentMonth) && "opacity-30 pointer-events-none bg-gray-50/50"
                                     )}
                                 >
                                     <span className={cn(
-                                        "text-sm font-semibold",
-                                        isToday(day) ? "bg-bank-navy text-white h-6 w-6 rounded-full flex items-center justify-center" : "text-gray-700",
+                                        "text-sm font-black transition-all",
+                                        isToday(day) ? "bg-bank-navy text-white h-7 w-7 rounded-lg shadow-lg flex items-center justify-center -mt-1 -ml-1" : "text-gray-500",
                                         (isSun || (isSat && weight === 0)) && !isToday(day) && "text-red-400"
                                     )}>
                                         {format(day, 'd')}
@@ -158,24 +200,29 @@ const CalendarManager: React.FC = () => {
 
                                     {holiday && (
                                         <div className={cn(
-                                            "mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold truncate leading-tight",
-                                            DAY_TYPE_COLORS[holiday.type]
+                                            "mt-2 px-2 py-1 rounded-md text-[9px] font-black truncate leading-tight uppercase tracking-tighter border shadow-sm",
+                                            DAY_TYPE_COLORS[holiday.type],
+                                            "border-current/20"
                                         )}>
                                             {holiday.name}
                                         </div>
                                     )}
 
                                     {!holiday && isSat && weight === 0 && (
-                                        <div className="mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold truncate leading-tight bg-gray-100 text-gray-500">
+                                        <div className="mt-2 px-2 py-1 rounded-md text-[9px] font-black truncate leading-tight bg-gray-50 text-gray-400 uppercase tracking-tighter border border-gray-100">
                                             2nd/4th Sat
                                         </div>
                                     )}
 
                                     {weight === 0.5 && (
-                                        <div className="absolute bottom-2 right-2 text-[10px] font-bold text-amber-500">
+                                        <div className="absolute bottom-2 right-2 text-[9px] font-black text-amber-500 bg-amber-50 px-1.5 rounded border border-amber-100 uppercase tracking-tighter">
                                             0.5 WD
                                         </div>
                                     )}
+
+                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-bank-teal/50 animate-pulse" />
+                                    </div>
                                 </div>
                             );
                         })}
@@ -184,42 +231,138 @@ const CalendarManager: React.FC = () => {
 
                 {/* Legend & List */}
                 <div className="space-y-6">
-                    <div className="card p-6">
-                        <h3 className="font-bold text-bank-navy mb-4 border-b pb-2">Holiday Types</h3>
-                        <div className="space-y-3">
+                    <div className="card p-6 bg-gradient-to-br from-white to-gray-50/50">
+                        <h3 className="font-black text-xs text-bank-navy mb-5 border-b border-gray-100 pb-3 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1.5 h-4 bg-bank-teal rounded-full" />
+                            Classification
+                        </h3>
+                        <div className="space-y-4">
                             {Object.entries(DAY_TYPE_COLORS).map(([type, colorClass]) => (
-                                <div key={type} className="flex items-center space-x-3">
-                                    <div className={cn("w-3 h-3 rounded-full", colorClass.split(' ')[0])} />
-                                    <span className="text-xs font-medium text-gray-600 truncate">
+                                <div key={type} className="flex items-center space-x-4 group cursor-help">
+                                    <div className={cn("w-3.5 h-3.5 rounded-md border shadow-sm transition-transform group-hover:scale-110", colorClass.split(' ')[0], "border-current/20")} />
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest truncate group-hover:text-bank-navy transition-colors">
                                         {type.replace(/_/g, ' ')}
                                     </span>
                                 </div>
                             ))}
-                            <div className="flex items-center space-x-3 pt-2 border-t mt-3">
-                                <div className="w-3 h-3 rounded-full bg-gray-100" />
-                                <span className="text-xs font-medium text-gray-400">Weekend (Non-working)</span>
+                            <div className="flex items-center space-x-4 pt-3 border-t border-gray-100 mt-4 group">
+                                <div className="w-3.5 h-3.5 rounded-md bg-gray-100 border border-gray-200 transition-transform group-hover:scale-110" />
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Weekend (Holiday)</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="card p-6">
-                        <h3 className="font-bold text-bank-navy mb-4 border-b pb-2">Upcoming Holidays</h3>
-                        <div className="space-y-4">
+                    <div className="card p-0 overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 bg-white">
+                            <h3 className="font-black text-xs text-bank-navy uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1.5 h-4 bg-bank-gold rounded-full" />
+                                Upcoming Events
+                            </h3>
+                        </div>
+                        <div className="divide-y divide-gray-50 max-h-[400px] overflow-y-auto custom-scrollbar">
                             {holidays.filter(h => isAfter(parseISO(h.date), subMonths(new Date(), 1))).map(h => (
-                                <div key={h.id} className="flex items-center justify-between group">
-                                    <div>
-                                        <div className="text-sm font-bold text-gray-800">{h.name}</div>
-                                        <div className="text-xs text-gray-500">{format(parseISO(h.date), 'dd MMM yyyy')}</div>
+                                <div key={h.id} className="p-5 flex items-center justify-between group hover:bg-gray-50 transition-all">
+                                    <div className="min-w-0">
+                                        <div className="text-xs font-black text-bank-navy uppercase tracking-tight truncate">{h.name}</div>
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{format(parseISO(h.date), 'dd MMM yyyy')} • {h.type.replace(/_/g, ' ')}</div>
                                     </div>
-                                    <button className="p-1.5 text-red-400 hover:bg-red-50 rounded transition-all opacity-0 group-hover:opacity-100">
+                                    <button
+                                        onClick={() => handleDeleteHoliday(h.id)}
+                                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                    >
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
                             ))}
+                            {holidays.length === 0 && (
+                                <div className="p-10 text-center text-gray-400 text-xs font-medium italic">No events mapped.</div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Add Holiday Modal */}
+            {showModal && createPortal(
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+                >
+                    <div className="bg-white rounded-2xl shadow-2xl border border-bank-teal/20 w-full max-w-md overflow-hidden animate-in zoom-in slide-in-from-bottom-4 duration-300">
+                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                            <h3 className="text-sm font-black text-bank-navy uppercase tracking-widest flex items-center gap-2">
+                                <CalendarIcon size={18} className="text-bank-teal" />
+                                Add Regional Event
+                            </h3>
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="p-1 hover:bg-gray-200 rounded-full transition-colors text-gray-400"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleAddHoliday} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Event Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. Local Holiday, Festival..."
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 outline-none font-bold text-bank-navy placeholder:text-gray-300 transition-all"
+                                    value={newHoliday.name}
+                                    onChange={e => setNewHoliday({ ...newHoliday, name: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Date</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 outline-none font-bold text-bank-navy transition-all"
+                                        value={newHoliday.date}
+                                        onChange={e => setNewHoliday({ ...newHoliday, date: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Type</label>
+                                    <select
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 outline-none font-bold text-bank-navy transition-all"
+                                        value={newHoliday.type}
+                                        onChange={e => setNewHoliday({ ...newHoliday, type: e.target.value as DayType })}
+                                    >
+                                        <option value="WORKING_DAY">Working Day</option>
+                                        <option value="PUBLIC_HOLIDAY">Public Holiday</option>
+                                        <option value="STATE_HOLIDAY">State Holiday</option>
+                                        <option value="RBI_HOLIDAY">RBI Holiday</option>
+                                        <option value="BANK_SPECIFIC_HOLIDAY">Bank Specific</option>
+                                        <option value="HALF_DAY">Half Day</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="flex-1 py-3 rounded-xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all uppercase text-[10px] tracking-widest"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 rounded-xl font-bold bg-bank-navy text-white shadow-lg shadow-bank-navy/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest"
+                                >
+                                    <Save size={16} />
+                                    Map Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };

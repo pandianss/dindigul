@@ -173,6 +173,7 @@ model Branch {
   misSnapshots        MisSnapshot[]
   misExceptions       MisException[]
   noticeAcks          NoticeAck[]
+  accountOpenings    AccountOpening[]
   // campaignTargets     CampaignTarget[]
   // campaignPerformances CampaignPerformance[]
   // periodicReturns     PeriodicReturn[]
@@ -837,6 +838,96 @@ model MisException {
   createdAt    DateTime    @default(now())
 
   @@map("mis_exceptions")
+}
+
+
+model AccountOpening {
+  id              String   @id @default(uuid())
+  solId           String   // Branch code
+  branch          Branch   @relation(fields: [solId], references: [code])
+  cifId           String
+  foracid         String   @unique // Account Number
+  acctName        String
+  schmType        String
+  schmCode        String
+  accountClass    String?  // SB, CD standardized
+  acctOpnDate     DateTime
+  clrBalAmt       Decimal  @db.Decimal(18, 2)
+  averageBalance  Decimal  @db.Decimal(18, 2)
+  businessDate    DateTime // The date this data was uploaded for
+  
+  isQualified     Boolean  @default(false)
+  rejectionReason String?
+  dataQualityFlag String   @default("VALID")
+  
+  // Customer Intelligence
+  customerValueScore Float?
+  valueRank          Int?
+  valueBucket        String? // HIGH_VALUE, PREMIUM, RETAIL
+  
+  createdAt       DateTime @default(now())
+
+  @@index([businessDate])
+  @@index([solId])
+  @@map("account_openings")
+}
+
+model CalendarMaster {
+  calDate         DateTime @id
+  isWorkingDay    Boolean  @default(true)
+  holidayFlag     Boolean  @default(false)
+  monthKey        String   // e.g., "2026-02"
+  financialPeriod String?  // e.g., "Q4-2025-26"
+
+  @@map("calendar_master")
+}
+
+model FactSbDailyBranch {
+  id              String   @id @default(uuid())
+  solId           String
+  openDay         DateTime
+  netSbOpened     Int
+  workingDayFlag  Boolean
+  qualifiedCount  Int
+  dataQualityFlag String
+  createdAt       DateTime @default(now())
+
+  @@unique([solId, openDay])
+  @@map("fact_sb_daily_branch")
+}
+
+model FactCdMonthlyBranch {
+  id              String   @id @default(uuid())
+  solId           String
+  monthKey        String
+  netCdOpened     Int
+  qualifiedCount  Int
+  dataQualityFlag String
+  createdAt       DateTime @default(now())
+
+  @@unique([solId, monthKey])
+  @@map("fact_cd_monthly_branch")
+}
+
+model ProductAdoptionScheme {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  type      String   // SB, CD
+  isActive  Boolean  @default(true)
+
+  @@map("product_adoption_schemes")
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique // e.g., "MIN_OPENING_BALANCE"
+  value     String
+  dataType  String   @default("STRING") // STRING, NUMBER, BOOLEAN
+  group     String   @default("GENERAL") // PLANNING, HR, etc.
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
 }
 
 model Notification {

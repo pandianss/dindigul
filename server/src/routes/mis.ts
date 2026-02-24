@@ -147,7 +147,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
             if (isNegative) {
                 const alertPayload = {
                     branchCode: branch.code,
-                    branchName: branch.name,
+                    branchName: branch.nameEn,
                     paramCode: parameter.code,
                     paramName: parameter.name,
                     newStatus: 'NEGATIVE',
@@ -161,7 +161,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
                     type: 'mis_alert',
                     user: 'System',
                     role: 'ADMIN',
-                    text: `${branch.name} (${branch.code}) — ${parameter.name} moved to NEGATIVE`,
+                    text: `${branch.nameEn} (${branch.code}) — ${parameter.name} moved to NEGATIVE`,
                     payload: JSON.stringify(alertPayload),
                     timestamp: new Date()
                 };

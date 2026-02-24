@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../services/api';
 import MISUpload from './admin/MISUpload';
 import { getErrorMessage } from '../utils/handleError';
@@ -679,38 +680,47 @@ const SettingsManager: React.FC = () => {
                 </div>
             )}
 
-            {showForm && activeTab !== 'misUpload' && (
-                <div className="card p-8 bg-white border border-bank-teal/20 shadow-xl animate-in slide-in-from-top duration-300 max-w-2xl">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-bank-navy uppercase">
-                            {editingItem ? 'Edit' : 'Create New'} {activeTab.slice(0, -1)}
-                        </h3>
-                        <button onClick={() => { setShowForm(false); setEditingItem(null); }} className="text-gray-400 hover:text-red-500">
-                            <X size={24} />
-                        </button>
-                    </div>
-                    <form onSubmit={handleSave} className="space-y-6">
-                        {renderForm()}
-                        <div className="flex justify-end pt-4 space-x-3">
+            {showForm && activeTab !== 'misUpload' && createPortal(
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 shadow-2xl"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+                >
+                    <div className="bg-white rounded-2xl shadow-2xl border border-bank-teal/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
+                        <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-4 border-b border-gray-100">
+                            <h3 className="text-2xl font-black text-bank-navy uppercase tracking-tight">
+                                {editingItem ? 'Edit' : 'Create New'} {activeTab.slice(0, -1)}
+                            </h3>
                             <button
-                                type="button"
                                 onClick={() => { setShowForm(false); setEditingItem(null); }}
-                                className="px-6 py-2 rounded-lg font-bold border border-gray-200 hover:bg-gray-50 transition-all"
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-red-500"
                             >
-                                Cancel
-                            </button>
-                            <button type="submit" className="bg-bank-navy text-white px-8 py-2 rounded-lg font-bold shadow-lg hover:bg-opacity-90 transition-all flex items-center space-x-2">
-                                <Save size={18} />
-                                <span>Save Entry</span>
+                                <X size={24} />
                             </button>
                         </div>
-                    </form>
-                </div>
+                        <form onSubmit={handleSave} className="space-y-6">
+                            {renderForm()}
+                            <div className="flex justify-end pt-6 mt-6 border-t border-gray-100 space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => { setShowForm(false); setEditingItem(null); }}
+                                    className="px-6 py-2 rounded-lg font-bold border border-gray-200 hover:bg-gray-50 transition-all text-gray-600"
+                                >
+                                    Cancel
+                                </button>
+                                <button type="submit" className="bg-bank-navy text-white px-8 py-2 rounded-lg font-bold shadow-lg hover:bg-opacity-90 transition-all flex items-center space-x-2">
+                                    <Save size={18} />
+                                    <span>Save & Update</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>,
+                document.body
             )}
 
-            {showTransferModal && transferItem && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in duration-200">
+            {showTransferModal && transferItem && createPortal(
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in duration-200 relative">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-bank-navy flex items-center gap-2">
                                 <ArrowRightLeft size={24} className="text-bank-teal" />
@@ -782,7 +792,8 @@ const SettingsManager: React.FC = () => {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {error && (

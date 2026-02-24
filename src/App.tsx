@@ -14,6 +14,7 @@ const SettingsManager = lazy(() => import('./modules/SettingsManager'));
 const Dashboard = lazy(() => import('./modules/Dashboard'));
 const AssetManager = lazy(() => import('./modules/AssetManager'));
 const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
+const PlanningAnalytics = lazy(() => import('./modules/PlanningAnalytics'));
 // GAP 07: Wire missing modules
 const AuditManager = lazy(() => import('./modules/AuditManager'));
 const CommitteeManager = lazy(() => import('./modules/CommitteeManager'));
@@ -105,6 +106,8 @@ function App() {
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MagazineGenerator /></Suspense></ErrorBoundary>;
             case 'requests':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><RequestManager /></Suspense></ErrorBoundary> : null;
+            case 'planning':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><PlanningAnalytics /></Suspense></ErrorBoundary> : null;
 
             default:
                 return (

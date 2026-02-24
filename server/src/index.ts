@@ -27,6 +27,7 @@ import unitRoutes from './routes/unit';
 import chatRoutes from './routes/chat';
 import dashboardRoutes from './routes/dashboard';
 import atmRoutes from './routes/atms';
+import planningRoutes from './routes/planning';
 import prisma from './lib/prisma';
 
 dotenv.config();
@@ -59,7 +60,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
@@ -89,6 +91,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/designations', designationRoutes);
 app.use('/api/branches', unitRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/planning', planningRoutes);
 
 import { registerChatHandlers } from './socket/chatHandler';
 

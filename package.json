@@ -8,7 +8,9 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "native:setup": "powershell -ExecutionPolicy Bypass -File infrastructure/setup-windows.ps1",
+    "native:start": "pm2 start infrastructure/ecosystem.config.cjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
