@@ -174,6 +174,7 @@ model Branch {
   misExceptions       MisException[]
   noticeAcks          NoticeAck[]
   accountOpenings    AccountOpening[]
+  accountClosures    AccountClosure[]
   // campaignTargets     CampaignTarget[]
   // campaignPerformances CampaignPerformance[]
   // periodicReturns     PeriodicReturn[]
@@ -872,6 +873,29 @@ model AccountOpening {
   @@map("account_openings")
 }
 
+model AccountClosure {
+  id              String   @id @default(uuid())
+  solId           String   // Branch code
+  branch          Branch   @relation(fields: [solId], references: [code])
+  cifId           String
+  foracid         String   @unique // Account Number
+  acctName        String
+  schmType        String
+  schmCode        String
+  accountClass    String?  // SB, CD standardized
+  acctOpnDate     DateTime
+  acctClsDate     DateTime
+  balanceAtCls    Decimal  @db.Decimal(18, 2)
+  businessDate    DateTime // The date this data was uploaded for
+  
+  dataQualityFlag String   @default("VALID")
+  createdAt       DateTime @default(now())
+
+  @@index([businessDate])
+  @@index([solId])
+  @@map("account_closures")
+}
+
 model CalendarMaster {
   calDate         DateTime @id
   isWorkingDay    Boolean  @default(true)
@@ -887,6 +911,7 @@ model FactSbDailyBranch {
   solId           String
   openDay         DateTime
   netSbOpened     Int
+  sbClosed        Int      @default(0)
   workingDayFlag  Boolean
   qualifiedCount  Int
   dataQualityFlag String
@@ -901,6 +926,7 @@ model FactCdMonthlyBranch {
   solId           String
   monthKey        String
   netCdOpened     Int
+  cdClosed        Int      @default(0)
   qualifiedCount  Int
   dataQualityFlag String
   createdAt       DateTime @default(now())

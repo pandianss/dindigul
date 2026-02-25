@@ -24,6 +24,25 @@ router.post('/upload', async (req, res) => {
     }
 });
 
+// Upload Account Closure CSV
+router.post('/upload-closures', async (req, res) => {
+    try {
+        const { csvData, date } = req.body;
+        if (!csvData) return res.status(400).json({ error: 'No CSV data provided' });
+
+        const businessDate = date ? new Date(date) : new Date();
+        const results = await PlanningService.processAccountClosures(csvData, businessDate);
+
+        res.json({
+            message: 'Account closure data processed successfully',
+            results
+        });
+    } catch (error: any) {
+        console.error('Closure upload error:', error);
+        res.status(500).json({ error: error.message || 'Failed to process closure upload' });
+    }
+});
+
 // Get Account Opening Analytics
 router.get('/analytics', async (req, res) => {
     try {

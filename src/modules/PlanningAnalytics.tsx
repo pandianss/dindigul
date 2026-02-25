@@ -37,10 +37,14 @@ interface BranchStats {
     code: string;
     name: string;
     sbTotal: number;
+    sbClosed: number;
     sbQualified: number;
     cdTotal: number;
+    cdClosed: number;
     cdQualified: number;
     total: number;
+    closed: number;
+    net: number;
     qualified: number;
     lowBalance: number;
     avgBalance: number;
@@ -61,16 +65,34 @@ interface AnalyticsData {
         thisMonth: number;
         lastMonth: number;
         fy: number;
+        fyTotal: number;
+        fyClosed: number;
+        fyNet: number;
+        fyBalance: number;
         pace: string;
         total: number;
+        closed: number;
+        net: number;
+        lastMonthTotal: number;
+        lastMonthClosed: number;
+        thisMonthBalance: number;
         dailyRunRate?: number;
         avgPerBranch?: number;
     };
     cd: {
         thisMonth: number;
-        lastMonth: number;
-        fy: number;
         total: number;
+        closed: number;
+        net: number;
+        thisMonthBalance: number;
+        lastMonth: number;
+        lastMonthTotal: number;
+        lastMonthClosed: number;
+        fy: number;
+        fyTotal: number;
+        fyClosed: number;
+        fyNet: number;
+        fyBalance: number;
         monthlyRunRate?: number;
         avgPerBranch?: number;
     };
@@ -94,6 +116,7 @@ const PlanningAnalytics: React.FC = () => {
     const [sbThreshold, setSbThreshold] = useState<number>(0);
     const [cdThreshold, setCdThreshold] = useState<number>(0);
     const [updatingThreshold, setUpdatingThreshold] = useState(false);
+    const [uploadType, setUploadType] = useState<'opening' | 'closure'>('opening');
     const [eligibleSchemes, setEligibleSchemes] = useState<string>('');
     const [showSettings, setShowSettings] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -143,7 +166,8 @@ const PlanningAnalytics: React.FC = () => {
         reader.onload = async (e) => {
             const csvData = e.target?.result;
             try {
-                const response = await api.post('/planning/upload', { csvData, date });
+                const endpoint = uploadType === 'opening' ? '/planning/upload' : '/planning/upload-closures';
+                const response = await api.post(endpoint, { csvData, date });
                 setMessage({ type: 'success', text: response.data.message });
                 setFile(null);
                 fetchStats(); // Refresh stats
@@ -303,6 +327,95 @@ const PlanningAnalytics: React.FC = () => {
 
             {activeTab === 'overview' && (
                 <div className="space-y-6 animate-in fade-in duration-500">
+                    {/* Context & Controls Header */}
+                    <div className="space-y-3">
+                        {/* Compact Working Days Context Bar */}
+                        <div className="flex items-center space-x-6 px-5 py-3 bg-gray-50/50 rounded-2xl border border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            <div className="flex items-center space-x-2 border-r border-gray-200 pr-4">
+                                <Calendar size={14} className="text-bank-teal" />
+                                <span className="text-bank-navy">Working Context:</span>
+                            </div>
+                            <div className="flex items-center space-x-6">
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-gray-400">Month:</span>
+                                    <span className="text-bank-navy bg-white px-2 py-0.5 rounded shadow-sm">{stats?.workingDays.thisMonth} Days</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-gray-400">Previous:</span>
+                                    <span className="text-bank-navy/60">{stats?.workingDays.lastMonth}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-gray-400">FY {stats?.calendar?.fyKey}:</span>
+                                    <span className="text-bank-navy/60">{stats?.workingDays.fy}</span>
+                                </div>
+                            </div>
+                            <div className="flex-1 text-right">
+                                <span className="text-[9px] text-gray-300 italic">Financial Period Hierarchy</span>
+                            </div>
+                        </div>
+
+                        {/* Compact Data Ingestion Strip */}
+                        <div className="flex items-center space-x-4 bg-white border border-gray-100 rounded-2xl p-2 shadow-sm animate-in slide-in-from-top-2">
+                            <div className="flex items-center space-x-2 px-3 border-r border-gray-100">
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Type:</span>
+                                <select
+                                    value={uploadType}
+                                    onChange={(e) => setUploadType(e.target.value as 'opening' | 'closure')}
+                                    className="bg-transparent border-none text-[10px] font-black text-bank-navy outline-none focus:ring-0 cursor-pointer"
+                                >
+                                    <option value="opening">Openings</option>
+                                    <option value="closure">Closures</option>
+                                </select>
+                            </div>
+                            <div className="flex items-center space-x-2 px-3 border-r border-gray-100">
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Date:</span>
+                                <input
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    className="bg-transparent border-none text-[10px] font-black text-bank-navy outline-none focus:ring-0 w-32"
+                                />
+                            </div>
+                            <div className="flex-1 flex items-center space-x-3 px-2 min-w-0">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate">
+                                    {file ? file.name : `Select ${uploadType === 'opening' ? 'Account Opening' : 'Account Closure'} CSV`}
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    id="file-upload-compact"
+                                />
+                                {!file ? (
+                                    <label htmlFor="file-upload-compact" className="flex-shrink-0 px-3 py-1.5 bg-gray-50 text-[9px] font-black uppercase tracking-widest rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-all">
+                                        Browse
+                                    </label>
+                                ) : (
+                                    <button onClick={() => setFile(null)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                                        <AlertCircle size={16} />
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <button
+                                    onClick={handleUpload}
+                                    disabled={!file || uploading}
+                                    className="bg-bank-navy text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-md shadow-bank-navy/10 disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none whitespace-nowrap"
+                                >
+                                    {uploading ? 'Processing...' : 'Process & Sync'}
+                                </button>
+                                {message && (
+                                    <div className={cn(
+                                        "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest animate-in slide-in-from-right-2",
+                                        message.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
+                                    )}>
+                                        {message.text}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Stats Summary */}
@@ -316,26 +429,44 @@ const PlanningAnalytics: React.FC = () => {
                                     <span className="text-[10px] font-black text-bank-teal bg-bank-teal/5 px-2 py-1 rounded">SB ACCOUNTS (Above {stats?.sbThreshold})</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.sb.thisMonth)}</h4>
+                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.sb.net)}</h4>
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Qualified this month (of {formatNumber(stats?.sb.total)} total)</p>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] font-bold text-bank-teal uppercase tracking-widest">Net Growth this month</p>
+                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.sb.thisMonth)} | Closures: {formatNumber(stats?.sb.closed)})</p>
+                                        </div>
                                         <div className="text-right">
                                             <span className="text-[10px] font-black text-bank-navy">Avg {stats?.sb.avgPerBranch?.toFixed(1)}</span>
                                             <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">per branch</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-4">
+                                <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-y-4 gap-x-6">
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Daily Avg</p>
-                                        <div className="flex items-center space-x-1 mt-1">
-                                            <span className="text-xl font-black text-bank-navy tracking-tight">{(stats?.sb.dailyRunRate || 0).toFixed(1)}</span>
-                                            <ArrowUpRight size={14} className="text-green-500" />
-                                        </div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Growth Balance</p>
+                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb.thisMonthBalance)}</div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">current month</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Month</p>
-                                        <div className="mt-1 font-black text-bank-navy opacity-50">{formatNumber(stats?.sb.lastMonth)}</div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Month Net</p>
+                                        <div className="mt-1 font-black text-bank-navy opacity-50 text-lg">
+                                            {formatNumber((stats?.sb.lastMonthTotal || 0) - (stats?.sb.lastMonthClosed || 0))}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb.lastMonth)})</span>
+                                        </div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Net Performance</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net growth</p>
+                                        <div className="mt-1 font-black text-bank-navy tracking-tight text-lg">
+                                            {formatNumber(stats?.sb.fyNet)}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb.fy)})</span>
+                                        </div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Total FY Net</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net Balance</p>
+                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb.fyBalance)}</div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">FY cumulative balance</p>
                                     </div>
                                 </div>
                             </div>
@@ -349,110 +480,48 @@ const PlanningAnalytics: React.FC = () => {
                                     <span className="text-[10px] font-black text-bank-gold bg-bank-gold/5 px-2 py-1 rounded">CD ACCOUNTS</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.cd.thisMonth)}</h4>
+                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.cd.net)}</h4>
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Qualified this month (of {formatNumber(stats?.cd.total)} total)</p>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] font-bold text-bank-gold uppercase tracking-widest">Net Growth this month</p>
+                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.cd.thisMonth)} | Closures: {formatNumber(stats?.cd.closed)})</p>
+                                        </div>
                                         <div className="text-right">
                                             <span className="text-[10px] font-black text-bank-navy">Avg {stats?.cd.avgPerBranch?.toFixed(1)}</span>
                                             <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">per branch</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-4">
+                                <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-y-4 gap-x-6">
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Total</p>
-                                        <div className="mt-1 font-black text-bank-navy tracking-tight text-xl">{formatNumber(stats?.cd.fy)}</div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Growth Balance</p>
+                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd.thisMonthBalance)}</div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">current month</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Monthly Avg</p>
-                                        <div className="flex items-center space-x-1 mt-1 text-bank-teal">
-                                            <span className="text-xl font-black tracking-tight">{(stats?.cd.monthlyRunRate || 0).toFixed(1)}</span>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Month Net</p>
+                                        <div className="mt-1 font-black text-bank-navy opacity-50 text-lg">
+                                            {formatNumber((stats?.cd.lastMonthTotal || 0) - (stats?.cd.lastMonthClosed || 0))}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd.lastMonth)})</span>
                                         </div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Net Performance</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net growth</p>
+                                        <div className="mt-1 font-black text-bank-navy tracking-tight text-lg">
+                                            {formatNumber(stats?.cd.fyNet)}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd.fy)})</span>
+                                        </div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Total FY Net</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net Balance</p>
+                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd.fyBalance)}</div>
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">FY cumulative balance</p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Working Days Context */}
-                            <div className="card p-6 md:col-span-2">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h4 className="text-xs font-black text-bank-navy uppercase tracking-widest flex items-center space-x-2">
-                                        <Calendar size={14} className="text-bank-teal" />
-                                        <span>Working Days Context</span>
-                                    </h4>
-                                    <span className="text-[10px] text-gray-400 font-bold uppercase italic">Source: Regional Calendar</span>
-                                </div>
-                                <div className="flex items-center justify-between bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
-                                    <div className="text-center space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current Month</p>
-                                        <p className="text-2xl font-black text-bank-navy leading-none">{stats?.workingDays.thisMonth}</p>
-                                    </div>
-                                    <div className="w-px h-10 bg-gray-200" />
-                                    <div className="text-center space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Previous Month</p>
-                                        <p className="text-2xl font-black text-bank-navy leading-none">{stats?.workingDays.lastMonth}</p>
-                                    </div>
-                                    <div className="w-px h-10 bg-gray-200" />
-                                    <div className="text-center space-y-1">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fiscal Year</p>
-                                        <p className="text-2xl font-black text-bank-navy leading-none">{stats?.workingDays.fy}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Upload Action */}
-                        <div className="card overflow-hidden flex flex-col h-full bg-white border-2 border-dashed border-gray-200 hover:border-bank-navy/30 transition-all group">
-                            <div className="bg-gray-50/50 p-6 border-b border-gray-200/50">
-                                <h4 className="text-xs font-black text-bank-navy uppercase tracking-widest flex items-center space-x-2">
-                                    <Upload size={14} className="text-bank-navy" />
-                                    <span>Data Ingestion</span>
-                                </h4>
-                            </div>
-                            <div className="p-8 flex-1 flex flex-col items-center justify-center text-center space-y-6">
-                                <div className="w-20 h-20 bg-gray-100 rounded-[2.5rem] flex items-center justify-center text-gray-400 group-hover:bg-bank-navy/5 group-hover:text-bank-navy transition-all duration-500 relative">
-                                    <FileText size={32} />
-                                    {file && <div className="absolute top-0 right-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center border-4 border-white"><CheckCircle size={12} /></div>}
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-black text-bank-navy uppercase tracking-wide">Drop Account Opening CSV</p>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Standard FO Report Format</p>
-                                </div>
-                                <div className="w-full relative px-4">
-                                    <input
-                                        type="file"
-                                        accept=".csv"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    <div className="w-full py-3 bg-white border-2 border-gray-200 rounded-xl text-[10px] font-black text-gray-500 uppercase tracking-widest group-hover:border-bank-navy/30 transition-all truncate px-2">
-                                        {file ? file.name : 'Choose File'}
-                                    </div>
-                                </div>
-
-                                <div className="w-full space-y-4">
-                                    <div className="space-y-1 text-left">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Reporting Date</label>
-                                        <input
-                                            type="date"
-                                            value={date}
-                                            onChange={(e) => setDate(e.target.value)}
-                                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-bold text-xs outline-none focus:ring-2 focus:ring-bank-navy"
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={handleUpload}
-                                        disabled={!file || uploading}
-                                        className="w-full bg-bank-navy text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg disabled:bg-gray-200 group-hover:shadow-bank-navy/20"
-                                    >
-                                        {uploading ? 'Parsing Records...' : 'Process Analytics'}
-                                    </button>
-                                </div>
-                            </div>
-                            {message && (
-                                <div className={`p-4 text-[10px] font-black uppercase tracking-widest text-center animate-in fade-in slide-in-from-bottom-2 ${message.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                                    {message.text}
-                                </div>
-                            )}
                         </div>
                     </div>
 
@@ -504,10 +573,10 @@ const PlanningAnalytics: React.FC = () => {
                                 <thead>
                                     <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                         <th className="text-left px-4 py-2">Branch Details</th>
-                                        <th className="text-center px-4 py-2">Savings (SB)</th>
-                                        <th className="text-center px-4 py-2">Current (CD)</th>
-                                        <th className="text-center px-4 py-2">Total Qual/Tot</th>
-                                        <th className="text-center px-4 py-2">Opening Rate</th>
+                                        <th className="text-center px-4 py-2">SB Metrics (Gross/Cls | Qual/Net)</th>
+                                        <th className="text-center px-4 py-2">CD Metrics (Gross/Cls | Qual/Net)</th>
+                                        <th className="text-center px-4 py-2">Total Qual/Net</th>
+                                        <th className="text-center px-4 py-2">Net Rate</th>
                                         <th className="text-center px-4 py-2">Avg. Bal</th>
                                         <th className="text-right px-4 py-2">Efficiency</th>
                                     </tr>
@@ -528,29 +597,64 @@ const PlanningAnalytics: React.FC = () => {
                                             </td>
                                             <td className="px-4 py-4 bg-white border-y border-gray-100 group-hover:border-bank-navy/10 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-sm font-black text-bank-navy">{formatNumber(branch.sbQualified)} / {formatNumber(branch.sbTotal)}</span>
-                                                    <span className="text-[8px] font-bold text-gray-400 uppercase text-bank-teal">Qualified SB</span>
+                                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 min-w-[120px]">
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-bank-navy leading-none">{formatNumber(branch.sbTotal)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Gross</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-red-500 leading-none">{formatNumber(branch.sbClosed)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Closed</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-bank-teal leading-none">{formatNumber(branch.sbQualified)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Qualified</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between border-l border-gray-100 pl-3">
+                                                            <span className="text-[11px] font-black text-bank-navy leading-none">{formatNumber(branch.sbQualified - branch.sbClosed)}</span>
+                                                            <span className="text-[7px] font-black text-bank-teal uppercase tracking-tighter">Net</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4 bg-white border-y border-gray-100 group-hover:border-bank-navy/10 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-sm font-black text-bank-navy">{formatNumber(branch.cdQualified)} / {formatNumber(branch.cdTotal)}</span>
-                                                    <span className="text-[8px] font-bold text-gray-400 uppercase text-bank-gold">Qualified CD</span>
+                                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 min-w-[120px]">
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-bank-navy leading-none">{formatNumber(branch.cdTotal)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Gross</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-red-500 leading-none">{formatNumber(branch.cdClosed)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Closed</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between">
+                                                            <span className="text-[11px] font-black text-bank-gold leading-none">{formatNumber(branch.cdQualified)}</span>
+                                                            <span className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Qualified</span>
+                                                        </div>
+                                                        <div className="flex flex-col h-full justify-between border-l border-gray-100 pl-3">
+                                                            <span className="text-[11px] font-black text-bank-navy leading-none">{formatNumber(branch.cdQualified - branch.cdClosed)}</span>
+                                                            <span className="text-[7px] font-black text-bank-gold uppercase tracking-tighter">Net</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4 bg-white border-y border-gray-100 group-hover:border-bank-navy/10 text-center">
                                                 <div className="flex flex-col items-center font-black">
-                                                    <span className="text-sm text-bank-navy">{formatNumber(branch.qualified)} / {formatNumber(branch.total)}</span>
-                                                    <span className="text-[8px] text-gray-400 uppercase">Combined</span>
+                                                    <span className="text-sm text-bank-navy">{formatNumber(branch.qualified)} / {formatNumber(branch.net)}</span>
+                                                    <span className="text-[8px] text-gray-400 uppercase">Qual / Net</span>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4 bg-white border-y border-gray-100 group-hover:border-bank-navy/10 text-center">
-                                                <div className="flex flex-col items-center space-y-1">
+                                                <div className="flex flex-col items-center">
                                                     <div className="flex items-center space-x-1">
                                                         <span className="text-[10px] font-black text-bank-navy">{branch.sbRate.toFixed(1)}</span>
                                                         <span className="text-[7px] font-bold text-bank-teal uppercase">SB/Day</span>
                                                     </div>
-                                                    <div className="flex items-center space-x-1 border-t border-gray-50 pt-1">
+                                                    <span className="text-[6px] text-gray-400 uppercase font-bold">({branchPeriod === 'month' ? 'Current Month' : 'FY to Date'})</span>
+                                                </div>
+                                                <div className="flex flex-col items-center border-t border-gray-50 pt-1">
+                                                    <div className="flex items-center space-x-1">
                                                         <span className="text-[10px] font-black text-bank-navy">{branch.cdRate.toFixed(1)}</span>
                                                         <span className="text-[7px] font-bold text-bank-gold uppercase">CD/Mo</span>
                                                     </div>

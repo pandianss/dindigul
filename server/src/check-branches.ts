@@ -1,13 +1,14 @@
+export { };
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
     const branches = await prisma.branch.findMany({
-        select: { code: true, name: true }
+        select: { code: true, nameEn: true }
     });
     console.log('Branches in DB:', branches.length);
-    branches.slice(0, 10).forEach(b => {
-        console.log(`- ${b.code}: ${b.name}`);
+    branches.slice(0, 10).forEach((b: any) => {
+        console.log(`- ${b.code}: ${b.nameEn}`);
     });
 }
 

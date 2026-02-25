@@ -28,6 +28,18 @@ export interface AccountOpeningCSVRow {
     'AVERAGE BALANCE': string;
 }
 
+export interface AccountClosureCSVRow {
+    SOL_ID: string;
+    CIF_ID: string;
+    FORACID: string;
+    ACCT_NAME: string;
+    ACCT_OPN_DATE: string;
+    ACCT_CLS_DATE: string;
+    SCHM_TYPE: string;
+    SCHM_CODE: string;
+    'Balance Prior to Closure': string;
+}
+
 export class PlanningService {
     /**
      * Processes Account Opening CSV data with Qualification Engine.
@@ -96,12 +108,18 @@ export class PlanningService {
                     if (dateStr.includes('/')) opnDate = parseDate(dateStr, 'dd/MM/yyyy', new Date());
                     else if (dateStr.includes('-')) opnDate = parseDate(dateStr, 'dd-MM-yyyy', new Date());
                     else opnDate = new Date(dateStr);
+
                     if (isNaN(opnDate.getTime())) opnDate = bDate;
+                    else opnDate = startOfDay(opnDate);
+
+                    // Normalize SOL_ID to 4 digits
+                    let solId = (record.SOL_ID || '').toString().trim();
+                    if (solId.length > 0 && solId.length < 4) solId = solId.padStart(4, '0');
 
                     await prisma.accountOpening.upsert({
                         where: { foracid: record.FORACID },
                         update: {
-                            solId: record.SOL_ID,
+                            solId,
                             cifId: record.CIF_ID,
                             acctName: record.ACCT_NAME,
                             schmType,
@@ -117,7 +135,7 @@ export class PlanningService {
                             customerValueScore: balance // Simple score for now
                         },
                         create: {
-                            solId: record.SOL_ID,
+                            solId,
                             cifId: record.CIF_ID,
                             foracid: record.FORACID,
                             acctName: record.ACCT_NAME,
@@ -142,8 +160,123 @@ export class PlanningService {
             }));
         }
 
-        // Trigger Fact Table Refresh
-        await this.refreshFactTables(bDate);
+        // Trigger Comprehensive Fact Table Refresh for all opening dates in DB
+        const affectedDates = await prisma.accountOpening.groupBy({
+            by: ['acctOpnDate'],
+            where: { businessDate: bDate } // Only refresh dates present in this upload
+        });
+
+        console.log(`Synchronizing Fact Tables for ${affectedDates.length} unique opening dates...`);
+        for (const d of affectedDates) {
+            if (d.acctOpnDate) {
+                await this.refreshFactTables(d.acctOpnDate);
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Processes Account Closure CSV data.
+     */
+    static async processAccountClosures(csvContent: string, businessDate: Date) {
+        const records = parseCSV<AccountClosureCSVRow>(csvContent);
+        const results = { total: records.length, processed: 0, skipped: 0, errors: 0 };
+        const bDate = startOfDay(businessDate);
+
+        const batchSize = 100;
+        for (let i = 0; i < records.length; i += batchSize) {
+            const batch = records.slice(i, i + batchSize);
+            await Promise.all(batch.map(async (record) => {
+                try {
+                    if (!record.FORACID || !record.SOL_ID) {
+                        results.skipped++;
+                        return;
+                    }
+
+                    const cleanAmount = (val: string | undefined) => {
+                        if (!val) return 0;
+                        return parseFloat(val.toString().replace(/,/g, '').trim()) || 0;
+                    };
+
+                    const balance = cleanAmount(record['Balance Prior to Closure']);
+                    const schmType = (record.SCHM_TYPE || '').toUpperCase();
+                    const schmCode = (record.SCHM_CODE || '').toUpperCase();
+
+                    // Derive Account Class
+                    let accountClass = 'OTHER';
+                    if (schmType.includes('SB')) accountClass = 'SB';
+                    else if (schmType.includes('CD') || schmType.includes('CA')) accountClass = 'CD';
+
+                    // Standardize Dates
+                    const parseFODate = (dateStr: string) => {
+                        dateStr = (dateStr || '').trim();
+                        let d: Date;
+                        if (dateStr.includes('/')) d = parseDate(dateStr, 'dd/MM/yyyy', new Date());
+                        else if (dateStr.includes('-')) d = parseDate(dateStr, 'dd-MM-yyyy', new Date());
+                        else d = new Date(dateStr);
+
+                        return isNaN(d.getTime()) ? bDate : startOfDay(d);
+                    };
+
+                    const opnDate = parseFODate(record.ACCT_OPN_DATE);
+                    const clsDate = parseFODate(record.ACCT_CLS_DATE);
+                    const finalClsDate = clsDate; // Already startOfDay from the helper
+
+                    // Normalize SOL_ID to 4 digits
+                    let solId = (record.SOL_ID || '').toString().trim();
+                    if (solId.length > 0 && solId.length < 4) solId = solId.padStart(4, '0');
+
+                    await prisma.accountClosure.upsert({
+                        where: { foracid: record.FORACID },
+                        update: {
+                            solId,
+                            cifId: record.CIF_ID,
+                            acctName: record.ACCT_NAME,
+                            schmType,
+                            schmCode,
+                            accountClass,
+                            acctOpnDate: isNaN(opnDate.getTime()) ? bDate : opnDate,
+                            acctClsDate: finalClsDate,
+                            balanceAtCls: balance,
+                            businessDate: bDate,
+                            dataQualityFlag: 'VALID'
+                        },
+                        create: {
+                            solId,
+                            cifId: record.CIF_ID,
+                            foracid: record.FORACID,
+                            acctName: record.ACCT_NAME,
+                            schmType,
+                            schmCode,
+                            accountClass,
+                            acctOpnDate: isNaN(opnDate.getTime()) ? bDate : opnDate,
+                            acctClsDate: finalClsDate,
+                            balanceAtCls: balance,
+                            businessDate: bDate,
+                            dataQualityFlag: 'VALID'
+                        }
+                    });
+                    results.processed++;
+                } catch (err) {
+                    console.error(`Error processing closure record ${record.FORACID}:`, err);
+                    results.errors++;
+                }
+            }));
+        }
+
+        // Trigger Comprehensive Fact Table Refresh for all closure dates in DB
+        const affectedDates = await prisma.accountClosure.groupBy({
+            by: ['acctClsDate'],
+            where: { businessDate: bDate } // Only refresh dates present in this upload
+        });
+
+        console.log(`Synchronizing Fact Tables for ${affectedDates.length} unique closure dates...`);
+        for (const d of affectedDates) {
+            if (d.acctClsDate) {
+                await this.refreshFactTables(d.acctClsDate);
+            }
+        }
 
         return results;
     }
@@ -168,29 +301,24 @@ export class PlanningService {
 
         for (const branch of branches) {
             // Daily SB Fact
-            const dailyStats = await prisma.accountOpening.aggregate({
-                where: {
-                    solId: branch.code,
-                    acctOpnDate: businessDate,
-                    accountClass: 'SB'
-                },
-                _count: { foracid: true }
+            const dailyOpenStats = await prisma.accountOpening.count({
+                where: { solId: branch.code, acctOpnDate: businessDate, accountClass: 'SB' }
+            });
+
+            const dailyClosedStats = await prisma.accountClosure.count({
+                where: { solId: branch.code, acctClsDate: businessDate, accountClass: 'SB' }
             });
 
             const qualifiedStats = await prisma.accountOpening.count({
-                where: {
-                    solId: branch.code,
-                    acctOpnDate: businessDate,
-                    accountClass: 'SB',
-                    isQualified: true
-                }
+                where: { solId: branch.code, acctOpnDate: businessDate, accountClass: 'SB', isQualified: true }
             });
 
-            if (dailyStats._count.foracid > 0) {
+            if (dailyOpenStats > 0 || dailyClosedStats > 0) {
                 await prisma.factSbDailyBranch.upsert({
                     where: { solId_openDay: { solId: branch.code, openDay: businessDate } },
                     update: {
-                        netSbOpened: dailyStats._count.foracid,
+                        netSbOpened: dailyOpenStats,
+                        sbClosed: dailyClosedStats,
                         qualifiedCount: qualifiedStats,
                         workingDayFlag: calendar.isWorkingDay,
                         dataQualityFlag: 'VALID'
@@ -198,7 +326,8 @@ export class PlanningService {
                     create: {
                         solId: branch.code,
                         openDay: businessDate,
-                        netSbOpened: dailyStats._count.foracid,
+                        netSbOpened: dailyOpenStats,
+                        sbClosed: dailyClosedStats,
                         qualifiedCount: qualifiedStats,
                         workingDayFlag: calendar.isWorkingDay,
                         dataQualityFlag: 'VALID'
@@ -206,15 +335,20 @@ export class PlanningService {
                 });
             }
 
-            // Monthly CD Fact refresh (for the whole monthKey if businessDate covers it)
-            const cdStats = await prisma.accountOpening.count({
+            // Monthly CD Fact refresh
+            const cdOpenStats = await prisma.accountOpening.count({
                 where: {
                     solId: branch.code,
                     accountClass: 'CD',
-                    acctOpnDate: {
-                        gte: startOfMonth(businessDate),
-                        lte: endOfMonth(businessDate)
-                    }
+                    acctOpnDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
+                }
+            });
+
+            const cdClosedStats = await prisma.accountClosure.count({
+                where: {
+                    solId: branch.code,
+                    accountClass: 'CD',
+                    acctClsDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
                 }
             });
 
@@ -223,25 +357,24 @@ export class PlanningService {
                     solId: branch.code,
                     accountClass: 'CD',
                     isQualified: true,
-                    acctOpnDate: {
-                        gte: startOfMonth(businessDate),
-                        lte: endOfMonth(businessDate)
-                    }
+                    acctOpnDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
                 }
             });
 
-            if (cdStats > 0) {
+            if (cdOpenStats > 0 || cdClosedStats > 0) {
                 await prisma.factCdMonthlyBranch.upsert({
                     where: { solId_monthKey: { solId: branch.code, monthKey: calendar.monthKey } },
                     update: {
-                        netCdOpened: cdStats,
+                        netCdOpened: cdOpenStats,
+                        cdClosed: cdClosedStats,
                         qualifiedCount: qualifiedCdStats,
                         dataQualityFlag: 'VALID'
                     },
                     create: {
                         solId: branch.code,
                         monthKey: calendar.monthKey,
-                        netCdOpened: cdStats,
+                        netCdOpened: cdOpenStats,
+                        cdClosed: cdClosedStats,
                         qualifiedCount: qualifiedCdStats,
                         dataQualityFlag: 'VALID'
                     }
@@ -371,6 +504,8 @@ export class PlanningService {
             where: { financialPeriod: fy, isWorkingDay: true, calDate: { lte: bDate } }
         });
 
+        console.log(`[PlanningAnalytics] Context - Month: ${monthKey}, WD: ${wdThisMonth}, FY: ${fy}, WD: ${wdFY}`);
+
         // 3. SB Stats using Fact tables
         // Find date range for current monthKey to avoid timezone issues
         const currentMonthDates = await prisma.calendarMaster.aggregate({
@@ -381,30 +516,66 @@ export class PlanningService {
 
         const sbThisMonth = await prisma.factSbDailyBranch.aggregate({
             where: { openDay: { gte: monthStart, lte: bDate } },
-            _sum: { netSbOpened: true, qualifiedCount: true }
+            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
         const sbLastMonth = await prisma.factSbDailyBranch.aggregate({
             where: { openDay: { gte: lastMonthStart, lte: lastMonthEnd } },
-            _sum: { netSbOpened: true, qualifiedCount: true }
+            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
         const fyBoundaries = getFYBoundaries(bDate);
         const sbFY = await prisma.factSbDailyBranch.aggregate({
             where: { openDay: { gte: fyBoundaries.start, lte: bDate } },
-            _sum: { netSbOpened: true, qualifiedCount: true }
+            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
 
         // 4. CD Stats using Fact tables
         const cdThisMonth = await prisma.factCdMonthlyBranch.aggregate({
             where: { monthKey },
-            _sum: { netCdOpened: true, qualifiedCount: true }
+            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
         const cdLastMonth = await prisma.factCdMonthlyBranch.aggregate({
             where: { monthKey: format(lastMonthStart, 'yyyy-MM') },
-            _sum: { netCdOpened: true, qualifiedCount: true }
+            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
         const cdFY = await prisma.factCdMonthlyBranch.aggregate({
             where: { monthKey: { gte: format(fyBoundaries.start, 'yyyy-MM') } }, // Simple range
-            _sum: { netCdOpened: true, qualifiedCount: true }
+            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
+        });
+
+        // Ensure values are numbers or 0
+        const parseStat = (val: number | null | undefined) => val || 0;
+
+        // 5. Balance Aggregations (direct from AccountOpening)
+        const sbBalances = await prisma.accountOpening.aggregate({
+            where: {
+                accountClass: 'SB',
+                acctOpnDate: { gte: monthStart, lte: bDate }
+            },
+            _sum: { clrBalAmt: true }
+        });
+
+        const sbBalancesFY = await prisma.accountOpening.aggregate({
+            where: {
+                accountClass: 'SB',
+                acctOpnDate: { gte: fyBoundaries.start, lte: bDate }
+            },
+            _sum: { clrBalAmt: true }
+        });
+
+        const cdBalances = await prisma.accountOpening.aggregate({
+            where: {
+                accountClass: 'CD',
+                acctOpnDate: { gte: monthStart, lte: bDate }
+            },
+            _sum: { clrBalAmt: true }
+        });
+
+        const cdBalancesFY = await prisma.accountOpening.aggregate({
+            where: {
+                accountClass: 'CD',
+                acctOpnDate: { gte: fyBoundaries.start, lte: bDate }
+            },
+            _sum: { clrBalAmt: true }
         });
 
         const monthsElapsedFY = differenceInMonths(bDate, fyBoundaries.start) + 1;
@@ -442,9 +613,18 @@ export class PlanningService {
             sb: {
                 thisMonth: sbThisMonth._sum.qualifiedCount || 0,
                 total: sbThisMonth._sum.netSbOpened || 0,
+                closed: sbThisMonth._sum.sbClosed || 0,
+                net: (sbThisMonth._sum.qualifiedCount || 0) - (sbThisMonth._sum.sbClosed || 0),
                 qualified: sbThisMonth._sum.qualifiedCount || 0,
+                thisMonthBalance: Number(sbBalances._sum.clrBalAmt || 0),
                 lastMonth: sbLastMonth._sum.qualifiedCount || 0,
+                lastMonthTotal: sbLastMonth._sum.netSbOpened || 0,
+                lastMonthClosed: sbLastMonth._sum.sbClosed || 0,
                 fy: sbFY._sum.qualifiedCount || 0,
+                fyTotal: sbFY._sum.netSbOpened || 0,
+                fyClosed: sbFY._sum.sbClosed || 0,
+                fyNet: (sbFY._sum.qualifiedCount || 0) - (sbFY._sum.sbClosed || 0),
+                fyBalance: Number(sbBalancesFY._sum.clrBalAmt || 0),
                 pace: wdThisMonth > 0 ? ((sbThisMonth._sum.qualifiedCount || 0) / wdThisMonth).toFixed(2) : '0',
                 dailyRunRate: (sbThisMonth._sum.netSbOpened || 0) / (wdThisMonth || 1),
                 avgPerBranch: (sbThisMonth._sum.netSbOpened || 0) / activeBranchCount
@@ -452,8 +632,17 @@ export class PlanningService {
             cd: {
                 thisMonth: cdThisMonth._sum.qualifiedCount || 0,
                 total: cdThisMonth._sum.netCdOpened || 0,
+                closed: cdThisMonth._sum.cdClosed || 0,
+                net: (cdThisMonth._sum.qualifiedCount || 0) - (cdThisMonth._sum.cdClosed || 0),
+                thisMonthBalance: Number(cdBalances._sum.clrBalAmt || 0),
                 lastMonth: cdLastMonth._sum.qualifiedCount || 0,
+                lastMonthTotal: cdLastMonth._sum.netCdOpened || 0,
+                lastMonthClosed: cdLastMonth._sum.cdClosed || 0,
                 fy: cdFY._sum.qualifiedCount || 0,
+                fyTotal: cdFY._sum.netCdOpened || 0,
+                fyClosed: cdFY._sum.cdClosed || 0,
+                fyNet: (cdFY._sum.qualifiedCount || 0) - (cdFY._sum.cdClosed || 0),
+                fyBalance: Number(cdBalancesFY._sum.clrBalAmt || 0),
                 monthlyRunRate: (cdFY._sum.netCdOpened || 0) / (differenceInMonths(bDate, fyBoundaries.start) + 1),
                 avgPerBranch: (cdThisMonth._sum.netCdOpened || 0) / activeBranchCount
             },
@@ -467,13 +656,13 @@ export class PlanningService {
         const branchSb = await prisma.factSbDailyBranch.groupBy({
             by: ['solId'],
             where: { openDay: sbRange },
-            _sum: { netSbOpened: true, qualifiedCount: true }
+            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
 
         const branchCd = await prisma.factCdMonthlyBranch.groupBy({
             by: ['solId'],
             where: { monthKey: cdMonthFilter },
-            _sum: { netCdOpened: true, qualifiedCount: true }
+            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
 
         const branchAvg = await prisma.accountOpening.groupBy({
@@ -488,17 +677,20 @@ export class PlanningService {
             branchMap.set(item.solId, {
                 solId: item.solId,
                 sbTotal: item._sum.netSbOpened || 0,
+                sbClosed: item._sum.sbClosed || 0,
                 sbQualified: item._sum.qualifiedCount || 0,
                 cdTotal: 0,
+                cdClosed: 0,
                 cdQualified: 0
             });
         }
 
         for (const item of branchCd) {
-            const existing = branchMap.get(item.solId) || { solId: item.solId, sbTotal: 0, sbQualified: 0 };
+            const existing = branchMap.get(item.solId) || { solId: item.solId, sbTotal: 0, sbClosed: 0, sbQualified: 0 };
             branchMap.set(item.solId, {
                 ...existing,
                 cdTotal: item._sum.netCdOpened || 0,
+                cdClosed: item._sum.cdClosed || 0,
                 cdQualified: item._sum.qualifiedCount || 0
             });
         }
@@ -512,21 +704,27 @@ export class PlanningService {
         const nameMap = new Map(branches.map(b => [b.code, b.nameEn]));
 
         return Array.from(branchMap.values()).map(item => {
-            const total = item.sbTotal + item.cdTotal;
+            const gross = item.sbTotal + item.cdTotal;
+            const closed = item.sbClosed + item.cdClosed;
             const qualified = item.sbQualified + item.cdQualified;
+            const net = qualified - closed;
             return {
                 code: item.solId,
                 name: nameMap.get(item.solId) || item.solId,
                 sbTotal: item.sbTotal,
+                sbClosed: item.sbClosed,
                 sbQualified: item.sbQualified,
                 cdTotal: item.cdTotal,
+                cdClosed: item.cdClosed,
                 cdQualified: item.cdQualified,
-                total,
+                total: gross,
+                closed,
+                net,
                 qualified,
-                lowBalance: total - qualified,
+                lowBalance: gross - qualified,
                 avgBalance: avgMap.get(item.solId) || 0,
-                sbRate: item.sbTotal / sbDivisor,
-                cdRate: item.cdTotal / cdDivisor
+                sbRate: (item.sbQualified - item.sbClosed) / sbDivisor,
+                cdRate: (item.cdQualified - item.cdClosed) / cdDivisor
             };
         });
     }
