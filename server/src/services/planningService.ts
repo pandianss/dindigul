@@ -71,6 +71,9 @@ export class PlanningService {
                         return;
                     }
 
+                    // Standardize SOL ID to 4 digits
+                    const solId = (record.SOL_ID || '').toString().padStart(4, '0');
+
                     // 1. Normalization Layer
                     const cleanAmount = (val: string | undefined) => {
                         if (!val) return 0;
@@ -111,10 +114,6 @@ export class PlanningService {
 
                     if (isNaN(opnDate.getTime())) opnDate = bDate;
                     else opnDate = startOfDay(opnDate);
-
-                    // Normalize SOL_ID to 4 digits
-                    let solId = (record.SOL_ID || '').toString().trim();
-                    if (solId.length > 0 && solId.length < 4) solId = solId.padStart(4, '0');
 
                     await prisma.accountOpening.upsert({
                         where: { foracid: record.FORACID },
@@ -181,7 +180,7 @@ export class PlanningService {
      */
     static async processAccountClosures(csvContent: string, businessDate: Date) {
         const records = parseCSV<AccountClosureCSVRow>(csvContent);
-        const results = { total: records.length, processed: 0, skipped: 0, errors: 0 };
+        const results = { total: records.length, processed: 0, skipped: 0, corrupted: 0, errors: 0 };
         const bDate = startOfDay(businessDate);
 
         const batchSize = 100;
@@ -191,6 +190,13 @@ export class PlanningService {
                 try {
                     if (!record.FORACID || !record.SOL_ID) {
                         results.skipped++;
+                        return;
+                    }
+
+                    // Detect scientific notation in FORACID (data corruption)
+                    if (record.FORACID.toString().includes('E+')) {
+                        console.warn(`Corrupted account record detected (scientific notation): ${record.FORACID}`);
+                        results.corrupted++;
                         return;
                     }
 

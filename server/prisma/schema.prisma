@@ -175,6 +175,7 @@ model Branch {
   noticeAcks          NoticeAck[]
   accountOpenings    AccountOpening[]
   accountClosures    AccountClosure[]
+  budgets            BudgetMaster[]
   // campaignTargets     CampaignTarget[]
   // campaignPerformances CampaignPerformance[]
   // periodicReturns     PeriodicReturn[]
@@ -712,6 +713,9 @@ model IngestionLog {
   meta      Json?
   createdAt DateTime @default(now())
   facts     Fact[]
+  
+  importLogId String?
+  importLog   MisImportLog? @relation(fields: [importLogId], references: [id], onDelete: Cascade)
 
   @@map("ingestion_logs")
 }
@@ -806,17 +810,23 @@ model MisInformationPanel {
   snapshotId     String
   snapshot       MisSnapshot @relation(fields: [snapshotId], references: [id])
   parameter      String
-  val_fy_start   Decimal     @default(0) @db.Decimal(18, 2)
-  val_fy_end     Decimal     @default(0) @db.Decimal(18, 2)
-  val_prev_m_end Decimal     @default(0) @db.Decimal(18, 2)
-  val_dby        Decimal     @default(0) @db.Decimal(18, 2)
-  val_y_eod      Decimal     @default(0) @db.Decimal(18, 2)
-  val_current    Decimal     @default(0) @db.Decimal(18, 2)
-  growth_day     Decimal     @default(0) @db.Decimal(18, 2)
-  growth_month   Decimal     @default(0) @db.Decimal(18, 2)
-  growth_fy      Decimal     @default(0) @db.Decimal(18, 2)
-  budget_month   Decimal     @default(0) @db.Decimal(18, 2)
-  gap_month      Decimal     @default(0) @db.Decimal(18, 2)
+  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 2)
+  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 2)
+  val_fy_start      Decimal     @default(0) @db.Decimal(18, 2)
+  val_fy_end        Decimal     @default(0) @db.Decimal(18, 2)
+  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 2)
+  val_dby           Decimal     @default(0) @db.Decimal(18, 2)
+  val_y_eod         Decimal     @default(0) @db.Decimal(18, 2)
+  val_current       Decimal     @default(0) @db.Decimal(18, 2)
+  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 2)
+  growth_day        Decimal     @default(0) @db.Decimal(18, 2)
+  growth_month      Decimal     @default(0) @db.Decimal(18, 2)
+  growth_fy         Decimal     @default(0) @db.Decimal(18, 2)
+  budget_month      Decimal     @default(0) @db.Decimal(18, 2)
+  gap_month         Decimal     @default(0) @db.Decimal(18, 2)
+  budget_quarter    Decimal     @default(0) @db.Decimal(18, 2)
+  gap_quarter       Decimal     @default(0) @db.Decimal(18, 2)
+  status            String      @default("Neutral") // Surpassed, Positive, Negative, Neutral
 
   @@map("mis_information_panels")
 }
@@ -968,4 +978,84 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@map("notifications")
+}
+
+model BudgetMaster {
+  id            String   @id @default(uuid())
+  parameterName String
+  solId         String
+  branch        Branch   @relation(fields: [solId], references: [code])
+  periodKey     String
+  effectiveDate DateTime?
+  targetValue   Decimal  @db.Decimal(18, 2)
+  versionNo     Int      @default(1)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sourceBatchId String
+
+  @@unique([parameterName, solId, periodKey])
+  @@map("budget_master")
+}
+
+model BudgetHistory {
+  id            String   @id @default(uuid())
+  parameterName String
+  solId         String
+  periodKey     String
+  effectiveDate DateTime?
+  targetValue   Decimal  @db.Decimal(18, 2)
+  versionNo     Int
+  sourceBatchId String
+  changeType    String   // INSERT, UPDATE, DELETE
+  changedAt     DateTime @default(now())
+
+  @@map("budget_history")
+}
+
+model MisParameterRegistry {
+  parameterName          String  @id
+  displayName            String
+  fullForm               String? 
+  description            String?
+  category               String?
+  isEnabled              Boolean @default(true)
+  createdFromBudgetFlag  Boolean @default(true)
+  orderIndex             Int     @default(0)
+
+  // Hierarchy
+  parentParameterName    String?
+  parentParameter        MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
+  childParameters        MisParameterRegistry[] @relation("ParameterHierarchy")
+
+  @@map("mis_parameter_registry")
+}
+
+model BudgetImportLog {
+  id         String   @id @default(uuid())
+  filename   String
+  checksum   String
+  status     String   @default("PROCESSING") // PROCESSING, SUCCESS, FAILED
+  uploaderId String?
+  totalRows  Int
+  validRows  Int
+  errorRows  Int
+  createdAt  DateTime @default(now())
+
+  @@map("budget_import_logs")
+}
+
+
+model MisImportLog {
+  id            String   @id @default(uuid())
+  filename      String
+  status        String   @default("SUCCESS") // SUCCESS, FAILED
+  processedUnits Int
+  failedUnits    Int
+  uniqueDates    String[] // Array of business dates found in file
+  createdAt     DateTime @default(now())
+  
+  ingestionLogs IngestionLog[]
+
+  @@map("mis_import_logs")
 }

@@ -2,8 +2,14 @@ import { Router } from 'express';
 import { io, prisma } from '../index';
 import { parse } from 'csv-parse/sync';
 import { v4 as uuidv4 } from 'uuid';
-import { BusinessSnapshotService } from '../services/BusinessSnapshotService';
+import { BusinessSnapshotService, MisStatus } from '../services/BusinessSnapshotService';
+import { MISIngestionService } from '../services/MISIngestionService';
 import { authenticateToken } from '../middleware/auth';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const upload = multer({ dest: 'uploads/' });
 
 const router = Router();
 
@@ -83,6 +89,29 @@ router.get('/snapshot', async (req, res) => {
     } catch (error) {
         console.error('Error fetching branch snapshot:', error);
         res.status(500).json({ error: 'Failed to fetch snapshot' });
+    }
+});
+
+// Upload MIS Excel (Pivot format)
+router.post('/excel-upload', authenticateToken, upload.single('file'), async (req: any, res) => {
+    if (!['ADMIN', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    try {
+        const result = await MISIngestionService.processExcel(req.file.path, req.file.originalname);
+
+        // Cleanup
+        fs.unlinkSync(req.file.path);
+
+        res.json(result);
+    } catch (error: any) {
+        console.error('Excel processing error:', error);
+        res.status(500).json({ error: error.message || 'Failed to process Excel file' });
     }
 });
 
@@ -241,11 +270,13 @@ router.get('/business-snapshot/:branchCode', async (req, res) => {
 
     try {
         const snapshot = await BusinessSnapshotService.getSnapshot(branchCode, String(date));
-        if (!snapshot) return res.status(404).json({ error: 'Snapshot not found' });
+        if (!snapshot) {
+            return res.status(404).json({ error: `Snapshot or Unit '${branchCode}' not found for date ${date}` });
+        }
         res.json(snapshot);
     } catch (error: any) {
         console.error('Error getting business snapshot:', error);
-        res.status(500).json({ error: 'Failed to fetch business snapshot' });
+        res.status(500).json({ error: 'Internal server error while fetching snapshot' });
     }
 });
 
@@ -274,6 +305,36 @@ router.get('/exceptions', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Error fetching exceptions:', error);
         res.status(500).json({ error: 'Failed to fetch exceptions' });
+    }
+});
+
+// Get MIS import logs (history)
+router.get('/import-logs', authenticateToken, async (req, res) => {
+    try {
+        const logs = await prisma.misImportLog.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 50
+        });
+        res.json(logs);
+    } catch (error) {
+        console.error('Error fetching import logs:', error);
+        res.status(500).json({ error: 'Failed to fetch import logs' });
+    }
+});
+
+// Delete MIS import log (cascading)
+router.delete('/import-logs/:id', authenticateToken, async (req: any, res) => {
+    if (req.user?.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Only ADMIN may delete MIS data' });
+    }
+
+    try {
+        const { id } = req.params;
+        await MISIngestionService.deleteImport(id);
+        res.json({ message: 'Import deleted successfully' });
+    } catch (error: any) {
+        console.error('Error deleting import:', error);
+        res.status(500).json({ error: error.message || 'Failed to delete import' });
     }
 });
 

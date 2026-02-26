@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
@@ -28,9 +30,10 @@ import chatRoutes from './routes/chat';
 import dashboardRoutes from './routes/dashboard';
 import atmRoutes from './routes/atms';
 import planningRoutes from './routes/planning';
+import budgetRoutes from './routes/budgetRoutes';
+import parameterRoutes from './routes/parameterRoutes';
 import prisma from './lib/prisma';
 
-dotenv.config();
 import { initScheduler } from './services/schedulerService';
 import path from 'path';
 
@@ -92,6 +95,8 @@ app.use('/api/designations', designationRoutes);
 app.use('/api/branches', unitRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/planning', planningRoutes);
+app.use('/api/budget', budgetRoutes);
+app.use('/api/parameters', parameterRoutes);
 
 import { registerChatHandlers } from './socket/chatHandler';
 

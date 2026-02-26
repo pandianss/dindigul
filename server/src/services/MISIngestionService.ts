@@ -1,0 +1,191 @@
+import { PrismaClient } from '@prisma/client';
+import xlsx from 'xlsx';
+import { BusinessSnapshotService, MisStatus } from './BusinessSnapshotService';
+
+const prisma = new PrismaClient();
+
+const MAPPING: Record<string, string> = {
+    'MUDRA': 'Mudra',
+    'AGRI JL': 'Agri_JL',
+    'RETAIL JL': 'Ret-Gold',
+    'GOLD': 'Gold',
+    'HOUSING': 'HL',
+    'VEHICLE': 'VL',
+    'PERSONAL': 'PL',
+    'MORTGAGE': 'Mort',
+    'EDUCATION': 'EL',
+    'LIQUIRENT': 'Liq',
+    'OTHER RETAIL': 'OthRet',
+    ' SB ': 'SB',
+    ' CD ': 'CD',
+    ' TD ': 'TD',
+    ' ADV ': 'Adv',
+    ' MSME ': 'MSME',
+    ' SHG ': 'SHG',
+    ' KCC ': 'KCC',
+    ' Govt Spon ': 'Gov',
+    ' Oth Schematic ': 'OthSch',
+    ' CORE AGRI ': 'Core_Agri',
+    ' NPA ': 'NPA'
+};
+
+export class MISIngestionService {
+    static async processExcel(filePath: string, originalFilename: string) {
+        const workbook = xlsx.readFile(filePath);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = xlsx.utils.sheet_to_json(sheet) as any[];
+
+        const results = {
+            processed: 0,
+            failed: 0,
+            units: new Set<string>(),
+            dates: new Set<string>()
+        };
+
+        // 1. Create Batch Import Log FIRST
+        const importLog = await prisma.misImportLog.create({
+            data: {
+                filename: originalFilename,
+                status: 'PROCESSING',
+                processedUnits: 0,
+                failedUnits: 0,
+                uniqueDates: []
+            }
+        });
+
+        for (const row of data) {
+            try {
+                const solRaw = String(row['SOL'] || '');
+                const sol = solRaw.padStart(4, '0');
+                const dateRaw = String(row['DATE'] || '');
+
+                if (!sol || !dateRaw || sol === '0000') continue;
+
+                // Parse date YYYYMMDD as UTC 00:00
+                const year = parseInt(dateRaw.substring(0, 4));
+                const month = parseInt(dateRaw.substring(4, 6)) - 1;
+                const day = parseInt(dateRaw.substring(6, 8));
+                const businessDate = new Date(Date.UTC(year, month, day));
+
+                const branch = await prisma.branch.findUnique({ where: { code: sol } });
+                if (!branch) {
+                    console.warn(`Branch not found for SOL: ${sol}`);
+                    results.failed++;
+                    continue;
+                }
+
+                await prisma.$transaction(async (tx) => {
+                    // 2. Create Ingestion Log linked to Batch
+                    const log = await tx.ingestionLog.create({
+                        data: {
+                            unitId: branch.id,
+                            status: 'PROCESSED',
+                            filename: originalFilename,
+                            importLogId: importLog.id,
+                            meta: { source: 'MIS_EXCEL_UPLOAD' }
+                        }
+                    });
+
+                    // 3. Clear/Create Facts
+                    await tx.fact.deleteMany({ where: { unitId: branch.id, date: businessDate } });
+
+                    const factsData = [];
+                    let coreRetSum = 0;
+                    const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PL'];
+                    let sb = 0, cd = 0, td = 0, adv = 0;
+
+                    for (const [header, paramName] of Object.entries(MAPPING)) {
+                        if (row[header] !== undefined) {
+                            const val = Number(row[header] || 0);
+                            factsData.push({
+                                unitId: branch.id,
+                                date: businessDate,
+                                metric: paramName,
+                                value: val,
+                                ingestionId: log.id
+                            });
+
+                            if (coreRetConstituents.includes(paramName)) coreRetSum += val;
+                            if (paramName === 'SB') sb = val;
+                            if (paramName === 'CD') cd = val;
+                            if (paramName === 'TD') td = val;
+                            if (paramName === 'Adv') adv = val;
+                        }
+                    }
+
+                    // 4. Add Derived Facts
+                    const casa = sb + cd;
+                    const totalDep = casa + td;
+                    const casaPct = totalDep > 0 ? (casa / totalDep) * 100 : 0;
+
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Core Ret', value: coreRetSum, ingestionId: log.id });
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CASA', value: casa, ingestionId: log.id });
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Total Dep', value: totalDep, ingestionId: log.id });
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CASA%', value: casaPct, ingestionId: log.id });
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CD_Ratio', value: totalDep > 0 ? (adv / totalDep) * 100 : 0, ingestionId: log.id });
+                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Bus', value: totalDep + adv, ingestionId: log.id });
+
+                    if (factsData.length > 0) {
+                        await tx.fact.createMany({ data: factsData });
+                    }
+
+                    // 4. Upsert Snapshot Header
+                    const snapshot = await tx.misSnapshot.upsert({
+                        where: { unitId_businessDate_version: { unitId: branch.id, businessDate, version: 1 } },
+                        create: {
+                            unitId: branch.id,
+                            businessDate,
+                            status: MisStatus.PROVISIONAL,
+                            version: 1
+                        },
+                        update: {
+                            status: MisStatus.PROVISIONAL
+                        }
+                    });
+
+                    // 5. Populate Panel
+                    await (BusinessSnapshotService as any).populatePanelInternal(tx, snapshot.id, branch.id, businessDate);
+                });
+
+                results.processed++;
+                results.units.add(sol);
+                results.dates.add(businessDate.toISOString().split('T')[0]);
+
+            } catch (err) {
+                console.error(`Row processing failed for SOL ${row['SOL']}:`, err);
+                results.failed++;
+            }
+        }
+
+        // 6. Update Batch Import Log status
+        await prisma.misImportLog.update({
+            where: { id: importLog.id },
+            data: {
+                status: 'SUCCESS',
+                processedUnits: results.processed,
+                failedUnits: results.failed,
+                uniqueDates: Array.from(results.dates)
+            }
+        });
+
+        return {
+            success: true,
+            importId: importLog.id,
+            processedCount: results.processed,
+            failedCount: results.failed,
+            uniqueUnits: results.units.size,
+            uniqueDates: Array.from(results.dates)
+        };
+    }
+
+    static async deleteImport(importId: string) {
+        // Since we added onDelete: Cascade in the schema, 
+        // deleting the MisImportLog will delete all linked IngestionLogs 
+        // and their respective Facts.
+        await prisma.misImportLog.delete({
+            where: { id: importId }
+        });
+
+        return { success: true };
+    }
+}

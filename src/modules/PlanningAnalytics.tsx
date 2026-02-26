@@ -168,7 +168,9 @@ const PlanningAnalytics: React.FC = () => {
             try {
                 const endpoint = uploadType === 'opening' ? '/planning/upload' : '/planning/upload-closures';
                 const response = await api.post(endpoint, { csvData, date });
-                setMessage({ type: 'success', text: response.data.message });
+                const { message: msg, results } = response.data;
+                const corruptedMsg = results?.corrupted > 0 ? ` (${results.corrupted} corrupted records skipped)` : '';
+                setMessage({ type: 'success', text: `${msg}${corruptedMsg}` });
                 setFile(null);
                 fetchStats(); // Refresh stats
             } catch (error: any) {

@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw, Table2, Trash2 } from 'lucide-react';
 import api from '../../services/api';
 
 const MISUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string, details?: any } | null>(null);
+    const [history, setHistory] = useState<any[]>([]);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    const fetchHistory = React.useCallback(async () => {
+        try {
+            const res = await api.get('/mis/import-logs');
+            setHistory(res.data);
+        } catch (err) {
+            console.error('Failed to fetch MIS history:', err);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        fetchHistory();
+    }, [fetchHistory]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0]);
+            setMessage(null);
         }
     };
 
@@ -20,103 +35,214 @@ const MISUpload: React.FC = () => {
         setUploading(true);
         setMessage(null);
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const csvData = e.target?.result;
-            try {
-                const response = await api.post('/mis/upload', { csvData, date });
+        const formData = new FormData();
+        formData.append('file', file);
 
-                const data = response.data;
-                if (response.status === 200) {
-                    setMessage({ type: 'success', text: data.message });
-                    setFile(null);
-                } else {
-                    setMessage({ type: 'error', text: data.error || 'Upload failed' });
-                }
-            } catch {
-                setMessage({ type: 'error', text: 'Network error during upload' });
-            } finally {
-                setUploading(false);
+        try {
+            const response = await api.post('/mis/excel-upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            if (response.status === 200) {
+                setMessage({
+                    type: 'success',
+                    text: `MIS Ingestion Complete: ${response.data.processedCount} units processed.`,
+                    details: response.data
+                });
+                setFile(null);
+                fetchHistory(); // Refresh history
             }
-        };
-        reader.readAsText(file);
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.error || 'Upload failed';
+            setMessage({ type: 'error', text: errorMsg });
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this MIS batch? This will remove all associated unit performance records.')) return;
+
+        setDeletingId(id);
+        try {
+            await api.delete(`/mis/import-logs/${id}`);
+            fetchHistory();
+            setMessage({ type: 'success', text: 'Batch deleted successfully' });
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.error || 'Delete failed';
+            setMessage({ type: 'error', text: errorMsg });
+        } finally {
+            setDeletingId(null);
+        }
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pt-6">
-            <div className="flex items-center justify-between">
+        <div className="max-w-6xl mx-auto space-y-6 pt-6 animate-in fade-in duration-500 pb-12">
+            <div className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div>
-                    <h2 className="text-2xl font-bold text-bank-navy">Daily MIS Upload</h2>
-                    <p className="text-gray-500">Upload branch-wise daily performance data via CSV</p>
+                    <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3">
+                        <Table2 className="text-blue-600 w-8 h-8" />
+                        MIS Data Inlet Journey
+                    </h2>
+                    <p className="text-slate-500 font-medium text-sm mt-1 uppercase tracking-wider">Strategic Performance Ingestion Engine</p>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                    <FileText size={16} />
-                    <span>Template: mis_standard_v1.csv</span>
+                <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
+                    <FileText size={14} />
+                    <span>Supports: .xlsx (Pivot Format)</span>
                 </div>
             </div>
 
-            <div className="card p-8 border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center space-y-4 relative">
-                <div className="bg-white p-4 rounded-full shadow-sm text-bank-navy">
-                    <Upload size={32} />
-                </div>
-                <div className="text-center">
-                    <p className="font-bold text-gray-700">Click to upload or drag and drop</p>
-                    <p className="text-sm text-gray-400">CSV files only (max 10MB)</p>
-                </div>
-                <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
-                {file && (
-                    <div className="mt-4 p-3 bg-bank-navy bg-opacity-5 rounded-lg border border-bank-navy border-opacity-20 flex items-center space-x-3">
-                        <FileText className="text-bank-navy" size={20} />
-                        <span className="text-sm font-medium text-bank-navy">{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
-                    </div>
-                )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="card p-6 space-y-4">
-                    <h3 className="font-bold text-bank-navy border-b pb-2">Upload Parameters</h3>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Data Date</label>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                    <div className={`group relative card p-12 border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center space-y-4 ${file ? 'border-blue-400 bg-blue-50/30' : 'border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50'
+                        }`}>
+                        <div className={`p-5 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-110 ${file ? 'bg-blue-600 text-white shadow-blue-200' : 'bg-slate-100 text-slate-400 shadow-slate-100'
+                            }`}>
+                            <Upload size={36} />
+                        </div>
+                        <div className="text-center">
+                            <p className="font-black text-slate-700 uppercase tracking-tight text-lg">
+                                {file ? 'File Selected' : 'Drop MIS Excel File'}
+                            </p>
+                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                {file ? file.name : 'Standard Bank Pivot Format (.xlsx)'}
+                            </p>
+                        </div>
                         <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-bank-navy outline-none"
+                            type="file"
+                            accept=".xlsx"
+                            onChange={handleFileChange}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         />
+
+                        {file && (
+                            <button
+                                onClick={handleUpload}
+                                disabled={uploading}
+                                className="z-20 flex items-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-2xl hover:bg-blue-700 disabled:opacity-50 transition-all font-black uppercase tracking-widest shadow-xl shadow-blue-200 text-xs"
+                            >
+                                {uploading ? <RefreshCw className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                                {uploading ? 'Ingesting Data...' : 'Start Inlet Journey'}
+                            </button>
+                        )}
                     </div>
-                    <button
-                        onClick={handleUpload}
-                        disabled={!file || uploading}
-                        className={`w-full py-3 rounded-lg font-bold text-white transition-all shadow-md ${!file || uploading ? 'bg-gray-300 cursor-not-allowed' : 'bg-bank-teal hover:bg-opacity-90'
-                            }`}
-                    >
-                        {uploading ? 'Processing...' : 'Process MIS Upload'}
-                    </button>
+
+                    {message && (
+                        <div className={`p-6 rounded-2xl flex flex-col space-y-4 animate-in slide-in-from-bottom duration-300 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-100' : 'bg-red-50 text-red-800 border-2 border-red-100'
+                            }`}>
+                            <div className="flex items-center gap-3">
+                                {message.type === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
+                                <span className="font-black text-sm uppercase tracking-tight">{message.text}</span>
+                            </div>
+                            {message.details && (
+                                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-emerald-200/50">
+                                    <div className="text-center">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Units</p>
+                                        <p className="text-xl font-black">{message.details.uniqueUnits}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Records</p>
+                                        <p className="text-xl font-black">{message.details.processedCount}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Failed</p>
+                                        <p className="text-xl font-black">{message.details.failedCount}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                        <h3 className="font-black text-slate-800 pb-4 mb-4 border-b border-slate-50 uppercase tracking-tighter flex items-center gap-2">
+                            Inlet History
+                        </h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b border-slate-50">
+                                        <th className="py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                        <th className="py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Filename</th>
+                                        <th className="py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Units</th>
+                                        <th className="py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                        <th className="py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {history.map((h, i) => (
+                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors group/row">
+                                            <td className="py-4 text-[11px] font-bold text-slate-500 uppercase tracking-tighter">
+                                                {new Date(h.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-4">
+                                                <p className="text-[12px] font-black text-slate-700">{h.filename}</p>
+                                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{h.uniqueDates.join(', ')}</p>
+                                            </td>
+                                            <td className="py-4 text-center">
+                                                <span className="text-[11px] font-black text-slate-600">{h.processedUnits}</span>
+                                            </td>
+                                            <td className="py-4 text-center">
+                                                <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${h.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {h.status}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 text-right">
+                                                <button
+                                                    onClick={() => handleDelete(h.id)}
+                                                    disabled={deletingId === h.id}
+                                                    className="p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-50"
+                                                    title="Delete Ingestion Data"
+                                                >
+                                                    {deletingId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {history.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="py-12 text-center">
+                                                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">No previous journeys found</p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="card p-6 space-y-4">
-                    <h3 className="font-bold text-bank-navy border-b pb-2">Instructions</h3>
-                    <ul className="text-sm text-gray-600 space-y-2 list-disc pl-4">
-                        <li>Ensure CSV contains <strong>BranchCode</strong>, <strong>ParameterCode</strong>, and <strong>Value</strong>.</li>
-                        <li>Optional <strong>Budget</strong> column can be included for performance tracking.</li>
-                        <li>Duplicates for the same date will be overwritten.</li>
-                        <li>Data will be immediately visible on Branch & RO dashboards.</li>
-                    </ul>
+                <div className="space-y-6">
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                        <h3 className="font-black text-slate-800 border-b border-slate-50 pb-4 mb-4 uppercase tracking-tighter flex items-center gap-2">
+                            Mapping Engine
+                        </h3>
+                        <div className="space-y-3">
+                            {[
+                                { h: 'SOL', m: 'Standardised 4-digit SOL' },
+                                { h: 'DATE', m: 'YYYYMMDD Format' },
+                                { h: 'Pivot Columns', m: 'Mudra, Agri_JL, SB, CD, etc.' },
+                                { h: 'Auto-Snapshot', m: 'Generates daily panels' }
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{item.h}</p>
+                                        <p className="text-[10px] text-slate-400 font-bold leading-tight">{item.m}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-800 rounded-3xl p-6 text-white shadow-xl shadow-slate-200">
+                        <h3 className="font-black mb-4 uppercase tracking-widest text-xs text-blue-400">Security & Integrity</h3>
+                        <p className="text-[10px] text-slate-300 font-medium leading-relaxed uppercase">
+                            All uploads are standard across units. Existing data for the same SOL/Date will be updated. Ingestion logs are retained for audit.
+                        </p>
+                    </div>
                 </div>
             </div>
-
-            {message && (
-                <div className={`p-4 rounded-lg flex items-center space-x-3 ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                    {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                    <span className="font-medium">{message.text}</span>
-                </div>
-            )}
         </div>
     );
 };
