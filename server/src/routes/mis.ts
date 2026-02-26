@@ -3,6 +3,7 @@ import { io, prisma } from '../index';
 import { parse } from 'csv-parse/sync';
 import { v4 as uuidv4 } from 'uuid';
 import { BusinessSnapshotService, MisStatus } from '../services/BusinessSnapshotService';
+import { RuleEngine } from '../services/RuleEngine';
 import { MISIngestionService } from '../services/MISIngestionService';
 import { authenticateToken } from '../middleware/auth';
 import multer from 'multer';
@@ -335,6 +336,60 @@ router.delete('/import-logs/:id', authenticateToken, async (req: any, res) => {
     } catch (error: any) {
         console.error('Error deleting import:', error);
         res.status(500).json({ error: error.message || 'Failed to delete import' });
+    }
+});
+
+// Get exception summary for all branches
+router.get('/exception-summary', authenticateToken, async (req: any, res) => {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: 'Missing date' });
+
+    try {
+        const summary = await BusinessSnapshotService.getExceptionSummary(String(date));
+        res.json(summary);
+    } catch (error: any) {
+        console.error('Error fetching exception summary:', error);
+        res.status(500).json({ error: 'Failed to fetch exception summary' });
+    }
+});
+
+// Bulk finalize all snapshots for a date
+router.post('/finalize-all', authenticateToken, async (req: any, res) => {
+    if (req.user?.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    const { date } = req.body;
+    if (!date) return res.status(400).json({ error: 'Missing date' });
+
+    try {
+        const result = await BusinessSnapshotService.finalizeAllSnapshots(String(date));
+        res.json(result);
+    } catch (error: any) {
+        console.error('Error finalizing all snapshots:', error);
+        res.status(500).json({ error: 'Failed to finalize snapshots' });
+    }
+});
+
+// Trigger evaluation for all units on a date
+router.post('/evaluate-all', authenticateToken, async (req: any, res) => {
+    if (req.user?.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    const { date } = req.body;
+    if (!date) return res.status(400).json({ error: 'Missing date' });
+
+    try {
+        const [y, m, d] = String(date).split('-').map(Number);
+        const businessDate = new Date(Date.UTC(y, m - 1, d));
+
+        const snapshots = await prisma.misSnapshot.findMany({
+            where: { businessDate }
+        });
+
+        for (const s of snapshots) {
+            await RuleEngine.evaluate(s.id);
+        }
+
+        res.json({ success: true, count: snapshots.length });
+    } catch (error: any) {
+        console.error('Error triggering evaluations:', error);
+        res.status(500).json({ error: 'Failed to trigger evaluations' });
     }
 });
 

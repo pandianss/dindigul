@@ -172,6 +172,10 @@ export class BusinessSnapshotService {
 
                 // 3. Populate Information Panel (using whatever facts are now in DB)
                 await this.populatePanelInternal(tx, snapshot.id, branch.id, businessDate);
+
+                // 4. Auto-evaluate Exceptions
+                await RuleEngine.evaluate(snapshot.id);
+
                 results.push({ unitCode: branch.code, snapshotId: snapshot.id });
             });
         }
@@ -370,5 +374,56 @@ export class BusinessSnapshotService {
         await RuleEngine.evaluate(snapshotId);
 
         return frozen;
+    }
+
+    static async finalizeAllSnapshots(date: string) {
+        const [y, m, d] = date.split('-').map(Number);
+        const businessDate = new Date(Date.UTC(y, m - 1, d));
+
+        const snapshots = await prisma.misSnapshot.findMany({
+            where: { businessDate, status: MisStatus.PROVISIONAL }
+        });
+
+        const results = [];
+        for (const s of snapshots) {
+            await this.freezeSnapshot(s.id);
+            results.push(s.id);
+        }
+
+        return { success: true, count: results.length };
+    }
+
+    static async getExceptionSummary(date: string) {
+        const [y, m, d] = date.split('-').map(Number);
+        const businessDate = new Date(Date.UTC(y, m - 1, d));
+
+        const branches = await prisma.branch.findMany({
+            orderBy: { nameEn: 'asc' }
+        });
+
+        const snapshots = await prisma.misSnapshot.findMany({
+            where: { businessDate },
+            include: {
+                exceptions: true,
+                branch: true
+            }
+        }) as any[];
+
+        return branches.map(branch => {
+            const snap = snapshots.find(s => s.unitId === branch.id);
+            return {
+                branchCode: branch.code,
+                branchName: branch.nameEn,
+                snapshotStatus: snap?.status || 'MISSING',
+                exceptionCount: snap?.exceptions?.length || 0,
+                criticalCount: snap?.exceptions?.filter((e: any) => e.severity?.toUpperCase() === 'CRITICAL').length || 0,
+                highCount: snap?.exceptions?.filter((e: any) => e.severity?.toUpperCase() === 'HIGH').length || 0,
+                mediumCount: snap?.exceptions?.filter((e: any) => {
+                    const s = e.severity?.toUpperCase();
+                    return s === 'MEDIUM' || s === 'LOW' || (!s && e.severity);
+                }).length || 0,
+                exceptions: snap?.exceptions || []
+            };
+        });
     }
 }

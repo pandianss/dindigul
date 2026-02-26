@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import xlsx from 'xlsx';
 import { BusinessSnapshotService, MisStatus } from './BusinessSnapshotService';
+import { RuleEngine } from './RuleEngine';
 
 const prisma = new PrismaClient();
 
@@ -148,6 +149,9 @@ export class MISIngestionService {
 
                     // 5. Populate Panel
                     await (BusinessSnapshotService as any).populatePanelInternal(tx, snapshot.id, branch.id, businessDate);
+
+                    // 6. Auto-evaluate Exceptions
+                    await RuleEngine.evaluate(snapshot.id);
                 });
 
                 results.processed++;
