@@ -44,10 +44,10 @@ const AMBER = "#E65100";
 const BLUE = "#1565C0";
 
 const STATUS_STYLE = {
-  SURPASSED: { bg: GREEN, label: "SURPASSED" },
-  POSITIVE: { bg: BLUE, label: "POSITIVE" },
+  SURPASSED: { bg: "#2f847c", label: "SURPASSED" }, // bank-teal
+  POSITIVE: { bg: "#2f847c", label: "POSITIVE" },
   LAGGING: { bg: AMBER, label: "LAGGING" },
-  NEGATIVE: { bg: RED, label: "NEGATIVE" },
+  NEGATIVE: { bg: "#f43f5e", label: "NEGATIVE" }, // rose-500
 };
 
 const TYPE_STYLE = {
@@ -155,7 +155,7 @@ function TypeBadge({ type }) {
 
 function Pace({ val }) {
   const n = parseFloat(val);
-  const color = n > 0 ? GREEN : n < -5 ? RED : AMBER;
+  const color = n > 0 ? TEAL : n < -2 ? RED : AMBER;
   const arrow = n > 0 ? "▲" : n < 0 ? "▼" : "→";
   return (
     <span style={{ color, fontWeight: 800, fontSize: 14, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>

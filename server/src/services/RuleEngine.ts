@@ -16,10 +16,10 @@ export const ExceptionType = {
 
 // These should match the constants in BusinessSnapshotService
 const MisParameter = {
-    DEPOSIT_TOTAL: 'DEPOSIT_TOTAL',
+    DEPOSIT_TOTAL: 'Total Dep',
     CASA: 'CASA',
-    GNPA: 'GNPA',
-    CD_RATIO: 'CD_RATIO',
+    NPA: 'NPA',
+    CD_RATIO: 'CD_Ratio',
     YIELD_ADVANCES: 'YIELD_ADVANCES',
     COST_DEPOSITS: 'COST_DEPOSITS'
 };
@@ -48,13 +48,13 @@ export class RuleEngine {
                 });
             }
 
-            // Rule 2: GNPA Rise (Critical)
-            if (row.parameter === MisParameter.GNPA && Number(row.growth_day) > 0) {
+            // Rule 2: NPA Rise (Critical)
+            if (row.parameter === MisParameter.NPA && Number(row.growth_day) > 0) {
                 exceptions.push({
                     type: ExceptionType.RISK,
                     severity: ExceptionSeverity.CRITICAL,
                     parameter: row.parameter,
-                    message: `GNPA increased by ${Number(row.growth_day).toFixed(2)}`,
+                    message: `NPA increased by ${Number(row.growth_day).toFixed(2)}`,
                     triggerValue: String(row.growth_day),
                     ruleId: 'RULE-RISK-01'
                 });

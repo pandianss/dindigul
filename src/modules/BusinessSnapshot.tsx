@@ -41,6 +41,7 @@ interface SnapshotPanelData {
         displayName: string;
         category: string | null;
         fullForm?: string | null;
+        parentParameterName?: string | null;
     };
 }
 
@@ -81,7 +82,6 @@ const BusinessSnapshot: React.FC = () => {
                 const res = await axios.get(`${API_BASE}/branches`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                // Sort: ROs first, then branches alphabetically
                 const sorted = res.data.sort((a: any, b: any) => {
                     const typeA = (a.type || '').toUpperCase();
                     const typeB = (b.type || '').toUpperCase();
@@ -92,8 +92,6 @@ const BusinessSnapshot: React.FC = () => {
                     return a.nameEn.localeCompare(b.nameEn);
                 });
                 setUnits(sorted);
-
-                // If admin, default to the first RO if present
                 if (user?.role === 'ADMIN' && !branchCode) {
                     const firstRO = sorted.find((u: any) => u.type?.toUpperCase().includes('RO'));
                     if (firstRO) setBranchCode(firstRO.code);
@@ -116,7 +114,6 @@ const BusinessSnapshot: React.FC = () => {
             setSnapshot(response.data);
         } catch (err: any) {
             setSnapshot(null);
-            // Show custom error if available, otherwise generic
             setError(err.response?.data?.error || 'Failed to fetch snapshot data.');
         } finally {
             setLoading(false);
@@ -154,15 +151,26 @@ const BusinessSnapshot: React.FC = () => {
         fetchSnapshot();
     }, [branchCode, date]);
 
-    const formatValue = (val: number) => {
+    const formatValue = (val: number, isPercent: boolean = false) => {
+        if (isPercent) {
+            return `${Math.round(val)}%`;
+        }
         return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
     };
 
     const getStatusStyle = (status: string) => {
-        switch (status) {
-            case 'Surpassed': return 'bg-emerald-500 text-white';
-            case 'Positive': return 'bg-blue-500 text-white';
-            case 'Negative': return 'bg-rose-500 text-white';
+        const s = (status || '').toUpperCase();
+        switch (s) {
+            case 'SURPASSED':
+            case 'POSITIVE':
+                return 'bg-bank-teal text-white';
+            case 'ON-TRACK':
+            case 'NEUTRAL':
+            case 'LAGGING':
+                return 'bg-blue-600 text-white';
+            case 'BEHIND':
+            case 'NEGATIVE':
+                return 'bg-rose-500 text-white';
             default: return 'bg-slate-400 text-white';
         }
     };
@@ -172,12 +180,15 @@ const BusinessSnapshot: React.FC = () => {
         return lower.includes('%') || lower.includes('ratio') || lower.includes('yield') || lower.includes('cost');
     };
 
-    const GrowthIndicator = ({ val, showRaw = false }: { val: number, showRaw?: boolean }) => {
-        if (Math.abs(val) < 0.01) return <span className="text-gray-400">0.00</span>;
+    const GrowthIndicator = ({ val, isInverse = false, isPercent = false }: { val: number, isInverse?: boolean, isPercent?: boolean }) => {
+        if (Math.abs(val) < 0.01) return <span className="text-slate-200 font-medium">0.00</span>;
+        const isPositive = isInverse ? val <= 0 : val >= 0;
+        const colorClass = isPositive ? 'text-bank-teal' : 'text-rose-500';
+
         return (
-            <div className={`flex items-center gap-1 ${val >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {val >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                <span className="font-bold">{formatValue(Math.abs(val))}</span>
+            <div className={`flex items-center justify-end gap-0.5 ${colorClass}`}>
+                <span className="font-bold text-[14px] font-mono tabular-nums tracking-tighter">{formatValue(Math.abs(val), isPercent)}</span>
+                {val >= 0 ? <ArrowUpRight className="w-4 h-4 stroke-[2.5]" /> : <ArrowDownRight className="w-4 h-4 stroke-[2.5]" />}
             </div>
         );
     };
@@ -190,7 +201,6 @@ const BusinessSnapshot: React.FC = () => {
         const yesterday = new Date(utcDate); yesterday.setUTCDate(utcDate.getUTCDate() - 1);
         const prevMonthEnd = new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), 0));
 
-        // FY Logic
         let fyYear = utcDate.getUTCMonth() < 3 ? utcDate.getUTCFullYear() - 1 : utcDate.getUTCFullYear();
         const fyStart = new Date(Date.UTC(fyYear, 2, 31));
         const prevFyStart = new Date(Date.UTC(fyYear - 1, 2, 31));
@@ -213,10 +223,15 @@ const BusinessSnapshot: React.FC = () => {
         };
     };
 
+    const calcPctVar = (growth: number, base: number) => {
+        if (!base || base === 0) return 0;
+        return (growth / Math.abs(base)) * 100;
+    };
+
     const headerDates = getHeaderDates();
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="p-6 bg-gray-50 min-h-screen text-[14px]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
@@ -288,10 +303,9 @@ const BusinessSnapshot: React.FC = () => {
 
             {snapshot && (
                 <div className="relative">
-                    {/* Metrics Grid */}
                     <div className="space-y-8 pb-20">
                         {(() => {
-                            const categories = Array.from(new Set(snapshot.panelData.map(p => p.metadata.category || 'Uncategorized'))).sort();
+                            const categories = Array.from(new Set(snapshot.panelData.map(p => p.metadata.category || 'Uncategorized')));
 
                             return categories.map(cat => {
                                 const items = snapshot.panelData.filter(p => (p.metadata.category || 'Uncategorized') === cat);
@@ -318,100 +332,175 @@ const BusinessSnapshot: React.FC = () => {
                                             )}
                                         </div>
                                         <div className="overflow-x-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-slate-200">
-                                            <table className="w-full text-[11px] border-collapse whitespace-nowrap">
-                                                <thead className="bg-slate-50 text-slate-500 font-extrabold uppercase tracking-widest sticky top-0 z-20 shadow-sm">
-                                                    <tr>
-                                                        <th rowSpan={2} className="px-6 py-4 text-left border-r border-slate-100">Metric Parameter</th>
-                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 bg-slate-100/30 text-slate-600">Previous FY Performance</th>
-                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 bg-blue-50/30 text-blue-600">Recent Trend</th>
-                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 bg-emerald-50/30 text-emerald-600">Growth Analysis</th>
-                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 bg-indigo-50/30 text-indigo-600">Monthly Budget Analysis</th>
-                                                        <th colSpan={2} className="px-6 py-2 text-center bg-amber-50/30 text-amber-600">Quarterly Budget</th>
+                                            <table className="w-full text-[14px] border-collapse whitespace-nowrap">
+                                                <thead className="sticky top-0 z-20 backdrop-blur-md bg-white/95">
+                                                    <tr className="text-slate-400 font-black uppercase tracking-[0.2em] text-[11px]">
+                                                        <th rowSpan={2} className="px-6 py-4 text-left border-r border-slate-100 bg-white min-w-[220px]">Parameters</th>
+                                                        <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-slate-400 bg-slate-50/50">Historical Performance</th>
+                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-navy bg-slate-50/50">Current Trajectory</th>
+                                                        <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-teal bg-slate-50/50">Dynamic Variance</th>
+                                                        <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-indigo-400 bg-slate-50/50">Monthly Objectives</th>
+                                                        <th colSpan={2} className="px-6 py-2 text-center border-t-2 border-amber-400 bg-slate-50/50">Quarterly Target</th>
                                                     </tr>
-                                                    <tr className="border-b border-slate-100">
-                                                        <th className="px-4 py-3 text-right">{headerDates?.prevFyStart}</th>
-                                                        <th className="px-4 py-3 text-right">{headerDates?.prevFyEnd}</th>
-                                                        <th className="px-4 py-3 text-right border-r border-slate-100">Growth</th>
+                                                    <tr className="border-b border-slate-100 bg-white text-slate-500 font-bold shadow-sm">
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyStart}</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyEnd}</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-slate-400 font-base uppercase text-[10px]">Var</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-100 text-slate-400 font-base uppercase text-[10px]">Var %</th>
 
-                                                        <th className="px-4 py-3 text-right">{headerDates?.monthEnd}</th>
-                                                        <th className="px-4 py-3 text-right">{headerDates?.yesterday}</th>
-                                                        <th className="px-4 py-3 text-right border-r border-slate-100 font-black text-slate-900">{headerDates?.current}</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.monthEnd}</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.yesterday}</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy bg-blue-50/50 ring-1 ring-inset ring-blue-100">{headerDates?.current}</th>
 
-                                                        <th className="px-4 py-3 text-right">Daily Var</th>
-                                                        <th className="px-4 py-3 text-right">MTD Growth</th>
-                                                        <th className="px-4 py-3 text-right border-r border-slate-100">YTD Growth</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">Daily</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">MTD</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-bank-teal uppercase text-[10px]">YTD</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-100 font-bold text-bank-teal uppercase text-[10px]">YTD %</th>
 
-                                                        <th className="px-4 py-3 text-right">Target</th>
-                                                        <th className="px-4 py-3 text-right text-indigo-700">Gap</th>
-                                                        <th className="px-4 py-3 text-center border-r border-slate-100">Status</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-indigo-600 text-[10px] uppercase">Gap</th>
+                                                        <th className="px-4 py-3 text-center border-r border-slate-100 text-[10px] uppercase">Status</th>
 
-                                                        <th className="px-4 py-3 text-right">Target</th>
-                                                        <th className="px-4 py-3 text-right text-amber-700">Gap</th>
+                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
+                                                        <th className="px-4 py-3 text-right text-amber-600 text-[10px] uppercase">Gap</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-50 font-medium">
+                                                <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
                                                     {items.map((row) => {
                                                         const isRate = isRateMetric(row.parameter);
-                                                        return (
-                                                            <tr key={row.id} className="hover:bg-blue-50/40 transition-colors group">
-                                                                <td className="px-6 py-4 border-r border-slate-100 sticky left-0 bg-white z-10 group-hover:bg-blue-50/50">
-                                                                    <div className="flex flex-col">
-                                                                        <div className="font-bold text-bank-navy group-hover:text-blue-700 text-[12px]">
-                                                                            {row.metadata.displayName}
+                                                        const isInverse = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => row.parameter.toUpperCase().includes(k));
+                                                        const isPercentMetric = row.parameter.toUpperCase().includes('%') || row.parameter.toUpperCase().includes('RATIO');
+
+                                                        return (() => {
+                                                            const findParent = (param: string): string | null => {
+                                                                const p = snapshot.panelData.find(item => item.parameter === param);
+                                                                return p?.metadata.parentParameterName || null;
+                                                            };
+
+                                                            const getDepth = (param: string, currentDepth: number = 0): number => {
+                                                                const parent = findParent(param);
+                                                                if (!parent) return currentDepth;
+                                                                return getDepth(parent, currentDepth + 1);
+                                                            };
+
+                                                            const getBranchRoot = (param: string): string | null => {
+                                                                const branches = ['Core Ret', 'Core_Agri', 'MSME'];
+                                                                if (branches.includes(param)) return param;
+                                                                const parent = findParent(param);
+                                                                if (!parent) return null;
+                                                                return getBranchRoot(parent);
+                                                            };
+
+                                                            const depth = getDepth(row.parameter);
+                                                            const branchRoot = getBranchRoot(row.parameter);
+                                                            const isRoot = row.parameter === 'Bus';
+                                                            const isSubAggregate = ['Total Dep', 'Adv', 'Core Adv'].includes(row.parameter);
+                                                            const isMajorCategory = ['Gold', 'Core Ret', 'Core_Agri', 'MSME'].includes(row.parameter);
+
+                                                            // Branch coloring logic
+                                                            let branchBg = '';
+                                                            let branchSolidBg = '';
+                                                            let branchBorder = '';
+                                                            let branchParentBorder = '';
+                                                            if (branchRoot === 'Core Ret') {
+                                                                branchBg = 'bg-gradient-to-r from-indigo-50/50 to-transparent';
+                                                                branchSolidBg = 'bg-[#f8faff]'; // Solid indigo-50 tint
+                                                                branchBorder = 'border-l-indigo-300';
+                                                                branchParentBorder = 'border-l-indigo-600';
+                                                            } else if (branchRoot === 'Core_Agri') {
+                                                                branchBg = 'bg-gradient-to-r from-emerald-50/50 to-transparent';
+                                                                branchSolidBg = 'bg-[#f8fff9]'; // Solid emerald-50 tint
+                                                                branchBorder = 'border-l-emerald-300';
+                                                                branchParentBorder = 'border-l-emerald-600';
+                                                            } else if (branchRoot === 'MSME') {
+                                                                branchBg = 'bg-gradient-to-r from-sky-50/50 to-transparent';
+                                                                branchSolidBg = 'bg-[#f8fbff]'; // Solid sky-50 tint
+                                                                branchBorder = 'border-l-sky-300';
+                                                                branchParentBorder = 'border-l-sky-600';
+                                                            }
+
+                                                            const rowClasses = `hover:bg-slate-50/80 transition-all group/row border-l-4 ${isMajorCategory ? (branchParentBorder || 'border-l-slate-400') : (branchBorder || 'border-l-transparent')} ${branchBg} ${isRoot ? 'bg-gradient-to-r from-blue-100/50 to-transparent border-l-4 border-l-bank-navy shadow-sm' :
+                                                                row.parameter === 'Gold' ? 'bg-gradient-to-r from-amber-50 to-transparent border-l-4 border-l-amber-400' :
+                                                                    isSubAggregate ? 'bg-blue-50/30 border-l-4 border-l-bank-teal/50' :
+                                                                        isMajorCategory ? 'shadow-[inset_4px_0_0_0_rgba(0,0,0,0.05)]' : ''
+                                                                }`;
+
+                                                            const cellClasses = `px-6 py-3 border-r border-slate-100 sticky left-0 z-10 group-hover/row:bg-slate-50/80 ${isRoot ? 'bg-[#f0f4ff]' :
+                                                                row.parameter === 'Gold' ? 'bg-[#fffdf5]' :
+                                                                    isSubAggregate ? 'bg-[#f5f9ff]' : (branchSolidBg || 'bg-white')
+                                                                }`;
+
+                                                            const textClasses = `text-slate-800 group-hover/row:text-bank-navy transition-colors ${isRoot ? 'font-black text-[18px]' :
+                                                                (isSubAggregate || isMajorCategory) ? 'font-black text-[17px]' :
+                                                                    'font-bold text-[16px] leading-tight'
+                                                                }`;
+
+                                                            const paddingClass = depth > 0 ? { paddingLeft: `${depth * 24}px` } : {};
+
+                                                            return (
+                                                                <tr key={row.id} className={rowClasses}>
+                                                                    <td className={cellClasses}>
+                                                                        <div className="flex items-center">
+                                                                            {depth > 0 && <div className="w-px h-6 bg-slate-200 mr-2" style={{ marginLeft: '-12px' }} />}
+                                                                            <div className={textClasses} style={paddingClass}>
+                                                                                {row.metadata.displayName}
+                                                                            </div>
                                                                         </div>
-                                                                        <span className="text-[8px] font-black text-slate-300 uppercase">{row.parameter}</span>
-                                                                    </div>
-                                                                </td>
+                                                                    </td>
 
-                                                                {/* Prev FY */}
-                                                                <td className="px-4 py-4 text-right text-slate-500">{formatValue(row.val_prev_fy_start)}</td>
-                                                                <td className="px-4 py-4 text-right text-slate-500">{formatValue(row.val_prev_fy_end)}</td>
-                                                                <td className="px-4 py-4 text-right border-r border-slate-100">
-                                                                    {!isRate ? <GrowthIndicator val={row.growth_prev_fy} /> : <span className="text-slate-300">-</span>}
-                                                                </td>
+                                                                    <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_start, isPercentMetric)}</td>
+                                                                    <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_end, isPercentMetric)}</td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-50 bg-slate-50/10">
+                                                                        {!isRate ? <GrowthIndicator val={row.growth_prev_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-100 bg-slate-50/20">
+                                                                        {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_prev_fy, row.val_prev_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
 
-                                                                {/* Trend */}
-                                                                <td className="px-4 py-4 text-right text-slate-600">{formatValue(row.val_prev_m_end)}</td>
-                                                                <td className="px-4 py-4 text-right text-slate-600">{formatValue(row.val_y_eod)}</td>
-                                                                <td className="px-4 py-4 text-right border-r border-slate-50 font-black text-slate-900 text-[13px] bg-blue-50/10">
-                                                                    {formatValue(row.val_current)}
-                                                                </td>
+                                                                    <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_prev_m_end, isPercentMetric)}</td>
+                                                                    <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_y_eod, isPercentMetric)}</td>
+                                                                    <td className={`px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy text-[16px] bg-blue-50/30 ring-1 ring-inset ring-blue-50/50 ${isRoot ? 'text-[18px] bg-blue-100/20' : ''}`}>
+                                                                        {formatValue(row.val_current, isPercentMetric)}
+                                                                    </td>
 
-                                                                {/* Growth */}
-                                                                <td className="px-4 py-4 text-right">
-                                                                    {!isRate ? <GrowthIndicator val={row.growth_day} /> : <span className="text-slate-300">-</span>}
-                                                                </td>
-                                                                <td className="px-4 py-4 text-right">
-                                                                    {!isRate ? <GrowthIndicator val={row.growth_month} /> : <span className="text-slate-300">-</span>}
-                                                                </td>
-                                                                <td className="px-4 py-4 text-right border-r border-slate-100">
-                                                                    {!isRate ? <GrowthIndicator val={row.growth_fy} /> : <span className="text-slate-300">-</span>}
-                                                                </td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-50">
+                                                                        {!isRate ? <GrowthIndicator val={row.growth_day} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-50">
+                                                                        {!isRate ? <GrowthIndicator val={row.growth_month} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-50 bg-bank-teal/5">
+                                                                        {!isRate ? <GrowthIndicator val={row.growth_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 text-right border-r border-slate-100 bg-bank-teal/10">
+                                                                        {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_fy, row.val_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
+                                                                    </td>
 
-                                                                {/* Monthly Budget */}
-                                                                <td className="px-4 py-4 text-right font-bold text-slate-600">
-                                                                    {!isRate ? formatValue(row.budget_month) : <span className="text-slate-300 text-[9px]">N/A</span>}
-                                                                </td>
-                                                                <td className={`px-4 py-4 text-right font-black ${row.gap_month >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                                    {!isRate ? formatValue(row.gap_month) : <span className="text-slate-300 text-[9px]">-</span>}
-                                                                </td>
-                                                                <td className="px-4 py-4 border-r border-slate-100 text-center">
-                                                                    {!isRate ? (
-                                                                        <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-tighter ${getStatusStyle(row.status)}`}>
-                                                                            {row.status}
-                                                                        </span>
-                                                                    ) : <span className="text-slate-300 text-[9px]">-</span>}
-                                                                </td>
+                                                                    <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">
+                                                                        {!isRate ? formatValue(row.budget_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
+                                                                    </td>
+                                                                    <td className={`px-4 py-3 text-right font-bold border-r border-slate-50 ${(isInverse ? row.gap_month <= 0 : row.gap_month >= 0) ? 'text-bank-teal' : 'text-rose-500'
+                                                                        }`}>
+                                                                        {!isRate ? formatValue(row.gap_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 border-r border-slate-100 text-center bg-indigo-50/5">
+                                                                        {!isRate ? (
+                                                                            <span className={`px-3 py-1 rounded text-[11px] font-black uppercase tracking-tighter ${getStatusStyle(row.status)} shadow-[0_1px_2px_rgba(0,0,0,0.1)] opacity-90`}>
+                                                                                {row.status}
+                                                                            </span>
+                                                                        ) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                    </td>
 
-                                                                {/* Quarterly Budget */}
-                                                                <td className="px-4 py-4 text-right font-bold text-slate-600">
-                                                                    {!isRate ? formatValue(row.budget_quarter) : <span className="text-slate-300 text-[9px]">N/A</span>}
-                                                                </td>
-                                                                <td className={`px-4 py-4 text-right font-black ${row.gap_quarter >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                                    {!isRate ? formatValue(row.gap_quarter) : <span className="text-slate-300 text-[9px]">-</span>}
-                                                                </td>
-                                                            </tr>
-                                                        );
+                                                                    <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">
+                                                                        {!isRate ? formatValue(row.budget_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
+                                                                    </td>
+                                                                    <td className={`px-4 py-3 text-right font-bold border-l border-slate-50 ${(isInverse ? row.gap_quarter <= 0 : row.gap_quarter >= 0) ? 'text-bank-teal' : 'text-rose-500'
+                                                                        }`}>
+                                                                        {!isRate ? formatValue(row.gap_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })();
                                                     })}
                                                 </tbody>
                                             </table>
@@ -422,7 +511,6 @@ const BusinessSnapshot: React.FC = () => {
                         })()}
                     </div>
 
-                    {/* Floating Exception FAB */}
                     <button
                         onClick={() => setShowExceptions(true)}
                         className="fixed bottom-8 right-8 bg-bank-navy text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-40 flex items-center gap-2 group"
@@ -435,7 +523,6 @@ const BusinessSnapshot: React.FC = () => {
                         )}
                     </button>
 
-                    {/* Exceptions Slide-over */}
                     {showExceptions && (
                         <>
                             <div

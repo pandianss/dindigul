@@ -16,17 +16,17 @@ const MAPPING: Record<string, string> = {
     'EDUCATION': 'EL',
     'LIQUIRENT': 'Liq',
     'OTHER RETAIL': 'OthRet',
-    ' SB ': 'SB',
-    ' CD ': 'CD',
-    ' TD ': 'TD',
-    ' ADV ': 'Adv',
-    ' MSME ': 'MSME',
-    ' SHG ': 'SHG',
-    ' KCC ': 'KCC',
-    ' Govt Spon ': 'Gov',
-    ' Oth Schematic ': 'OthSch',
-    ' CORE AGRI ': 'Core_Agri',
-    ' NPA ': 'NPA'
+    'SB': 'SB',
+    'CD': 'CD',
+    'TD': 'TD',
+    'ADV': 'Adv',
+    'MSME': 'MSME',
+    'SHG': 'SHG',
+    'KCC': 'KCC',
+    'Govt Spon': 'Gov',
+    'Oth Schematic': 'OthSch',
+    'CORE AGRI': 'Core_Agri',
+    'NPA': 'NPA'
 };
 
 export class MISIngestionService {
@@ -94,9 +94,12 @@ export class MISIngestionService {
                     const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PL'];
                     let sb = 0, cd = 0, td = 0, adv = 0;
 
-                    for (const [header, paramName] of Object.entries(MAPPING)) {
-                        if (row[header] !== undefined) {
-                            const val = Number(row[header] || 0);
+                    const rowHeaders = Object.keys(row);
+                    for (const rawHeader of rowHeaders) {
+                        const trimmedHeader = rawHeader.trim();
+                        const paramName = MAPPING[trimmedHeader];
+                        if (paramName) {
+                            const val = Number(row[rawHeader] || 0);
                             factsData.push({
                                 unitId: branch.id,
                                 date: businessDate,

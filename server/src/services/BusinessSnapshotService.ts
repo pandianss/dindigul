@@ -11,6 +11,7 @@ export const MisParameter = {
     BUSINESS_TOTAL: 'Bus',
     NPA: 'NPA',
     CD_RATIO: 'CD_Ratio',
+    CASA_PERCENT: 'CASA%',
     YIELD_ADVANCES: 'YIELD_ADVANCES',
     COST_DEPOSITS: 'COST_DEPOSITS',
     ADV_RETAIL: 'ADV_RETAIL',
@@ -56,10 +57,11 @@ export class BusinessSnapshotService {
             });
             data.metadata = paramMap[p.parameter] || {
                 displayName: p.parameter.replace(/_/g, ' '),
-                category: 'Uncategorized'
+                category: 'Uncategorized',
+                orderIndex: 999
             };
             return data;
-        });
+        }).sort((a, b) => (a.metadata?.orderIndex || 0) - (b.metadata?.orderIndex || 0));
 
         return {
             ...snapshot,
@@ -153,6 +155,7 @@ export class BusinessSnapshotService {
                             { unitId: branch.id, date: businessDate, metric: MisParameter.ADV_OTHER, value: port.other, ingestionId: log.id },
                             { unitId: branch.id, date: businessDate, metric: MisParameter.NPA, value: port.gnpa || 0, ingestionId: log.id },
                             { unitId: branch.id, date: businessDate, metric: MisParameter.CD_RATIO, value: dep > 0 ? (adv / dep) * 100 : 0, ingestionId: log.id },
+                            { unitId: branch.id, date: businessDate, metric: MisParameter.CASA_PERCENT, value: dep > 0 ? (casa / dep) * 100 : 0, ingestionId: log.id },
                             { unitId: branch.id, date: businessDate, metric: MisParameter.SMA0, value: port.sma0, ingestionId: log.id },
                             { unitId: branch.id, date: businessDate, metric: MisParameter.SMA1, value: port.sma1, ingestionId: log.id },
                             { unitId: branch.id, date: businessDate, metric: MisParameter.SMA2, value: port.sma2, ingestionId: log.id }
@@ -226,40 +229,86 @@ export class BusinessSnapshotService {
             let val_prev_fy_start = await this.getMetricValue(tx, unitId, metric, prevFyStart);
             let val_prev_fy_end = await this.getMetricValue(tx, unitId, metric, prevFyEnd);
 
-            // Dynamic derived metrics for CD_Ratio if facts are missing
-            if (metric === 'CD_Ratio' && val_current === 0) {
-                const adv = await this.getMetricValue(tx, unitId, 'Adv', utcDate);
-                const dep = await this.getMetricValue(tx, unitId, 'Total Dep', utcDate);
-                if (dep > 0) val_current = (adv / dep) * 100;
-            }
+            // Helper to calculate ratios if they are 0 but components are present
+            const calculateRatios = async (val: number | any, m: string, d: Date) => {
+                const numVal = Number(val || 0);
+                if (numVal !== 0) return numVal;
+
+                const lowerM = m.toLowerCase();
+                if (lowerM === 'cd_ratio') {
+                    const adv = await this.getMetricValue(tx, unitId, 'Adv', d);
+                    const dep = await this.getMetricValue(tx, unitId, 'Total Dep', d);
+                    return dep > 0 ? (adv / dep) * 100 : 0;
+                }
+                if (lowerM === 'casa%' || lowerM === 'casa_percent') {
+                    const casa = await this.getMetricValue(tx, unitId, 'CASA', d);
+                    const dep = await this.getMetricValue(tx, unitId, 'Total Dep', d);
+                    return dep > 0 ? (casa / dep) * 100 : 0;
+                }
+                if (lowerM === 'core adv' || lowerM === 'core_adv') {
+                    const retail = await this.getMetricValue(tx, unitId, 'Core Ret', d);
+                    const agri = await this.getMetricValue(tx, unitId, 'Core_Agri', d);
+                    const msme = await this.getMetricValue(tx, unitId, 'MSME', d);
+                    return retail + agri + msme;
+                }
+                return numVal;
+            };
+
+            val_current = await calculateRatios(val_current, metric, utcDate);
+            val_y_eod = await calculateRatios(val_y_eod, metric, yesterday);
+            val_dby = await calculateRatios(val_dby, metric, dby);
+            val_prev_m_end = await calculateRatios(val_prev_m_end, metric, prevMonthEnd);
+            val_fy_start = await calculateRatios(val_fy_start, metric, fyStart);
+            val_prev_fy_start = await calculateRatios(val_prev_fy_start, metric, prevFyStart);
+            val_prev_fy_end = await calculateRatios(val_prev_fy_end, metric, prevFyEnd);
 
             const growth_day = Number(val_current) - Number(val_y_eod);
             const growth_month = Number(val_current) - Number(val_prev_m_end);
             const growth_fy = Number(val_current) - Number(val_fy_start);
             const growth_prev_fy = Number(val_prev_fy_end) - Number(val_prev_fy_start);
 
-            // Budget Monthly
-            const budgetItem = await tx.budgetMaster.findFirst({
-                where: { solId: branch.code, parameterName: metric, periodKey: currMonthKey, isActive: true }
-            });
-            const budget_month = Number(budgetItem?.targetValue || 0);
+            // Budget Setup
+            const getBudgetVal = async (m: string, pKey: string) => {
+                if (m.toLowerCase() === 'core adv' || m.toLowerCase() === 'core_adv') {
+                    const retail = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core Ret', periodKey: pKey, isActive: true } });
+                    const agri = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core_Agri', periodKey: pKey, isActive: true } });
+                    const msme = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'MSME', periodKey: pKey, isActive: true } });
+                    return Number(retail?.targetValue || 0) + Number(agri?.targetValue || 0) + Number(msme?.targetValue || 0);
+                }
+                const b = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: m, periodKey: pKey, isActive: true } });
+                return Number(b?.targetValue || 0);
+            };
+
+            const budget_month = await getBudgetVal(metric, currMonthKey);
             const gap_month = Number(val_current) - budget_month;
 
-            // Budget Quarter: Just use the target of the last month of the quarter
-            const qBudgetItem = await tx.budgetMaster.findFirst({
-                where: { solId: branch.code, parameterName: metric, periodKey: quarterEndMonthKey, isActive: true }
-            });
-            const budget_quarter = Number(qBudgetItem?.targetValue || 0);
+            const budget_quarter = await getBudgetVal(metric, quarterEndMonthKey);
             const gap_quarter = Number(val_current) - budget_quarter;
+
+            // Better Low metrics (Inverse)
+            const isBetterLow = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => metric.toUpperCase().includes(k));
 
             // Status logic
             let status = 'Neutral';
             if (budget_month > 0) {
-                if (gap_month >= 0) status = 'Surpassed';
-                else if (Math.abs(gap_month) < budget_month * 0.1) status = 'Positive';
-                else status = 'Negative';
+                if (isBetterLow) {
+                    // For NPA/Expenses, being BELOW budget is good
+                    if (gap_month <= 0) status = 'Surpassed';
+                    else if (Math.abs(gap_month) < budget_month * 0.1) status = 'On-Track';
+                    else status = 'Behind';
+                } else {
+                    // For Profits/Advances, being ABOVE budget is good
+                    if (gap_month >= 0) status = 'Surpassed';
+                    else if (Math.abs(gap_month) < budget_month * 0.1) status = 'On-Track';
+                    else status = 'Behind';
+                }
             } else {
-                status = growth_day >= 0 ? 'Positive' : 'Negative';
+                if (isBetterLow) {
+                    // Downward trend is good for NPA
+                    status = growth_day <= 0 ? 'On-Track' : 'Behind';
+                } else {
+                    status = growth_day >= 0 ? 'On-Track' : 'Behind';
+                }
             }
 
             await tx.misInformationPanel.create({
