@@ -32,6 +32,7 @@ import atmRoutes from './routes/atms';
 import planningRoutes from './routes/planning';
 import budgetRoutes from './routes/budgetRoutes';
 import parameterRoutes from './routes/parameterRoutes';
+import internalNoteRoutes from './routes/internalNote';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -97,6 +98,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/planning', planningRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/parameters', parameterRoutes);
+app.use('/api/internal-notes', internalNoteRoutes);
 
 import { registerChatHandlers } from './socket/chatHandler';
 

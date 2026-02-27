@@ -9,7 +9,8 @@
         "calendar": "कार्यक्रम कैलेंडर",
         "dispatch": "प्रेषण रजिस्टर",
         "committees": "समितियाँ",
-        "magazine": "मासिक पत्रिका",
+        "planning": "योजना विश्लेषिकी",
+        "internalNotes": "आंतरिक टिप्पणियाँ",
         "settings": "सेटिंग्स",
         "logout": "लॉगआउट",
         "assets": "संपत्तियां",
@@ -34,5 +35,12 @@
         "positive": "सकारात्मक",
         "lagging": "पिछड़ रहा है",
         "negative": "नकारात्मक"
+    },
+    "classification": {
+        "INTERNAL": "आंतरिक",
+        "CONFIDENTIAL": "गोपनीय",
+        "SECRET": "गुप्त",
+        "HIGHLY CONFIDENTIAL": "अत्यंत गोपनीय",
+        "PRIVATE": "निजी"
     }
 }

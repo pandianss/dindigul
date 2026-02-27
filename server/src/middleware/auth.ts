@@ -11,6 +11,8 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
+    console.log(`[AuthMiddleware] ${req.method} ${req.path} - Token present:`, !!token);
+
     if (!token) return res.sendStatus(401);
 
     jwt.verify(token, JWT_SECRET, (err: any, user: any) => {

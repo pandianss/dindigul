@@ -1,4 +1,4 @@
-import { PlanningService } from './services/planningService';
+import { PlanningService } from '../services/planningService';
 import * as fs from 'fs';
 import * as path from 'path';
 

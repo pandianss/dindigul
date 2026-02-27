@@ -3,6 +3,8 @@ import { prisma } from '../index';
 import { generatePDF } from '../services/pdfService';
 import { authenticateToken } from '../middleware/auth';
 import { createNotification, notifyAdmins } from '../services/notificationService';
+import fs from 'fs';
+import path from 'path';
 
 const router = Router();
 
@@ -170,6 +172,8 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 // Generate PDF for office note
 router.get('/:id/pdf', async (req: any, res) => {
     const { id } = req.params;
+    const { manualDate } = req.query; // Support passing a manual date
+
     try {
         const note = await (prisma as any).officeNote.findUnique({
             where: { id },
@@ -180,105 +184,91 @@ router.get('/:id/pdf', async (req: any, res) => {
 
         const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
 
-        const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-                    body { font-family: 'Inter', sans-serif; padding: 0; margin: 0; color: #333; }
-                    .container { padding: 40px; }
-                    .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1B3A6B; padding-bottom: 20px; margin-bottom: 40px; }
-                    .bank-logo { color: #1B3A6B; font-size: 28px; font-weight: 800; letter-spacing: -1px; }
-                    .bank-name { font-size: 14px; font-weight: 700; color: #1B3A6B; text-transform: uppercase; }
-                    .office-note-label { background: #1B3A6B; color: white; padding: 5px 15px; font-weight: 700; font-size: 18px; height: fit-content; }
-                    
-                    .metadata-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                    .metadata-table td { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-                    .metadata-table td.label { font-weight: 700; color: #666; width: 150px; text-transform: uppercase; font-size: 11px; }
+        // Construct refNo
+        const refNo = `RO/ADMIN/${new Date(note.createdAt).getFullYear()}/${note.id.slice(-4).toUpperCase()}`;
+        const noteDate = manualDate || new Date(note.createdAt).toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
 
-                    .subject-box { background: #f8fafc; padding: 15px; border-left: 5px solid #1B3A6B; margin-bottom: 30px; }
-                    .subject-title { font-size: 16px; font-weight: 700; color: #1B3A6B; margin-bottom: 5px; }
-                    .subject-ta { font-size: 14px; color: #444; }
+        // Construct bodyHtml for the template
+        let bodyHtml = `
+            <div class="subject-box">
+                <div class="subject-title">SUBJECT: ${note.titleEn}</div>
+                ${content.titleTa ? `<div class="subject-ta">பொருள்: ${content.titleTa}</div>` : ''}
+            </div>
+            <div class="main-content">
+                ${content.details ? content.details.split('\n').map((p: string) => `<p>${p}</p>`).join('') : ''}
+                
+                ${content.amount ? `
+                    <div class="section-title">FINANCIAL IMPLICATIONS</div>
+                    <p>Proposed Amount: <strong>₹ ${Number(content.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></p>
+                ` : ''}
 
-                    .main-content { line-height: 1.8; font-size: 14px; text-align: justify; min-height: 300px; }
-                    .section-title { font-weight: 700; text-decoration: underline; margin-top: 20px; margin-bottom: 10px; color: #1B3A6B; }
+                ${content.branch ? `
+                    <div class="section-title">AFFECTED UNIT</div>
+                    <p>Unit/Branch Code & Name: <strong>${content.branch}</strong></p>
+                ` : ''}
 
-                    .signature-area { margin-top: 60px; display: flex; justify-content: flex-end; }
-                    .signature-box { text-align: center; width: 250px; }
-                    .sig-line { border-top: 1px solid #333; margin-bottom: 10px; }
-                    .sig-name { font-weight: 700; font-size: 14px; }
-                    .sig-desc { font-size: 12px; color: #666; }
-
-                    .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(27, 58, 107, 0.03); font-weight: 800; z-index: -1; white-space: nowrap; }
-                </style>
-            </head>
-            <body>
-                <div class="watermark">INTERNAL ONLY</div>
-                <div class="container">
-                    <div class="header">
-                        <div>
-                            <div class="bank-logo">PANDIAN SS</div>
-                            <div class="bank-name">Dindigul Regional Office</div>
-                        </div>
-                        <div class="office-note-label">OFFICE NOTE</div>
-                    </div>
-
-                    <table class="metadata-table">
-                        <tr>
-                            <td class="label">Reference No:</td>
-                            <td>RO/ADMIN/${new Date(note.createdAt).getFullYear()}/${note.id.slice(-4).toUpperCase()}</td>
-                            <td class="label">Date:</td>
-                            <td>${new Date(note.createdAt).toLocaleDateString()}</td>
-                        </tr>
-                        <tr>
-                            <td class="label">From:</td>
-                            <td>${note.preparer.fullNameEn}</td>
-                            <td class="label">Note Type:</td>
-                            <td>${note.type.replace(/_/g, ' ')}</td>
-                        </tr>
-                    </table>
-
-                    <div class="subject-box">
-                        <div class="subject-title">SUBJECT: ${note.titleEn}</div>
-                        ${content.titleTa ? `<div class="subject-ta">பொருள்: ${content.titleTa}</div>` : ''}
-                    </div>
-
-                    <div class="main-content">
-                        ${content.details ? content.details.split('\n').map((p: string) => `<p>${p}</p>`).join('') : ''}
-                        
-                        ${content.amount ? `
-                            <div class="section-title">FINANCIAL IMPLICATIONS</div>
-                            <p>Proposed Amount: <strong>₹ ${Number(content.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></p>
-                        ` : ''}
-
-                        ${content.branch ? `
-                            <div class="section-title">AFFECTED UNIT</div>
-                            <p>Unit/Branch Code & Name: <strong>${content.branch}</strong></p>
-                        ` : ''}
-
-                        ${content.justification ? `
-                            <div class="section-title">JUSTIFICATION & REMARKS</div>
-                            <p>${content.justification}</p>
-                        ` : ''}
-                    </div>
-
-                    <div class="signature-area">
-                        <div class="signature-box">
-                            <div class="sig-line"></div>
-                            <div class="sig-name">${note.preparer.fullNameEn}</div>
-                            <div class="sig-desc">Prepared By (Employee ID: ${note.preparer.username})</div>
-                            <div class="sig-desc">${new Date(note.createdAt).toLocaleString()}</div>
-                        </div>
-                    </div>
-                </div>
-            </body>
-            </html>
+                ${content.justification ? `
+                    <div class="section-title">JUSTIFICATION & REMARKS</div>
+                    <p>${content.justification}</p>
+                ` : ''}
+            </div>
         `;
 
+        // Prepare logo base64
+        let logoBase64 = '';
+        const logoPath = path.join(process.cwd(), '..', 'public', 'assets', 'logo_center.svg');
+        try {
+            console.log('[OfficeNotePDF] Loading logo from:', logoPath);
+            const logoBuffer = await fs.promises.readFile(logoPath);
+            logoBase64 = logoBuffer.toString('base64');
+            console.log('[OfficeNotePDF] Logo loaded successfully, size:', logoBuffer.length);
+        } catch (err) {
+            console.warn('[OfficeNotePDF] Logo not found at:', logoPath);
+        }
+
+        // Fetch Regional Office details for contact info
+        const ro = await (prisma as any).branch.findUnique({
+            where: { code: '6100' } // Regional Office code
+        });
+
+        const { renderTemplate } = require('../services/pdfService');
+        const html = await renderTemplate('internal-note', {
+            refNo,
+            date: noteDate,
+            department: 'Dindigul Regional Office',
+            classification: 'INTERNAL ONLY',
+            subject: note.titleEn,
+            bodyHtml,
+            createdBy: note.preparer.fullNameEn,
+            designation: note.preparer.username,
+            logoBase64,
+            roAddressEn: ro?.address || 'Regional Office, Dindigul',
+            roAddressTa: ro?.addressTa || '',
+            roAddressHi: ro?.addressHi || '',
+            roPhone: '0451-2423344',
+            roEmail: 'rodindigul@iob.in'
+        });
+
         const pdf = await generatePDF(html);
+
+        // Save PDF to disk with name format: [date]_[refNo].pdf
+        const safeRefNo = refNo.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const safeDate = noteDate.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const fileName = `${safeDate}_${safeRefNo}.pdf`;
+        const uploadsDir = path.join(process.cwd(), 'uploads', 'office-notes');
+
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        fs.writeFileSync(path.join(uploadsDir, fileName), pdf);
+
         res.contentType('application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         res.send(pdf);
     } catch (error) {
         console.error('Error generating PDF:', error);

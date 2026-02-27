@@ -35,6 +35,8 @@ interface MasterItem {
     type?: string;
     populationGroup?: string;
     address?: string;
+    addressTa?: string;
+    addressHi?: string;
     riskCategory?: string;
     riskEffectiveDate?: string;
     specialStatus?: string | string[];
@@ -316,11 +318,12 @@ const SettingsManager: React.FC = () => {
                         </div>
                     </div>
                 );
-            case 'units':
+            case 'units': {
+                const isRO = formData.type === 'RO' || formData.type === 'Regional Office';
                 return (
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Code</label>
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Code</label>
                             <input
                                 className="w-full p-2 border rounded font-bold"
                                 value={formData.code || ''}
@@ -329,7 +332,7 @@ const SettingsManager: React.FC = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Office ID (Sorting)</label>
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Office ID (Sorting)</label>
                             <input
                                 type="number"
                                 className="w-full p-2 border rounded"
@@ -339,7 +342,7 @@ const SettingsManager: React.FC = () => {
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Name (English)</label>
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Name (English)</label>
                             <input
                                 className="w-full p-2 border rounded"
                                 value={formData.nameEn || ''}
@@ -350,7 +353,7 @@ const SettingsManager: React.FC = () => {
 
                         {/* Unit Type & Population Group */}
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Type</label>
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Unit Type</label>
                             <select
                                 className="w-full p-2 border rounded"
                                 value={formData.type || 'BRANCH'}
@@ -361,62 +364,70 @@ const SettingsManager: React.FC = () => {
                                 <option value="BRANCH">Branch</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Population Group</label>
-                            <select
-                                className="w-full p-2 border rounded"
-                                value={formData.populationGroup || 'URBAN'}
-                                onChange={e => setFormData({ ...formData, populationGroup: e.target.value })}
-                            >
-                                <option value="METRO">Metro</option>
-                                <option value="URBAN">Urban</option>
-                                <option value="SEMI_URBAN">Semi-Urban</option>
-                                <option value="RURAL">Rural</option>
-                            </select>
-                        </div>
+                        {!isRO && (
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Population Group</label>
+                                <select
+                                    className="w-full p-2 border rounded"
+                                    value={formData.populationGroup || 'URBAN'}
+                                    onChange={e => setFormData({ ...formData, populationGroup: e.target.value })}
+                                >
+                                    <option value="METRO">Metro</option>
+                                    <option value="URBAN">Urban</option>
+                                    <option value="SEMI_URBAN">Semi-Urban</option>
+                                    <option value="RURAL">Rural</option>
+                                </select>
+                            </div>
+                        )}
 
                         {/* Special Status */}
-                        <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Special Status</label>
-                            <div className="flex flex-wrap gap-3">
-                                {['MSME', 'Agri', 'Retail', 'Captive', 'Specialised Retail', 'Forex', 'Large Corporate'].map(status => (
-                                    <label key={status} className="flex items-center space-x-2 bg-gray-50 px-3 py-1 rounded-md border border-gray-200 cursor-pointer hover:bg-gray-100">
-                                        <input
-                                            type="checkbox"
-                                            checked={(formData.specialStatus || []).includes(status)}
-                                            onChange={() => handleSpecialStatusChange(status)}
-                                            className="rounded text-bank-navy focus:ring-bank-navy"
-                                        />
-                                        <span className="text-sm font-medium text-gray-700">{status}</span>
-                                    </label>
-                                ))}
+                        {!isRO && (
+                            <div className="col-span-2">
+                                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider text-bank-navy">Special Status</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {['MSME', 'Agri', 'Retail', 'Captive', 'Specialised Retail', 'Forex', 'Large Corporate'].map(status => (
+                                        <label key={status} className="flex items-center space-x-2 bg-gray-50 px-3 py-1 rounded-md border border-gray-200 cursor-pointer hover:bg-gray-100">
+                                            <input
+                                                type="checkbox"
+                                                checked={(formData.specialStatus || []).includes(status)}
+                                                onChange={() => handleSpecialStatusChange(status)}
+                                                className="rounded text-bank-navy focus:ring-bank-navy"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">{status}</span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Risk Categorization */}
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Risk Category</label>
-                            <select
-                                className="w-full p-2 border rounded font-bold text-gray-700"
-                                value={formData.riskCategory || 'MEDIUM'}
-                                onChange={e => setFormData({ ...formData, riskCategory: e.target.value })}
-                            >
-                                <option value="LOW">Low Risk</option>
-                                <option value="MEDIUM">Medium Risk</option>
-                                <option value="HIGH">High Risk</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Risk Effective Date</label>
-                            <div className="relative">
-                                <input
-                                    type="date"
-                                    className="w-full p-2 border rounded"
-                                    value={formData.riskEffectiveDate ? new Date(formData.riskEffectiveDate).toISOString().split('T')[0] : ''}
-                                    onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value })}
-                                />
-                            </div>
-                        </div>
+                        {!isRO && (
+                            <>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Risk Category</label>
+                                    <select
+                                        className="w-full p-2 border rounded font-bold text-gray-700"
+                                        value={formData.riskCategory || 'MEDIUM'}
+                                        onChange={e => setFormData({ ...formData, riskCategory: e.target.value })}
+                                    >
+                                        <option value="LOW">Low Risk</option>
+                                        <option value="MEDIUM">Medium Risk</option>
+                                        <option value="HIGH">High Risk</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Risk Effective Date</label>
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            className="w-full p-2 border rounded"
+                                            value={formData.riskEffectiveDate ? new Date(formData.riskEffectiveDate).toISOString().split('T')[0] : ''}
+                                            onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         <div className="col-span-2 mt-2">
                             <div className="grid grid-cols-2 gap-4">
@@ -440,15 +451,32 @@ const SettingsManager: React.FC = () => {
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Address</label>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (English)</label>
                             <textarea
                                 className="w-full p-2 border rounded"
                                 value={formData.address || ''}
                                 onChange={e => setFormData({ ...formData, address: e.target.value })}
                             />
                         </div>
+                        <div className="col-span-2">
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (Tamil) - தமிழ்</label>
+                            <textarea
+                                className="w-full p-2 border rounded font-tamil"
+                                value={formData.addressTa || ''}
+                                onChange={e => setFormData({ ...formData, addressTa: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-span-2">
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (Hindi) - हिंदी</label>
+                            <textarea
+                                className="w-full p-2 border rounded font-hindi"
+                                value={formData.addressHi || ''}
+                                onChange={e => setFormData({ ...formData, addressHi: e.target.value })}
+                            />
+                        </div>
                     </div>
                 );
+            }
             case 'staff':
                 return (
                     <div className="grid grid-cols-2 gap-4">
@@ -835,118 +863,189 @@ const SettingsManager: React.FC = () => {
                                 <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">Loading master data...</td></tr>
                             ) : data.length === 0 ? (
                                 <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">No entries found for this category.</td></tr>
-                            ) : data.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="flex-shrink-0">
-                                                {activeTab === 'staff' && (item.photo?.data) ? (
-                                                    <img
-                                                        src={item.photo.data}
-                                                        alt={item.username}
-                                                        className="w-10 h-10 rounded-full object-cover border-2 border-bank-navy/10 shadow-sm"
-                                                    />
-                                                ) : (
+                            ) : (() => {
+                                if (activeTab === 'staff') {
+                                    // Grouping and sorting for staff
+                                    const grouped: { [key: string]: MasterItem[] } = {};
+                                    data.forEach(item => {
+                                        const branchName = item.branch?.nameEn || 'Unassigned / RO';
+                                        if (!grouped[branchName]) grouped[branchName] = [];
+                                        grouped[branchName].push(item);
+                                    });
+
+                                    // Sort group keys (branches)
+                                    const sortedBranches = Object.keys(grouped).sort();
+
+                                    return sortedBranches.flatMap(branchName => {
+                                        // Sort staff within group by grade, then name
+                                        const sortedStaff = grouped[branchName].sort((a, b) => {
+                                            const gradeCompare = (a.grade || '').localeCompare(b.grade || '');
+                                            if (gradeCompare !== 0) return gradeCompare;
+                                            return (a.fullNameEn || '').localeCompare(b.fullNameEn || '');
+                                        });
+
+                                        return [
+                                            // Unit Header Row
+                                            <tr key={`header-${branchName}`} className="bg-slate-50/50">
+                                                <td colSpan={6} className="px-6 py-2 text-[10px] font-black text-bank-navy uppercase tracking-widest border-y border-gray-100">
+                                                    <div className="flex items-center gap-2">
+                                                        <Building2 size={12} className="text-bank-teal" />
+                                                        <span>UNIT: {branchName}</span>
+                                                        <span className="ml-auto text-gray-400 font-normal lowercase tracking-normal">({sortedStaff.length} staff)</span>
+                                                    </div>
+                                                </td>
+                                            </tr>,
+                                            // Staff Rows
+                                            ...sortedStaff.map(item => (
+                                                <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className="flex-shrink-0">
+                                                                {item.photo?.data ? (
+                                                                    <img
+                                                                        src={item.photo.data as string}
+                                                                        alt={item.username}
+                                                                        className="w-10 h-10 rounded-full object-cover border-2 border-bank-navy/10 shadow-sm"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
+                                                                        <Users size={18} />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
+                                                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                                                                    {item.designation?.nameEn || 'No Designation'} • {item.grade || 'No Grade'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.fullNameEn}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.fullNameTa || '-'}</td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.fullNameHi || '-'}</td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
+                                                            <button
+                                                                onClick={() => startEdit(item)}
+                                                                className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
+                                                                title="Edit Details"
+                                                            >
+                                                                <Edit2 size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setTransferItem(item);
+                                                                    setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' });
+                                                                    setShowTransferModal(true);
+                                                                }}
+                                                                className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
+                                                                title="Transfer User"
+                                                            >
+                                                                <ArrowRightLeft size={16} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(item.id || '')}
+                                                                className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
+                                                                title="Delete Entry"
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ];
+                                    });
+                                }
+
+                                // Default rendering for other tabs
+                                return data.map((item) => (
+                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="flex-shrink-0">
                                                     <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
                                                         {activeTab === 'departments' && <Hash size={18} />}
                                                         {activeTab === 'units' && <Building2 size={18} />}
                                                         {activeTab === 'designations' && <Briefcase size={18} />}
-                                                        {activeTab === 'staff' && <Users size={18} />}
                                                         {activeTab === 'atms' && <span className="text-sm">🏧</span>}
                                                     </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-bank-navy tracking-wide">{item.code || item.username || item.atmId}</p>
-                                                {activeTab === 'staff' && (
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                        {item.designation?.nameEn || 'No Designation'} • {item.branch?.nameEn || 'No Branch'} • {item.grade || 'No Grade'}
-                                                    </p>
-                                                )}
-                                                {activeTab === 'atms' && (
-                                                    <p className="text-[10px] text-gray-400 font-bold tracking-tighter uppercase">
-                                                        Branch: {item.branch?.nameEn || 'N/A'} • Last Sync: {item.lastTxnTime || 'Never'}
-                                                    </p>
-                                                )}
-                                                {activeTab === 'units' && (
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                        {item.type} • {item.populationGroup}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    {activeTab === 'units' && (
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col items-start gap-1">
-                                                {item.populationGroup && (
-                                                    <span className="inline-flex px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">
-                                                        {item.populationGroup.replace('_', ' ')}
-                                                    </span>
-                                                )}
-                                                {item.riskCategory && (
-                                                    <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded border uppercase tracking-wider ${item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' :
-                                                        item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                                            'bg-green-50 text-green-700 border-green-100'
-                                                        }`}>
-                                                        {item.riskCategory} Risk
-                                                    </span>
-                                                )}
-                                                {(() => {
-                                                    try {
-                                                        const statuses = typeof item.specialStatus === 'string' ? JSON.parse(item.specialStatus) : (item.specialStatus || []);
-                                                        if (Array.isArray(statuses) && statuses.length > 0) {
-                                                            return (
-                                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                                    {statuses.map((s: string) => (
-                                                                        <span key={s} className="px-1.5 py-0.5 text-[9px] font-semibold border border-gray-200 text-gray-600 bg-gray-50 rounded">
-                                                                            {s}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            );
-                                                        }
-                                                    } catch { return null; }
-                                                })()}
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-bank-navy tracking-wide">{item.code || item.atmId}</p>
+                                                    {activeTab === 'atms' && (
+                                                        <p className="text-[10px] text-gray-400 font-bold tracking-tighter uppercase">
+                                                            Branch: {item.branch?.nameEn || 'N/A'} • Last Sync: {item.lastTxnTime || 'Never'}
+                                                        </p>
+                                                    )}
+                                                    {activeTab === 'units' && (
+                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                                                            {item.type} • {item.populationGroup}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
-                                    )}
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.nameEn || item.fullNameEn}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.nameTa || item.fullNameTa || '-'}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.nameHi || item.fullNameHi || '-'}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
-                                            <button
-                                                onClick={() => startEdit(item)}
-                                                className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
-                                                title="Edit Details"
-                                            >
-                                                <Edit2 size={16} />
-                                            </button>
-                                            {activeTab === 'staff' && (
+                                        {activeTab === 'units' && (
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col items-start gap-1">
+                                                    {item.populationGroup && (
+                                                        <span className="inline-flex px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">
+                                                            {item.populationGroup.replace('_', ' ')}
+                                                        </span>
+                                                    )}
+                                                    {item.riskCategory && (
+                                                        <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded border uppercase tracking-wider ${item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' :
+                                                            item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+                                                                'bg-green-50 text-green-700 border-green-100'
+                                                            }`}>
+                                                            {item.riskCategory} Risk
+                                                        </span>
+                                                    )}
+                                                    {(() => {
+                                                        try {
+                                                            const statuses = typeof item.specialStatus === 'string' ? JSON.parse(item.specialStatus) : (item.specialStatus || []);
+                                                            if (Array.isArray(statuses) && statuses.length > 0) {
+                                                                return (
+                                                                    <div className="flex flex-wrap gap-1 mt-1">
+                                                                        {statuses.map((s: string) => (
+                                                                            <span key={s} className="px-1.5 py-0.5 text-[9px] font-semibold border border-gray-200 text-gray-600 bg-gray-50 rounded">
+                                                                                {s}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                );
+                                                            }
+                                                        } catch { return null; }
+                                                    })()}
+                                                </div>
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.nameEn}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.nameTa || '-'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.nameHi || '-'}</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
                                                 <button
-                                                    onClick={() => {
-                                                        setTransferItem(item);
-                                                        setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' });
-                                                        setShowTransferModal(true);
-                                                    }}
-                                                    className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
-                                                    title="Transfer User"
+                                                    onClick={() => startEdit(item)}
+                                                    className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
+                                                    title="Edit Details"
                                                 >
-                                                    <ArrowRightLeft size={16} />
+                                                    <Edit2 size={16} />
                                                 </button>
-                                            )}
-                                            <button
-                                                onClick={() => handleDelete(item.id || '')}
-                                                className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
-                                                title="Delete Entry"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                                <button
+                                                    onClick={() => handleDelete(item.id || '')}
+                                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
+                                                    title="Delete Entry"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ));
+                            })()}
                         </tbody>
                     </table>
                 </div>

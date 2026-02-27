@@ -1,0 +1,210 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: "Noto Sans", "Noto Sans Tamil", "Noto Sans Devanagari", sans-serif;
+            line-height: 1.15;
+            position: relative;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            height: 100px;
+            width: auto;
+        }
+
+        .bank-name-hi,
+        .bank-name-ta,
+        .bank-name-en {
+            font-family: Century Gothic, "Century Gothic", "Apple Gothic", "Noto Sans Devanagari", "Noto Sans Tamil", sans-serif;
+            font-size: 18pt;
+            font-weight: bold;
+            color: #254aa0;
+            margin: 8px 0;
+            line-height: 1.1;
+            letter-spacing: 0.2pt;
+        }
+
+        .region-line {
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+            padding-bottom: 3px;
+            border-top: 1px solid #eee;
+        }
+
+        .header-line {
+            border-bottom: 4px solid #0B2E6D;
+            margin-bottom: 20px;
+        }
+
+        .contact {
+            text-align: right;
+            font-size: 9px;
+            color: #555;
+            margin-top: -15px;
+        }
+
+        .separator {
+            display: none;
+        }
+
+        .meta-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+
+        .meta-left,
+        .meta-right {
+            line-height: 1.4;
+        }
+
+        .subject {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .content {
+            font-size: 11pt;
+            text-align: justify;
+            min-height: 500px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 9px;
+            text-align: right;
+            color: #888;
+            padding-bottom: 5px;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+
+        .signature-area {
+            margin-top: 50px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 200px;
+        }
+
+        .sig-line {
+            border-top: 1px solid #333;
+            margin-bottom: 5px;
+        }
+
+        .sig-name {
+            font-weight: bold;
+        }
+
+        .sig-rank {
+            font-size: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    {{#if watermarkBase64}}
+    <img src="data:image/png;base64,{{watermarkBase64}}" class="watermark" />
+    {{/if}}
+
+    <div class="header">
+        {{#if logoBase64}}
+        <div class="logo-container">
+            <img src="data:image/svg+xml;base64,{{logoBase64}}" />
+        </div>
+        {{/if}}
+        <div class="bank-name-hi">इंडियन ओवरसीज बैंक</div>
+        <div class="bank-name-ta">இந்தியன் ஓவர்சீஸ் வங்கி</div>
+        <div class="bank-name-en">Indian Overseas Bank</div>
+        <div class="region-line">{{officeTitleHi}} | {{officeTitleTa}} | {{officeTitleEn}}</div>
+    </div>
+
+    <div class="contact">
+        {{#if roAddressHi}}{{roAddressHi}}<br />{{/if}}
+        {{#if roAddressTa}}{{roAddressTa}}<br />{{/if}}
+        {{roAddressEn}}<br />
+        Phone: {{roPhone}}<br />
+        Email: {{roEmail}}
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="meta-container">
+        <div class="meta-left">
+            Ref No: <strong>{{refNo}}</strong><br />
+            Department: {{department}}<br />
+            Classification: {{classification}}
+        </div>
+        <div class="meta-right">
+            Date: <strong>{{date}}</strong>
+        </div>
+    </div>
+
+    <div class="subject">
+        Subject: {{subject}}
+    </div>
+
+    <div class="content">
+        {{{bodyHtml}}}
+    </div>
+
+    <div class="signature-area">
+        <div class="signature-block">
+            <div style="height: 40px;"></div>
+            <div class="sig-line"></div>
+            <div class="sig-name">{{createdBy}}</div>
+            <div class="sig-rank">{{designation}}</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        {{officeTitleEn}} | Internal Communication | Page <span class="pageNumber"></span>
+    </div>
+</body>
+
+</html>

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { parseCSV } from './utils/csv';
+import { parseCSV } from '../utils/csv';
 import * as fs from 'fs';
 import * as path from 'path';
 

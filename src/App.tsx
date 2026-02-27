@@ -24,6 +24,7 @@ const ExpenditureManager = lazy(() => import('./modules/ExpenditureManager'));
 const LegalManager = lazy(() => import('./modules/LegalManager'));
 const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
 const RequestManager = lazy(() => import('./modules/RequestManager'));
+const InternalNoteSystem = lazy(() => import('./modules/InternalNote/InternalNoteSystem'));
 
 // Loading fallback component
 const ModuleLoader = () => (
@@ -108,6 +109,8 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><RequestManager /></Suspense></ErrorBoundary> : null;
             case 'planning':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><PlanningAnalytics /></Suspense></ErrorBoundary> : null;
+            case 'internalNotes':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><InternalNoteSystem /></Suspense></ErrorBoundary> : null;
 
             default:
                 return (

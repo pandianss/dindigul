@@ -9,7 +9,8 @@
         "calendar": "நிகழ்வு நாட்காட்டி",
         "dispatch": "அனுப்புகை பதிவேடு",
         "committees": "குழுக்கள்",
-        "magazine": "மாதாந்திர பத்திரிகை",
+        "planning": "திட்டமிடல் பகுப்பாய்வு",
+        "internalNotes": "உள் குறிப்புகள்",
         "settings": "அமைப்புகள்",
         "logout": "வெளியேறு",
         "assets": "சொத்துகள்",
@@ -34,5 +35,12 @@
         "positive": "நேர்மறை",
         "lagging": "பின்தங்கியுள்ளது",
         "negative": "எதிர்மறை"
+    },
+    "classification": {
+        "INTERNAL": "உள் மட்டமானது",
+        "CONFIDENTIAL": "ரகசியமானது",
+        "SECRET": "மிக ரகசியமானது",
+        "HIGHLY CONFIDENTIAL": "அதி ரகசியமானது",
+        "PRIVATE": "தனிப்பட்டது"
     }
 }

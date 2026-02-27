@@ -15,7 +15,7 @@ module.exports = {
     },
     {
       name: 'dindigul-frontend',
-      script: 'c:\\Users\\63039\\Videos\\Projects\\dindigul\\node_modules\\.bin\\vite.cmd',
+      script: 'node_modules/vite/bin/vite.js',
       args: 'preview --port 5173 --host',
       cwd: 'c:\\Users\\63039\\Videos\\Projects\\dindigul',
       instances: 1,

@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
+            { id: user.id, username: user.username, role: user.role, fullNameEn: user.fullNameEn, branchId: user.branchId },
             JWT_SECRET,
             { expiresIn: '8h' }
         );
@@ -81,7 +81,8 @@ router.post('/login', async (req, res) => {
                 id: user.id,
                 username: user.username,
                 role: user.role,
-                fullNameEn: user.fullNameEn
+                fullNameEn: user.fullNameEn,
+                branchId: user.branchId
             }
         });
     } catch (error) {
@@ -109,7 +110,7 @@ router.post('/mfa/challenge', async (req, res) => {
         if (!verified) return res.status(401).json({ error: 'Invalid MFA code' });
 
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role },
+            { id: user.id, username: user.username, role: user.role, fullNameEn: user.fullNameEn, branchId: user.branchId },
             JWT_SECRET,
             { expiresIn: '8h' }
         );
@@ -120,7 +121,8 @@ router.post('/mfa/challenge', async (req, res) => {
                 id: user.id,
                 username: user.username,
                 role: user.role,
-                fullNameEn: user.fullNameEn
+                fullNameEn: user.fullNameEn,
+                branchId: user.branchId
             }
         });
     } catch (error) {

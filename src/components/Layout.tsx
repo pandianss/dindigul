@@ -93,6 +93,7 @@ const Layout: React.FC<LayoutProps> = ({
         { icon: FileText, label: t('nav.dispatch') || 'Dispatch', key: 'dispatch', restricted: true },
         { icon: Users, label: t('nav.committees') || 'Committees', key: 'committees', restricted: true },
         { icon: MessageSquare, label: t('nav.letters') || 'Correspondence', key: 'correspondence', restricted: true },
+        { icon: FileText, label: t('nav.internalNotes') || 'Internal Notes', key: 'internalNotes', restricted: true },
         { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
         { icon: BookOpen, label: t('nav.magazine') || 'Magazine', key: 'magazine' },
     ];

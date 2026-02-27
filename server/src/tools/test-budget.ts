@@ -1,4 +1,4 @@
-import { BudgetService } from './services/budgetService';
+import { BudgetService } from '../services/budgetService';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaClient } from '@prisma/client';

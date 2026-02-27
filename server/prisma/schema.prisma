@@ -145,6 +145,8 @@ model Branch {
   specialStatus     String?
   ifsc              String?
   address           String?
+  addressTa         String?
+  addressHi         String?
   latitude          Float?
   longitude         Float?
   pincode           String?
@@ -1058,4 +1060,21 @@ model MisImportLog {
   ingestionLogs IngestionLog[]
 
   @@map("mis_import_logs")
+}
+
+model InternalNote {
+  id             String   @id @default(uuid())
+  refNo          String
+  department     String
+  departmentTa   String?
+  departmentHi   String?
+  subject        String
+  classification String
+  createdBy      String
+  bodyHtml       String
+  fileUrl        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("internal_notes")
 }

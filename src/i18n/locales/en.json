@@ -15,6 +15,7 @@
         "committees": "Committees",
         "magazine": "Monthly Regional Magazine",
         "planning": "Planning Analytics",
+        "internalNotes": "Internal Notes",
         "settings": "Settings",
         "logout": "Logout"
     },
@@ -35,5 +36,12 @@
         "positive": "POSITIVE",
         "lagging": "LAGGING",
         "negative": "NEGATIVE"
+    },
+    "classification": {
+        "INTERNAL": "INTERNAL",
+        "CONFIDENTIAL": "CONFIDENTIAL",
+        "SECRET": "SECRET",
+        "HIGHLY CONFIDENTIAL": "HIGHLY CONFIDENTIAL",
+        "PRIVATE": "PRIVATE"
     }
 }

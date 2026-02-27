@@ -20,7 +20,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // Create new unit
 router.post('/', authenticateToken, async (req, res) => {
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
     try {
         const unit = await prisma.branch.create({
             data: {
@@ -35,7 +35,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 riskCategory,
                 riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
                 ifsc,
-                address
+                address,
+                addressTa,
+                addressHi
             }
         });
         res.json(unit);
@@ -48,7 +50,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Update unit
 router.put('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id as string;
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
 
     try {
         const oldUnit = await prisma.branch.findUnique({ where: { id } });
@@ -67,7 +69,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 riskCategory,
                 riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
                 ifsc,
-                address
+                address,
+                addressTa,
+                addressHi
             }
         });
 
@@ -130,7 +134,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
         }
 
         const results = await Promise.all(items.map(async (item: any) => {
-            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address } = item;
+            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi } = item;
             if (!code || !nameEn) return null;
 
             return prisma.branch.upsert({
@@ -141,7 +145,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
                     specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
-                    ifsc, address
+                    ifsc, address, addressTa, addressHi
                 },
                 create: {
                     code,
@@ -150,7 +154,7 @@ router.post('/bulk', authenticateToken, async (req, res) => {
                     specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
-                    ifsc, address
+                    ifsc, address, addressTa, addressHi
                 }
             });
         }));
