@@ -1,3 +1,10 @@
+export const GLOBAL_CONFIG = {
+    bankName: "Indian Overseas Bank",
+    bankNameTa: "இந்தியன் ஓவர்சீஸ் வங்கி",
+    bankNameHi: "इंडियन ओवरसीज बैंक",
+    watermarkLogo: "/assets/logo_center.svg"
+};
+
 export const REGIONAL_OFFICE_DATA = {
     name: "Dindigul Regional Office",
     nameTa: "திண்டுக்கல் மண்டல அலுவலகம்",

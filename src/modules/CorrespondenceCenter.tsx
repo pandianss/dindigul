@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText } from 'lucide-react';
 import { format, subMonths } from 'date-fns';
 import api from '../services/api';
+import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG } from '../constants/organization';
 
 interface Letter {
     id: string;
@@ -24,6 +25,10 @@ interface Letter {
 
 const CorrespondenceCenter: React.FC = () => {
     const [letters, setLetters] = useState<Letter[]>([]);
+    const [metadata, setMetadata] = useState<{ regionHeadName: string, regionHeadDesignation: string }>({
+        regionHeadName: 'Regional Manager',
+        regionHeadDesignation: 'Regional Manager'
+    });
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
@@ -40,7 +45,12 @@ const CorrespondenceCenter: React.FC = () => {
         api.get('/letters')
             .then(res => res.data)
             .then(data => {
-                setLetters(data);
+                if (data.letters && data.metadata) {
+                    setLetters(data.letters);
+                    setMetadata(data.metadata);
+                } else {
+                    setLetters(Array.isArray(data) ? data : []);
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -183,15 +193,27 @@ const CorrespondenceCenter: React.FC = () => {
                         <div className="p-8 overflow-y-auto bg-gray-50 flex-grow">
                             <div className="bg-white p-10 rounded shadow-sm border border-gray-200 min-h-[500px] text-gray-800 font-serif leading-relaxed relative">
                                 {/* Watermark matching the UI aesthetics */}
-                                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
-                                    <Award size={400} />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
+                                    <img src={GLOBAL_CONFIG.watermarkLogo} alt="Watermark" className="w-[500px]" />
                                 </div>
 
                                 <div className="relative z-10">
+                                    <div className="flex justify-between items-start border-b border-gray-300 pb-4 mb-8">
+                                        <div className="flex items-center space-x-3">
+                                            <img src={REGIONAL_OFFICE_DATA.logoPath} alt="Logo" className="h-16" />
+                                            <div>
+                                                <h1 className="font-extrabold text-2xl text-bank-navy uppercase tracking-widest">{GLOBAL_CONFIG.bankName}</h1>
+                                                <p className="text-gray-600 font-sans tracking-widest text-sm uppercase">{REGIONAL_OFFICE_DATA.name}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right text-sm text-gray-500 font-sans">
+                                            <p>{REGIONAL_OFFICE_DATA.address}</p>
+                                            <p>{REGIONAL_OFFICE_DATA.email}</p>
+                                        </div>
+                                    </div>
+
                                     <div className="text-right mb-10">
-                                        <p className="font-bold text-lg text-bank-navy">Indian Overseas Bank</p>
-                                        <p className="text-gray-600">Regional Office, Dindigul</p>
-                                        <p className="text-gray-500 mt-2">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
+                                        <p className="text-gray-500 font-bold">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
                                     </div>
 
                                     <div className="mb-10">
@@ -204,7 +226,7 @@ const CorrespondenceCenter: React.FC = () => {
                                         ) : (
                                             <p className="font-bold">The Branch Manager</p>
                                         )}
-                                        <p>Indian Overseas Bank</p>
+                                        <p>{GLOBAL_CONFIG.bankName}</p>
                                         <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
                                     </div>
 
@@ -212,13 +234,17 @@ const CorrespondenceCenter: React.FC = () => {
                                         {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Plan of Action Called For'}
                                     </h3>
 
-                                    <div className="whitespace-pre-wrap text-justify ext-gray-700 leading-loose">
+                                    <div className="whitespace-pre-wrap text-justify text-gray-800 leading-loose">
                                         {selectedLetter.contentEn}
                                     </div>
 
-                                    <div className="mt-20 text-right">
-                                        <p className="font-bold text-lg">Regional Manager</p>
-                                        <p className="text-gray-600 font-sans tracking-wide">Dindigul Region</p>
+                                    <div className="mt-24 text-right">
+                                        <div className="inline-block relative">
+                                            {/* Stylized Signature placeholder area */}
+                                            <div className="absolute top-[-30px] left-0 right-0 border-t border-gray-400 opacity-50 w-full mb-2"></div>
+                                            <p className="font-bold text-lg">{metadata.regionHeadName}</p>
+                                            <p className="text-gray-600 font-sans tracking-wide">{metadata.regionHeadDesignation}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

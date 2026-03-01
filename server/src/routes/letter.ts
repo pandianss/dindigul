@@ -38,7 +38,21 @@ router.get('/', authenticateToken, async (req: any, res) => {
                 parameter: true
             }
         });
-        res.json(letters);
+
+        // GAP: Dynamic layout metadata
+        const regionHead = await (prisma as any).user.findFirst({
+            where: { isRegionHead: true },
+            include: { designation: true }
+        });
+
+        const metadata = {
+            regionHeadName: regionHead ? toTitleCase(regionHead.fullNameEn) : "Regional Manager",
+            regionHeadDesignation: regionHead?.designation?.nameEn
+                ? toTitleCase(regionHead.designation.nameEn)
+                : "Regional Manager"
+        };
+
+        res.json({ letters, metadata });
     } catch (error) {
         console.error('Error fetching letters:', error);
         res.status(500).json({ error: 'Failed to fetch letters' });
