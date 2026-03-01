@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import LoginScreen from './components/LoginScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ThemeProvider } from './components/ThemeProvider';
 
 // Lazy load major modules
 const PortalLanding = lazy(() => import('./modules/PortalLanding'));
@@ -59,15 +60,21 @@ function App() {
     // Portal Selection Entry Point
     if (portalMode === 'landing') {
         return (
-            <Suspense fallback={<ModuleLoader />}>
-                <PortalLanding onSelectPortal={(mode) => setPortalMode(mode)} />
-            </Suspense>
+            <ThemeProvider>
+                <Suspense fallback={<ModuleLoader />}>
+                    <PortalLanding onSelectPortal={(mode) => setPortalMode(mode)} />
+                </Suspense>
+            </ThemeProvider>
         );
     }
 
     // Regional User Portal (Requires Login)
     if (portalMode === 'region' && !user) {
-        return <LoginScreen onLogin={login} onVisitGuest={() => setPortalMode('guest')} />;
+        return (
+            <ThemeProvider>
+                <LoginScreen onLogin={login} onVisitGuest={() => setPortalMode('guest')} />
+            </ThemeProvider>
+        );
     }
 
     const renderModule = () => {
@@ -128,14 +135,16 @@ function App() {
     };
 
     return (
-        <Layout
-            activeView={activeView}
-            onViewChange={setActiveView}
-            portalMode={portalMode}
-            onExitPortal={() => setPortalMode('landing')}
-        >
-            {renderModule()}
-        </Layout>
+        <ThemeProvider>
+            <Layout
+                activeView={activeView}
+                onViewChange={setActiveView}
+                portalMode={portalMode}
+                onExitPortal={() => setPortalMode('landing')}
+            >
+                {renderModule()}
+            </Layout>
+        </ThemeProvider>
     );
 }
 

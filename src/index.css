@@ -9,23 +9,23 @@
 }
 
 @theme {
-  --color-bank-navy: #21357f;
-  --color-bank-gold: #D4AF37;
-  --color-bank-teal: #00A693;
+  --color-bank-navy: var(--theme-primary, #21357f);
+  --color-bank-gold: var(--theme-secondary, #D4AF37);
+  --color-bank-teal: var(--theme-accent, #00A693);
 
-  --color-iron-navy: #21357f;
-  --color-iron-gold: #D4AF37;
-  --color-iron-teal: #00A693;
+  --color-iron-navy: var(--theme-primary, #21357f);
+  --color-iron-gold: var(--theme-secondary, #D4AF37);
+  --color-iron-teal: var(--theme-accent, #00A693);
 
-  --font-sans: "Inter", "Arial", sans-serif;
-  --font-tamil: "Noto Sans Tamil", sans-serif;
-  --font-hindi: "Shree Devanagari 714", sans-serif;
+  --font-sans: var(--theme-font-sans, "Inter", "Arial", sans-serif);
+  --font-tamil: var(--theme-font-tamil, "Noto Sans Tamil", sans-serif);
+  --font-hindi: var(--theme-font-hindi, "Shree Devanagari 714", sans-serif);
 }
 
 :root {
-  --bank-navy: #21357f;
-  --bank-gold: #D4AF37;
-  --bank-teal: #00A693;
+  --bank-navy: var(--theme-primary, #21357f);
+  --bank-gold: var(--theme-secondary, #D4AF37);
+  --bank-teal: var(--theme-accent, #00A693);
 }
 
 @layer base {

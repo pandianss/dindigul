@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText } from 'lucide-react';
 import { format, subMonths } from 'date-fns';
 import api from '../services/api';
-import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG } from '../constants/organization';
+import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG, THEME_CONFIG } from '../constants/organization';
 
 interface Letter {
     id: string;
@@ -207,7 +207,7 @@ const CorrespondenceCenter: React.FC = () => {
                                     {/* TRILINGUAL HEADER BLOCK */}
                                     <div className="flex justify-between items-center border-b-[3px] border-bank-navy pb-4 mb-8">
                                         <div className="flex items-center space-x-6">
-                                            <img src="/assets/logo_center.svg" alt="IOB Logo" className="h-[100px]" />
+                                            <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[100px]" />
                                             <div className="flex flex-col tracking-wide">
                                                 <h1 className="font-extrabold text-2xl text-bank-navy font-hindi tracking-widest leading-6">{GLOBAL_CONFIG.bankNameHi}</h1>
                                                 <h1 className="font-extrabold text-[15px]  text-bank-navy font-tamil leading-5 mb-0.5 tracking-widest">{GLOBAL_CONFIG.bankNameTa}</h1>
