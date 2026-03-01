@@ -95,7 +95,7 @@ router.get('/snapshot', async (req, res) => {
 
 // Upload MIS Excel (Pivot format)
 router.post('/excel-upload', authenticateToken, upload.single('file'), async (req: any, res) => {
-    if (!['ADMIN', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -118,8 +118,8 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
 
 // Upload MIS CSV — Admin / RO_MANAGER only (GAP 02)
 router.post('/upload', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_MANAGER'].includes(req.user?.role)) {
-        return res.status(403).json({ error: 'Forbidden: Only ADMIN or RO_MANAGER may upload MIS data' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden: Only ADMIN or Regional Office users may upload MIS data' });
     }
 
     const { csvData, date } = req.body;

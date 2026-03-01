@@ -91,8 +91,14 @@ router.post('/photo', authenticateToken, async (req: any, res) => {
 
 // Get all users
 router.get('/', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can list users' });
+    // Permission: ADMIN or RO_USER or 'admin' bypass
+    const canView = req.user?.role === 'ADMIN' ||
+        req.user?.role === 'RO_USER' ||
+        req.user?.role === 'RO_MANAGER' || // Temporary backward compatibility
+        req.user?.username === 'admin';
+
+    if (!canView) {
+        return res.status(403).json({ error: 'Permission denied' });
     }
     try {
         const users = await prisma.user.findMany({
@@ -100,6 +106,8 @@ router.get('/', authenticateToken, async (req: any, res) => {
                 photo: true,
                 branch: true,
                 department: true,
+                departments: true,
+                managedDepartments: true,
                 designation: true
             },
             orderBy: { createdAt: 'desc' }
@@ -117,10 +125,15 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create new user (Admin)
 router.post('/', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
         return res.status(403).json({ error: 'Only ADMIN can create users' });
     }
-    const { username, fullNameEn, fullNameTa, fullNameHi, grade, role, departmentId, designationId, branchId, photoData } = req.body;
+    const {
+        username, fullNameEn, fullNameTa, fullNameHi, grade, role,
+        departmentId, departmentIds, managedDepartmentIds,
+        designationId, branchId, photoData, isUnitHead
+    } = req.body;
+
     try {
         let photoId = null;
         if (photoData) {
@@ -141,11 +154,26 @@ router.post('/', authenticateToken, async (req: any, res) => {
                 grade,
                 role,
                 departmentId,
+                departments: departmentIds ? {
+                    connect: departmentIds.map((id: string) => ({ id }))
+                } : undefined,
+                managedDepartments: managedDepartmentIds ? {
+                    connect: managedDepartmentIds.map((id: string) => ({ id }))
+                } : undefined,
                 designationId,
                 branchId,
                 photoId: photoId || undefined
             }
         });
+
+        // If marked as unit head, update the branch/LPC record
+        if (isUnitHead && branchId) {
+            await prisma.branch.update({
+                where: { id: branchId },
+                data: { headUserId: user.id }
+            });
+        }
+
         res.json(user);
     } catch (error) {
         console.error('User creation error:', error);
@@ -153,13 +181,18 @@ router.post('/', authenticateToken, async (req: any, res) => {
     }
 });
 
-// Update user (GAP 06)
+// Update user
 router.put('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
         return res.status(403).json({ error: 'Only ADMIN can update users' });
     }
     const id = req.params.id as string;
-    const { fullNameEn, fullNameTa, fullNameHi, grade, role, departmentId, designationId, branchId, photoData } = req.body;
+    const {
+        fullNameEn, fullNameTa, fullNameHi, grade, role,
+        departmentId, departmentIds, managedDepartmentIds,
+        designationId, branchId, photoData, isUnitHead
+    } = req.body;
+
     try {
         let photoId = undefined;
         if (photoData) {
@@ -179,11 +212,38 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                 grade,
                 role,
                 departmentId,
+                departments: departmentIds ? {
+                    set: departmentIds.map((id: string) => ({ id }))
+                } : undefined,
+                managedDepartments: managedDepartmentIds ? {
+                    set: managedDepartmentIds.map((id: string) => ({ id }))
+                } : undefined,
                 designationId,
                 branchId,
                 ...(photoId ? { photoId } : {})
             }
         });
+
+        // Handle Unit Head logic
+        if (branchId) {
+            if (isUnitHead) {
+                // Set as head
+                await prisma.branch.update({
+                    where: { id: branchId },
+                    data: { headUserId: user.id }
+                });
+            } else {
+                // If they were head, unset (only if it was still them)
+                const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+                if (branch?.headUserId === user.id) {
+                    await prisma.branch.update({
+                        where: { id: branchId },
+                        data: { headUserId: null }
+                    });
+                }
+            }
+        }
+
         res.json(user);
     } catch (error) {
         console.error('Update failed:', error);
@@ -193,7 +253,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 
 // Delete user
 router.delete('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
         return res.status(403).json({ error: 'Only ADMIN can delete users' });
     }
     const id = req.params.id as string;
@@ -207,7 +267,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 
 // Bulk upload users
 router.post('/bulk', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
         return res.status(403).json({ error: 'Only ADMIN can bulk import users' });
     }
     const { csvContent, jsonData } = req.body;
@@ -291,7 +351,7 @@ router.post('/bulk', authenticateToken, async (req: any, res) => {
 
 // Transfer User (GAP 18)
 router.post('/:id/transfer', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
         return res.status(403).json({ error: 'Only ADMIN can transfer users' });
     }
 

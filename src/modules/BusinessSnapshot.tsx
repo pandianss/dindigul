@@ -79,10 +79,10 @@ const BusinessSnapshot: React.FC = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [units, setUnits] = useState<any[]>([]);
     const [showExceptions, setShowExceptions] = useState(false);
-    const [showManagementView, setShowManagementView] = useState(user?.role === 'ADMIN' || user?.role === 'RO_MANAGER');
+    const [showManagementView, setShowManagementView] = useState(['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role || ''));
 
     useEffect(() => {
-        if (!branchCode && (user?.role === 'ADMIN' || user?.role === 'RO_MANAGER')) {
+        if (!branchCode && ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role || '')) {
             setShowManagementView(true);
         }
     }, [branchCode, user?.role]);
@@ -253,12 +253,12 @@ const BusinessSnapshot: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                    {(user?.role === 'ADMIN' || user?.role === 'RO_MANAGER') && (
+                    {['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role || '') && (
                         <button
                             onClick={() => setShowManagementView(!showManagementView)}
                             className={`flex items-center gap-2 px-4 py-1.5 rounded-xl border transition-all font-bold text-sm shadow-sm ${showManagementView
-                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
-                                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                                 }`}
                         >
                             {showManagementView ? <LayoutDashboard size={16} /> : <ShieldAlert size={16} />}

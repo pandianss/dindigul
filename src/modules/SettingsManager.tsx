@@ -47,9 +47,14 @@ interface MasterItem {
     designationId?: string;
     branchId?: string;
     departmentId?: string;
+    departmentIds?: string[];
+    managedDepartmentIds?: string[];
+    isUnitHead?: boolean;
     designation?: { nameEn: string };
-    branch?: { nameEn: string };
+    branch?: { nameEn: string, headUserId?: string };
     department?: { nameEn: string };
+    departments?: { id: string, nameEn: string }[];
+    managedDepartments?: { id: string, nameEn: string }[];
     photo?: { data: string };
     photoData?: string | ArrayBuffer | null;
     atmId?: string;
@@ -62,6 +67,7 @@ const SettingsManager: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('departments');
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<MasterItem[]>([]);
+    const [sessions, setSessions] = useState<any[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState<MasterItem | null>(null);
     const [transferItem, setTransferItem] = useState<MasterItem | null>(null);
@@ -110,12 +116,58 @@ const SettingsManager: React.FC = () => {
 
     useEffect(() => {
         setData([]); // Clear old data immediately
+        setSessions([]);
         fetchData();
         setShowForm(false);
         setEditingItem(null);
         setFormData({});
 
+        const fetchSessionsForStaff = async () => {
+            try {
+                const res = await api.get('/auth/sessions');
+                setSessions(res.data);
+            } catch (err) {
+                console.error("Failed to fetch live sessions");
+            }
+        };
+
+        let interval: ReturnType<typeof setInterval>;
+        if (activeTab === 'staff') {
+            fetchSessionsForStaff(); // Initial fetch
+            interval = setInterval(() => {
+                fetchData();
+                fetchSessionsForStaff();
+            }, 30000); // 30 seconds polling
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
     }, [activeTab]);
+
+    const formatDuration = (loginTime: string) => {
+        const diffInSeconds = Math.floor((Date.now() - new Date(loginTime).getTime()) / 1000);
+        const hours = Math.floor(diffInSeconds / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        if (minutes > 0) return `${minutes}m`;
+        return `${diffInSeconds}s`;
+    };
+
+    const handleRevokeSession = async (id: string) => {
+        if (!window.confirm('Are you sure you want to revoke this session? The user will be logged out immediately.')) return;
+        try {
+            await api.delete(`/auth/sessions/${id}`);
+            // Force quick refresh of sessions
+            if (activeTab === 'staff') {
+                const res = await api.get('/auth/sessions');
+                setSessions(res.data);
+            }
+        } catch (err) {
+            setError(getErrorMessage(err));
+        }
+    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -214,7 +266,16 @@ const SettingsManager: React.FC = () => {
         }
 
         setEditingItem(item);
-        setFormData(parsedFormData);
+
+        // Populate arrays for multi-selects
+        const initialFormData = {
+            ...parsedFormData,
+            departmentIds: item.departments?.map(d => d.id) || (item.departmentId ? [item.departmentId] : []),
+            managedDepartmentIds: item.managedDepartments?.map(d => d.id) || [],
+            isUnitHead: item.branch?.headUserId === item.id
+        };
+
+        setFormData(initialFormData);
         setShowForm(true);
     };
 
@@ -554,17 +615,19 @@ const SettingsManager: React.FC = () => {
                                 {branches.map(b => <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>)}
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Department</label>
-                            <select
-                                className="w-full p-2 border rounded"
-                                value={formData.departmentId || ''}
-                                onChange={e => setFormData({ ...formData, departmentId: e.target.value })}
-                            >
-                                <option value="">Select Department</option>
-                                {departments.map(d => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
-                            </select>
-                        </div>
+                        {['RO_USER', 'ADMIN'].includes(formData.role || '') && (
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Department</label>
+                                <select
+                                    className="w-full p-2 border rounded"
+                                    value={formData.departmentId || ''}
+                                    onChange={e => setFormData({ ...formData, departmentId: e.target.value })}
+                                >
+                                    <option value="">Select Department</option>
+                                    {departments.map(d => <option key={d.id} value={d.id}>{d.nameEn}</option>)}
+                                </select>
+                            </div>
+                        )}
 
                         <div>
                             <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">System Role</label>
@@ -574,10 +637,69 @@ const SettingsManager: React.FC = () => {
                                 onChange={e => setFormData({ ...formData, role: e.target.value })}
                             >
                                 <option value="ADMIN">System Admin</option>
-                                <option value="RO_MANAGER">RO Manager</option>
-                                <option value="SECTION_USER">Section User</option>
+                                <option value="RO_USER">Regional Office User</option>
                                 <option value="BRANCH_USER">Branch User</option>
+                                <option value="LPC_USER">Loan Processing Centre User</option>
                             </select>
+                        </div>
+
+                        {/* Hierarchy Controls */}
+                        <div className="col-span-2 space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-bold text-bank-navy uppercase tracking-wider">Hierarchy & Leadership</h4>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded text-bank-teal"
+                                        checked={formData.isUnitHead || false}
+                                        onChange={e => setFormData({ ...formData, isUnitHead: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-bold text-gray-700">Set as Head of Unit</span>
+                                </label>
+                            </div>
+
+                            {['RO_USER', 'ADMIN'].includes(formData.role || '') && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-widest">Assigned Departments</label>
+                                        <div className="max-h-32 overflow-y-auto border rounded bg-white p-2">
+                                            {departments.map(d => (
+                                                <label key={`dept-${d.id}`} className="flex items-center space-x-2 mb-1 cursor-pointer hover:bg-gray-50">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={(formData.departmentIds || []).includes(d.id!)}
+                                                        onChange={e => {
+                                                            const current = formData.departmentIds || [];
+                                                            if (e.target.checked) setFormData({ ...formData, departmentIds: [...current, d.id!] });
+                                                            else setFormData({ ...formData, departmentIds: current.filter(id => id !== d.id) });
+                                                        }}
+                                                    />
+                                                    <span className="text-xs">{d.nameEn}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-widest">Headed Departments</label>
+                                        <div className="max-h-32 overflow-y-auto border rounded bg-white p-2">
+                                            {departments.map(d => (
+                                                <label key={`headed-${d.id}`} className="flex items-center space-x-2 mb-1 cursor-pointer hover:bg-gray-50">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={(formData.managedDepartmentIds || []).includes(d.id!)}
+                                                        onChange={e => {
+                                                            const current = formData.managedDepartmentIds || [];
+                                                            if (e.target.checked) setFormData({ ...formData, managedDepartmentIds: [...current, d.id!] });
+                                                            else setFormData({ ...formData, managedDepartmentIds: current.filter(id => id !== d.id) });
+                                                        }}
+                                                    />
+                                                    <span className="text-xs font-bold text-bank-teal">{d.nameEn}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="col-span-2">
@@ -896,65 +1018,89 @@ const SettingsManager: React.FC = () => {
                                                 </td>
                                             </tr>,
                                             // Staff Rows
-                                            ...sortedStaff.map(item => (
-                                                <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center space-x-3">
-                                                            <div className="flex-shrink-0">
-                                                                {item.photo?.data ? (
-                                                                    <img
-                                                                        src={item.photo.data as string}
-                                                                        alt={item.username}
-                                                                        className="w-10 h-10 rounded-full object-cover border-2 border-bank-navy/10 shadow-sm"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
-                                                                        <Users size={18} />
-                                                                    </div>
+                                            ...sortedStaff.map(item => {
+                                                // Find active session for this staff member
+                                                const activeSession = sessions.find(s => s.userId === item.id);
+
+                                                return (
+                                                    <tr key={item.id} className={`hover:bg-gray-50 transition-colors group ${activeSession ? 'bg-green-50/20' : ''}`}>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="flex-shrink-0 relative">
+                                                                    {item.photo?.data ? (
+                                                                        <img
+                                                                            src={item.photo.data as string}
+                                                                            alt={item.username}
+                                                                            className="w-10 h-10 rounded-full object-cover border-2 border-bank-navy/10 shadow-sm"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
+                                                                            <Users size={18} />
+                                                                        </div>
+                                                                    )}
+                                                                    {activeSession && (
+                                                                        <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-green-500 border border-white inline-block animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]" title="Active Session"></span>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
+                                                                    {activeSession ? (
+                                                                        <p className="text-[10px] text-green-600 font-bold tracking-tighter uppercase">
+                                                                            Active ({formatDuration(activeSession.createdAt)}) • {activeSession.osUsername} • {activeSession.ipAddress}
+                                                                        </p>
+                                                                    ) : (
+                                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
+                                                                            {item.designation?.nameEn || 'No Designation'} • {item.grade || 'No Grade'}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.fullNameEn}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.fullNameTa || '-'}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.fullNameHi || '-'}</td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
+                                                                {activeSession && (
+                                                                    <button
+                                                                        onClick={() => handleRevokeSession(activeSession.id)}
+                                                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-all text-[10px] font-bold border border-red-200 uppercase tracking-widest mr-2"
+                                                                        title="Revoke Session"
+                                                                    >
+                                                                        Revoke
+                                                                    </button>
                                                                 )}
+                                                                <button
+                                                                    onClick={() => startEdit(item)}
+                                                                    className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
+                                                                    title="Edit Details"
+                                                                >
+
+                                                                    <Edit2 size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setTransferItem(item);
+                                                                        setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' });
+                                                                        setShowTransferModal(true);
+                                                                    }}
+                                                                    className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
+                                                                    title="Transfer User"
+                                                                >
+                                                                    <ArrowRightLeft size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(item.id || '')}
+                                                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
+                                                                    title="Delete Entry"
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
-                                                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                                    {item.designation?.nameEn || 'No Designation'} • {item.grade || 'No Grade'}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.fullNameEn}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.fullNameTa || '-'}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.fullNameHi || '-'}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
-                                                            <button
-                                                                onClick={() => startEdit(item)}
-                                                                className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
-                                                                title="Edit Details"
-                                                            >
-                                                                <Edit2 size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setTransferItem(item);
-                                                                    setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' });
-                                                                    setShowTransferModal(true);
-                                                                }}
-                                                                className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
-                                                                title="Transfer User"
-                                                            >
-                                                                <ArrowRightLeft size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDelete(item.id || '')}
-                                                                className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
-                                                                title="Delete Entry"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
                                         ];
                                     });
                                 }

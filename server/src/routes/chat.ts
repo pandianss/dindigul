@@ -12,8 +12,8 @@ router.use(authenticateToken as any);
 router.post('/query', async (req: any, res) => {
     const { branchCode, queryText, paramCodes } = req.body;
 
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can raise branch queries' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Only ADMIN or Regional Office users can raise branch queries' });
     }
 
     if (!branchCode || !queryText) {
@@ -45,7 +45,7 @@ router.post('/query', async (req: any, res) => {
             type: 'ro_query',
             room: `branch:${branchCode}`,
             user: req.user.username,
-            role: 'RO_MANAGER',
+            role: ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user.role) ? req.user.role : 'RO_USER',
             text: queryText,
             payload: JSON.stringify({
                 queryId: queryRecord.id,
@@ -139,8 +139,8 @@ router.post('/respond', async (req: any, res) => {
 
 // GET /api/chat/history/:room - Admin/Refresh fetching historical messages
 router.get('/history/:room', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can view full chat history' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view full chat history' });
     }
     const { room } = req.params;
     try {
@@ -179,8 +179,8 @@ router.get('/history/:room', async (req: any, res) => {
 
 // GET /api/chat/pending - RO/ADMIN fetching unresolved queries
 router.get('/pending', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can view pending queries' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view pending queries' });
     }
     try {
         const pendingQueries = await prisma.branchQuery.findMany({
@@ -211,8 +211,8 @@ router.get('/pending', async (req: any, res) => {
 
 // GET /api/chat/history/summary/:sol - RO/ADMIN fetching summarized history
 router.get('/history/summary/:sol', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can view summary history' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view summary history' });
     }
     const { sol } = req.params;
     try {

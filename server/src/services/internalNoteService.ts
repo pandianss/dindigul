@@ -98,7 +98,7 @@ export async function createInternalNote(data: {
     const pdfBuffer = await generatePDF(html);
 
     // 4. Save to database
-    const { date, ...dbData } = data; // Don't save manual date to DB if not in schema, or adjust schema
+    const { date, creatorBranchId, ...dbData } = data; // Don't save manual date or branchId to DB if not in schema
     const note = await (prisma as any).internalNote.create({
         data: {
             ...dbData,

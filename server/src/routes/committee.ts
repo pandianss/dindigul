@@ -112,8 +112,8 @@ router.get('/:id/meetings', async (req: any, res) => {
 
 // Create a new meeting minutes record
 router.post('/:id/meetings', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can create meetings' });
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Only ADMIN or Regional Office users can create meetings' });
     }
     const { id: committeeId } = req.params;
     const { date, venue, minutesJson, actionPoints } = req.body;
@@ -182,7 +182,7 @@ router.patch('/action-points/:id', async (req: any, res) => {
             return res.status(404).json({ error: 'Action point not found' });
         }
 
-        const isAdminOrRo = req.user?.role === 'ADMIN' || req.user?.role === 'RO_MANAGER';
+        const isAdminOrRo = ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role);
         const isAssignee = ap.assignedToUserId && ap.assignedToUserId === req.user?.id;
 
         if (!isAdminOrRo && !isAssignee) {

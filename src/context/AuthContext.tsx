@@ -3,12 +3,14 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 export type Role =
   | 'ADMIN'
-  | 'RO'
-  | 'RO_MANAGER'
-  | 'BRANCH'
+  | 'RO_USER'
+  | 'LPC_USER'
   | 'BRANCH_USER'
-  | 'SECTION_USER'
-  | 'GUEST';
+  | 'GUEST'
+  | 'RO_MANAGER'   // Legacy support
+  | 'SECTION_USER' // Legacy support
+  | 'BRANCH'       // Legacy support
+  | 'RO';          // Legacy support
 
 export interface User {
   id: number;
@@ -16,7 +18,15 @@ export interface User {
   role: Role | string;
   fullNameEn?: string;
   branchId?: string | null;
-  branch?: { code?: string; nameEn?: string } | null;
+  branch?: {
+    id?: string;
+    code?: string;
+    nameEn?: string;
+    type?: string;
+    headUserId?: string;
+  } | null;
+  departments?: { id: string, nameEn: string }[];
+  managedDepartments?: { id: string, nameEn: string }[];
   token?: string;
 }
 
@@ -30,6 +40,7 @@ interface AuthContextType {
   login: (credentials: any) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  autoLoginError: { message: string, sysUser?: string } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,12 +51,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [autoLoginError, setAutoLoginError] = useState<{ message: string, sysUser?: string } | null>(null);
 
   useEffect(() => {
-    // Set dummy user for now if needed, or just let it be null
-    // setUser({ name: 'Anand Kumar', role: 'RO' });
-    setIsLoading(false);
-  }, []);
+    const attemptAutoLogin = async () => {
+      // If user manually logged out in this session, don't auto-login again
+      if (sessionStorage.getItem('manualLogout') === 'true') {
+        setIsLoading(false);
+        return;
+      }
+
+      // If we already have a user in localStorage, we can trust it for now 
+      if (user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/auto-login');
+        const data = await res.json();
+
+        if (res.ok) {
+          const userWithToken: User = {
+            ...data.user,
+            token: data.token
+          };
+          setUser(userWithToken);
+          localStorage.setItem('user', JSON.stringify(userWithToken));
+          localStorage.setItem('token', data.token);
+        } else if (res.status === 404 || res.status === 401) {
+          // User not found or admin (manual login required)
+          setAutoLoginError({ message: data.error, sysUser: data.sysUser });
+        }
+      } catch (error) {
+        console.error('Auto-login attempt failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    attemptAutoLogin();
+  }, [user]);
 
   const login = async (credentials: any) => {
     try {
@@ -67,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       setUser(userWithToken);
+      sessionStorage.removeItem('manualLogout');
       localStorage.setItem('user', JSON.stringify(userWithToken));
       localStorage.setItem('token', data.token);
     } catch (error) {
@@ -75,14 +122,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      setAutoLoginError(null);
+      sessionStorage.setItem('manualLogout', 'true');
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, autoLoginError }}>
       {children}
     </AuthContext.Provider>
   );

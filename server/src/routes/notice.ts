@@ -88,7 +88,7 @@ router.post('/:id/ack', authenticateToken, async (req: any, res) => {
 // GAP 13: Get acknowledgement status (Admin/RO only)
 router.get('/:id/ack-status', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    if (!['ADMIN', 'RO_MANAGER'].includes(req.user.role)) {
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 

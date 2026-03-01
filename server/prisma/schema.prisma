@@ -64,10 +64,27 @@ model User {
   mfaEnabled   Boolean @default(false)
   mfaSecret    String?
 
+  sessions         Session[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  expiresAt    DateTime
+  osUsername   String?  // To track which system user this session belongs to
+  ipAddress    String?
+  userAgent    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("sessions")
 }
 
 model Committee {

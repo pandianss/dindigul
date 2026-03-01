@@ -5,6 +5,7 @@ import prisma from '../lib/prisma';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import { authenticateToken } from '../middleware/auth';
+import os from 'os';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -59,10 +60,22 @@ router.post('/login', async (req, res) => {
             data: { failedLoginAttempts: 0, lockedUntil: null } as any
         });
 
+        // Use selected role if provided and user is admin
+        let finalRole = user.role;
+        if (username === 'admin' && req.body.role) {
+            finalRole = req.body.role;
+            console.log(`[Auth] Admin user logged in with overridden role: ${finalRole}`);
+        } else {
+            // Role consolidation: If user has legacy RO roles, map them to RO_USER
+            if (finalRole === 'RO_MANAGER' || finalRole === 'SECTION_USER') {
+                finalRole = 'RO_USER';
+            }
+        }
+
         // GAP 04: Check if MFA is required
         if ((user as any).mfaEnabled) {
             const tempToken = jwt.sign(
-                { id: user.id, username: user.username, mfaPending: true },
+                { id: user.id, username: user.username, mfaPending: true, selectedRole: finalRole },
                 JWT_SECRET,
                 { expiresIn: '5m' }
             );
@@ -70,17 +83,29 @@ router.post('/login', async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role, fullNameEn: user.fullNameEn, branchId: user.branchId },
+            { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId },
             JWT_SECRET,
             { expiresIn: '8h' }
         );
+
+        // Create explicit session
+        await (prisma as any).session.create({
+            data: {
+                userId: user.id,
+                token,
+                expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000), // 8 hours
+                osUsername: 'manual_login',
+                userAgent: req.headers['user-agent'] || 'unknown',
+                ipAddress: req.ip || '0.0.0.0'
+            }
+        });
 
         res.json({
             token,
             user: {
                 id: user.id,
                 username: user.username,
-                role: user.role,
+                role: finalRole,
                 fullNameEn: user.fullNameEn,
                 branchId: user.branchId
             }
@@ -109,18 +134,36 @@ router.post('/mfa/challenge', async (req, res) => {
 
         if (!verified) return res.status(401).json({ error: 'Invalid MFA code' });
 
+        let finalRole = payload.selectedRole || user.role;
+        // Role consolidation for MFA
+        if (finalRole === 'RO_MANAGER' || finalRole === 'SECTION_USER') {
+            finalRole = 'RO_USER';
+        }
+
         const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role, fullNameEn: user.fullNameEn, branchId: user.branchId },
+            { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId },
             JWT_SECRET,
             { expiresIn: '8h' }
         );
+
+        // Create explicit session for MFA
+        await (prisma as any).session.create({
+            data: {
+                userId: user.id,
+                token,
+                expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000), // 8 hours
+                osUsername: 'mfa_login',
+                userAgent: req.headers['user-agent'] || 'unknown',
+                ipAddress: req.ip || '0.0.0.0'
+            }
+        });
 
         res.json({
             token,
             user: {
                 id: user.id,
                 username: user.username,
-                role: user.role,
+                role: finalRole,
                 fullNameEn: user.fullNameEn,
                 branchId: user.branchId
             }
@@ -172,6 +215,107 @@ router.post('/mfa/verify', authenticateToken, async (req: any, res) => {
         res.json({ message: 'MFA enabled successfully' });
     } catch (error) {
         res.status(500).json({ error: 'MFA verification failed' });
+    }
+});
+
+// Auto-login based on OS username
+router.get('/auto-login', async (req, res) => {
+    try {
+        const sysUser = os.userInfo().username;
+        console.log(`[Auth] Auto-login attempt for system user: ${sysUser}`);
+
+        // Admin cannot auto-login
+        if (sysUser.toLowerCase() === 'admin') {
+            return res.status(401).json({ error: 'Admin must login manually', requiresManual: true });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { username: sysUser },
+            include: { branch: true }
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                error: `System user '${sysUser}' is not registered as staff.`,
+                sysUser,
+                requiresManual: true
+            });
+        }
+
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role, fullNameEn: user.fullNameEn, branchId: user.branchId },
+            JWT_SECRET,
+            { expiresIn: '8h' }
+        );
+
+        await (prisma as any).session.create({
+            data: {
+                userId: user.id,
+                token,
+                expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000),
+                osUsername: sysUser,
+                userAgent: req.headers['user-agent'],
+                ipAddress: req.ip
+            }
+        });
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+                fullNameEn: user.fullNameEn,
+                branchId: user.branchId
+            }
+        });
+    } catch (error) {
+        console.error('Auto-login error:', error);
+        res.status(500).json({ error: 'Auto-login failed' });
+    }
+});
+
+router.post('/logout', authenticateToken, async (req: any, res) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (token) {
+            await (prisma as any).session.updateMany({
+                where: { token, userId: req.user.id },
+                data: { isActive: false }
+            });
+        }
+        res.json({ message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Logout failed' });
+    }
+});
+
+router.get('/sessions', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    try {
+        const sessions = await (prisma as any).session.findMany({
+            where: { isActive: true },
+            include: { user: { select: { username: true, fullNameEn: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(sessions);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch sessions' });
+    }
+});
+
+router.delete('/sessions/:id', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    try {
+        await (prisma as any).session.update({
+            where: { id: req.params.id },
+            data: { isActive: false }
+        });
+        res.json({ message: 'Session revoked' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to revoke session' });
     }
 });
 

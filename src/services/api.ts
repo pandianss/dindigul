@@ -11,7 +11,7 @@ const api = axios.create({
     },
 });
 
-// Add interceptors if needed (e.g., for tokens)
+// Add interceptors for tokens
 api.interceptors.request.use((config) => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -22,6 +22,19 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Response interceptor for session expiry
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const STATIC_URL = import.meta.env.VITE_STATIC_URL || '/';
 

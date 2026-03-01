@@ -67,7 +67,7 @@ function App() {
 
     // Regional User Portal (Requires Login)
     if (portalMode === 'region' && !user) {
-        return <LoginScreen onLogin={login} />;
+        return <LoginScreen onLogin={login} onVisitGuest={() => setPortalMode('guest')} />;
     }
 
     const renderModule = () => {

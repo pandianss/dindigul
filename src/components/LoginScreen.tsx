@@ -1,29 +1,83 @@
 import React, { useState } from 'react';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface LoginScreenProps {
     onLogin: (data: any) => Promise<void>;
+    onVisitGuest: () => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [selectedRole, setSelectedRole] = useState('ADMIN');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { autoLoginError } = useAuth();
+    const [showManualForm, setShowManualForm] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         try {
-            await onLogin({ username, password });
+            await onLogin({
+                username,
+                password,
+                role: username === 'admin' ? selectedRole : undefined
+            });
         } catch (err: any) {
             setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
         } finally {
             setLoading(false);
         }
     };
+
+    // If there is an auto-login error (e.g. user not found) and manual form is not explicitly requested
+    if (autoLoginError && !showManualForm) {
+        return (
+            <div className="min-h-screen bg-bank-navy flex items-center justify-center p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-bank-teal/10 rounded-full -mr-64 -mt-64 blur-[120px] animate-pulse" />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none" />
+
+                <div className="w-full max-w-md animate-in fade-in zoom-in duration-700">
+                    <div className="bg-white rounded-[2rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] overflow-hidden border border-white/20 p-10">
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="mb-6 w-full flex justify-center">
+                                <img src="/assets/logo_full.svg" alt="Bank Logo" className="h-10 w-auto object-contain" />
+                            </div>
+                            <h2 className="text-2xl font-black text-bank-navy text-center mb-2">Access Denied</h2>
+                            <p className="text-gray-500 text-center font-bold text-sm leading-relaxed">
+                                {autoLoginError.message}
+                            </p>
+                        </div>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => setShowManualForm(true)}
+                                className="w-full bg-bank-navy text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:-translate-y-1 transition-all active:translate-y-0"
+                            >
+                                Login as Administrator
+                            </button>
+                            <button
+                                onClick={onVisitGuest}
+                                className="w-full bg-bank-teal text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:-translate-y-1 transition-all active:translate-y-0"
+                            >
+                                Visit Guest Portal
+                            </button>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="w-full bg-gray-50 text-bank-navy py-4 rounded-2xl font-bold text-sm border border-gray-100 hover:bg-white transition-all"
+                            >
+                                Retry Automatic Access
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-bank-navy flex items-center justify-center p-6 relative overflow-hidden">
@@ -86,6 +140,32 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                                     </button>
                                 </div>
                             </div>
+
+                            {username.toLowerCase() === 'admin' && (
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <label className="flex justify-between items-center text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                                        <span>Testing Role Bypass</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <select
+                                            value={selectedRole}
+                                            onChange={(e) => setSelectedRole(e.target.value)}
+                                            className="w-full bg-bank-navy/5 border-2 border-transparent focus:border-bank-gold/30 focus:bg-white px-6 py-4 rounded-2xl outline-none transition-all font-bold text-bank-navy appearance-none"
+                                        >
+                                            <option value="ADMIN">System Administrator</option>
+                                            <option value="RO_USER">Regional Office User</option>
+                                            <option value="BRANCH_USER">Branch Level User</option>
+                                            <option value="LPC_USER">Loan Processing Centre</option>
+                                            <option value="GUEST">Guest / Public View</option>
+                                        </select>
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-bank-gold">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {error && (
                                 <div className="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 text-xs font-bold flex items-center space-x-2 animate-in slide-in-from-top-2 duration-300">

@@ -6,7 +6,12 @@ import { parseCSV } from '../utils/csv';
 const router = Router();
 
 // Get all departments
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req: any, res) => {
+    // Permission: ADMIN, RO_USER, or 'admin' bypass
+    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || req.user?.username === 'admin';
+    if (!canView) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
     try {
         const departments = await (prisma as any).department.findMany({
             orderBy: { code: 'asc' }

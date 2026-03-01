@@ -47,7 +47,7 @@ router.patch('/:id/check', authenticateToken, async (req: any, res) => {
 
 // GAP 15: Final approver approval (CHECKED → APPROVED)
 router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
