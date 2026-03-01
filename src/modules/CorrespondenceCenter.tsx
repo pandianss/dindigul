@@ -209,7 +209,7 @@ const CorrespondenceCenter: React.FC = () => {
                                     </div>
 
                                     <h3 className="text-center font-bold text-xl underline mb-10 uppercase tracking-wider text-bank-navy">
-                                        {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Letter of Explanation Called For'}
+                                        {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Plan of Action Called For'}
                                     </h3>
 
                                     <div className="whitespace-pre-wrap text-justify ext-gray-700 leading-loose">

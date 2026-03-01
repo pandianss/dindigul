@@ -5,6 +5,13 @@ import { createNotification } from '../services/notificationService';
 
 const router = Router();
 
+const toTitleCase = (str: string) => {
+    if (!str) return '';
+    return str.toLowerCase().split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+};
+
 // Get all letters — BRANCH_USER sees only their branch (GAP 03)
 router.get('/', authenticateToken, async (req: any, res) => {
     try {
@@ -155,14 +162,14 @@ router.post('/generate', async (req, res) => {
             });
 
             if (!existingLetter) {
-                const headName = snap.branch.headUser?.fullNameEn || "The Branch Manager";
-                const headDesignation = snap.branch.headUser?.designation?.nameEn || "Branch Head";
+                const headName = toTitleCase(snap.branch.headUser?.fullNameEn || "The Branch Manager");
+                const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || "Branch Head");
 
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'APPRECIATION',
                         titleEn: `Appreciation Letter - ${period}`,
-                        contentEn: `Congratulations to ${headName} (${headDesignation}) and the whole team at ${snap.branch.nameEn} Branch for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr against the target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr is highly commendable. Keep up the good work!`,
+                        contentEn: `Congratulations to ${headName} (${headDesignation}) and the whole team at ${toTitleCase(snap.branch.nameEn)} Branch for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr against the target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr is highly commendable. Keep up the good work!`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,
@@ -181,14 +188,14 @@ router.post('/generate', async (req, res) => {
             });
 
             if (!existingLetter) {
-                const headName = snap.branch.headUser?.fullNameEn || "The Branch Manager";
-                const headDesignation = snap.branch.headUser?.designation?.nameEn || "Branch Head";
+                const headName = toTitleCase(snap.branch.headUser?.fullNameEn || "The Branch Manager");
+                const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || "Branch Head");
 
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'EXPLANATION',
-                        titleEn: `Explanation Letter - ${period}`,
-                        contentEn: `Performance review for ${snap.branch.nameEn} Branch under the leadership of ${headName} (${headDesignation}) in Total Deposits for ${period} shows a shortfall.\n\nYour achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets of ₹ ${snap.budget?.toLocaleString() || '0'} Cr. Please submit an explanation for this deviation by end of week.`,
+                        titleEn: `Plan of Action - ${period}`,
+                        contentEn: `Performance review for ${toTitleCase(snap.branch.nameEn)} Branch under the leadership of ${headName} (${headDesignation}) in Total Deposits for ${period} shows a shortfall.\n\nYour achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets of ₹ ${snap.budget?.toLocaleString() || '0'} Cr. Please submit a plan of action detailing how you will achieve the budgets going forward by the end of the week.`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,
