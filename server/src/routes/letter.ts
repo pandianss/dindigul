@@ -108,7 +108,17 @@ router.post('/generate', async (req, res) => {
         const snapshots = await (prisma as any).snapshot.findMany({
             where: { parameterId: param.id },
             orderBy: { value: 'desc' },
-            include: { branch: true }
+            include: {
+                branch: {
+                    include: {
+                        headUser: {
+                            include: {
+                                designation: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         if (snapshots.length === 0) return res.status(404).json({ error: 'No snapshots found for this period' });
@@ -137,11 +147,14 @@ router.post('/generate', async (req, res) => {
             });
 
             if (!existingLetter) {
+                const headName = snap.branch.headUser?.fullNameEn || "The Branch Manager";
+                const headDesignation = snap.branch.headUser?.designation?.nameEn || "Branch Head";
+
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'APPRECIATION',
                         titleEn: `Appreciation Letter - ${period}`,
-                        contentEn: `Congratulations to ${snap.branch.nameEn} for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr is highly commendable.`,
+                        contentEn: `Congratulations to ${headName} (${headDesignation}) and the whole team at ${snap.branch.nameEn} Branch for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr against the target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr is highly commendable. Keep up the good work!`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,
@@ -160,11 +173,14 @@ router.post('/generate', async (req, res) => {
             });
 
             if (!existingLetter) {
+                const headName = snap.branch.headUser?.fullNameEn || "The Branch Manager";
+                const headDesignation = snap.branch.headUser?.designation?.nameEn || "Branch Head";
+
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'EXPLANATION',
                         titleEn: `Explanation Letter - ${period}`,
-                        contentEn: `Performance review for ${snap.branch.nameEn} in Total Deposits for ${period} shows a shortfall. Your achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets. Please submit an explanation by end of week.`,
+                        contentEn: `Performance review for ${snap.branch.nameEn} Branch under the leadership of ${headName} (${headDesignation}) in Total Deposits for ${period} shows a shortfall.\n\nYour achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets of ₹ ${snap.budget?.toLocaleString() || '0'} Cr. Please submit an explanation for this deviation by end of week.`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,

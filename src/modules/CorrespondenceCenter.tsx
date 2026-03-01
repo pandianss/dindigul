@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import api from '../services/api';
 
 interface Letter {
@@ -42,7 +42,7 @@ const CorrespondenceCenter: React.FC = () => {
         setGenerating(true);
         try {
             const response = await api.post('/letters/generate', {
-                period: format(new Date(), 'MMM yyyy')
+                period: format(subMonths(new Date(), 1), 'MMM yyyy')
             });
             if (response.status === 200) {
                 fetchLetters();
