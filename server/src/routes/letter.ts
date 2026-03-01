@@ -113,43 +113,67 @@ router.post('/generate', async (req, res) => {
 
         if (snapshots.length === 0) return res.status(404).json({ error: 'No snapshots found for this period' });
 
-        const topBranches = snapshots.slice(0, 3);
-        const bottomBranches = snapshots.slice(-3).reverse();
+        // Filter out duplicate branches to ensure we only get unique branches
+        const uniqueSnapshots = [];
+        const seenBranchIds = new Set();
+        for (const snap of snapshots) {
+            if (!seenBranchIds.has(snap.branchId)) {
+                uniqueSnapshots.push(snap);
+                seenBranchIds.add(snap.branchId);
+            }
+        }
+
+        if (uniqueSnapshots.length === 0) return res.status(404).json({ error: 'No unique snapshots found for this period' });
+
+        const topBranches = uniqueSnapshots.slice(0, 3);
+        const bottomBranches = uniqueSnapshots.slice(-3).reverse();
 
         const createdLetters = [];
 
         // Generate Appreciation Letters
         for (const snap of topBranches) {
-            const letter = await (prisma as any).letter.create({
-                data: {
-                    type: 'APPRECIATION',
-                    titleEn: `Appreciation Letter - ${period}`,
-                    contentEn: `Congratulations to ${snap.branch.nameEn} for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr is highly commendable.`,
-                    branchId: snap.branchId,
-                    parameterId: param.id,
-                    valueAtTime: snap.value,
-                    budgetAtTime: snap.budget,
-                    period: period
-                }
+            const existingLetter = await (prisma as any).letter.findFirst({
+                where: { branchId: snap.branchId, period: period, type: 'APPRECIATION' }
             });
-            createdLetters.push(letter);
+
+            if (!existingLetter) {
+                const letter = await (prisma as any).letter.create({
+                    data: {
+                        type: 'APPRECIATION',
+                        titleEn: `Appreciation Letter - ${period}`,
+                        contentEn: `Congratulations to ${snap.branch.nameEn} for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr is highly commendable.`,
+                        branchId: snap.branchId,
+                        parameterId: param.id,
+                        valueAtTime: snap.value,
+                        budgetAtTime: snap.budget,
+                        period: period
+                    }
+                });
+                createdLetters.push(letter);
+            }
         }
 
         // Generate Explanation Letters
         for (const snap of bottomBranches) {
-            const letter = await (prisma as any).letter.create({
-                data: {
-                    type: 'EXPLANATION',
-                    titleEn: `Explanation Letter - ${period}`,
-                    contentEn: `Performance review for ${snap.branch.nameEn} in Total Deposits for ${period} shows a shortfall. Your achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets. Please submit an explanation by end of week.`,
-                    branchId: snap.branchId,
-                    parameterId: param.id,
-                    valueAtTime: snap.value,
-                    budgetAtTime: snap.budget,
-                    period: period
-                }
+            const existingLetter = await (prisma as any).letter.findFirst({
+                where: { branchId: snap.branchId, period: period, type: 'EXPLANATION' }
             });
-            createdLetters.push(letter);
+
+            if (!existingLetter) {
+                const letter = await (prisma as any).letter.create({
+                    data: {
+                        type: 'EXPLANATION',
+                        titleEn: `Explanation Letter - ${period}`,
+                        contentEn: `Performance review for ${snap.branch.nameEn} in Total Deposits for ${period} shows a shortfall. Your achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets. Please submit an explanation by end of week.`,
+                        branchId: snap.branchId,
+                        parameterId: param.id,
+                        valueAtTime: snap.value,
+                        budgetAtTime: snap.budget,
+                        period: period
+                    }
+                });
+                createdLetters.push(letter);
+            }
         }
 
         res.json({ message: `Generated ${createdLetters.length} letters for ${period}`, letters: createdLetters });
