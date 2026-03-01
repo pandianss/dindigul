@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight } from 'lucide-react';
+import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 
@@ -18,6 +18,7 @@ const CorrespondenceCenter: React.FC = () => {
     const [letters, setLetters] = useState<Letter[]>([]);
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
+    const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
 
     const fetchLetters = () => {
         setLoading(true);
@@ -111,6 +112,12 @@ const CorrespondenceCenter: React.FC = () => {
                                     </div>
                                     <div className="flex flex-col space-y-2 items-end">
                                         <div className="text-xs text-gray-400 font-medium">{format(new Date(letter.createdAt), 'dd MMM yyyy')}</div>
+                                        <button
+                                            onClick={() => setSelectedLetter(letter)}
+                                            className="text-bank-navy text-sm font-bold flex items-center hover:underline"
+                                        >
+                                            <FileText size={16} className="mr-1" /> View Document
+                                        </button>
                                         {letter.status === 'DRAFT' && (
                                             <button
                                                 onClick={() => updateStatus(letter.id, 'SENT')}
@@ -142,6 +149,79 @@ const CorrespondenceCenter: React.FC = () => {
                             <p className="text-gray-400 text-sm">Click "Generate Monthly Drafts" to start automated ranking.</p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {selectedLetter && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-bank-navy/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+                        <div className={`p-4 text-white flex justify-between items-center ${selectedLetter.type === 'APPRECIATION' ? 'bg-green-700' : 'bg-red-700'}`}>
+                            <h2 className="text-lg font-bold flex items-center">
+                                {selectedLetter.type === 'APPRECIATION' ? <Award className="mr-2" size={20} /> : <AlertCircle className="mr-2" size={20} />}
+                                {selectedLetter.titleEn}
+                            </h2>
+                            <button onClick={() => setSelectedLetter(null)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-8 overflow-y-auto bg-gray-50 flex-grow">
+                            <div className="bg-white p-10 rounded shadow-sm border border-gray-200 min-h-[500px] text-gray-800 font-serif leading-relaxed relative">
+                                {/* Watermark matching the UI aesthetics */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                                    <Award size={400} />
+                                </div>
+
+                                <div className="relative z-10">
+                                    <div className="text-right mb-10">
+                                        <p className="font-bold text-lg text-bank-navy">Indian Overseas Bank</p>
+                                        <p className="text-gray-600">Regional Office, Dindigul</p>
+                                        <p className="text-gray-500 mt-2">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
+                                    </div>
+
+                                    <div className="mb-10">
+                                        <p className="font-bold">To,</p>
+                                        <p className="font-bold">The Branch Manager</p>
+                                        <p>Indian Overseas Bank</p>
+                                        <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
+                                    </div>
+
+                                    <h3 className="text-center font-bold text-xl underline mb-10 uppercase tracking-wider text-bank-navy">
+                                        {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Letter of Explanation Called For'}
+                                    </h3>
+
+                                    <div className="whitespace-pre-wrap text-justify ext-gray-700 leading-loose">
+                                        {selectedLetter.contentEn}
+                                    </div>
+
+                                    <div className="mt-20 text-right">
+                                        <p className="font-bold text-lg">Regional Manager</p>
+                                        <p className="text-gray-600 font-sans tracking-wide">Dindigul Region</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-gray-100 bg-white flex justify-end space-x-3">
+                            <button
+                                onClick={() => setSelectedLetter(null)}
+                                className="px-6 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                Close
+                            </button>
+                            {selectedLetter.status === 'DRAFT' && (
+                                <button
+                                    onClick={() => {
+                                        updateStatus(selectedLetter.id, 'SENT');
+                                        setSelectedLetter(null);
+                                    }}
+                                    className="bg-bank-teal text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md flex items-center"
+                                >
+                                    Approve & Send to Branch <ChevronRight size={18} className="ml-1" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
