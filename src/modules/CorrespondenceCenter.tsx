@@ -211,8 +211,8 @@ const CorrespondenceCenter: React.FC = () => {
                                         <div className="flex items-center space-x-5 mb-8">
                                             <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[65px] w-[65px] object-contain" />
                                             <div className="flex flex-col justify-center gap-1 py-1">
-                                                <h1 className="font-extrabold text-[20px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[15px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-extrabold text-[17px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
                                                 <h1 className="font-bold text-[17px] text-bank-navy font-arial leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
                                             </div>
                                         </div>
@@ -221,8 +221,8 @@ const CorrespondenceCenter: React.FC = () => {
                                         <div className="w-full grid grid-cols-3 gap-4 text-bank-navy">
                                             {/* Column 1: Region Name (Trilingual, Left Aligned) */}
                                             <div className="flex flex-col items-start justify-center gap-1.5 border-r border-bank-navy/20 pr-4">
-                                                <p className="font-hindi font-bold text-[15px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-tamil font-bold text-[13px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
+                                                <p className="font-hindi font-bold text-[14px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-tamil font-bold text-[14px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
                                                 <p className="font-bold capitalize text-[13px] leading-none">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
                                             </div>
 
