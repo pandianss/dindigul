@@ -12,7 +12,10 @@ export const REGIONAL_OFFICE_DATA = {
     address: "Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu",
     phone: "+91 451 2420000",
     email: "ro.dindigul@bank.com",
-    logoPath: "/assets/logo_full.svg"
+    logoPath: "/assets/logo_full.svg",
+    signingAuthEn: "Regional Manager",
+    signingAuthTa: "மண்டல மேலாளர்",
+    signingAuthHi: "क्षेत्रीय प्रबंधक"
 };
 
 export const DEPARTMENTS = [

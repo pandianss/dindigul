@@ -178,9 +178,9 @@ const CorrespondenceCenter: React.FC = () => {
             )}
 
             {selectedLetter && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-bank-navy/60 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
-                        <div className={`p-4 text-white flex justify-between items-center ${selectedLetter.type === 'APPRECIATION' ? 'bg-green-700' : 'bg-red-700'}`}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-bank-navy/60 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+                    <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
+                        <div className={`w-full p-4 text-white flex justify-between items-center ${selectedLetter.type === 'APPRECIATION' ? 'bg-green-700' : 'bg-red-700'}`}>
                             <h2 className="text-lg font-bold flex items-center">
                                 {selectedLetter.type === 'APPRECIATION' ? <Award className="mr-2" size={20} /> : <AlertCircle className="mr-2" size={20} />}
                                 {selectedLetter.titleEn}
@@ -190,33 +190,44 @@ const CorrespondenceCenter: React.FC = () => {
                             </button>
                         </div>
 
-                        <div className="p-8 overflow-y-auto bg-gray-50 flex-grow">
-                            <div className="bg-white p-10 rounded shadow-sm border border-gray-200 min-h-[500px] text-gray-800 font-serif leading-relaxed relative">
+                        <div className="bg-gray-200 w-full flex justify-center p-4">
+                            <div className="bg-white shadow-xl border border-gray-300 relative text-gray-800 font-serif leading-relaxed"
+                                style={{
+                                    width: '210mm',
+                                    minHeight: '297mm',
+                                    padding: '20mm 15mm' // Narrower standard printing margins
+                                }}
+                            >
                                 {/* Watermark matching the UI aesthetics */}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
                                     <img src={GLOBAL_CONFIG.watermarkLogo} alt="Watermark" className="w-[500px]" />
                                 </div>
 
-                                <div className="relative z-10">
-                                    <div className="flex justify-between items-start border-b border-gray-300 pb-4 mb-8">
-                                        <div className="flex items-center space-x-3">
-                                            <img src={REGIONAL_OFFICE_DATA.logoPath} alt="Logo" className="h-16" />
-                                            <div>
-                                                <h1 className="font-extrabold text-2xl text-bank-navy uppercase tracking-widest">{GLOBAL_CONFIG.bankName}</h1>
-                                                <p className="text-gray-600 font-sans tracking-widest text-sm uppercase">{REGIONAL_OFFICE_DATA.name}</p>
+                                <div className="relative z-10 h-full flex flex-col">
+                                    {/* TRILINGUAL HEADER BLOCK */}
+                                    <div className="flex justify-between items-center border-b-[3px] border-bank-navy pb-4 mb-8">
+                                        <div className="flex items-center space-x-6">
+                                            <img src="/assets/logo_center.svg" alt="IOB Logo" className="h-[100px]" />
+                                            <div className="flex flex-col tracking-wide">
+                                                <h1 className="font-extrabold text-2xl text-bank-navy font-hindi tracking-widest leading-6">{GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[15px]  text-bank-navy font-tamil leading-5 mb-0.5 tracking-widest">{GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-extrabold text-2xl text-bank-navy tracking-widest leading-6">{GLOBAL_CONFIG.bankName}</h1>
                                             </div>
                                         </div>
-                                        <div className="text-right text-sm text-gray-500 font-sans">
-                                            <p>{REGIONAL_OFFICE_DATA.address}</p>
+                                        <div className="text-right text-xs text-gray-700 flex flex-col gap-1 items-end pt-1 absolute right-5 top-5">
+                                            <p className="font-hindi font-bold tracking-widest text-bank-navy text-sm">{REGIONAL_OFFICE_DATA.nameHi}</p>
+                                            <p className="font-tamil font-bold tracking-widest mb-1 text-bank-navy text-[13px]">{REGIONAL_OFFICE_DATA.nameTa}</p>
+                                            <p className="font-bold tracking-widest uppercase text-bank-navy">{REGIONAL_OFFICE_DATA.name}</p>
+                                            <p className="w-56 mt-2 leading-snug">{REGIONAL_OFFICE_DATA.address}</p>
                                             <p>{REGIONAL_OFFICE_DATA.email}</p>
                                         </div>
                                     </div>
 
                                     <div className="text-right mb-10">
-                                        <p className="text-gray-500 font-bold">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
+                                        <p className="font-bold">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
                                     </div>
 
-                                    <div className="mb-10">
+                                    <div className="mb-10 text-justify">
                                         <p className="font-bold">To,</p>
                                         {selectedLetter.branch.headUser ? (
                                             <>
@@ -234,16 +245,21 @@ const CorrespondenceCenter: React.FC = () => {
                                         {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Plan of Action Called For'}
                                     </h3>
 
-                                    <div className="whitespace-pre-wrap text-justify text-gray-800 leading-loose">
+                                    <div className="whitespace-pre-wrap text-justify text-gray-800 leading-loose flex-grow">
                                         {selectedLetter.contentEn}
                                     </div>
 
-                                    <div className="mt-24 text-right">
-                                        <div className="inline-block relative">
-                                            {/* Stylized Signature placeholder area */}
-                                            <div className="absolute top-[-30px] left-0 right-0 border-t border-gray-400 opacity-50 w-full mb-2"></div>
-                                            <p className="font-bold text-lg">{metadata.regionHeadName}</p>
-                                            <p className="text-gray-600 font-sans tracking-wide">{metadata.regionHeadDesignation}</p>
+                                    <div className="mt-20 flex justify-end">
+                                        <div className="text-center inline-block">
+                                            {/* Trilingual Sign Off Settings */}
+                                            <p className="font-bold text-lg font-hindi text-bank-navy tracking-widest mb-1">{REGIONAL_OFFICE_DATA.signingAuthHi}</p>
+                                            <p className="font-bold text-sm font-tamil text-bank-navy tracking-widest mb-1">{REGIONAL_OFFICE_DATA.signingAuthTa}</p>
+                                            <p className="font-bold text-lg text-bank-navy uppercase tracking-widest">{REGIONAL_OFFICE_DATA.signingAuthEn}</p>
+
+                                            {/* Derived Head Name */}
+                                            <div className="mt-12 pt-2 border-t border-gray-400 min-w-[200px]">
+                                                <p className="font-bold text-gray-800 uppercase tracking-widest">{metadata.regionHeadName}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
