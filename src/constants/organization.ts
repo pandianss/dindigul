@@ -6,8 +6,8 @@ export const THEME_CONFIG = {
     },
     fonts: {
         sans: '"Century Gothic", "Tw Cen MT", "Arial", sans-serif',
-        tamil: '"Noto Sans Tamil", sans-serif',
-        hindi: '"Shree Devanagari 714", sans-serif',
+        tamil: '"Anek Tamil", sans-serif',
+        hindi: '"Anek Devanagari", sans-serif',
         arial: '"Arial", Helvetica, sans-serif'
     },
     logos: {

@@ -1,12 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anek+Tamil:wght@100..800&family=Anek+Devanagari:wght@100..800&display=swap');
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'Shree Devanagari 714';
-  src: url('/assets/shree-devanagari-714.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
 @theme {
   --color-bank-navy: var(--theme-primary, #21357f);
@@ -18,8 +11,8 @@
   --color-iron-teal: var(--theme-accent, #00A693);
 
   --font-sans: var(--theme-font-sans, "Century Gothic", "Arial", sans-serif);
-  --font-tamil: var(--theme-font-tamil, "Noto Sans Tamil", sans-serif);
-  --font-hindi: var(--theme-font-hindi, "Shree Devanagari 714", sans-serif);
+  --font-tamil: var(--theme-font-tamil, "Anek Tamil", sans-serif);
+  --font-hindi: var(--theme-font-hindi, "Anek Devanagari", sans-serif);
   --font-arial: var(--theme-font-arial, "Arial", sans-serif);
 }
 
