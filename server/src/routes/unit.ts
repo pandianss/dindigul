@@ -120,7 +120,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         await prisma.branch.delete({ where: { id } });
         res.json({ message: 'Deleted' });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'P2003') {
+            return res.status(400).json({ error: 'Cannot delete this unit because it has active staff, historical records, or documents assigned to it. Please reassign them first.' });
+        }
         res.status(400).json({ error: 'Delete failed' });
     }
 });
