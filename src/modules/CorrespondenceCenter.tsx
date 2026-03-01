@@ -211,14 +211,14 @@ const CorrespondenceCenter: React.FC = () => {
                                             <div className="flex flex-col justify-between h-[100px] py-1 gap-1">
                                                 <h1 className="font-extrabold text-[24px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
                                                 <h1 className="font-extrabold text-[18px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[20px] text-bank-navy font-arial tracking-widest leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
+                                                <h1 className="font-bold text-[20px] text-bank-navy font-arial leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
                                             </div>
                                         </div>
                                         <div className="text-right text-xs text-gray-700 flex flex-col items-end pt-1 absolute right-0 top-0 h-[100px] justify-between py-1">
                                             <div className="flex flex-col items-end justify-between h-full gap-1">
                                                 <p className="font-hindi font-bold text-bank-navy text-[16px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
                                                 <p className="font-tamil font-bold text-bank-navy text-[13px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
-                                                <p className="font-bold tracking-widest capitalize text-bank-navy text-[12px] leading-none mb-1">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
+                                                <p className="font-bold capitalize text-bank-navy text-[12px] leading-none mb-1">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
                                                 <div className="text-right space-y-0.5 opacity-80">
                                                     <p className="w-56 leading-tight">{REGIONAL_OFFICE_DATA.address}</p>
                                                     <p>{REGIONAL_OFFICE_DATA.email}</p>
@@ -258,11 +258,11 @@ const CorrespondenceCenter: React.FC = () => {
                                             {/* Trilingual Sign Off Settings */}
                                             <p className="font-bold text-lg font-hindi text-bank-navy mb-1">{REGIONAL_OFFICE_DATA.signingAuthHi}</p>
                                             <p className="font-bold text-sm font-tamil text-bank-navy mb-1">{REGIONAL_OFFICE_DATA.signingAuthTa}</p>
-                                            <p className="font-bold text-lg text-bank-navy uppercase tracking-widest">{REGIONAL_OFFICE_DATA.signingAuthEn}</p>
+                                            <p className="font-bold text-lg text-bank-navy uppercase">{REGIONAL_OFFICE_DATA.signingAuthEn}</p>
 
                                             {/* Derived Head Name */}
                                             <div className="mt-12 pt-2 border-t border-gray-400 min-w-[200px]">
-                                                <p className="font-bold text-gray-800 uppercase tracking-widest">{metadata.regionHeadName}</p>
+                                                <p className="font-bold text-gray-800 uppercase">{metadata.regionHeadName}</p>
                                             </div>
                                         </div>
                                     </div>
