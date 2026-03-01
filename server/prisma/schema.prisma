@@ -60,11 +60,17 @@ model User {
   failedLoginAttempts Int      @default(0)
   lockedUntil         DateTime?
 
+
   // GAP 04: MFA (TOTP)
   mfaEnabled   Boolean @default(false)
   mfaSecret    String?
 
+  // Login activity tracking
+  lastLoginAt  DateTime?
+  lastLoginIp  String?
+
   sessions         Session[]
+  loginAuditLogs   LoginAuditLog[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -85,6 +91,23 @@ model Session {
   updatedAt    DateTime @updatedAt
 
   @@map("sessions")
+}
+
+model LoginAuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  username  String
+  event     String
+  ipAddress String?
+  userAgent String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("login_audit_logs")
 }
 
 model Committee {

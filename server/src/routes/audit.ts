@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { prisma } from '../index';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
+
+// All audit routes require authentication
+router.use(authenticateToken as any);
 
 // Get all audit observations with filters
 router.get('/observations', async (req, res) => {

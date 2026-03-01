@@ -20,7 +20,7 @@ import {
     ArrowRightLeft
 } from 'lucide-react';
 
-type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'misUpload' | 'budgets' | 'registry';
+type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'misUpload' | 'budgets' | 'registry' | 'auditLog';
 
 interface MasterItem {
     id?: string;
@@ -68,6 +68,9 @@ const SettingsManager: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<MasterItem[]>([]);
     const [sessions, setSessions] = useState<any[]>([]);
+    const [auditLogs, setAuditLogs] = useState<any[]>([]);
+    const [auditLogsTotal, setAuditLogsTotal] = useState(0);
+    const [auditEventFilter, setAuditEventFilter] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState<MasterItem | null>(null);
     const [transferItem, setTransferItem] = useState<MasterItem | null>(null);
@@ -117,10 +120,21 @@ const SettingsManager: React.FC = () => {
     useEffect(() => {
         setData([]); // Clear old data immediately
         setSessions([]);
-        fetchData();
+        if (activeTab !== 'auditLog') fetchData();
         setShowForm(false);
         setEditingItem(null);
         setFormData({});
+
+        const fetchAuditLogs = async (eventFilter: string = '') => {
+            try {
+                const params = eventFilter ? `?event=${eventFilter}` : '';
+                const res = await api.get(`/auth/audit-log${params}`);
+                setAuditLogs(res.data.logs || []);
+                setAuditLogsTotal(res.data.total || 0);
+            } catch (err) {
+                console.error("Failed to fetch audit logs");
+            }
+        };
 
         const fetchSessionsForStaff = async () => {
             try {
@@ -132,6 +146,10 @@ const SettingsManager: React.FC = () => {
         };
 
         let interval: ReturnType<typeof setInterval>;
+        if (activeTab === 'auditLog') {
+            fetchAuditLogs();
+        }
+
         if (activeTab === 'staff') {
             fetchSessionsForStaff(); // Initial fetch
             interval = setInterval(() => {
@@ -813,7 +831,7 @@ const SettingsManager: React.FC = () => {
             </div>
 
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit">
-                {(['departments', 'units', 'designations', 'staff', 'atms', 'misUpload', 'budgets', 'registry'] as Tab[]).map(tab => (
+                {(['departments', 'units', 'designations', 'staff', 'atms', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -822,7 +840,15 @@ const SettingsManager: React.FC = () => {
                             : 'text-gray-500 hover:text-bank-navy'
                             }`}
                     >
-                        {tab}
+                        {tab === 'departments' ? 'Departments' :
+                            tab === 'units' ? 'Units' :
+                                tab === 'designations' ? 'Designations' :
+                                    tab === 'staff' ? 'Staff' :
+                                        tab === 'atms' ? 'ATMs' :
+                                            tab === 'misUpload' ? 'MIS File Drops' :
+                                                tab === 'budgets' ? 'Budget' :
+                                                    tab === 'registry' ? 'In/Out Registry' :
+                                                        tab === 'auditLog' ? 'Auth Audit Log' : ''}
                     </button>
                 ))}
             </div>
@@ -842,6 +868,86 @@ const SettingsManager: React.FC = () => {
             {activeTab === 'registry' && (
                 <div className="mt-4">
                     <ParameterManager />
+                </div>
+            )}
+
+            {activeTab === 'auditLog' && (
+                <div className="mt-4 space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                        <select
+                            className="p-2 border rounded font-bold text-bank-navy shadow-sm"
+                            value={auditEventFilter}
+                            onChange={(e) => {
+                                setAuditEventFilter(e.target.value);
+                                // A quick refetch instead of waiting for tab toggle
+                                api.get(`/auth/audit-log${e.target.value ? `?event=${e.target.value}` : ''}`)
+                                    .then(res => {
+                                        setAuditLogs(res.data.logs || []);
+                                        setAuditLogsTotal(res.data.total || 0);
+                                    })
+                                    .catch(console.error);
+                            }}
+                        >
+                            <option value="">All Events</option>
+                            <option value="LOGIN_SUCCESS">Login Success</option>
+                            <option value="LOGIN_FAILED">Login Failed</option>
+                            <option value="LOGOUT">Logout</option>
+                            <option value="LOCKOUT">Account Lockout</option>
+                            <option value="MFA_CHALLENGE">MFA Challenge</option>
+                            <option value="MFA_SUCCESS">MFA Success</option>
+                            <option value="MFA_FAILED">MFA Failed</option>
+                        </select>
+                        <div className="text-sm font-bold text-gray-500 uppercase">
+                            Total Records: {auditLogsTotal}
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-bank-navy text-white text-xs uppercase tracking-wider">
+                                    <th className="p-4 font-bold">Timestamp</th>
+                                    <th className="p-4 font-bold">User</th>
+                                    <th className="p-4 font-bold">Event Type</th>
+                                    <th className="p-4 font-bold">IP Address</th>
+                                    <th className="p-4 font-bold">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {auditLogs.map((log) => (
+                                    <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-sm">
+                                        <td className="p-4 whitespace-nowrap text-gray-500 font-mono">
+                                            {new Date(log.createdAt).toLocaleString()}
+                                        </td>
+                                        <td className="p-4 font-bold text-bank-navy">
+                                            {log.username}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${log.event.includes('SUCCESS') ? 'bg-green-100 text-green-800' :
+                                                log.event.includes('FAILED') || log.event.includes('LOCKOUT') ? 'bg-red-100 text-red-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                {log.event.replace('_', ' ')}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-gray-500 font-mono text-xs">
+                                            {log.ipAddress || 'Unknown'}
+                                        </td>
+                                        <td className="p-4 text-xs text-gray-500 max-w-xs truncate">
+                                            {log.metadata ? JSON.parse(log.metadata).reason || log.metadata : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {auditLogs.length === 0 && (
+                                    <tr>
+                                        <td colSpan={5} className="p-8 text-center text-gray-500 font-bold uppercase tracking-wider">
+                                            No audit logs found
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
