@@ -28,6 +28,13 @@ const CorrespondenceCenter: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
 
+    const toTitleCase = (str: string) => {
+        if (!str) return '';
+        return str.toLowerCase().split(' ').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    };
+
     const fetchLetters = () => {
         setLoading(true);
         api.get('/letters')
@@ -191,8 +198,8 @@ const CorrespondenceCenter: React.FC = () => {
                                         <p className="font-bold">To,</p>
                                         {selectedLetter.branch.headUser ? (
                                             <>
-                                                <p className="font-bold">{selectedLetter.branch.headUser.fullNameEn}</p>
-                                                <p className="font-bold">{selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head'}</p>
+                                                <p className="font-bold">{toTitleCase(selectedLetter.branch.headUser.fullNameEn)}</p>
+                                                <p className="font-bold">{toTitleCase(selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head')}</p>
                                             </>
                                         ) : (
                                             <p className="font-bold">The Branch Manager</p>
