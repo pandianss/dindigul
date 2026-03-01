@@ -5,9 +5,10 @@ export const THEME_CONFIG = {
         accent: "#00A693" // bank-teal
     },
     fonts: {
-        sans: '"Inter", "Arial", sans-serif',
+        sans: '"Century Gothic", "Tw Cen MT", "Arial", sans-serif',
         tamil: '"Noto Sans Tamil", sans-serif',
-        hindi: '"Shree Devanagari 714", sans-serif'
+        hindi: '"Shree Devanagari 714", sans-serif',
+        arial: '"Arial", Helvetica, sans-serif'
     },
     logos: {
         main: "/assets/logo_full.svg",

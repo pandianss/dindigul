@@ -17,9 +17,10 @@
   --color-iron-gold: var(--theme-secondary, #D4AF37);
   --color-iron-teal: var(--theme-accent, #00A693);
 
-  --font-sans: var(--theme-font-sans, "Inter", "Arial", sans-serif);
+  --font-sans: var(--theme-font-sans, "Century Gothic", "Arial", sans-serif);
   --font-tamil: var(--theme-font-tamil, "Noto Sans Tamil", sans-serif);
   --font-hindi: var(--theme-font-hindi, "Shree Devanagari 714", sans-serif);
+  --font-arial: var(--theme-font-arial, "Arial", sans-serif);
 }
 
 :root {

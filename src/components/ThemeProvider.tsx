@@ -14,6 +14,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         root.style.setProperty('--theme-font-sans', THEME_CONFIG.fonts.sans);
         root.style.setProperty('--theme-font-tamil', THEME_CONFIG.fonts.tamil);
         root.style.setProperty('--theme-font-hindi', THEME_CONFIG.fonts.hindi);
+        root.style.setProperty('--theme-font-arial', THEME_CONFIG.fonts.arial);
     }, []);
 
     return <>{children}</>;
