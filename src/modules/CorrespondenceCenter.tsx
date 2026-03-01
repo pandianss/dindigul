@@ -208,17 +208,17 @@ const CorrespondenceCenter: React.FC = () => {
                                     <div className="flex justify-between items-start border-b-[3px] border-bank-navy pb-6 mb-8 relative">
                                         <div className="flex items-center space-x-6">
                                             <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[100px] w-[100px] object-contain" />
-                                            <div className="flex flex-col justify-between h-[100px] py-1">
-                                                <h1 className="font-extrabold text-[22px] text-bank-navy font-hindi tracking-widest leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[15px] text-bank-navy font-tamil tracking-widest leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[26px] text-bank-navy font-arial tracking-widest leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
+                                            <div className="flex flex-col justify-between h-[100px] py-1 gap-1">
+                                                <h1 className="font-extrabold text-[24px] text-bank-navy font-hindi tracking-widest leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[18px] text-bank-navy font-tamil tracking-widest leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-bold text-[20px] text-bank-navy font-arial tracking-widest leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
                                             </div>
                                         </div>
                                         <div className="text-right text-xs text-gray-700 flex flex-col items-end pt-1 absolute right-0 top-0 h-[100px] justify-between py-1">
-                                            <div className="flex flex-col items-end justify-between h-full">
-                                                <p className="font-hindi font-bold tracking-widest text-bank-navy text-[15px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-tamil font-bold tracking-widest text-bank-navy text-[11px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
-                                                <p className="font-bold tracking-widest capitalize text-bank-navy text-[14px] leading-none mb-1">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
+                                            <div className="flex flex-col items-end justify-between h-full gap-1">
+                                                <p className="font-hindi font-bold tracking-widest text-bank-navy text-[16px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-tamil font-bold tracking-widest text-bank-navy text-[13px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
+                                                <p className="font-bold tracking-widest capitalize text-bank-navy text-[12px] leading-none mb-1">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
                                                 <div className="text-right space-y-0.5 opacity-80">
                                                     <p className="w-56 leading-tight">{REGIONAL_OFFICE_DATA.address}</p>
                                                     <p>{REGIONAL_OFFICE_DATA.email}</p>
