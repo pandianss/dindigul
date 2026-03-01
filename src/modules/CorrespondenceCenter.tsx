@@ -9,7 +9,15 @@ interface Letter {
     status: 'DRAFT' | 'SENT' | 'ACKNOWLEDGED';
     titleEn: string;
     contentEn: string;
-    branch: { nameEn: string };
+    branch: {
+        nameEn: string;
+        headUser?: {
+            fullNameEn: string;
+            designation?: {
+                nameEn: string;
+            };
+        };
+    };
     period: string;
     createdAt: string;
 }
@@ -181,7 +189,14 @@ const CorrespondenceCenter: React.FC = () => {
 
                                     <div className="mb-10">
                                         <p className="font-bold">To,</p>
-                                        <p className="font-bold">The Branch Manager</p>
+                                        {selectedLetter.branch.headUser ? (
+                                            <>
+                                                <p className="font-bold">{selectedLetter.branch.headUser.fullNameEn}</p>
+                                                <p className="font-bold">{selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head'}</p>
+                                            </>
+                                        ) : (
+                                            <p className="font-bold">The Branch Manager</p>
+                                        )}
                                         <p>Indian Overseas Bank</p>
                                         <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
                                     </div>

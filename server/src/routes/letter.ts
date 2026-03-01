@@ -19,7 +19,15 @@ router.get('/', authenticateToken, async (req: any, res) => {
             },
             orderBy: { createdAt: 'desc' },
             include: {
-                branch: true,
+                branch: {
+                    include: {
+                        headUser: {
+                            include: {
+                                designation: true
+                            }
+                        }
+                    }
+                },
                 parameter: true
             }
         });
