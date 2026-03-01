@@ -205,24 +205,36 @@ const CorrespondenceCenter: React.FC = () => {
 
                                 <div className="relative z-10 h-full flex flex-col">
                                     {/* TRILINGUAL HEADER BLOCK */}
-                                    <div className="flex justify-between items-start border-b-[3px] border-bank-navy pb-6 mb-8 relative">
-                                        <div className="flex items-center space-x-6">
-                                            <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[100px] w-[100px] object-contain" />
-                                            <div className="flex flex-col justify-between h-[100px] py-1 gap-1">
-                                                <h1 className="font-extrabold text-[24px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[18px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[20px] text-bank-navy font-arial leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
+                                    {/* TRILINGUAL HEADER BLOCK */}
+                                    <div className="flex flex-col items-center border-b-[3px] border-bank-navy pb-5 mb-8">
+                                        {/* Top Row: Logo & Bank Name */}
+                                        <div className="flex items-center space-x-6 mb-6">
+                                            <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[85px] w-[85px] object-contain" />
+                                            <div className="flex flex-col justify-center gap-1.5 py-1">
+                                                <h1 className="font-extrabold text-[26px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[19px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-bold text-[22px] text-bank-navy font-arial leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
                                             </div>
                                         </div>
-                                        <div className="text-right text-xs text-gray-700 flex flex-col items-end pt-1 absolute right-0 top-0 h-[100px] justify-between py-1">
-                                            <div className="flex flex-col items-end justify-between h-full gap-1">
-                                                <p className="font-hindi font-bold text-bank-navy text-[16px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-tamil font-bold text-bank-navy text-[13px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
-                                                <p className="font-bold capitalize text-bank-navy text-[12px] leading-none mb-1">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
-                                                <div className="text-right space-y-0.5 opacity-80">
-                                                    <p className="w-56 leading-tight">{REGIONAL_OFFICE_DATA.address}</p>
-                                                    <p>{REGIONAL_OFFICE_DATA.email}</p>
-                                                </div>
+
+                                        {/* Bottom Row: 3 Equi-width Columns */}
+                                        <div className="w-full grid grid-cols-3 gap-4 text-center text-bank-navy">
+                                            {/* Column 1: Region Name (Trilingual) */}
+                                            <div className="flex flex-col items-center justify-center gap-1.5 border-r border-bank-navy/20 pr-4">
+                                                <p className="font-hindi font-bold text-[16px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-tamil font-bold text-[14px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
+                                                <p className="font-bold capitalize text-[13px] leading-none">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
+                                            </div>
+
+                                            {/* Column 2: Address */}
+                                            <div className="flex flex-col items-center justify-center text-[12px] font-bold border-r border-bank-navy/20 px-4 leading-relaxed">
+                                                <p className="max-w-[220px] mx-auto text-balance">{REGIONAL_OFFICE_DATA.address}</p>
+                                            </div>
+
+                                            {/* Column 3: Contact */}
+                                            <div className="flex flex-col items-center justify-center text-[12px] font-bold pl-4 gap-1">
+                                                <p className="flex items-center gap-1"><span className="opacity-75">Phone:</span> {REGIONAL_OFFICE_DATA.phone}</p>
+                                                <p className="flex items-center gap-1"><span className="opacity-75">Email:</span> {REGIONAL_OFFICE_DATA.email}</p>
                                             </div>
                                         </div>
                                     </div>
