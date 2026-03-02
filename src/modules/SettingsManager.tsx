@@ -236,6 +236,24 @@ const SettingsManager: React.FC = () => {
         }
     };
 
+    const handlePurgeUnits = async () => {
+        const confirm1 = window.confirm("WARNING: You are about to irrevocably delete ALL units that do not have active constraints (staff, historical records, documents). Are you absolutely sure?");
+        if (!confirm1) return;
+        const confirm2 = window.prompt("Type 'PURGE' to confirm mass deletion of isolated units.");
+        if (confirm2 !== 'PURGE') return;
+
+        setLoading(true);
+        try {
+            const res = await api.delete('/branches/purge');
+            alert(res.data.message || 'Units purged successfully.');
+            fetchData();
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -801,6 +819,16 @@ const SettingsManager: React.FC = () => {
                 </div>
                 {!showForm && activeTab !== 'misUpload' && (
                     <div className="flex gap-2">
+                        {activeTab === 'units' && (
+                            <button
+                                onClick={handlePurgeUnits}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-100 transition-colors uppercase tracking-widest text-[10px]"
+                                title="Danger: Delete all isolated branches"
+                            >
+                                <Trash2 size={16} />
+                                Purge Units
+                            </button>
+                        )}
                         <input
                             type="file"
                             id="csv-upload"
@@ -829,6 +857,21 @@ const SettingsManager: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {error && (
+                <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex items-start justify-between">
+                    <div>
+                        <h4 className="font-bold flex items-center gap-2">
+                            <span className="bg-red-200 p-1 rounded-full"><X size={14} className="text-red-700" /></span>
+                            Action Failed
+                        </h4>
+                        <p className="text-sm mt-1 opacity-90">{error}</p>
+                    </div>
+                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-800 transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+            )}
 
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit">
                 {(['departments', 'units', 'designations', 'staff', 'atms', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (

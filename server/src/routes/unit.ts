@@ -114,7 +114,39 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete unit
+// Mass Purge Isolated Units
+router.delete('/purge', authenticateToken, async (req: any, res) => {
+    // Permission constraint: Only full Admins
+    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+        return res.status(403).json({ error: 'Only administrators can perform a mass purge.' });
+    }
+
+    try {
+        const allBranches = await prisma.branch.findMany({ select: { id: true, code: true } });
+        let deletedCount = 0;
+        let blockedCount = 0;
+
+        for (const branch of allBranches) {
+            try {
+                await prisma.branch.delete({ where: { id: branch.id } });
+                deletedCount++;
+            } catch (error: any) {
+                if (error.code === 'P2003') {
+                    blockedCount++; // Skip dependent units gracefully
+                } else {
+                    console.error(`Failed deleting branch ${branch.code}:`, error);
+                }
+            }
+        }
+
+        res.json({ message: `Purge Complete. Deleted ${deletedCount} isolated units. Skipped ${blockedCount} units due to active dependencies.` });
+    } catch (error) {
+        console.error('Purge error:', error);
+        res.status(500).json({ error: 'Purge process failed' });
+    }
+});
+
+// Delete individual unit
 router.delete('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id as string;
     try {
