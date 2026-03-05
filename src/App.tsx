@@ -13,6 +13,7 @@ const BusinessSnapshot = lazy(() => import('./modules/BusinessSnapshot'));
 const OfficeNoteManager = lazy(() => import('./modules/OfficeNoteManager'));
 const SettingsManager = lazy(() => import('./modules/SettingsManager'));
 const Dashboard = lazy(() => import('./modules/Dashboard'));
+const GuestLanding = lazy(() => import('./modules/GuestLanding'));
 const AssetManager = lazy(() => import('./modules/AssetManager'));
 const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
 const PlanningAnalytics = lazy(() => import('./modules/PlanningAnalytics'));
@@ -77,11 +78,20 @@ function App() {
         );
     }
 
+    // Guest Portal (Full Screen)
+    if (portalMode === 'guest') {
+        return (
+            <ThemeProvider>
+                <ErrorBoundary>
+                    <Suspense fallback={<ModuleLoader />}>
+                        <GuestLanding onExitPortal={() => setPortalMode('landing')} />
+                    </Suspense>
+                </ErrorBoundary>
+            </ThemeProvider>
+        );
+    }
+
     const renderModule = () => {
-        // Guest mode has limited modules
-        if (portalMode === 'guest' && !['dashboard', 'noticeBoard', 'calendar'].includes(activeView)) {
-            setActiveView('dashboard');
-        }
 
         switch (activeView) {
             case 'dashboard':
