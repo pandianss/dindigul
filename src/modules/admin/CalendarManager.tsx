@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,6 +30,8 @@ import {
 import type { Holiday, DayType } from '../../types/calendar';
 import { getCalendarStats, getWorkingDayWeight } from '../../utils/calendar';
 import { cn } from '../../utils/cn';
+import api from '../../services/api';
+import { getErrorMessage } from '../../utils/handleError';
 
 const DAY_TYPE_COLORS: Record<DayType, string> = {
     'WORKING_DAY': 'bg-green-100 text-green-700',
@@ -37,23 +39,49 @@ const DAY_TYPE_COLORS: Record<DayType, string> = {
     'RBI_HOLIDAY': 'bg-purple-100 text-purple-700',
     'STATE_HOLIDAY': 'bg-blue-100 text-blue-700',
     'BANK_SPECIFIC_HOLIDAY': 'bg-amber-100 text-amber-700',
-    'HALF_DAY': 'bg-yellow-100 text-yellow-700'
+    'HALF_DAY': 'bg-yellow-100 text-yellow-700',
+    'MEETING': 'bg-indigo-100 text-indigo-700',
+    'SEMINAR': 'bg-pink-100 text-pink-700',
+    'CONFERENCE': 'bg-cyan-100 text-cyan-700',
+    'EVENT': 'bg-emerald-100 text-emerald-700'
 };
 
 const CalendarManager: React.FC = () => {
     const { t } = useTranslation();
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [holidays, setHolidays] = useState<Holiday[]>([
-        { id: '1', date: '2025-08-15', type: 'PUBLIC_HOLIDAY', name: 'Independence Day' },
-        { id: '2', date: '2025-08-16', type: 'STATE_HOLIDAY', name: 'Local Festival' }
-    ]);
+    const [holidays, setHolidays] = useState<Holiday[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const [showModal, setShowModal] = useState(false);
     const [newHoliday, setNewHoliday] = useState<Partial<Holiday>>({
         date: format(startOfToday(), 'yyyy-MM-dd'),
         type: 'PUBLIC_HOLIDAY',
-        name: ''
+        name: '',
+        venue: ''
     });
+
+    const fetchHolidays = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/calendar/holidays');
+            // Map nameEn from backend to name for frontend
+            const mapped = response.data.map((h: any) => ({
+                ...h,
+                name: h.nameEn,
+                date: format(new Date(h.date), 'yyyy-MM-dd')
+            }));
+            setHolidays(mapped);
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchHolidays();
+    }, []);
 
     const stats = useMemo(() => getCalendarStats(startOfToday(), holidays), [holidays]);
 
@@ -66,25 +94,33 @@ const CalendarManager: React.FC = () => {
     const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
     const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-    const handleAddHoliday = (e: React.FormEvent) => {
+    const handleAddHoliday = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newHoliday.name || !newHoliday.date || !newHoliday.type) return;
 
-        const holiday: Holiday = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: newHoliday.name,
-            date: newHoliday.date,
-            type: newHoliday.type as DayType
-        };
+        try {
+            await api.post('/calendar', {
+                nameEn: newHoliday.name,
+                date: newHoliday.date,
+                type: newHoliday.type
+            });
 
-        setHolidays([...holidays, holiday]);
-        setShowModal(false);
-        setNewHoliday({ date: format(startOfToday(), 'yyyy-MM-dd'), type: 'PUBLIC_HOLIDAY', name: '' });
+            setShowModal(false);
+            setNewHoliday({ date: format(startOfToday(), 'yyyy-MM-dd'), type: 'PUBLIC_HOLIDAY', name: '' });
+            fetchHolidays();
+        } catch (err) {
+            alert(getErrorMessage(err));
+        }
     };
 
-    const handleDeleteHoliday = (id: string) => {
+    const handleDeleteHoliday = async (id: string) => {
         if (window.confirm('Delete this holiday?')) {
-            setHolidays(holidays.filter(h => h.id !== id));
+            try {
+                await api.delete(`/calendar/${id}`);
+                fetchHolidays();
+            } catch (err) {
+                alert(getErrorMessage(err));
+            }
         }
     };
 
@@ -177,7 +213,7 @@ const CalendarManager: React.FC = () => {
                         ))}
                         {daysInMonth.map((day) => {
                             const dateStr = format(day, 'yyyy-MM-dd');
-                            const holiday = holidays.find(h => h.date === dateStr);
+                            const dayEvents = holidays.filter(h => h.date === dateStr);
                             const weight = getWorkingDayWeight(day, holidays);
                             const isSun = isSunday(day);
                             const isSat = isSaturday(day);
@@ -186,31 +222,39 @@ const CalendarManager: React.FC = () => {
                                 <div
                                     key={dateStr}
                                     className={cn(
-                                        "bg-white h-28 p-3 relative transition-all hover:ring-2 hover:ring-bank-teal/20 hover:z-10 cursor-pointer group",
+                                        "bg-white h-28 p-2 relative transition-all hover:ring-2 hover:ring-bank-teal/20 hover:z-10 cursor-pointer group flex flex-col overflow-hidden",
                                         !isSameMonth(day, currentMonth) && "opacity-30 pointer-events-none bg-gray-50/50"
                                     )}
                                 >
                                     <span className={cn(
-                                        "text-sm font-black transition-all",
-                                        isToday(day) ? "bg-bank-navy text-white h-7 w-7 rounded-lg shadow-lg flex items-center justify-center -mt-1 -ml-1" : "text-gray-500",
+                                        "text-[11px] font-black transition-all mb-1",
+                                        isToday(day) ? "bg-bank-navy text-white h-6 w-6 rounded flex items-center justify-center -mt-1 -ml-1 shadow-md" : "text-gray-400",
                                         (isSun || (isSat && weight === 0)) && !isToday(day) && "text-red-400"
                                     )}>
                                         {format(day, 'd')}
                                     </span>
 
-                                    {holiday && (
-                                        <div className={cn(
-                                            "mt-2 px-2 py-1 rounded-md text-[9px] font-black truncate leading-tight uppercase tracking-tighter border shadow-sm",
-                                            DAY_TYPE_COLORS[holiday.type],
-                                            "border-current/20"
-                                        )}>
-                                            {holiday.name}
-                                        </div>
-                                    )}
+                                    <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar flex-1 pb-4">
+                                        {dayEvents.map(evt => (
+                                            <div key={evt.id} className={cn(
+                                                "px-1.5 py-0.5 rounded text-[8px] font-bold truncate leading-tight uppercase tracking-tighter border",
+                                                DAY_TYPE_COLORS[evt.type as DayType] || 'bg-gray-100 text-gray-700',
+                                                "border-current/10"
+                                            )} title={`${evt.name} ${evt.venue ? `@ ${evt.venue}` : ''}`}>
+                                                {evt.name}
+                                            </div>
+                                        ))}
 
-                                    {!holiday && isSat && weight === 0 && (
-                                        <div className="mt-2 px-2 py-1 rounded-md text-[9px] font-black truncate leading-tight bg-gray-50 text-gray-400 uppercase tracking-tighter border border-gray-100">
-                                            2nd/4th Sat
+                                        {!dayEvents.length && isSat && weight === 0 && (
+                                            <div className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-50 text-gray-400 uppercase tracking-tighter border border-gray-100 italic">
+                                                Holiday
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {!dayEvents.length && isSat && weight === 0 && (
+                                        <div className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-50 text-gray-400 uppercase tracking-tighter border border-gray-100 italic">
+                                            Holiday
                                         </div>
                                     )}
 
@@ -234,21 +278,23 @@ const CalendarManager: React.FC = () => {
                     <div className="card p-6 bg-gradient-to-br from-white to-gray-50/50">
                         <h3 className="font-black text-xs text-bank-navy mb-5 border-b border-gray-100 pb-3 uppercase tracking-widest flex items-center gap-2">
                             <div className="w-1.5 h-4 bg-bank-teal rounded-full" />
-                            Classification
+                            Events Classification
                         </h3>
-                        <div className="space-y-4">
-                            {Object.entries(DAY_TYPE_COLORS).map(([type, colorClass]) => (
-                                <div key={type} className="flex items-center space-x-4 group cursor-help">
-                                    <div className={cn("w-3.5 h-3.5 rounded-md border shadow-sm transition-transform group-hover:scale-110", colorClass.split(' ')[0], "border-current/20")} />
-                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest truncate group-hover:text-bank-navy transition-colors">
+                        <div className="space-y-3.5 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                            {Object.entries({
+                                ...DAY_TYPE_COLORS,
+                                'MEETING': 'bg-indigo-100 text-indigo-700',
+                                'SEMINAR': 'bg-pink-100 text-pink-700',
+                                'CONFERENCE': 'bg-cyan-100 text-cyan-700',
+                                'EVENT': 'bg-emerald-100 text-emerald-700'
+                            }).map(([type, colorClass]) => (
+                                <div key={type} className="flex items-center space-x-3 group cursor-help">
+                                    <div className={cn("w-3 h-3 rounded border shadow-sm transition-transform group-hover:scale-110", colorClass.split(' ')[0], "border-current/10")} />
+                                    <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest truncate group-hover:text-bank-navy transition-colors">
                                         {type.replace(/_/g, ' ')}
                                     </span>
                                 </div>
                             ))}
-                            <div className="flex items-center space-x-4 pt-3 border-t border-gray-100 mt-4 group">
-                                <div className="w-3.5 h-3.5 rounded-md bg-gray-100 border border-gray-200 transition-transform group-hover:scale-110" />
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">Weekend (Holiday)</span>
-                            </div>
                         </div>
                     </div>
 
@@ -326,20 +372,35 @@ const CalendarManager: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Type</label>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Category</label>
                                     <select
                                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 outline-none font-bold text-bank-navy transition-all"
                                         value={newHoliday.type}
                                         onChange={e => setNewHoliday({ ...newHoliday, type: e.target.value as DayType })}
                                     >
-                                        <option value="WORKING_DAY">Working Day</option>
                                         <option value="PUBLIC_HOLIDAY">Public Holiday</option>
                                         <option value="STATE_HOLIDAY">State Holiday</option>
+                                        <option value="MEETING">Meeting</option>
+                                        <option value="SEMINAR">Seminar</option>
+                                        <option value="CONFERENCE">Conference</option>
+                                        <option value="EVENT">Special Event</option>
+                                        <option value="WORKING_DAY">Working Day</option>
                                         <option value="RBI_HOLIDAY">RBI Holiday</option>
                                         <option value="BANK_SPECIFIC_HOLIDAY">Bank Specific</option>
                                         <option value="HALF_DAY">Half Day</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Venue / Location (Optional)</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Conference Hall, Regional Office, Zoom..."
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 outline-none font-bold text-bank-navy placeholder:text-gray-300 transition-all"
+                                    value={newHoliday.venue}
+                                    onChange={e => setNewHoliday({ ...newHoliday, venue: e.target.value })}
+                                />
                             </div>
 
                             <div className="pt-4 flex gap-3">

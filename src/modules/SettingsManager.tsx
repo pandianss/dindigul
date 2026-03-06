@@ -4,6 +4,7 @@ import api from '../services/api';
 import MISUpload from './admin/MISUpload';
 import BudgetUpload from './admin/BudgetUpload';
 import ParameterManager from './admin/ParameterManager';
+import NoticeManager from './admin/NoticeManager';
 import { getErrorMessage } from '../utils/handleError';
 import {
     Settings,
@@ -20,7 +21,7 @@ import {
     ArrowRightLeft
 } from 'lucide-react';
 
-type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'misUpload' | 'budgets' | 'registry' | 'auditLog';
+type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog';
 
 interface MasterItem {
     id?: string;
@@ -92,7 +93,7 @@ const SettingsManager: React.FC = () => {
     };
 
     const fetchData = async () => {
-        if (activeTab === 'misUpload' || activeTab === 'budgets' || activeTab === 'registry') return;
+        if (activeTab === 'misUpload' || activeTab === 'budgets' || activeTab === 'registry' || activeTab === 'bulletins') return;
         setLoading(true);
         setError(null);
         try {
@@ -874,7 +875,7 @@ const SettingsManager: React.FC = () => {
             )}
 
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit">
-                {(['departments', 'units', 'designations', 'staff', 'atms', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
+                {(['departments', 'units', 'designations', 'staff', 'atms', 'bulletins', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -891,10 +892,17 @@ const SettingsManager: React.FC = () => {
                                             tab === 'misUpload' ? 'MIS File Drops' :
                                                 tab === 'budgets' ? 'Budget' :
                                                     tab === 'registry' ? 'In/Out Registry' :
-                                                        tab === 'auditLog' ? 'Auth Audit Log' : ''}
+                                                        tab === 'bulletins' ? 'Bulletins' :
+                                                            tab === 'auditLog' ? 'Auth Audit Log' : ''}
                     </button>
                 ))}
             </div>
+
+            {activeTab === 'bulletins' && (
+                <div className="mt-4">
+                    <NoticeManager />
+                </div>
+            )}
 
             {activeTab === 'misUpload' && (
                 <div className="mt-4">
@@ -1116,7 +1124,7 @@ const SettingsManager: React.FC = () => {
                 </div>
             )}
 
-            {activeTab !== 'misUpload' && activeTab !== 'budgets' && (
+            {(['departments', 'units', 'designations', 'staff', 'atms'] as Tab[]).includes(activeTab) && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-50 border-b border-gray-100">

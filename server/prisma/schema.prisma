@@ -1,94 +1,77 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique
-  passwordHash String
-  fullNameEn   String
-  fullNameTa   String?
-  fullNameHi   String?
-  grade        String?
-  role         String   @default("BRANCH_USER") // ADMIN, RO_MANAGER, SECTION_USER, BRANCH_USER
-  photo        Photo?   @relation(fields: [photoId], references: [id])
-  photoId      String?
-  section      String?  // The specific section (e.g., "Accounts", "Planning", "IT", "HR")
-  
-  branch       Branch?  @relation("BranchMembers", fields: [branchId], references: [id])
-  branchId     String?
-  
-  // Leadership roles
-  isRegionHead     Boolean @default(false)
-  isSecondLine     Boolean @default(false)
-  headedBranch     Branch? @relation("BranchHead")
-  secondLineBranch Branch? @relation("BranchSecondLine")
-
-  departmentId     String?
-  department       Department? @relation("UserDepartment", fields: [departmentId], references: [id])
-  departments      Department[] @relation("UserDepartments")
-  managedDepartments Department[] @relation("DepartmentHeads")
-
-  designation      Designation? @relation(fields: [designationId], references: [id])
-  designationId    String?
-  
-  preparedNotes    OfficeNote[] @relation("NotePreparer")
-  approvedNotes    OfficeNote[] @relation("NoteApprover")
-  requests         BranchRequest[]
-  comments         Comment[]
-  actionPoints     ActionPoint[]
-  postingHistory   PostingHistory[]
-  
-  // Chat relations
-  chatMemberships  ChatMember[]
-  createdChatGroups ChatGroup[]
-  messagesSent     ChatMessage[]
-  messageAcks      MessageAck[]
-  noticeAcks       NoticeAck[]
+  id                   String            @id @default(uuid())
+  username             String            @unique
+  passwordHash         String
+  fullNameEn           String
+  fullNameTa           String?
+  fullNameHi           String?
+  grade                String?
+  role                 String            @default("BRANCH_USER")
+  photoId              String?
+  section              String?
+  branchId             String?
+  isRegionHead         Boolean           @default(false)
+  isSecondLine         Boolean           @default(false)
+  departmentId         String?
+  designationId        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  failedLoginAttempts  Int               @default(0)
+  lockedUntil          DateTime?
+  mfaEnabled           Boolean           @default(false)
+  mfaSecret            String?
+  lastLoginAt          DateTime?
+  lastLoginIp          String?
+  actionPoints         ActionPoint[]
+  requests             BranchRequest[]
+  headedBranch         Branch?           @relation("BranchHead")
+  secondLineBranch     Branch?           @relation("BranchSecondLine")
+  auditLogs            ChatAuditLog[]
+  chatMemberships      ChatMember[]
+  createdChatGroups    ChatGroup[]
+  messageAcks          MessageAck[]
+  messagesSent         ChatMessage[]
+  comments             Comment[]
   committeeMemberships CommitteeMember[]
-  notifications    Notification[]
-  // claims           Claim[]
-  auditLogs        ChatAuditLog[]
-
-  // GAP 05: Brute-force lockout
-  failedLoginAttempts Int      @default(0)
-  lockedUntil         DateTime?
-
-
-  // GAP 04: MFA (TOTP)
-  mfaEnabled   Boolean @default(false)
-  mfaSecret    String?
-
-  // Login activity tracking
-  lastLoginAt  DateTime?
-  lastLoginIp  String?
-
-  sessions         Session[]
-  loginAuditLogs   LoginAuditLog[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  loginAuditLogs       LoginAuditLog[]
+  noticeAcks           NoticeAck[]
+  notifications        Notification[]
+  approvedNotes        OfficeNote[]      @relation("NoteApprover")
+  preparedNotes        OfficeNote[]      @relation("NotePreparer")
+  postingHistory       PostingHistory[]
+  sessions             Session[]
+  branch               Branch?           @relation("BranchMembers", fields: [branchId], references: [id])
+  department           Department?       @relation("UserDepartment", fields: [departmentId], references: [id])
+  designation          Designation?      @relation(fields: [designationId], references: [id])
+  photo                Photo?            @relation(fields: [photoId], references: [id])
+  managedDepartments   Department[]      @relation("DepartmentHeads")
+  departments          Department[]      @relation("UserDepartments")
 
   @@map("users")
 }
 
 model Session {
-  id           String   @id @default(uuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token        String   @unique
-  expiresAt    DateTime
-  osUsername   String?  // To track which system user this session belongs to
-  ipAddress    String?
-  userAgent    String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String
+  token      String   @unique
+  expiresAt  DateTime
+  osUsername String?
+  ipAddress  String?
+  userAgent  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -96,13 +79,13 @@ model Session {
 model LoginAuditLog {
   id        String   @id @default(uuid())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   username  String
   event     String
   ipAddress String?
   userAgent String?
   metadata  String?
   createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([event])
@@ -111,26 +94,26 @@ model LoginAuditLog {
 }
 
 model Committee {
-  id        String    @id @default(uuid())
+  id        String            @id @default(uuid())
   nameEn    String
-  code      String    @unique
-  frequency String    @default("MONTHLY")
-  meetings  Meeting[]
+  code      String            @unique
+  frequency String            @default("MONTHLY")
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
   members   CommitteeMember[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  meetings  Meeting[]
 
   @@map("committees")
 }
 
 model CommitteeMember {
   id          String    @id @default(uuid())
-  committee   Committee @relation(fields: [committeeId], references: [id])
   committeeId String
-  user        User      @relation(fields: [userId], references: [id])
   userId      String
-  role        String    @default("MEMBER") // CHAIRPERSON, CONVENOR, MEMBER
+  role        String    @default("MEMBER")
   joinedAt    DateTime  @default(now())
+  committee   Committee @relation(fields: [committeeId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 
   @@unique([committeeId, userId])
   @@map("committee_members")
@@ -138,91 +121,82 @@ model CommitteeMember {
 
 model Meeting {
   id           String        @id @default(uuid())
-  committee    Committee     @relation(fields: [committeeId], references: [id])
   committeeId  String
   date         DateTime
   venue        String        @default("Conference Room")
   status       String        @default("DRAFT")
   minutesJson  String?
-  actionPoints ActionPoint[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  actionPoints ActionPoint[]
+  committee    Committee     @relation(fields: [committeeId], references: [id])
 
   @@map("meetings")
 }
 
 model ActionPoint {
-  id               String   @id @default(uuid())
-  meeting          Meeting  @relation(fields: [meetingId], references: [id])
+  id               String    @id @default(uuid())
   meetingId        String
   content          String
   dueDate          DateTime?
-  status           String   @default("PENDING")
-  assignedTo       User?    @relation(fields: [assignedToUserId], references: [id])
+  status           String    @default("PENDING")
   assignedToUserId String?
   completionDate   DateTime?
   remarks          String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  assignedTo       User?     @relation(fields: [assignedToUserId], references: [id])
+  meeting          Meeting   @relation(fields: [meetingId], references: [id])
 
   @@map("action_points")
 }
 
 model Branch {
-  id                String   @id @default(uuid())
-  sNo               Int?
-  code              String   @unique
-  officeId          Int?
-  nameEn            String
-  nameTa            String?
-  nameHi            String?
-  type              String
-  openDate          String?
-  district          String?
-  populationGroup   String?
-  riskCategory      String?
-  riskEffectiveDate DateTime?
-  specialStatus     String?
-  ifsc              String?
-  address           String?
-  addressTa         String?
-  addressHi         String?
-  latitude          Float?
-  longitude         Float?
-  pincode           String?
-
-  // Leadership
-  headUser          User?    @relation("BranchHead", fields: [headUserId], references: [id])
-  headUserId        String?  @unique
-  secondLineUser    User?    @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
-  secondLineUserId  String?  @unique
-
-  users             User[]   @relation("BranchMembers")
-  
-  snapshots         Snapshot[]
-  notices           Notice[]
-  letters           Letter[]
-  requests          BranchRequest[]
-  stationeryMovements StationeryMovement[]
-  recoveryActions     RecoveryAction[]
-  auditObservations   AuditObservation[]
-  regionalAssets      RegionalAsset[]
-  history             BranchHistory[]
-  postingHistory      PostingHistory[]
+  id                  String               @id @default(uuid())
+  sNo                 Int?
+  code                String               @unique
+  officeId            Int?
+  nameEn              String
+  nameTa              String?
+  nameHi              String?
+  type                String
+  openDate            String?
+  district            String?
+  populationGroup     String?
+  riskCategory        String?
+  riskEffectiveDate   DateTime?
+  specialStatus       String?
+  ifsc                String?
+  address             String?
+  latitude            Float?
+  longitude           Float?
+  pincode             String?
+  headUserId          String?              @unique
+  secondLineUserId    String?              @unique
+  addressHi           String?
+  addressTa           String?
+  accountClosures     AccountClosure[]
+  accountOpenings     AccountOpening[]
   atms                Atm[]
+  auditObservations   AuditObservation[]
+  history             BranchHistory[]
+  requests            BranchRequest[]
+  headUser            User?                @relation("BranchHead", fields: [headUserId], references: [id])
+  secondLineUser      User?                @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
+  budgets             BudgetMaster[]
   ingestionLogs       IngestionLog[]
+  letters             Letter[]
+  misExceptions       MisException[]
   facts               Fact[]
   misSnapshots        MisSnapshot[]
-  misExceptions       MisException[]
   noticeAcks          NoticeAck[]
-  accountOpenings    AccountOpening[]
-  accountClosures    AccountClosure[]
-  budgets            BudgetMaster[]
-  // campaignTargets     CampaignTarget[]
-  // campaignPerformances CampaignPerformance[]
-  // periodicReturns     PeriodicReturn[]
-  // claims              Claim[]
-  // achievements        Achievement[]
+  notices             Notice[]
+  postingHistory      PostingHistory[]
+  recoveryActions     RecoveryAction[]
+  regionalAssets      RegionalAsset[]
+  snapshots           Snapshot[]
+  stationeryMovements StationeryMovement[]
+  users               User[]               @relation("BranchMembers")
 
   @@map("branches")
 }
@@ -233,141 +207,143 @@ model Department {
   nameEn    String
   nameTa    String?
   nameHi    String?
-  users     User[]   @relation("UserDepartments")
-  mainUsers User[]   @relation("UserDepartment")
-  heads     User[]   @relation("DepartmentHeads")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  mainUsers User[]   @relation("UserDepartment")
+  heads     User[]   @relation("DepartmentHeads")
+  users     User[]   @relation("UserDepartments")
 
   @@map("departments")
 }
 
 model Designation {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  nameEn    String
-  nameTa    String?
-  nameHi    String?
-  workId    Int?
-  users     User[]
+  id             String           @id @default(uuid())
+  code           String           @unique
+  nameEn         String
+  nameTa         String?
+  nameHi         String?
+  workId         Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   postingHistory PostingHistory[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  users          User[]
 
   @@map("designations")
 }
 
 model BranchHistory {
   id           String   @id @default(uuid())
-  branch       Branch   @relation(fields: [branchId], references: [id])
   branchId     String
   fieldChanged String
   oldValue     String?
   newValue     String?
   changedBy    String
   changedAt    DateTime @default(now())
+  branch       Branch   @relation(fields: [branchId], references: [id])
 
   @@map("branch_history")
 }
 
 model Letter {
-  id           String   @id @default(uuid())
-  type         String
-  status       String   @default("DRAFT")
-  titleEn     String
-  contentEn    String
-  titleTa      String?
-  contentTa    String?
-  branch       Branch   @relation(fields: [branchId], references: [id])
-  branchId     String
-  parameter    Parameter? @relation(fields: [parameterId], references: [id])
-  parameterId  String?
-  valueAtTime  Float?
-  budgetAtTime Float?
-  period       String?
-  version      Int      @default(1)
-  previousVersion   Letter?  @relation("LetterHistory", fields: [previousVersionId], references: [id])
+  id                String     @id @default(uuid())
+  type              String
+  status            String     @default("DRAFT")
+  titleEn           String
+  contentEn         String
+  titleTa           String?
+  contentTa         String?
+  branchId          String
+  parameterId       String?
+  valueAtTime       Float?
+  budgetAtTime      Float?
+  period            String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
   previousVersionId String?
-  nextVersions      Letter[] @relation("LetterHistory")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  version           Int        @default(1)
+  branch            Branch     @relation(fields: [branchId], references: [id])
+  parameter         Parameter? @relation(fields: [parameterId], references: [id])
+  previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
+  nextVersions      Letter[]   @relation("LetterHistory")
 
   @@map("letters")
 }
 
 model OfficeNote {
-  id          String   @id @default(uuid())
-  type        String
-  status      String   @default("DRAFT")
-  titleEn     String
-  contentJson String
-  preparer    User     @relation("NotePreparer", fields: [preparerId], references: [id])
-  preparerId  String
-  approver      User?    @relation("NoteApprover", fields: [approverId], references: [id])
-  approverId    String?
-  version       Int      @default(1)
-  previousVersion   OfficeNote? @relation("NoteHistory", fields: [previousVersionId], references: [id])
+  id                String       @id @default(uuid())
+  type              String
+  status            String       @default("DRAFT")
+  titleEn           String
+  contentJson       String
+  preparerId        String
+  approverId        String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
   previousVersionId String?
+  version           Int          @default(1)
+  approver          User?        @relation("NoteApprover", fields: [approverId], references: [id])
+  preparer          User         @relation("NotePreparer", fields: [preparerId], references: [id])
+  previousVersion   OfficeNote?  @relation("NoteHistory", fields: [previousVersionId], references: [id])
   nextVersions      OfficeNote[] @relation("NoteHistory")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 
   @@map("office_notes")
 }
 
 model BranchRequest {
-  id               String   @id @default(uuid())
-  titleEn          String
-  contentEn        String
-  category         String
-  status           String   @default("OPEN")
-  priority         String   @default("MEDIUM")
-  branch           Branch   @relation(fields: [branchId], references: [id])
-  branchId         String
-  user             User     @relation(fields: [userId], references: [id])
-  userId           String
-  assignedSection  String?
-  resolutionNotes  String?
-  comments         Comment[]
-  dueAt            DateTime?
-  slaBreached      Boolean  @default(false)
-  resolvedAt       DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String    @id @default(uuid())
+  titleEn         String
+  contentEn       String
+  category        String
+  status          String    @default("OPEN")
+  priority        String    @default("MEDIUM")
+  branchId        String
+  userId          String
+  assignedSection String?
+  resolutionNotes String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  dueAt           DateTime?
+  resolvedAt      DateTime?
+  slaBreached     Boolean   @default(false)
+  branch          Branch    @relation(fields: [branchId], references: [id])
+  user            User      @relation(fields: [userId], references: [id])
+  comments        Comment[]
 
   @@map("branch_requests")
 }
 
 model Comment {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   content   String
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  request   BranchRequest @relation(fields: [requestId], references: [id])
   requestId String
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
+  request   BranchRequest @relation(fields: [requestId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 
   @@map("comments")
 }
 
 model Photo {
   id          String   @id @default(uuid())
-  photoUrl    String
   checksum    String?
   aspectRatio String   @default("4:5")
   createdAt   DateTime @default(now())
+  photoUrl    String
   User        User[]
+  notices     Notice[]
 
   @@map("photos")
 }
 
 model Holiday {
   id          String   @id @default(uuid())
-  date        DateTime @unique
+  date        DateTime
   nameEn      String
   nameTa      String?
   nameHi      String?
   type        String
+  venue       String?
   description String?
   createdAt   DateTime @default(now())
 
@@ -375,64 +351,66 @@ model Holiday {
 }
 
 model Parameter {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  nameEn      String
-  nameTa      String?
-  nameHi      String?
-  category    String
-  unit        String   @default("Cr")
-  snapshots   Snapshot[]
-  letters     Letter[]
+  id        String     @id @default(uuid())
+  code      String     @unique
+  nameEn    String
+  nameTa    String?
+  nameHi    String?
+  category  String
+  unit      String     @default("Cr")
+  letters   Letter[]
+  snapshots Snapshot[]
 
   @@map("parameters")
 }
 
 model Snapshot {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   date        DateTime
-  parameter   Parameter @relation(fields: [parameterId], references: [id])
   parameterId String
-  branch      Branch?   @relation(fields: [branchId], references: [id])
   branchId    String?
   value       Float
   budget      Float?
   status      String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+  parameter   Parameter @relation(fields: [parameterId], references: [id])
 
   @@index([date])
   @@map("snapshots")
 }
 
 model Notice {
-  id          String   @id @default(uuid())
-  titleEn     String
-  titleTa     String?
-  contentEn   String
-  contentTa   String?
-  category    String
-  priority    String   @default("NORMAL")
-  isPinned    Boolean  @default(false)
-  branch      Branch?  @relation(fields: [branchId], references: [id])
-  branchId    String?
-  targetRole  String?
-  requiresAck Boolean  @default(false)
+  id               String      @id @default(uuid())
+  titleEn          String
+  titleTa          String?
+  contentEn        String
+  contentTa        String?
+  category         String
+  priority         String      @default("NORMAL")
+  isPinned         Boolean     @default(false)
+  branchId         String?
+  targetRole       String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  requiresAck      Boolean     @default(false)
   acknowledgements NoticeAck[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  photoId          String?
+  photo            Photo?      @relation(fields: [photoId], references: [id])
+  branch           Branch?     @relation(fields: [branchId], references: [id])
 
   @@map("notices")
 }
 
 model NoticeAck {
   id        String   @id @default(uuid())
-  notice    Notice   @relation(fields: [noticeId], references: [id])
   noticeId  String
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
-  branch    Branch   @relation(fields: [branchId], references: [id])
   branchId  String
   createdAt DateTime @default(now())
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  notice    Notice   @relation(fields: [noticeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([noticeId, userId])
   @@map("notice_acknowledgements")
@@ -458,18 +436,16 @@ model StationeryItem {
   id         String               @id @default(uuid())
   nameEn     String               @unique
   stockLevel Int                  @default(0)
-  movements  StationeryMovement[]
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
+  movements  StationeryMovement[]
 
   @@map("stationery_items")
 }
 
 model StationeryMovement {
   id        String         @id @default(uuid())
-  item      StationeryItem @relation(fields: [itemId], references: [id])
   itemId    String
-  branch    Branch?        @relation(fields: [branchId], references: [id])
   branchId  String?
   quantity  Int
   type      String
@@ -477,6 +453,8 @@ model StationeryMovement {
   remarks   String?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+  branch    Branch?        @relation(fields: [branchId], references: [id])
+  item      StationeryItem @relation(fields: [itemId], references: [id])
 
   @@map("stationery_movements")
 }
@@ -487,9 +465,9 @@ model Budget {
   financialYear    String
   allocationAmount Float
   spentAmount      Float             @default(0)
-  sanctions        ExpenseSanction[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  sanctions        ExpenseSanction[]
 
   @@unique([section, financialYear])
   @@map("budgets")
@@ -505,26 +483,26 @@ model ExpenseSanction {
   billNo       String?
   status       String   @default("APPROVED")
   type         String   @default("REVENUE")
-  budget       Budget   @relation(fields: [budgetId], references: [id])
   budgetId     String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  budget       Budget   @relation(fields: [budgetId], references: [id])
 
   @@map("expense_sanctions")
 }
 
 model LegalCase {
-  id               String   @id @default(uuid())
-  caseNo           String   @unique
-  courtName        String
-  parties          String
-  nextHearingDate  DateTime?
-  advocateName     String?
-  status           String   @default("PENDING")
-  category         String   @default("CIVIL")
-  hearingHistory   String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String    @id @default(uuid())
+  caseNo          String    @unique
+  courtName       String
+  parties         String
+  nextHearingDate DateTime?
+  advocateName    String?
+  status          String    @default("PENDING")
+  category        String    @default("CIVIL")
+  hearingHistory  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("legal_cases")
 }
@@ -535,11 +513,11 @@ model RecoveryAction {
   amountInvolved Float
   type           String
   status         String   @default("NOTIFIED")
-  branch         Branch   @relation(fields: [branchId], references: [id])
   branchId       String
   remarks        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  branch         Branch   @relation(fields: [branchId], references: [id])
 
   @@map("recovery_actions")
 }
@@ -553,10 +531,10 @@ model AuditObservation {
   rectificationDetails String?
   targetDate           DateTime
   auditDate            DateTime @default(now())
-  branch               Branch   @relation(fields: [branchId], references: [id])
   branchId             String
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+  branch               Branch   @relation(fields: [branchId], references: [id])
 
   @@map("audit_observations")
 }
@@ -589,145 +567,142 @@ model DashboardTicker {
 model Atm {
   id          String   @id @default(uuid())
   atmId       String   @unique
-  branch      Branch   @relation(fields: [branchId], references: [id])
   branchId    String
   lastTxnTime String
   balance     Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  branch      Branch   @relation(fields: [branchId], references: [id])
 
   @@map("atms")
 }
 
 model RegionalAsset {
-  id                String              @id @default(uuid())
-  assetCode         String              @unique
-  category          String
-  description       String
-  purchaseDate      DateTime
-  purchaseValue     Float
-  condition         String              @default("GOOD")
-  amcExpiry         DateTime?
-  branch            Branch              @relation(fields: [branchId], references: [id])
-  branchId          String
+  id                 String              @id @default(uuid())
+  assetCode          String              @unique
+  category           String
+  description        String
+  purchaseDate       DateTime
+  purchaseValue      Float
+  condition          String              @default("GOOD")
+  amcExpiry          DateTime?
+  branchId           String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   maintenanceRecords MaintenanceRecord[]
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  branch             Branch              @relation(fields: [branchId], references: [id])
 
   @@map("regional_assets")
 }
 
 model MaintenanceRecord {
-  id               String        @id @default(uuid())
-  serviceDate      DateTime
-  serviceProvider  String
-  cost             Float
-  remarks          String?
-  nextServiceDue   DateTime
-  asset            RegionalAsset @relation(fields: [assetId], references: [id])
-  assetId          String
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String        @id @default(uuid())
+  serviceDate     DateTime
+  serviceProvider String
+  cost            Float
+  remarks         String?
+  nextServiceDue  DateTime
+  assetId         String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  asset           RegionalAsset @relation(fields: [assetId], references: [id])
 
   @@map("maintenance_records")
 }
 
 model PostingHistory {
-  id            String      @id @default(uuid())
-  user          User        @relation(fields: [userId], references: [id])
+  id            String       @id @default(uuid())
   userId        String
-  branch        Branch      @relation(fields: [branchId], references: [id])
   branchId      String
-  designation   Designation? @relation(fields: [designationId], references: [id])
   designationId String?
-  startDate     DateTime    @default(now())
+  startDate     DateTime     @default(now())
   endDate       DateTime?
-  isCurrent     Boolean     @default(true)
+  isCurrent     Boolean      @default(true)
   remarks       String?
-  createdAt     DateTime    @default(now())
+  createdAt     DateTime     @default(now())
+  branch        Branch       @relation(fields: [branchId], references: [id])
+  designation   Designation? @relation(fields: [designationId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
 
   @@map("posting_history")
 }
 
 model ChatGroup {
-  id               String       @id @default(uuid())
+  id               String        @id @default(uuid())
   name             String
-  type             String       @default("CUSTOM") // DEFAULT, CUSTOM, DISTRICT, POPULATION
-  announcementMode Boolean      @default(false)
+  type             String        @default("CUSTOM")
+  announcementMode Boolean       @default(false)
   createdBy        String?
-  creator          User?        @relation(fields: [createdBy], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
   members          ChatMember[]
+  creator          User?         @relation(fields: [createdBy], references: [id])
   messages         ChatMessage[]
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
 
   @@map("chat_groups")
 }
 
 model ChatMember {
-  id           String    @id @default(uuid())
-  groupId      String
-  group        ChatGroup @relation(fields: [groupId], references: [id])
-  userId       String
-  user         User      @relation(fields: [userId], references: [id])
-  roleInGroup  String    @default("MEMBER") // GROUP_ADMIN, MEMBER
-  isMuted      Boolean   @default(false)
-  isSuspended  Boolean   @default(false)
-  suspendedBy  String?
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(uuid())
+  groupId     String
+  userId      String
+  roleInGroup String    @default("MEMBER")
+  isMuted     Boolean   @default(false)
+  isSuspended Boolean   @default(false)
+  suspendedBy String?
+  updatedAt   DateTime  @updatedAt
+  group       ChatGroup @relation(fields: [groupId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 
   @@unique([groupId, userId])
   @@map("chat_group_members")
 }
 
 model ChatMessage {
-  id               String       @id @default(uuid())
-  type             String       @default("text") // text, mis_alert, mis_snapshot, ro_query, branch_response, system_info, emergency
-  room             String       @default("global")
-  user             String
-  role             String       @default("BRANCH")
-  branchCode       String?
-  text             String
-  payload          String?      // JSON stringified payload
-  timestamp        DateTime     @default(now())
-  readBy           String?      // Simple comma separated list (or JSON array) of usernames
-
-  // Legacy relations kept for schema integrity, though not strictly required by new unified system
-  groupId          String?
-  group            ChatGroup?   @relation(fields: [groupId], references: [id])
-  senderId         String?
-  sender           User?        @relation(fields: [senderId], references: [id])
-  
-  acks             MessageAck[]
+  id         String       @id @default(uuid())
+  type       String       @default("text")
+  room       String       @default("global")
+  user       String
+  role       String       @default("BRANCH")
+  branchCode String?
+  text       String
+  payload    String?
+  timestamp  DateTime     @default(now())
+  readBy     String?
+  groupId    String?
+  senderId   String?
+  acks       MessageAck[]
+  group      ChatGroup?   @relation(fields: [groupId], references: [id])
+  sender     User?        @relation(fields: [senderId], references: [id])
 
   @@map("chat_messages")
 }
 
 model BranchQuery {
-  id           String      @id @default(uuid())
-  branchCode   String
-  queryText    String
-  askedBy      String
-  askedAt      DateTime    @default(now())
-  deadline     DateTime?
-  paramCodes   String?     // Stored as JSON string array
-  status       String      @default("PENDING") // Enum mapped to string: PENDING, ANSWERED, ACKNOWLEDGED, ESCALATED
-  response     String?
-  respondedBy  String?
-  respondedAt  DateTime?
+  id             String    @id @default(uuid())
+  branchCode     String
+  queryText      String
+  askedBy        String
+  askedAt        DateTime  @default(now())
+  deadline       DateTime?
+  paramCodes     String?
+  status         String    @default("PENDING")
+  response       String?
+  respondedBy    String?
+  respondedAt    DateTime?
   relatedMisDate DateTime?
 
   @@map("branch_queries")
 }
 
 model MessageAck {
-  id               String      @id @default(uuid())
-  messageId        String
-  message          ChatMessage @relation(fields: [messageId], references: [id])
-  userId           String
-  user             User        @relation(fields: [userId], references: [id])
-  acknowledgedAt   DateTime    @default(now())
-  correlationId    String?
+  id             String      @id @default(uuid())
+  messageId      String
+  userId         String
+  acknowledgedAt DateTime    @default(now())
+  correlationId  String?
+  message        ChatMessage @relation(fields: [messageId], references: [id])
+  user           User        @relation(fields: [userId], references: [id])
 
   @@unique([messageId, userId])
   @@map("chat_message_acks")
@@ -736,28 +711,27 @@ model MessageAck {
 model ChatAuditLog {
   id            String   @id @default(uuid())
   actorId       String
-  actor         User     @relation(fields: [actorId], references: [id])
-  action        String   // USER_SUSPENDED, GROUP_CREATED, ROLE_UPDATED, MSG_DELETED
-  targetId      String?  // Id of the affected user/group/msg
-  details       String?  // JSON string for metadata
+  action        String
+  targetId      String?
+  details       String?
   correlationId String?
   timestamp     DateTime @default(now())
+  actor         User     @relation(fields: [actorId], references: [id])
 
   @@map("chat_audit_logs")
 }
 
 model IngestionLog {
-  id        String   @id @default(uuid())
-  unitId    String
-  branch    Branch   @relation(fields: [unitId], references: [id])
-  status    String   // PROCESSED, FAILED
-  filename  String
-  meta      Json?
-  createdAt DateTime @default(now())
-  facts     Fact[]
-  
+  id          String        @id @default(uuid())
+  unitId      String
+  status      String
+  filename    String
+  meta        Json?
+  createdAt   DateTime      @default(now())
   importLogId String?
   importLog   MisImportLog? @relation(fields: [importLogId], references: [id], onDelete: Cascade)
+  branch      Branch        @relation(fields: [unitId], references: [id])
+  facts       Fact[]
 
   @@map("ingestion_logs")
 }
@@ -765,8 +739,8 @@ model IngestionLog {
 model IngestionVerticalStatus {
   id              String   @id @default(uuid())
   businessDate    DateTime
-  vertical        String   // CASA, TD, ADV, etc.
-  status          String   // READY_FOR_MIS, PENDING
+  vertical        String
+  status          String
   isFreezeBlocker Boolean  @default(true)
   updatedAt       DateTime @updatedAt
 
@@ -817,15 +791,15 @@ model StgUserVerticalDaily {
 }
 
 model Fact {
-  id          String       @id @default(uuid())
+  id          String        @id @default(uuid())
   unitId      String
-  branch      Branch       @relation(fields: [unitId], references: [id])
   date        DateTime
   metric      String
-  value       Decimal      @db.Decimal(18, 2)
+  value       Decimal       @db.Decimal(18, 2)
   ingestionId String?
+  createdAt   DateTime      @default(now())
   ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id])
-  createdAt   DateTime     @default(now())
+  branch      Branch        @relation(fields: [unitId], references: [id])
 
   @@index([date, unitId, metric])
   @@map("mis_facts")
@@ -834,33 +808,29 @@ model Fact {
 model MisSnapshot {
   id           String                @id @default(uuid())
   unitId       String
-  branch       Branch                @relation(fields: [unitId], references: [id])
   businessDate DateTime
-  status       String                // PROVISIONAL, FINAL
+  status       String
   version      Int                   @default(1)
   frozenAt     DateTime?
-  panelData    MisInformationPanel[]
-  exceptions   MisException[]
   createdAt    DateTime              @default(now())
+  exceptions   MisException[]
+  panelData    MisInformationPanel[]
+  branch       Branch                @relation(fields: [unitId], references: [id])
 
   @@unique([unitId, businessDate, version])
   @@map("mis_snapshots")
 }
 
 model MisInformationPanel {
-  id             String      @id @default(uuid())
-  snapshotId     String
-  snapshot       MisSnapshot @relation(fields: [snapshotId], references: [id])
-  parameter      String
-  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 2)
-  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 2)
+  id                String      @id @default(uuid())
+  snapshotId        String
+  parameter         String
   val_fy_start      Decimal     @default(0) @db.Decimal(18, 2)
   val_fy_end        Decimal     @default(0) @db.Decimal(18, 2)
   val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 2)
   val_dby           Decimal     @default(0) @db.Decimal(18, 2)
   val_y_eod         Decimal     @default(0) @db.Decimal(18, 2)
   val_current       Decimal     @default(0) @db.Decimal(18, 2)
-  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 2)
   growth_day        Decimal     @default(0) @db.Decimal(18, 2)
   growth_month      Decimal     @default(0) @db.Decimal(18, 2)
   growth_fy         Decimal     @default(0) @db.Decimal(18, 2)
@@ -868,7 +838,11 @@ model MisInformationPanel {
   gap_month         Decimal     @default(0) @db.Decimal(18, 2)
   budget_quarter    Decimal     @default(0) @db.Decimal(18, 2)
   gap_quarter       Decimal     @default(0) @db.Decimal(18, 2)
-  status            String      @default("Neutral") // Surpassed, Positive, Negative, Neutral
+  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 2)
+  status            String      @default("Neutral")
+  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 2)
+  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 2)
+  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id])
 
   @@map("mis_information_panels")
 }
@@ -876,49 +850,44 @@ model MisInformationPanel {
 model MisException {
   id           String      @id @default(uuid())
   snapshotId   String
-  snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id])
   unitId       String
-  branch       Branch      @relation(fields: [unitId], references: [id])
   businessDate DateTime
-  type         String      // BUDGET_CONTROL, GROWTH, RISK, LIQUIDITY
-  severity     String      // LOW, MEDIUM, HIGH, CRITICAL
+  type         String
+  severity     String
   parameter    String
   message      String
   triggerValue String?
   ruleId       String?
-  status       String      @default("OPEN") // OPEN, ACKNOWLEDGED, RESOLVED
+  status       String      @default("OPEN")
   taskId       String?
   createdAt    DateTime    @default(now())
+  snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id])
+  branch       Branch      @relation(fields: [unitId], references: [id])
 
   @@map("mis_exceptions")
 }
 
-
 model AccountOpening {
-  id              String   @id @default(uuid())
-  solId           String   // Branch code
-  branch          Branch   @relation(fields: [solId], references: [code])
-  cifId           String
-  foracid         String   @unique // Account Number
-  acctName        String
-  schmType        String
-  schmCode        String
-  accountClass    String?  // SB, CD standardized
-  acctOpnDate     DateTime
-  clrBalAmt       Decimal  @db.Decimal(18, 2)
-  averageBalance  Decimal  @db.Decimal(18, 2)
-  businessDate    DateTime // The date this data was uploaded for
-  
-  isQualified     Boolean  @default(false)
-  rejectionReason String?
-  dataQualityFlag String   @default("VALID")
-  
-  // Customer Intelligence
+  id                 String   @id @default(uuid())
+  solId              String
+  cifId              String
+  foracid            String   @unique
+  acctName           String
+  schmType           String
+  schmCode           String
+  acctOpnDate        DateTime
+  clrBalAmt          Decimal  @db.Decimal(18, 2)
+  averageBalance     Decimal  @db.Decimal(18, 2)
+  businessDate       DateTime
+  createdAt          DateTime @default(now())
+  accountClass       String?
   customerValueScore Float?
+  dataQualityFlag    String   @default("VALID")
+  isQualified        Boolean  @default(false)
+  rejectionReason    String?
+  valueBucket        String?
   valueRank          Int?
-  valueBucket        String? // HIGH_VALUE, PREMIUM, RETAIL
-  
-  createdAt       DateTime @default(now())
+  branch             Branch   @relation(fields: [solId], references: [code])
 
   @@index([businessDate])
   @@index([solId])
@@ -927,21 +896,20 @@ model AccountOpening {
 
 model AccountClosure {
   id              String   @id @default(uuid())
-  solId           String   // Branch code
-  branch          Branch   @relation(fields: [solId], references: [code])
+  solId           String
   cifId           String
-  foracid         String   @unique // Account Number
+  foracid         String   @unique
   acctName        String
   schmType        String
   schmCode        String
-  accountClass    String?  // SB, CD standardized
+  accountClass    String?
   acctOpnDate     DateTime
   acctClsDate     DateTime
   balanceAtCls    Decimal  @db.Decimal(18, 2)
-  businessDate    DateTime // The date this data was uploaded for
-  
+  businessDate    DateTime
   dataQualityFlag String   @default("VALID")
   createdAt       DateTime @default(now())
+  branch          Branch   @relation(fields: [solId], references: [code])
 
   @@index([businessDate])
   @@index([solId])
@@ -952,8 +920,8 @@ model CalendarMaster {
   calDate         DateTime @id
   isWorkingDay    Boolean  @default(true)
   holidayFlag     Boolean  @default(false)
-  monthKey        String   // e.g., "2026-02"
-  financialPeriod String?  // e.g., "Q4-2025-26"
+  monthKey        String
+  financialPeriod String?
 
   @@map("calendar_master")
 }
@@ -963,11 +931,11 @@ model FactSbDailyBranch {
   solId           String
   openDay         DateTime
   netSbOpened     Int
-  sbClosed        Int      @default(0)
   workingDayFlag  Boolean
   qualifiedCount  Int
   dataQualityFlag String
   createdAt       DateTime @default(now())
+  sbClosed        Int      @default(0)
 
   @@unique([solId, openDay])
   @@map("fact_sb_daily_branch")
@@ -978,31 +946,31 @@ model FactCdMonthlyBranch {
   solId           String
   monthKey        String
   netCdOpened     Int
-  cdClosed        Int      @default(0)
   qualifiedCount  Int
   dataQualityFlag String
   createdAt       DateTime @default(now())
+  cdClosed        Int      @default(0)
 
   @@unique([solId, monthKey])
   @@map("fact_cd_monthly_branch")
 }
 
 model ProductAdoptionScheme {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  name      String
-  type      String   // SB, CD
-  isActive  Boolean  @default(true)
+  id       String  @id @default(uuid())
+  code     String  @unique
+  name     String
+  type     String
+  isActive Boolean @default(true)
 
   @@map("product_adoption_schemes")
 }
 
 model SystemConfig {
   id        String   @id @default(uuid())
-  key       String   @unique // e.g., "MIN_OPENING_BALANCE"
+  key       String   @unique
   value     String
-  dataType  String   @default("STRING") // STRING, NUMBER, BOOLEAN
-  group     String   @default("GENERAL") // PLANNING, HR, etc.
+  dataType  String   @default("STRING")
+  group     String   @default("GENERAL")
   updatedAt DateTime @updatedAt
 
   @@map("system_configs")
@@ -1011,64 +979,62 @@ model SystemConfig {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  type      String   @default("INFO") // INFO, ALERT, SUCCESS, ERROR
+  type      String   @default("INFO")
   title     String
   message   String
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 
   @@map("notifications")
 }
 
 model BudgetMaster {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   parameterName String
   solId         String
-  branch        Branch   @relation(fields: [solId], references: [code])
   periodKey     String
-  effectiveDate DateTime?
-  targetValue   Decimal  @db.Decimal(18, 2)
-  versionNo     Int      @default(1)
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  targetValue   Decimal   @db.Decimal(18, 2)
+  versionNo     Int       @default(1)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   sourceBatchId String
+  effectiveDate DateTime?
+  branch        Branch    @relation(fields: [solId], references: [code])
 
   @@unique([parameterName, solId, periodKey])
   @@map("budget_master")
 }
 
 model BudgetHistory {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   parameterName String
   solId         String
   periodKey     String
-  effectiveDate DateTime?
-  targetValue   Decimal  @db.Decimal(18, 2)
+  targetValue   Decimal   @db.Decimal(18, 2)
   versionNo     Int
   sourceBatchId String
-  changeType    String   // INSERT, UPDATE, DELETE
-  changedAt     DateTime @default(now())
+  changeType    String
+  changedAt     DateTime  @default(now())
+  effectiveDate DateTime?
 
   @@map("budget_history")
 }
 
 model MisParameterRegistry {
-  parameterName          String  @id
-  displayName            String
-  fullForm               String? 
-  description            String?
-  category               String?
-  isEnabled              Boolean @default(true)
-  createdFromBudgetFlag  Boolean @default(true)
-  orderIndex             Int     @default(0)
-
-  // Hierarchy
-  parentParameterName    String?
-  parentParameter        MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
-  childParameters        MisParameterRegistry[] @relation("ParameterHierarchy")
+  parameterName         String                 @id
+  displayName           String
+  category              String?
+  isEnabled             Boolean                @default(true)
+  createdFromBudgetFlag Boolean                @default(true)
+  description           String?
+  fullForm              String?
+  orderIndex            Int                    @default(0)
+  parentParameterName   String?
+  parentParameter       MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
+  childParameters       MisParameterRegistry[] @relation("ParameterHierarchy")
 
   @@map("mis_parameter_registry")
 }
@@ -1077,27 +1043,25 @@ model BudgetImportLog {
   id         String   @id @default(uuid())
   filename   String
   checksum   String
-  status     String   @default("PROCESSING") // PROCESSING, SUCCESS, FAILED
   uploaderId String?
   totalRows  Int
   validRows  Int
   errorRows  Int
   createdAt  DateTime @default(now())
+  status     String   @default("PROCESSING")
 
   @@map("budget_import_logs")
 }
 
-
 model MisImportLog {
-  id            String   @id @default(uuid())
-  filename      String
-  status        String   @default("SUCCESS") // SUCCESS, FAILED
+  id             String         @id @default(uuid())
+  filename       String
+  status         String         @default("SUCCESS")
   processedUnits Int
   failedUnits    Int
-  uniqueDates    String[] // Array of business dates found in file
-  createdAt     DateTime @default(now())
-  
-  ingestionLogs IngestionLog[]
+  uniqueDates    String[]
+  createdAt      DateTime       @default(now())
+  ingestionLogs  IngestionLog[]
 
   @@map("mis_import_logs")
 }
@@ -1106,8 +1070,6 @@ model InternalNote {
   id             String   @id @default(uuid())
   refNo          String
   department     String
-  departmentTa   String?
-  departmentHi   String?
   subject        String
   classification String
   createdBy      String
@@ -1115,6 +1077,8 @@ model InternalNote {
   fileUrl        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  departmentHi   String?
+  departmentTa   String?
 
   @@map("internal_notes")
 }

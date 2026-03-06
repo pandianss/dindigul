@@ -108,15 +108,11 @@ router.get('/setup', async (req, res) => {
             where: {
                 category: { in: ['ACHIEVEMENT', 'GENERAL'] },
             },
+            include: {
+                photo: true
+            },
             orderBy: { createdAt: 'desc' },
-            take: 3,
-            select: {
-                id: true,
-                titleEn: true,
-                contentEn: true,
-                createdAt: true,
-                category: true
-            }
+            take: 10
         });
 
         res.json({
@@ -141,7 +137,8 @@ router.get('/setup', async (req, res) => {
                     title: a.titleEn,
                     description: a.contentEn,
                     date: a.createdAt,
-                    category: a.category
+                    category: a.category,
+                    photoUrl: a.photo?.photoUrl
                 }))
             }
         });

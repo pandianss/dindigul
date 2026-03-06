@@ -38,4 +38,22 @@ api.interceptors.response.use(
 
 export const STATIC_URL = import.meta.env.VITE_STATIC_URL || '/';
 
+/**
+ * Robustly joins STATIC_URL with a path to ensure absolute URLs are formed correctly.
+ * Useful for resolving image paths from the backend.
+ */
+export const getStaticUrl = (path?: string) => {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+
+    // Ensure STATIC_URL doesn't end with slash and path doesn't start with one
+    const base = STATIC_URL.replace(/\/+$/, '');
+    const cleanPath = path.replace(/^\/+/, '');
+
+    // If STATIC_URL is just empty or '/', we return the relative path
+    if (!base) return `/${cleanPath}`;
+
+    return `${base}/${cleanPath}`;
+};
+
 export default api;

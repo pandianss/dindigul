@@ -1,9 +1,12 @@
+const path = require('path');
+const rootDir = path.resolve(__dirname, '..');
+
 module.exports = {
   apps: [
     {
       name: 'dindigul-api',
       script: 'dist/index.js',
-      cwd: 'e:\\projects\\Dindigul\\server',
+      cwd: path.join(rootDir, 'server'),
       instances: 1,
       autorestart: true,
       watch: false,
@@ -17,7 +20,7 @@ module.exports = {
       name: 'dindigul-frontend',
       script: 'node_modules/vite/bin/vite.js',
       args: 'preview --port 5173 --host',
-      cwd: 'e:\\projects\\Dindigul',
+      cwd: rootDir,
       exec_mode: 'fork',
       autorestart: true,
       watch: false,

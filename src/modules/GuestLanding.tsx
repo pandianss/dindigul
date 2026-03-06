@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Landmark } from 'lucide-react';
+import { Landmark, Award, Plus } from 'lucide-react';
+import api, { STATIC_URL, getStaticUrl } from '../services/api';
 
 interface SetupData {
     branches: number;
@@ -9,7 +10,7 @@ interface SetupData {
     totalDeposits: number;
     leadership?: { name: string; designation: string; isHead: boolean }[];
     events?: { date: string; name: string; type: string }[];
-    achievements?: { title: string; description: string; date: string; category: string }[];
+    achievements?: { title: string; description: string; date: string; category: string; photoUrl?: string }[];
     business?: { val: number, growth: number };
     deposits?: { val: number, growth: number };
     casa?: { val: number, growth: number };
@@ -20,6 +21,76 @@ interface SetupData {
 interface GuestLandingProps {
     onExitPortal: () => void;
 }
+
+interface AchievementCardProps {
+    ach: { title: string; description: string; date: string; category: string; photoUrl?: string };
+    index: number;
+}
+
+const AchievementCard: React.FC<AchievementCardProps> = ({ ach, index }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const isEven = index % 2 === 0;
+
+    return (
+        <div className={`flex flex-col sm:flex-row items-center sm:justify-center relative w-full reveal`} style={{ transitionDelay: `${index * 100}ms` }}>
+            {/* Timeline Dot */}
+            <div className="absolute left-[15px] sm:left-1/2 top-10 w-4 h-4 rounded-full border-2 border-[#00AEEF] bg-[#1B3A6B] z-20 -translate-x-1/2 hidden sm:block shadow-[0_0_15px_rgba(0,174,239,0.5)]"></div>
+
+            <div className={`w-full sm:w-[45%] ${isEven ? 'sm:mr-auto sm:pr-12' : 'sm:ml-auto sm:pl-12'} relative`}>
+                <div className="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.07] hover:border-white/20 transition-all duration-500 shadow-xl">
+                    <div className="flex flex-col">
+                        {ach.photoUrl && (
+                            <div className="aspect-[21/9] overflow-hidden relative">
+                                <img
+                                    src={getStaticUrl(ach.photoUrl)}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    alt={ach.title}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#1B3A6B]/80 to-transparent"></div>
+                            </div>
+                        )}
+
+                        <div className="p-6">
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-[0.6rem] font-black text-[#00AEEF] uppercase tracking-widest bg-[#00AEEF]/10 px-2 py-0.5 rounded-sm">
+                                    {ach.category}
+                                </span>
+                                <span className="text-[0.65rem] font-bold text-white/40">
+                                    {new Date(ach.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                </span>
+                            </div>
+
+                            <h3 className="text-lg font-black text-white mb-2 leading-tight">
+                                "{ach.title}"
+                            </h3>
+
+                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                                <p className="text-[0.85rem] text-white/60 leading-relaxed italic border-l-2 border-[#00AEEF]/30 pl-4 py-1">
+                                    {ach.description.replace(/<[^>]*>?/gm, '')}
+                                </p>
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
+                                <button
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-[#00AEEF] hover:text-white transition-colors flex items-center gap-2"
+                                >
+                                    {isExpanded ? 'Hide Info' : 'Details'}
+                                    <div className={`w-6 h-6 rounded-full border border-white/10 flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-[#00AEEF] border-[#00AEEF] rotate-45' : ''}`}>
+                                        <Plus size={10} className="text-white" />
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Indicator Dot */}
+            <div className="absolute left-[15px] top-10 w-3 h-3 rounded-full bg-[#00AEEF] sm:hidden"></div>
+        </div>
+    );
+};
 
 const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
     const [setupData, setSetupData] = useState<SetupData | null>(null);
@@ -388,55 +459,89 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                             Upcoming Calendar Events
                         </h2>
                     </div>
-                    <div className="space-y-4">
-                        {setupData?.events?.length ? setupData.events.map((event, i) => {
-                            const dateObj = new Date(event.date);
-                            return (
-                                <div key={i} className="flex flex-col sm:flex-row items-center sm:items-stretch bg-white border border-[#D0DCF0] rounded-sm reveal hover:border-[#0090C8] transition-colors shadow-sm">
-                                    <div className="flex-shrink-0 bg-[#F5F7FA] text-center w-full sm:w-32 py-4 px-2 border-b sm:border-b-0 sm:border-r border-[#D0DCF0] flex flex-col justify-center">
-                                        <span className="text-[#00AEEF] text-[0.7rem] font-bold uppercase tracking-widest">{dateObj.toLocaleString('en-US', { month: 'short' })}</span>
-                                        <span className="text-[#1B3A6B] text-3xl font-black leading-none my-1">{dateObj.getDate()}</span>
-                                        <span className="text-[#5A708A] text-[0.7rem] font-medium">{dateObj.getFullYear()}</span>
-                                    </div>
-                                    <div className="p-5 flex-1 flex flex-col justify-center">
-                                        <h3 className="text-lg font-bold text-[#1B3A6B] mb-1">{event.name}</h3>
-                                        <p className="text-[#5A708A] text-sm bg-[#E0F4FB] text-[#0090C8] self-start px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest rounded-sm border border-[#0090C8]/20">{event.type}</p>
-                                    </div>
-                                </div>
-                            );
-                        }) : (
+                    <div className="space-y-6">
+                        {setupData?.events?.length ? (
+                            Object.entries(setupData.events.reduce((acc: any, event) => {
+                                const dateKey = format(new Date(event.date), 'yyyy-MM-dd');
+                                if (!acc[dateKey]) acc[dateKey] = [];
+                                acc[dateKey].push(event);
+                                return acc;
+                            }, {} as any))
+                                .sort(([a], [b]) => a.localeCompare(b))
+                                .map(([dateKey, dayEvents]: [string, any]) => {
+                                    const dateObj = new Date(dateKey);
+                                    return (
+                                        <div key={dateKey} className="flex flex-col sm:flex-row items-stretch bg-white border border-[#D0DCF0] rounded-sm reveal hover:border-[#0090C8] transition-colors shadow-sm overflow-hidden min-h-[100px]">
+                                            <div className="flex-shrink-0 bg-[#F5F7FA] text-center w-full sm:w-28 py-4 px-2 border-b sm:border-b-0 sm:border-r border-[#D0DCF0] flex flex-col justify-center">
+                                                <span className="text-[#00AEEF] text-[0.6rem] font-black uppercase tracking-widest">{dateObj.toLocaleString('en-US', { month: 'short' })}</span>
+                                                <span className="text-[#1B3A6B] text-2xl font-black leading-none my-0.5">{dateObj.getDate()}</span>
+                                                <span className="text-[#5A708A] text-[0.6rem] font-bold">{dateObj.getFullYear()}</span>
+                                            </div>
+                                            <div className="p-4 flex-1 space-y-3">
+                                                {dayEvents.map((evt: any) => (
+                                                    <div key={evt.id} className="group border-b border-gray-50 last:border-0 pb-3 last:pb-0">
+                                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                            <h3 className="text-[0.95rem] font-bold text-[#1B3A6B] leading-tight">{evt.nameEn}</h3>
+                                                            <span className={cn(
+                                                                "text-[0.55rem] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-current/20",
+                                                                evt.type === 'MEETING' ? 'bg-indigo-50 text-indigo-600' :
+                                                                    evt.type === 'SEMINAR' ? 'bg-pink-50 text-pink-600' :
+                                                                        evt.type === 'CONFERENCE' ? 'bg-cyan-50 text-cyan-600' :
+                                                                            evt.type === 'PUBLIC_HOLIDAY' ? 'bg-red-50 text-red-600' :
+                                                                                evt.type === 'STATE_HOLIDAY' ? 'bg-blue-50 text-blue-600' :
+                                                                                    'bg-gray-50 text-gray-500'
+                                                            )}>
+                                                                {evt.type.replace(/_/g, ' ')}
+                                                            </span>
+                                                        </div>
+                                                        {evt.venue && (
+                                                            <div className="flex items-center gap-1.5 text-[0.68rem] text-[#5A708A] font-bold uppercase tracking-tight opacity-70">
+                                                                <div className="w-1 h-1 bg-[#0090C8] rounded-full" />
+                                                                {evt.venue}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                        ) : (
                             <div className="text-center text-[#5A708A] text-sm py-8 bg-[#F5F7FA] rounded border border-dashed border-[#D0DCF0]">No upcoming events scheduled.</div>
                         )}
                     </div>
                 </div>
             </section>
 
-            {/* ACHIEVEMENTS SECTION */}
-            <section id="achievements" className="py-16 px-8 bg-[#1B3A6B] text-white">
-                <div className="max-w-6xl mx-auto">
-                    <div className="mb-12 reveal">
-                        <div className="inline-flex items-center gap-2 text-[0.62rem] font-bold tracking-[0.18em] uppercase text-[#00AEEF] mb-2 before:content-[''] before:block before:w-5 before:h-[2px] before:bg-[#00AEEF]">
+            {/* ACHIEVEMENTS SECTION (VERTICAL TIMELINE) */}
+            <section id="achievements" className="py-24 px-8 bg-[#1B3A6B] relative overflow-hidden">
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#00AEEF]/10 blur-[120px] rounded-full pointer-events-none"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-[#0090C8]/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+                <div className="max-w-4xl mx-auto relative z-10">
+                    <div className="mb-14 reveal text-center">
+                        <div className="inline-flex items-center gap-3 text-[0.65rem] font-black tracking-[0.25em] uppercase text-[#00AEEF] mb-3 before:content-[''] before:block before:w-8 before:h-[2px] before:bg-[#00AEEF] after:content-[''] after:block after:w-8 after:h-[2px] after:bg-[#00AEEF]">
                             Regional Triumphs
                         </div>
-                        <h2 className="text-[clamp(1.4rem,2.5vw,2rem)] font-extrabold text-white tracking-[-0.02em] leading-[1.2] mb-2.5">
-                            Recent Achievements & Highlights
+                        <h2 className="text-[clamp(1.8rem,3.5vw,2.8rem)] font-black text-white tracking-[-0.03em] leading-[1.1] mb-4">
+                            Timeline of <span className="text-[#00AEEF]">Achievements</span>
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {setupData?.achievements?.length ? setupData.achievements.map((ach, i) => (
-                            <div key={i} className="bg-white/5 border border-white/10 p-6 reveal hover:bg-white/10 transition-colors backdrop-blur-sm relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1 h-full bg-[#00AEEF]"></div>
-                                <div className="text-[0.6rem] font-bold text-[#00AEEF] uppercase tracking-[0.15em] mb-4">{new Date(ach.date).toLocaleDateString()}</div>
-                                <h3 className="text-[1.1rem] font-bold text-white mb-3 tracking-tight">{ach.title}</h3>
-                                <div className="text-[0.85rem] text-white/70 leading-relaxed max-h-[100px] overflow-hidden relative">
-                                    {ach.description.replace(/<[^>]*>?/gm, '').substring(0, 150)}...
-                                    <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#1d3056] to-transparent"></div>
+                    <div className="relative">
+                        {/* Vertical Line */}
+                        <div className="absolute left-[15px] sm:left-1/2 top-4 bottom-4 w-px bg-white/10 -translate-x-1/2 hidden sm:block"></div>
+
+                        <div className="space-y-12 relative">
+                            {setupData?.achievements?.length ? setupData.achievements.map((ach, i) => (
+                                <AchievementCard key={i} ach={ach} index={i} />
+                            )) : (
+                                <div className="text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                                    <Award size={40} className="mx-auto text-white/10 mb-4" />
+                                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs">No achievements found in timeline.</p>
                                 </div>
-                            </div>
-                        )) : (
-                            <div className="col-span-full text-center text-white/50 text-sm py-8 border border-dashed border-white/20 rounded-sm">No recent achievements broadcasted.</div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </section>

@@ -16,24 +16,52 @@ router.get('/holidays', async (req, res) => {
     }
 });
 
-// Seed some holidays if empty
-router.post('/seed', async (req, res) => {
+// Create or Update holiday
+router.post('/', async (req, res) => {
     try {
-        const count = await prisma.holiday.count();
-        if (count > 0) return res.json({ message: 'Holidays already exist' });
+        const { date, nameEn, type, id, venue } = req.body;
 
-        const holidays = await prisma.holiday.createMany({
-            data: [
-                { date: new Date('2025-08-15'), nameEn: 'Independence Day', type: 'PUBLIC_HOLIDAY' },
-                { date: new Date('2025-08-16'), nameEn: 'De-jury Transfer Day', type: 'STATE_HOLIDAY' },
-                { date: new Date('2025-10-02'), nameEn: 'Gandhi Jayanti', type: 'PUBLIC_HOLIDAY' },
-                { date: new Date('2025-12-25'), nameEn: 'Christmas', type: 'PUBLIC_HOLIDAY' },
-                { date: new Date('2026-01-26'), nameEn: 'Republic Day', type: 'PUBLIC_HOLIDAY' },
-            ]
+        if (id) {
+            // Update
+            const updated = await prisma.holiday.update({
+                where: { id },
+                data: {
+                    date: new Date(date),
+                    nameEn,
+                    type,
+                    venue
+                }
+            });
+            return res.json(updated);
+        }
+
+        // Create
+        const created = await prisma.holiday.create({
+            data: {
+                date: new Date(date),
+                nameEn,
+                type,
+                venue
+            }
         });
-        res.json({ message: 'Holidays seeded', count: holidays.count });
+        res.json(created);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to seed holidays' });
+        console.error('Error saving holiday:', error);
+        res.status(500).json({ error: 'Failed to save holiday' });
+    }
+});
+
+// Delete holiday
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.holiday.delete({
+            where: { id }
+        });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting holiday:', error);
+        res.status(500).json({ error: 'Failed to delete holiday' });
     }
 });
 

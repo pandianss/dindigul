@@ -4,13 +4,18 @@ export type DayType =
     | 'RBI_HOLIDAY'
     | 'STATE_HOLIDAY'
     | 'BANK_SPECIFIC_HOLIDAY'
-    | 'HALF_DAY';
+    | 'HALF_DAY'
+    | 'MEETING'
+    | 'SEMINAR'
+    | 'CONFERENCE'
+    | 'EVENT';
 
 export interface Holiday {
     id: string;
     date: string; // ISO format
     type: DayType;
     name: string;
+    venue?: string;
     description?: string;
 }
 

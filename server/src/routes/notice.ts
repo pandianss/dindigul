@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticateToken } from '../middleware/auth';
+import { saveBase64Image } from '../utils/image';
 
 const router = Router();
 
@@ -11,13 +12,13 @@ router.get('/', authenticateToken, async (req: any, res) => {
             orderBy: { createdAt: 'desc' },
             include: {
                 branch: true,
+                photo: true,
                 acknowledgements: {
                     where: { userId: req.user.id }
                 }
             }
         });
 
-        // Add hasAcknowledged field for the current user
         const noticesWithStatus = notices.map((n: any) => ({
             ...n,
             hasAcknowledged: n.acknowledgements.length > 0
@@ -32,9 +33,18 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create a notice
 router.post('/', authenticateToken, async (req: any, res) => {
-    const { titleEn, titleTa, contentEn, contentTa, category, priority, isPinned, branchId, targetRole, requiresAck } = req.body;
+    const { titleEn, titleTa, contentEn, contentTa, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
 
     try {
+        let photoId = undefined;
+        if (photoData) {
+            const photoUrl = saveBase64Image(photoData);
+            const photo = await (prisma as any).photo.create({
+                data: { photoUrl, aspectRatio: '16:9' } // Use 16:9 for announcements
+            });
+            photoId = photo.id;
+        }
+
         const notice = await (prisma as any).notice.create({
             data: {
                 titleEn,
@@ -46,13 +56,66 @@ router.post('/', authenticateToken, async (req: any, res) => {
                 isPinned: isPinned || false,
                 branchId,
                 targetRole,
-                requiresAck: requiresAck || false
-            }
+                requiresAck: requiresAck || false,
+                photoId
+            },
+            include: { photo: true }
         });
         res.json(notice);
     } catch (error) {
         console.error('Error creating notice:', error);
         res.status(500).json({ error: 'Failed to create notice' });
+    }
+});
+
+// Update a notice
+router.put('/:id', authenticateToken, async (req: any, res) => {
+    const { id } = req.params;
+    const { titleEn, titleTa, contentEn, contentTa, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
+
+    try {
+        let photoId = undefined;
+        if (photoData && photoData.startsWith('data:image')) {
+            const photoUrl = saveBase64Image(photoData);
+            const photo = await (prisma as any).photo.create({
+                data: { photoUrl, aspectRatio: '16:9' }
+            });
+            photoId = photo.id;
+        }
+
+        const notice = await (prisma as any).notice.update({
+            where: { id },
+            data: {
+                titleEn,
+                titleTa,
+                contentEn,
+                contentTa,
+                category,
+                priority,
+                isPinned,
+                branchId,
+                targetRole,
+                requiresAck,
+                ...(photoId ? { photoId } : {})
+            },
+            include: { photo: true }
+        });
+        res.json(notice);
+    } catch (error) {
+        console.error('Error updating notice:', error);
+        res.status(500).json({ error: 'Failed to update notice' });
+    }
+});
+
+// Delete a notice
+router.delete('/:id', authenticateToken, async (req: any, res) => {
+    const { id } = req.params;
+    try {
+        await (prisma as any).notice.delete({ where: { id } });
+        res.json({ message: 'Bulletin deleted successfully' });
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete bulletin' });
     }
 });
 
