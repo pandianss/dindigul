@@ -25,7 +25,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create new unit
 router.post('/', authenticateToken, async (req, res) => {
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
     try {
         const unit = await prisma.branch.create({
             data: {
@@ -42,7 +42,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 ifsc,
                 address,
                 addressTa,
-                addressHi
+                addressHi,
+                phone,
+                email
             }
         });
         res.json(unit);
@@ -55,7 +57,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Update unit
 router.put('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id as string;
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
 
     try {
         const oldUnit = await prisma.branch.findUnique({ where: { id } });
@@ -76,7 +78,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 ifsc,
                 address,
                 addressTa,
-                addressHi
+                addressHi,
+                phone,
+                email
             }
         });
 
@@ -147,16 +151,30 @@ router.delete('/purge', authenticateToken, async (req: any, res) => {
 });
 
 // Delete individual unit
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req: any, res) => {
     const id = req.params.id as string;
+
+    // Safety Guard: Prevent users from deleting the unit they are currently assigned to
+    if (req.user?.branchId === id) {
+        return res.status(400).json({
+            error: 'Security Violation: You cannot delete the unit you are currently assigned to. Please transfer yourself to another unit first.'
+        });
+    }
+
     try {
         await prisma.branch.delete({ where: { id } });
         res.json({ message: 'Deleted' });
     } catch (error: any) {
-        if (error.code === 'P2003') {
-            return res.status(400).json({ error: 'Cannot delete this unit because it has active staff, historical records, or documents assigned to it. Please reassign them first.' });
+        console.error(`Delete unit ${id} error:`, error);
+
+        // P2003 is Prisma's code for foreign key constraint violation
+        if (error.code === 'P2003' || (error.message && error.message.includes('violates RESTRICT setting'))) {
+            return res.status(400).json({
+                error: 'Cannot delete this unit. It has active dependencies such as staff members, ingestion logs, historical records, or documents assigned to it. Please reassign or remove these records first.'
+            });
         }
-        res.status(400).json({ error: 'Delete failed' });
+
+        res.status(400).json({ error: error.message || 'Delete failed' });
     }
 });
 

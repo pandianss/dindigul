@@ -14,30 +14,143 @@ interface Letter {
         nameEn: string;
         headUser?: {
             fullNameEn: string;
+            fullNameHi?: string | null;
+            fullNameTa?: string | null;
+            gender?: string;
             designation?: {
                 nameEn: string;
+                nameHi?: string | null;
+                nameTa?: string | null;
             };
         };
     };
     period: string;
     createdAt: string;
+    orgMeta?: any;
 }
 
 const CorrespondenceCenter: React.FC = () => {
     const [letters, setLetters] = useState<Letter[]>([]);
-    const [metadata, setMetadata] = useState<{ regionHeadName: string, regionHeadDesignation: string }>({
+    const [metadata, setMetadata] = useState<{
+        regionHeadName: string,
+        regionHeadDesignation: string,
+        organization?: {
+            bankNameEn: string;
+            bankNameTa: string;
+            bankNameHi: string;
+            officeNameEn: string;
+            officeNameTa: string;
+            officeNameHi: string;
+            address: string;
+            phone: string;
+            email: string;
+            signingAuthEn: string;
+            signingAuthTa: string;
+            signingAuthHi: string;
+            signatoryName?: string;
+        }
+    }>({
         regionHeadName: 'Regional Manager',
         regionHeadDesignation: 'Regional Manager'
     });
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+    const [uploadingId, setUploadingId] = useState<string | null>(null);
 
     const toTitleCase = (str: string) => {
         if (!str) return '';
         return str.toLowerCase().split(' ').map(word =>
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
+    };
+
+    const handleDownloadPdf = async (letterId: string, title: string) => {
+        const element = document.getElementById(`letter-content-${letterId}`);
+        if (!element) return;
+
+        // html2canvas doesn't support oklch which is used by Tailwind v4. 
+        // We clone the element and force unsupported colors to a safe fallback before rendering
+        const clone = element.cloneNode(true) as HTMLElement;
+        clone.style.position = 'absolute';
+        clone.style.top = '-9999px';
+        document.body.appendChild(clone);
+
+        // Aggressive oklch/var to hex fallback for text, backgrounds, and borders
+        const elements = clone.querySelectorAll('*');
+        elements.forEach((el: any) => {
+            const style = window.getComputedStyle(el);
+
+            // Text color handling
+            const color = style.color || '';
+            if (color.includes('oklch') || color.includes('var(')) {
+                // Heuristic: If it's a heading or bold, make it dark navy, else slate
+                const isHeading = ['H1', 'H2', 'H3', 'P'].includes(el.tagName) && parseInt(style.fontWeight || '400') >= 600;
+                el.style.setProperty('color', isHeading ? '#21357f' : '#1e293b', 'important');
+            }
+
+            // Border color handling
+            const borderColor = style.borderColor || '';
+            if (borderColor.includes('oklch') || borderColor.includes('var(')) {
+                el.style.setProperty('border-color', '#cbd5e1', 'important');
+            }
+
+            // Background color handling
+            const bg = style.backgroundColor || '';
+            if (bg.includes('oklch') || bg.includes('var(')) {
+                // We use bg-amber/green/red lightly in UI. Fallback to simple hex equivalents if it's not transparent/white
+                if (el.className.includes('bg-green')) el.style.setProperty('background-color', '#dcfce7', 'important');
+                else if (el.className.includes('bg-red')) el.style.setProperty('background-color', '#fee2e2', 'important');
+                else if (el.className.includes('bg-amber')) el.style.setProperty('background-color', '#fef3c7', 'important');
+                else if (el.className.includes('bg-blue')) el.style.setProperty('background-color', '#dbeafe', 'important');
+                else el.style.setProperty('background-color', '#ffffff', 'important');
+            }
+        });
+
+        // Dynamic import to avoid SSR issues if this was SSR, but also just cleaner for heavy libs
+        try {
+            const html2pdf = (await import('html2pdf.js')).default;
+            const opt: any = {
+                margin: 0,
+                filename: `${title.replace(/\s+/g, '_')}_${format(new Date(), 'ddMMyyyy')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            await html2pdf().set(opt).from(clone).save();
+        } catch (error: any) {
+            console.error('Failed to generate PDF:', error);
+            alert(`Failed to generate PDF. Error: ${error?.message || error}`);
+        } finally {
+            document.body.removeChild(clone);
+        }
+    };
+
+    const handleUploadScan = async (letterId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingId(letterId);
+        const formData = new FormData();
+        formData.append('document', file);
+
+        try {
+            await api.post(`/letters/${letterId}/upload-scan`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            fetchLetters(); // Refresh list to get updated scannedCopyUrl
+            if (selectedLetter && selectedLetter.id === letterId) {
+                // optimistically update the selected letter view
+                setSelectedLetter({ ...selectedLetter, scannedCopyUrl: 'uploaded' } as any);
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Failed to upload scanned copy.');
+        } finally {
+            setUploadingId(null);
+            e.target.value = ''; // Reset input
+        }
     };
 
     const fetchLetters = () => {
@@ -191,7 +304,9 @@ const CorrespondenceCenter: React.FC = () => {
                         </div>
 
                         <div className="bg-gray-200 w-full flex justify-center p-4">
-                            <div className="bg-white shadow-xl border border-gray-300 relative text-gray-800 font-serif leading-relaxed"
+                            <div
+                                id={`letter-content-${selectedLetter.id}`}
+                                className="bg-white shadow-xl border border-gray-300 relative text-gray-800 font-sans text-[12px] leading-relaxed"
                                 style={{
                                     width: '210mm',
                                     minHeight: '297mm',
@@ -205,76 +320,149 @@ const CorrespondenceCenter: React.FC = () => {
 
                                 <div className="relative z-10 h-full flex flex-col">
                                     {/* TRILINGUAL HEADER BLOCK */}
-                                    {/* TRILINGUAL HEADER BLOCK */}
-                                    <div className="flex flex-col border-b-[3px] border-bank-navy pb-5 mb-8">
+                                    <div className="flex flex-col border-b-[1.5px] border-bank-navy pb-3 mb-6">
                                         {/* Top Row: Logo & Bank Name (Left Aligned & Smaller) */}
                                         <div className="flex items-center space-x-5 mb-8">
                                             <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[65px] w-[65px] object-contain" />
                                             <div className="flex flex-col justify-center gap-1 py-1">
-                                                <h1 className="font-extrabold text-[17px] text-bank-navy font-hindi leading-none">{GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-tamil leading-none">{GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[17px] text-bank-navy font-arial leading-none capitalize">{GLOBAL_CONFIG.bankName.toLowerCase()}</h1>
+                                                <h1 className="font-extrabold text-[17px] text-bank-navy font-hindi leading-none">{(selectedLetter.orgMeta as any)?.bankNameHi || metadata.organization?.bankNameHi || GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-tamil leading-none">{(selectedLetter.orgMeta as any)?.bankNameTa || metadata.organization?.bankNameTa || GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-bold text-[17px] text-bank-navy font-arial leading-none capitalize">{((selectedLetter.orgMeta as any)?.bankNameEn || metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</h1>
                                             </div>
                                         </div>
 
-                                        {/* Bottom Row: 3 Equi-width Columns */}
-                                        <div className="w-full grid grid-cols-3 gap-4 text-bank-navy">
-                                            {/* Column 1: Region Name (Trilingual, Left Aligned) */}
-                                            <div className="flex flex-col items-start justify-center gap-1.5 border-r border-bank-navy/20 pr-4">
-                                                <p className="font-hindi font-bold text-[14px] leading-none">{REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-tamil font-bold text-[14px] leading-none">{REGIONAL_OFFICE_DATA.nameTa}</p>
-                                                <p className="font-bold capitalize text-[13px] leading-none">{REGIONAL_OFFICE_DATA.name.toLowerCase()}</p>
+                                        {/* Bottom Row: 3 Equi-width Columns (Language per column) */}
+                                        <div className="w-full grid grid-cols-3 text-bank-navy mt-4">
+                                            {/* Column 1: Hindi */}
+                                            <div className="flex flex-col items-center gap-1.5 pr-2">
+                                                <p className="font-hindi font-bold text-[13px] text-center leading-tight flex-shrink-0">{(selectedLetter.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-hindi font-medium text-[12px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
                                             </div>
 
-                                            {/* Column 2: Address */}
-                                            <div className="flex flex-col items-center justify-center text-[12px] font-bold border-r border-bank-navy/20 px-4 leading-relaxed">
-                                                <p className="max-w-[220px] mx-auto text-balance">{REGIONAL_OFFICE_DATA.address}</p>
+                                            {/* Column 2: Tamil */}
+                                            <div className="flex flex-col items-center gap-1.5 px-2 border-l border-bank-navy/20 min-w-0">
+                                                <p className="font-tamil font-bold text-[12px] text-center leading-tight flex-shrink-0 whitespace-normal">{(selectedLetter.orgMeta as any)?.officeNameTa || metadata.organization?.officeNameTa || REGIONAL_OFFICE_DATA.nameTa}</p>
+                                                <p className="font-tamil font-medium text-[10px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு"}</p>
                                             </div>
 
-                                            {/* Column 3: Contact */}
-                                            <div className="flex flex-col items-center justify-center text-[12px] font-bold pl-4 gap-1">
-                                                <p className="flex items-center gap-1"><span className="opacity-75">Phone:</span> {REGIONAL_OFFICE_DATA.phone}</p>
-                                                <p className="flex items-center gap-1"><span className="opacity-75">Email:</span> {REGIONAL_OFFICE_DATA.email}</p>
+                                            {/* Column 3: English */}
+                                            <div className="flex flex-col items-center gap-1.5 pl-2 border-l border-bank-navy/20">
+                                                <p className="font-bold capitalize text-[12px] text-center leading-tight flex-shrink-0">{((selectedLetter.orgMeta as any)?.officeNameEn || metadata.organization?.officeNameEn || REGIONAL_OFFICE_DATA.name).toLowerCase()}</p>
+                                                <p className="font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.address || metadata.organization?.address || REGIONAL_OFFICE_DATA.address}</p>
                                             </div>
+                                        </div>
+
+                                        {/* Contact Info Row */}
+                                        <div className="w-full flex justify-center items-center text-[11.5px] font-bold mt-3 pt-2 border-t border-bank-navy/10 gap-8 text-bank-navy">
+                                            <p className="flex items-center gap-1"><span className="opacity-75">Phone:</span> {(selectedLetter.orgMeta as any)?.phone || metadata.organization?.phone || REGIONAL_OFFICE_DATA.phone}</p>
+                                            <p className="flex items-center gap-1"><span className="opacity-75">Email:</span> {(selectedLetter.orgMeta as any)?.email || metadata.organization?.email || REGIONAL_OFFICE_DATA.email}</p>
                                         </div>
                                     </div>
 
-                                    <div className="text-right mb-10">
-                                        <p className="font-bold">{format(new Date(selectedLetter.createdAt), 'dd MMMM yyyy')}</p>
+                                    <div className="text-right mb-10 text-[11.5px] font-bold text-gray-800">
+                                        <span className="font-hindi text-[12.5px]">दिनांक</span> / <span className="font-tamil text-[10.5px]">தேதி</span> / Date: {format(new Date(selectedLetter.createdAt), 'dd.MM.yyyy')}
                                     </div>
 
                                     <div className="mb-10 text-justify">
-                                        <p className="font-bold">To,</p>
+                                        <p className="font-bold mb-1">To,</p>
                                         {selectedLetter.branch.headUser ? (
-                                            <>
-                                                <p className="font-bold">{toTitleCase(selectedLetter.branch.headUser.fullNameEn)}</p>
-                                                <p className="font-bold">{toTitleCase(selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head')}</p>
-                                            </>
+                                            <div className="flex flex-col gap-0.5">
+                                                {/* Trilingual Manager Name with Salutation */}
+                                                <p className="font-bold">
+                                                    {selectedLetter.branch.headUser.fullNameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}{selectedLetter.branch.headUser.fullNameHi} / </span>}
+                                                    {selectedLetter.branch.headUser.fullNameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.gender === 'F' ? 'திருமதி. ' : 'திரு. '}{selectedLetter.branch.headUser.fullNameTa} / </span>}
+                                                    <span>{selectedLetter.branch.headUser.gender === 'F' ? 'Smt. ' : 'Shri. '}{toTitleCase(selectedLetter.branch.headUser.fullNameEn)}</span>
+                                                </p>
+
+                                                {/* Trilingual Designation */}
+                                                <p className="font-bold">
+                                                    {selectedLetter.branch.headUser.designation?.nameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.designation.nameHi} / </span>}
+                                                    {selectedLetter.branch.headUser.designation?.nameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.designation.nameTa} / </span>}
+                                                    <span>{toTitleCase(selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head')}</span>
+                                                </p>
+                                            </div>
                                         ) : (
-                                            <p className="font-bold">The Branch Manager</p>
+                                            <p className="font-bold mb-1">The Branch Manager</p>
                                         )}
-                                        <p>{GLOBAL_CONFIG.bankName}</p>
-                                        <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
+
+                                        <div className="mt-1">
+                                            <p className="capitalize">{(metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</p>
+                                            <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
+                                        </div>
                                     </div>
 
                                     <h3 className="text-center font-bold text-xl underline mb-10 uppercase tracking-wider text-bank-navy">
-                                        {selectedLetter.type === 'APPRECIATION' ? 'Letter of Appreciation' : 'Plan of Action Called For'}
+                                        {selectedLetter.titleEn}
                                     </h3>
 
-                                    <div className="whitespace-pre-wrap text-justify text-gray-800 leading-loose flex-grow">
-                                        {selectedLetter.contentEn}
+                                    <div className="text-justify text-gray-800 flex-grow">
+                                        {selectedLetter.contentEn.split('\n\n').map((paragraph: string, i: number) => {
+                                            if (paragraph.trim() === '[PERFORMANCE_TABLE]') {
+                                                const pd = (selectedLetter.orgMeta as any)?.performanceData;
+                                                if (!pd) return null;
+
+                                                const fyGrowth = pd.latest - pd.march31st;
+
+                                                return (
+                                                    <div key={i} className="my-6 px-4">
+                                                        <table className="w-full text-center border-collapse border border-bank-navy/40">
+                                                            <thead>
+                                                                <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr className="text-sm">
+                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.march31st.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                    <td className="border border-bank-navy/40 py-2 px-2 font-bold text-bank-navy">₹ {pd.latest.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${fyGrowth < 0 ? 'text-red-700' : 'text-green-700'}`}>
+                                                                        {fyGrowth < 0 ? '-' : '+'}₹ {Math.abs(fyGrowth).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
+                                                                    </td>
+                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.budget.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${pd.status === '-ve' ? 'text-red-700' : 'text-green-700'}`}>
+                                                                        {pd.gap < 0 ? '-' : '+'}₹ {Math.abs(pd.gap).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
+                                                                    </td>
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${pd.status === '-ve' ? 'text-red-700' : 'text-green-700'}`}>
+                                                                        {pd.status === '-ve' ? 'SHORTFALL' : 'ACHIEVED'}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            }
+
+                                            return (
+                                                <p key={i} className="mb-4 leading-relaxed">
+                                                    {paragraph}
+                                                </p>
+                                            );
+                                        })}
                                     </div>
 
                                     <div className="mt-20 flex justify-end">
-                                        <div className="text-center inline-block">
-                                            {/* Trilingual Sign Off Settings */}
-                                            <p className="font-bold text-lg font-hindi text-bank-navy mb-1">{REGIONAL_OFFICE_DATA.signingAuthHi}</p>
-                                            <p className="font-bold text-sm font-tamil text-bank-navy mb-1">{REGIONAL_OFFICE_DATA.signingAuthTa}</p>
-                                            <p className="font-bold text-lg text-bank-navy uppercase">{REGIONAL_OFFICE_DATA.signingAuthEn}</p>
+                                        <div className="text-center inline-block min-w-[220px]">
+                                            {/* Signature Line at the Top */}
+                                            <div className="border-t-[1.5px] border-gray-400 mb-1 pt-1"></div>
 
-                                            {/* Derived Head Name */}
-                                            <div className="mt-12 pt-2 border-t border-gray-400 min-w-[200px]">
-                                                <p className="font-bold text-gray-800 uppercase">{metadata.regionHeadName}</p>
+                                            {/* Signatory Name - CamelCase & Parenthesis */}
+                                            <div className="mb-1">
+                                                <p className="font-bold text-bank-navy text-[15px]">
+                                                    ({toTitleCase((selectedLetter.orgMeta as any)?.signatoryName || metadata.organization?.signatoryName || metadata.regionHeadName)})
+                                                </p>
+                                            </div>
+
+                                            {/* Trilingual Sign Off Titles - Below Name */}
+                                            <div className="flex flex-col gap-1">
+                                                <p className="font-bold text-sm font-hindi text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthHi || metadata.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi}</p>
+                                                <p className="font-bold text-[11px] font-tamil text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthTa || metadata.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa}</p>
+                                                <p className="font-bold text-[12px] text-bank-navy capitalize">{((selectedLetter.orgMeta as any)?.signingAuthEn || metadata.organization?.signingAuthEn || REGIONAL_OFFICE_DATA.signingAuthEn).toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -282,7 +470,44 @@ const CorrespondenceCenter: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="p-4 border-t border-gray-100 bg-white flex justify-end space-x-3">
+                        <div className="p-4 border-t border-gray-100 bg-white flex justify-end space-x-3 items-center">
+                            {/* Upload / View Scanned Copy Section */}
+                            {(selectedLetter.orgMeta as any)?.scannedCopyUrl || (selectedLetter as any).scannedCopyUrl ? (
+                                <a
+                                    href={(selectedLetter.orgMeta as any)?.scannedCopyUrl || (selectedLetter as any).scannedCopyUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 text-bank-teal font-bold bg-bank-teal/10 hover:bg-bank-teal/20 rounded-lg transition-colors flex items-center mr-auto"
+                                >
+                                    <FileText size={18} className="mr-2" /> View Signed Copy
+                                </a>
+                            ) : (
+                                <div className="mr-auto flex items-center">
+                                    <input
+                                        type="file"
+                                        id={`upload-scan-${selectedLetter.id}`}
+                                        className="hidden"
+                                        accept="application/pdf,image/*"
+                                        onChange={(e) => handleUploadScan(selectedLetter.id, e)}
+                                    />
+                                    <label
+                                        htmlFor={`upload-scan-${selectedLetter.id}`}
+                                        className={`px-4 py-2 text-bank-navy font-bold border border-bank-navy/30 hover:bg-bank-navy/5 rounded-lg transition-colors flex items-center cursor-pointer ${uploadingId === selectedLetter.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <Award size={18} className="mr-2" />
+                                        {uploadingId === selectedLetter.id ? 'Uploading...' : 'Upload Signed Copy'}
+                                    </label>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => handleDownloadPdf(selectedLetter.id, selectedLetter.titleEn)}
+                                className="px-6 py-2 text-bank-navy font-bold hover:bg-bank-navy/5 border border-bank-navy/20 rounded-lg transition-colors flex items-center"
+                            >
+                                <Award size={18} className="mr-2 opacity-0 w-0" /> {/* Spacer to align nicely */}
+                                Download PDF
+                            </button>
+
                             <button
                                 onClick={() => setSelectedLetter(null)}
                                 className="px-6 py-2 text-gray-600 font-bold hover:bg-gray-100 rounded-lg transition-colors"

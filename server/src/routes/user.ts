@@ -107,7 +107,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
         return res.status(403).json({ error: 'Only ADMIN can create users' });
     }
     const {
-        username, fullNameEn, fullNameTa, fullNameHi, grade, role,
+        username, fullNameEn, fullNameTa, fullNameHi, grade, role, gender,
         departmentId, departmentIds, managedDepartmentIds,
         designationId, branchId, photoData, isUnitHead
     } = req.body;
@@ -131,6 +131,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
                 fullNameHi,
                 grade,
                 role,
+                gender,
                 departmentId,
                 departments: departmentIds ? {
                     connect: departmentIds.map((id: string) => ({ id }))
@@ -166,7 +167,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
     }
     const id = req.params.id as string;
     const {
-        fullNameEn, fullNameTa, fullNameHi, grade, role,
+        fullNameEn, fullNameTa, fullNameHi, grade, role, gender,
         departmentId, departmentIds, managedDepartmentIds,
         designationId, branchId, photoData, isUnitHead
     } = req.body;
@@ -189,6 +190,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                 fullNameHi,
                 grade,
                 role,
+                gender,
                 departmentId,
                 departments: departmentIds ? {
                     set: departmentIds.map((id: string) => ({ id }))

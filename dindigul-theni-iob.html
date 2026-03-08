@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOB Dindigul Region — Dindigul & Theni District Profile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --navy:      #1B3A6B;
+    --navy-dk:   #122850;
+    --navy-md:   #234d8a;
+    --teal:      #0090C8;
+    --teal-lt:   #00AEEF;
+    --teal-pale: #E0F4FB;
+    --gold:      #C8970A;
+    --gold-lt:   #F0B429;
+    --gold-pale: #FEF9EC;
+    --white:     #FFFFFF;
+    --off:       #F5F7FA;
+    --border:    #D0DCF0;
+    --text:      #1A2D4F;
+    --muted:     #5A708A;
+    --success:   #1A7A3C;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--off);
+    color: var(--text);
+    overflow-x: hidden;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .topbar {
+    background: var(--navy-dk);
+    padding: 0.35rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.5);
+  }
+  .topbar-badge {
+    background: var(--teal);
+    color: #fff;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .topbar-right { display: flex; gap: 1.5rem; align-items: center; }
+
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--navy);
+    border-bottom: 3px solid var(--teal);
+    display: flex; align-items: stretch;
+    padding: 0 2rem; height: 64px;
+    box-shadow: 0 2px 16px rgba(27,58,107,0.25);
+  }
+
+  .nav-brand {
+    display: flex; align-items: center; gap: 0.9rem;
+    margin-right: 2rem; flex-shrink: 0;
+  }
+
+  .iob-svg { height: 38px; width: auto; filter: brightness(0) invert(1); }
+
+  .nav-divider {
+    width: 1px; height: 28px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 0.9rem; align-self: center;
+  }
+
+  .nav-region-title { font-size: 0.8rem; font-weight: 700; color: #fff; line-height: 1.2; }
+  .nav-region-sub { font-size: 0.6rem; color: var(--teal-lt); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .nav-links { display: flex; list-style: none; height: 100%; align-items: stretch; flex: 1; }
+  .nav-links a {
+    display: flex; align-items: center; padding: 0 0.9rem;
+    font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.6);
+    text-decoration: none; letter-spacing: 0.03em;
+    border-bottom: 3px solid transparent; margin-bottom: -3px;
+    transition: color 0.2s, border-color 0.2s; white-space: nowrap;
+  }
+  .nav-links a:hover, .nav-links a.active { color: #fff; border-color: var(--teal-lt); }
+
+  .nav-cta { display: flex; align-items: center; margin-left: auto; gap: 0.6rem; flex-shrink: 0; }
+  .btn-nav {
+    padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 600;
+    border-radius: 2px; text-decoration: none; letter-spacing: 0.03em;
+    transition: all 0.2s;
+  }
+  .btn-nav-ghost { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+  .btn-nav-ghost:hover { background: rgba(255,255,255,0.1); }
+  .btn-nav-solid { background: var(--teal); color: #fff; }
+  .btn-nav-solid:hover { background: var(--teal-lt); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy-dk) 0%, var(--navy) 55%, #1d4580 100%);
+    position: relative; overflow: hidden;
+    padding: 5rem 2rem 4rem; min-height: 520px;
+    display: flex; align-items: center;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(-55deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px);
+  }
+  .hero::after {
+    content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+    width: 4px; background: linear-gradient(180deg, var(--teal-lt), var(--teal), transparent);
+  }
+  .hero-inner {
+    max-width: 1200px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr 360px; gap: 4rem;
+    align-items: center; position: relative; z-index: 1;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(0,174,239,0.12); border: 1px solid rgba(0,174,239,0.3);
+    color: var(--teal-lt); font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0.3rem 0.8rem; margin-bottom: 1.2rem;
+  }
+  .hero-dot { width: 6px; height: 6px; background: var(--teal-lt); border-radius: 50%; }
+  .hero-title {
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+    color: #fff; line-height: 1.15; margin-bottom: 1rem; letter-spacing: -0.02em;
+  }
+  .hero-title span { color: var(--teal-lt); }
+  .hero-sub {
+    font-size: 0.95rem; color: rgba(255,255,255,0.6);
+    line-height: 1.75; max-width: 540px; margin-bottom: 2rem;
+  }
+  .hero-btns { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.65rem 1.4rem; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em; border-radius: 2px; text-decoration: none;
+    border: 1.5px solid transparent; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .btn-primary:hover { background: var(--teal-lt); }
+  .btn-ghost { background: transparent; color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.3); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+  .hero-panel {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px); padding: 1.75rem;
+  }
+  .hero-panel-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--teal-lt);
+    margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .hp-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.8rem;
+  }
+  .hp-row:last-child { border-bottom: none; }
+  .hp-key { color: rgba(255,255,255,0.5); }
+  .hp-val { color: #fff; font-weight: 700; font-size: 0.85rem; }
+  .hp-val.t { color: var(--teal-lt); }
+
+  /* METRICS BAND */
+  .metrics-band { background: var(--navy); }
+  .metrics-row {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(5,1fr);
+  }
+  .metric-cell {
+    padding: 2rem 1.5rem; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.07);
+  }
+  .metric-cell:last-child { border-right: none; }
+  .metric-val { font-size: 1.75rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.25rem; }
+  .metric-val em { color: var(--teal-lt); font-style: normal; }
+  .metric-lbl { font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+  .metric-sub { font-size: 0.65rem; color: rgba(255,255,255,0.25); margin-top: 0.15rem; }
+
+  /* SECTIONS */
+  .section { padding: 4rem 2rem; }
+  .sec-white { background: var(--white); }
+  .sec-off { background: var(--off); }
+  .sec-navy { background: var(--navy); }
+  .sec-dk { background: var(--navy-dk); }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .sec-label {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--teal); margin-bottom: 0.5rem;
+  }
+  .sec-label::before { content: ''; display: block; width: 20px; height: 2px; background: var(--teal); }
+  .sec-label.lt { color: var(--teal-lt); }
+  .sec-label.lt::before { background: var(--teal-lt); }
+
+  .sec-title {
+    font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 800;
+    color: var(--navy); letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.6rem;
+  }
+  .sec-title.lt { color: #fff; }
+  .sec-intro { font-size: 0.92rem; color: var(--muted); max-width: 680px; line-height: 1.8; }
+  .sec-intro.lt { color: rgba(255,255,255,0.55); }
+  .sec-hd { margin-bottom: 2.5rem; }
+
+  /* OVERVIEW */
+  .ov-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem; }
+  .ov-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-top: 4px solid var(--navy); padding: 2rem;
+  }
+  .ov-card.tl { border-top-color: var(--teal); }
+  .ov-name { font-size: 1.3rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+  .ov-hq { font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; margin-bottom: 0.75rem; }
+  .ov-badge {
+    float: right; margin-top: 0.2rem;
+    background: var(--teal-pale); color: var(--teal);
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.18rem 0.55rem; border: 1px solid rgba(0,144,200,0.2);
+  }
+  .ov-desc {
+    font-size: 0.85rem; color: var(--muted); line-height: 1.7;
+    margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
+    clear: both;
+  }
+  .ov-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .ov-fact { padding: 0.7rem; background: var(--off); border-left: 3px solid var(--border); }
+  .ov-fv { font-size: 1.1rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+  .ov-fl { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.1rem; }
+
+  /* PILLAR CARDS */
+  .pg { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+  .pc {
+    background: var(--white); border: 1px solid var(--border);
+    padding: 1.75rem; position: relative;
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+  .pc::before { content: ''; position: absolute; top:0;left:0;right:0; height: 3px; background: var(--navy); }
+  .pc.tl::before { background: var(--teal); }
+  .pc.gd::before { background: var(--gold); }
+  .pc:hover { box-shadow: 0 8px 32px rgba(27,58,107,0.1); transform: translateY(-2px); }
+  .pc-icon {
+    width: 40px; height: 40px; background: var(--off); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1rem;
+  }
+  .pc-title { font-size: 0.92rem; font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+  .pc-tag {
+    display: inline-block; font-size: 0.57rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--teal); background: var(--teal-pale);
+    padding: 0.1rem 0.45rem; margin-bottom: 0.7rem;
+    border: 1px solid rgba(0,144,200,0.2);
+  }
+  .pc-tag.g { color: var(--gold); background: var(--gold-pale); border-color: rgba(200,151,10,0.2); }
+  .pc-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.65; margin-bottom: 0.9rem; }
+  .pc-pts { list-style: none; border-top: 1px solid var(--border); padding-top: 0.7rem; }
+  .pc-pts li {
+    font-size: 0.77rem; color: var(--text); padding: 0.28rem 0;
+    display: flex; gap: 0.45rem; border-bottom: 1px solid rgba(208,220,240,0.4);
+  }
+  .pc-pts li:last-child { border-bottom: none; }
+  .pc-pts li::before { content: '▸'; color: var(--teal); font-size: 0.62rem; flex-shrink: 0; margin-top: 0.15rem; }
+
+  /* DATA TABLE */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--white); }
+  .dtbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .dtbl thead { background: var(--navy); }
+  .dtbl th {
+    padding: 0.85rem 1.2rem; text-align: left;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(255,255,255,0.7);
+    white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .dtbl th:last-child { border-right: none; }
+  .dtbl td {
+    padding: 0.75rem 1.2rem; border-bottom: 1px solid var(--border);
+    border-right: 1px solid rgba(208,220,240,0.35); color: var(--text); vertical-align: middle;
+  }
+  .dtbl td:last-child { border-right: none; }
+  .dtbl tbody tr:hover { background: var(--off); }
+  .dtbl tbody tr:last-child td { border-bottom: none; }
+  .pill {
+    display: inline-block; padding: 0.15rem 0.5rem;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .pill-n { background: rgba(27,58,107,0.08); color: var(--navy); }
+  .pill-t { background: var(--teal-pale); color: var(--teal); }
+  .pill-g { background: var(--gold-pale); color: var(--gold); }
+  .pill-s { background: rgba(26,122,60,0.1); color: var(--success); }
+
+  /* INDUSTRY */
+  .ind-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .ind-col { background: var(--white); border: 1px solid var(--border); }
+  .ind-head {
+    background: var(--navy); color: #fff; padding: 0.9rem 1.5rem;
+    font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .ind-head span { display: inline-block; width: 7px; height: 7px; background: var(--teal-lt); }
+  .ind-item { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .ind-item:last-child { border-bottom: none; }
+  .ind-name { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 0.22rem; }
+  .ind-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+  /* CULTURE */
+  .cg { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.25rem; }
+  .cc {
+    background: var(--white); border: 1px solid var(--border);
+    padding: 1.75rem; display: flex; gap: 1.25rem;
+    transition: box-shadow 0.2s;
+  }
+  .cc:hover { box-shadow: 0 4px 20px rgba(27,58,107,0.08); }
+  .cc-icon {
+    width: 46px; height: 46px; background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .cc-tag { font-size: 0.57rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.25rem; }
+  .cc-title { font-size: 0.92rem; font-weight: 700; color: var(--navy); margin-bottom: 0.45rem; }
+  .cc-text { font-size: 0.8rem; color: var(--muted); line-height: 1.65; margin-bottom: 0.7rem; }
+  .cc-list { list-style: none; }
+  .cc-list li { font-size: 0.76rem; color: var(--text); display: flex; gap: 0.4rem; padding: 0.18rem 0; }
+  .cc-list li::before { content: '—'; color: var(--teal); font-weight: 700; flex-shrink: 0; font-size: 0.68rem; }
+
+  /* FESTIVALS */
+  .fest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+  .fest-list {
+    border-left: 2px solid rgba(255,255,255,0.1); padding-left: 1.5rem; margin-left: 0.5rem;
+  }
+  .fi { position: relative; padding-bottom: 1.75rem; }
+  .fi::before {
+    content: ''; position: absolute; left: -1.85rem; top: 0.3rem;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--navy-dk); border: 2px solid var(--teal-lt);
+  }
+  .fi-month { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal-lt); margin-bottom: 0.2rem; }
+  .fi-name { font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .fi-desc { font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+  /* TOURISM */
+  .tg { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+  .tc {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    padding: 1.5rem; transition: background 0.2s, border-color 0.2s;
+  }
+  .tc:hover { background: rgba(255,255,255,0.07); border-color: rgba(0,174,239,0.3); }
+  .tc-ico { font-size: 1.5rem; margin-bottom: 0.7rem; }
+  .tc-tag { font-size: 0.57rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal-lt); margin-bottom: 0.25rem; }
+  .tc-name { font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+  .tc-desc { font-size: 0.78rem; color: rgba(255,255,255,0.48); line-height: 1.65; }
+
+  /* FOOD */
+  .fg { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }
+  .fc {
+    background: var(--white); border: 1px solid var(--border);
+    padding: 1.5rem 1.25rem; text-align: center;
+    transition: box-shadow 0.2s;
+  }
+  .fc:hover { box-shadow: 0 4px 18px rgba(27,58,107,0.08); }
+  .fc-ico { font-size: 1.8rem; margin-bottom: 0.7rem; }
+  .fc-name { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 0.2rem; }
+  .fc-dist { font-size: 0.57rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.45rem; }
+  .fc-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+
+  /* DEMOGRAPHICS */
+  .dm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .dm-panel { background: var(--white); border: 1px solid var(--border); }
+  .dm-head { background: var(--navy); color: #fff; padding: 0.9rem 1.5rem; font-size: 0.85rem; font-weight: 700; border-bottom: 3px solid var(--teal); }
+  .dm-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .dm-row:last-child { border-bottom: none; }
+  .dm-k { color: var(--muted); }
+  .dm-v { color: var(--navy); font-weight: 700; }
+
+  /* CONNECTIVITY */
+  .co-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }
+  .co-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--teal); padding: 1.5rem; }
+  .co-ico { font-size: 1.5rem; margin-bottom: 0.7rem; }
+  .co-title { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 0.45rem; }
+  .co-detail { font-size: 0.77rem; color: var(--muted); line-height: 1.65; }
+
+  /* INVEST */
+  .iv-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+  .iv-col { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); overflow: hidden; }
+  .iv-head {
+    padding: 0.9rem 1.25rem; background: rgba(0,174,239,0.12);
+    border-bottom: 1px solid rgba(0,174,239,0.22);
+    font-size: 0.8rem; font-weight: 700; color: var(--teal-lt); display: flex; align-items: center; gap: 0.5rem;
+  }
+  .iv-item {
+    padding: 0.65rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; gap: 0.55rem; font-size: 0.78rem; color: rgba(255,255,255,0.62); line-height: 1.55;
+  }
+  .iv-item:last-child { border-bottom: none; }
+  .iv-arr { color: var(--teal-lt); flex-shrink: 0; font-size: 0.62rem; margin-top: 0.22rem; }
+
+  /* FOOTER */
+  footer { background: var(--navy-dk); border-top: 3px solid var(--teal); }
+  .ft-main {
+    max-width: 1200px; margin: 0 auto; padding: 3rem 2rem 2rem;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem;
+  }
+  .ft-logo-row { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.9rem; }
+  .ft-logo-row svg { height: 28px; width: auto; filter: brightness(0) invert(1); }
+  .ft-tagline { font-size: 0.78rem; color: rgba(255,255,255,0.4); line-height: 1.7; }
+  .ft-col-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--teal-lt); margin-bottom: 0.9rem; padding-bottom: 0.45rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .ft-links { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+  .ft-links a { font-size: 0.78rem; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .ft-links a:hover { color: var(--teal-lt); }
+  .ft-bot {
+    border-top: 1px solid rgba(255,255,255,0.07); padding: 1rem 2rem;
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.65rem; color: rgba(255,255,255,0.2);
+  }
+  .ft-bot-r { display: flex; gap: 1.5rem; }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 960px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-panel { display: none; }
+    .ov-grid, .ind-cols, .cg, .dm-grid, .fest-grid { grid-template-columns: 1fr; }
+    .pg, .tg, .iv-grid { grid-template-columns: 1fr 1fr; }
+    .fg, .co-grid { grid-template-columns: 1fr 1fr; }
+    .metrics-row { grid-template-columns: repeat(3,1fr); }
+    .ft-main { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .pg, .tg, .iv-grid, .fg, .co-grid { grid-template-columns: 1fr; }
+    .metrics-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span>Indian Overseas Bank &nbsp;|&nbsp; Regional Office — Dindigul</span>
+  <div class="topbar-right">
+    <span class="topbar-badge">Public Portal</span>
+    <span>iob.in</span>
+    <span>Contact RO</span>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-brand">
+    <svg class="iob-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 144.75"><defs><clipPath id="a"><path d="M.32 0h374.36v144.5H.32Zm0 0"/></clipPath><clipPath id="c"><path d="M10.98 11.63h353.2v121.04H10.98Zm0 0"/></clipPath><clipPath id="d"><path d="M20.45 11.63h334.1a9.47 9.47 0 0 1 9.47 9.46V123.2a9.46 9.46 0 0 1-9.47 9.47H20.45a9.46 9.46 0 0 1-9.47-9.47V21.1a9.47 9.47 0 0 1 9.47-9.46m0 0"/></clipPath><clipPath id="f"><path d="M.98.63h353.2v121.04H.98Zm0 0"/></clipPath><clipPath id="g"><path d="M10.45.63h334.1a9.47 9.47 0 0 1 9.47 9.46V112.2a9.46 9.46 0 0 1-9.47 9.47H10.45a9.46 9.46 0 0 1-9.47-9.47V10.1A9.47 9.47 0 0 1 10.45.63m0 0"/></clipPath><clipPath id="e"><path d="M0 0h355v122H0z"/></clipPath><clipPath id="h"><path d="M.32 0h374.14v143.73H.32Zm0 0"/></clipPath><clipPath id="b"><path d="M0 0h375v145H0z"/></clipPath></defs><g clip-path="url(#a)"><g clip-path="url(#b)"><g clip-path="url(#c)"><g clip-path="url(#d)"><g clip-path="url(#e)" transform="translate(10 11)"><g clip-path="url(#f)"><g clip-path="url(#g)"><path fill="#fff" d="M.98.63h353.2v121.04H.98Zm0 0"/></g></g></g></g></g><g clip-path="url(#h)"><path fill="#254aa0" d="M32.98.42A32.54 32.54 0 0 0 .32 32.97v77.8a32.54 32.54 0 0 0 32.66 32.55H341.8a32.54 32.54 0 0 0 32.67-32.55v-77.8A32.54 32.54 0 0 0 341.79.42Zm41.36 15.1 27.24 26.77-3.22 3.18-24.02-23.6Q62.4 33.58 50.44 45.34l-3.22-3.18zm163.75 2.37q13.32 0 22.52 5.65a35.3 35.3 0 0 1 13.8 15.5q4.6 9.88 4.6 22.45 0 13.4-4.9 23.15a34.7 34.7 0 0 1-14.09 14.99q-9.2 5.23-21.7 5.23-13.08 0-22.35-5.4A34.7 34.7 0 0 1 202 84.35q-4.71-9.7-4.71-22.52 0-13.28 4.71-23.2a34.6 34.6 0 0 1 13.86-15.34q9.14-5.4 22.23-5.4m-70.63 1.4h16.97v84.16h-16.97Zm125.1 0h35.25q6.15 0 10.2.36 4.07.35 7.26 1.53a21 21 0 0 1 9.84 7.28 19 19 0 0 1 4.07 12q0 6.81-3.77 11.63-3.78 4.81-8.14 6.58 8.49 2.47 12.27 8.12A21.5 21.5 0 0 1 363.3 79a25 25 0 0 1-4.24 13.87 20.5 20.5 0 0 1-11.44 8.81q-3.19 1.06-8.03 1.41-4.83.36-11.79.36h-35.26ZM74.33 25.69l22.09 21.7-3.22 3.19-18.88-18.55L55.6 50.44l-3.22-3.18zm163.75 6.78q-12.15 0-17.7 8.11-5.53 8.1-5.53 20.8 0 9.88 3.18 16.34t8.5 9.52a23 23 0 0 0 11.67 3.06q5.9 0 11.08-2.7 5.19-2.72 8.67-9.23 3.47-6.53 3.47-17.22 0-12.58-5.54-20.62-5.55-8.07-17.8-8.06m71.45 1.06v19.27h19.1q13.9 0 13.91-9.63a9 9 0 0 0-5.66-8.7q-2.25-.94-8.6-.94Zm-235.2 2.3 16.93 16.65-3.22 3.19-13.7-13.48-13.6 13.35-3.23-3.18zm29.15 8.34 27.1 26.63-3.22 3.18-23.88-23.45-23.97 23.55-3.22-3.18q13.6-13.34 27.2-26.73m-58.36.05 27.33 26.85-3.23 3.18-24.1-23.69-23.9 23.48-3.2-3.19zm58.36 10.11 21.95 21.56-3.23 3.18-18.72-18.38-18.81 18.48-3.23-3.18zm-58.36.05 22.18 21.78-3.23 3.18-18.95-18.62L26.4 79.12l-3.22-3.17zm58.36 10.11 16.79 16.5-.51.5-2.4 2.37-.31.3-13.57-13.31-13.65 13.41-3.23-3.18zm-58.36.04 17.01 16.72-3.21 3.18-13.8-13.55-13.58 13.35-3.22-3.18zm264.4 2.5v22.2h17.7q6.12 0 9.54-.47a11 11 0 0 0 6.43-3.23q2.54-2.64 2.53-6.99 0-4.94-2.47-7.46-2.47-2.53-6.66-3.29a63 63 0 0 0-10.9-.77Z"/></g></g></g></svg>
+    <div class="nav-divider"></div>
+    <div>
+      <div class="nav-region-title">Dindigul Regional Office</div>
+      <div class="nav-region-sub">District Profile Portal</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#economy">Economy</a></li>
+    <li><a href="#agriculture">Agriculture</a></li>
+    <li><a href="#industry">Industry</a></li>
+    <li><a href="#culture">Culture</a></li>
+    <li><a href="#tourism">Tourism</a></li>
+    <li><a href="#cuisine">Cuisine</a></li>
+    <li><a href="#invest">Investment</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#" class="btn-nav btn-nav-ghost">Staff Login</a>
+    <a href="#" class="btn-nav btn-nav-solid">Branch Portal</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner container">
+    <div>
+      <div class="hero-eyebrow"><div class="hero-dot"></div>IOB Dindigul Region — District Intelligence Brief</div>
+      <h1 class="hero-title">Dindigul &amp; <span>Theni</span><br>Districts, Tamil Nadu</h1>
+      <p class="hero-sub">A comprehensive economic, cultural, and geographic profile of two of Tamil Nadu's most strategically significant districts — prepared for the Indian Overseas Bank, Dindigul Regional Office.</p>
+      <div class="hero-btns">
+        <a href="#economy" class="btn btn-primary">Explore Economy ↓</a>
+        <a href="#invest" class="btn btn-ghost">Investment Overview</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="hero-panel-title">Regional Snapshot</div>
+      <div class="hp-row"><span class="hp-key">Combined Area</span><span class="hp-val t">10,181 km²</span></div>
+      <div class="hp-row"><span class="hp-key">Combined Population</span><span class="hp-val">~50.8 Lakh</span></div>
+      <div class="hp-row"><span class="hp-key">Dindigul Literacy Rate</span><span class="hp-val">77.2%</span></div>
+      <div class="hp-row"><span class="hp-key">Theni Literacy Rate</span><span class="hp-val">83.3%</span></div>
+      <div class="hp-row"><span class="hp-key">Locks Export Share</span><span class="hp-val t">~80% of India</span></div>
+      <div class="hp-row"><span class="hp-key">Cardamom Market (Bodi)</span><span class="hp-val">Asia's 2nd Largest</span></div>
+      <div class="hp-row"><span class="hp-key">GI Tags Held</span><span class="hp-val t">3 Products</span></div>
+      <div class="hp-row"><span class="hp-key">Highest Peak (Vembadi)</span><span class="hp-val">2,695 m</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- METRICS -->
+<div class="metrics-band">
+  <div class="metrics-row">
+    <div class="metric-cell"><div class="metric-val">50.8<em>L</em></div><div class="metric-lbl">Combined Population</div><div class="metric-sub">Census 2011</div></div>
+    <div class="metric-cell"><div class="metric-val">10,181</div><div class="metric-lbl">Area (km²)</div><div class="metric-sub">Both districts</div></div>
+    <div class="metric-cell"><div class="metric-val">₹<em>1,500</em>Cr</div><div class="metric-lbl">Locks Turnover</div><div class="metric-sub">Annual estimate</div></div>
+    <div class="metric-cell"><div class="metric-val"><em>3</em></div><div class="metric-lbl">GI-Tagged Products</div><div class="metric-sub">Locks · Biryani · Panchamritam</div></div>
+    <div class="metric-cell"><div class="metric-val"><em>22</em></div><div class="metric-lbl">Taluks Combined</div><div class="metric-sub">14 Dindigul · 8 Theni</div></div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview" class="section sec-off">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">District Overview</div>
+      <h2 class="sec-title">Know Your Region</h2>
+      <p class="sec-intro">Dindigul and Theni represent complementary economic geographies — one anchored in manufacturing and trade; the other in horticulture, biodiversity, and hydropower.</p>
+    </div>
+    <div class="ov-grid">
+      <div class="ov-card reveal">
+        <span class="ov-badge">Dindigul RO</span>
+        <div class="ov-name">Dindigul District</div>
+        <div class="ov-hq">Headquarters: Dindigul City &nbsp;|&nbsp; Est. 1985</div>
+        <p class="ov-desc">Spanning 7,184 km² across the Palani Hills and southern plains, Dindigul bridges the Madurai–Coimbatore trade corridor. Famed as India's lock manufacturing capital with a GI Tag, it also hosts significant tanneries, granite quarrying, and cotton textile clusters. The terrain transitions dramatically from fertile river valleys of the Amaravathi to the misty Palani peaks.</p>
+        <div class="ov-facts">
+          <div class="ov-fact"><div class="ov-fv">38.3L</div><div class="ov-fl">Population (2011)</div></div>
+          <div class="ov-fact"><div class="ov-fv">7,184 km²</div><div class="ov-fl">Area</div></div>
+          <div class="ov-fact"><div class="ov-fv">77.2%</div><div class="ov-fl">Literacy Rate</div></div>
+          <div class="ov-fact"><div class="ov-fv">14</div><div class="ov-fl">Revenue Taluks</div></div>
+        </div>
+      </div>
+      <div class="ov-card tl reveal">
+        <span class="ov-badge">Sub-Region</span>
+        <div class="ov-name">Theni District</div>
+        <div class="ov-hq">Headquarters: Theni Town &nbsp;|&nbsp; Est. 1996</div>
+        <p class="ov-desc">Carved from Madurai and Periyar districts in 1996, Theni spans 2,997 km² along the Western Ghats border with Kerala. Renowned as Asia's second-largest cardamom market (Bodinayakanur), the "Grape City of South India" (Cumbum Valley), and a prolific banana-producing belt. Hydroelectric stations and eco-tourism assets round out its economic profile.</p>
+        <div class="ov-facts">
+          <div class="ov-fact"><div class="ov-fv">12.5L</div><div class="ov-fl">Population (2011)</div></div>
+          <div class="ov-fact"><div class="ov-fv">2,997 km²</div><div class="ov-fl">Area</div></div>
+          <div class="ov-fact"><div class="ov-fv">83.3%</div><div class="ov-fl">Literacy Rate</div></div>
+          <div class="ov-fact"><div class="ov-fv">8</div><div class="ov-fl">Revenue Taluks</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ECONOMY -->
+<section id="economy" class="section sec-white">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Economic Sectors</div>
+      <h2 class="sec-title">Engines of Commerce & Production</h2>
+      <p class="sec-intro">A remarkably diversified economic canvas — from GI-tagged lock manufacturing and international leather exports to Asia-class cardamom markets and hydropower generation.</p>
+    </div>
+    <div class="pg">
+      <div class="pc reveal"><div class="pc-icon">🔒</div><div class="pc-title">Locks Industry</div><div class="pc-tag">Dindigul · GI Tagged</div><p class="pc-desc">India's premier lock-manufacturing hub, supplying ~80% of the country's brass locks. The cluster exports to over 40 countries.</p><ul class="pc-pts"><li>50,000+ artisans in the lock cluster</li><li>Annual turnover exceeding ₹1,500 crore</li><li>Geographical Indication (GI) Tag awarded</li><li>Blend of cottage units and modern foundries</li></ul></div>
+      <div class="pc tl reveal"><div class="pc-icon">🧥</div><div class="pc-title">Leather & Tanneries</div><div class="pc-tag">Dindigul · Export</div><p class="pc-desc">Among Tamil Nadu's top leather processing centres. Finished goods, shoe uppers, and industrial leather exported to Europe, Middle East, and USA.</p><ul class="pc-pts"><li>100+ registered tanneries</li><li>CETP effluent treatment compliance</li><li>Linked to Chennai leather export corridor</li><li>Women SHG-led cottage leather units</li></ul></div>
+      <div class="pc reveal"><div class="pc-icon">🍌</div><div class="pc-title">Banana Cultivation</div><div class="pc-tag">Theni · Commercial</div><p class="pc-desc">One of India's foremost banana districts. Cavendish, Nendran, and Poovan varieties supply markets across Tamil Nadu, Kerala, and North India.</p><ul class="pc-pts"><li>50,000+ acres under banana cultivation</li><li>Major trading hub at Bodinayakanur</li><li>Cold-chain infrastructure for export quality</li><li>Banana fibre — emerging value-added product</li></ul></div>
+      <div class="pc gd reveal"><div class="pc-icon">🌿</div><div class="pc-title">Cardamom & Spices</div><div class="pc-tag g">Theni · GI Tagged · Asia Market</div><p class="pc-desc">Cumbum Valley and High Ranges produce premium small cardamom. Bodinayakanur is Asia's 2nd largest cardamom auction platform.</p><ul class="pc-pts"><li>Bodinayakanur — Asia's 2nd largest cardamom market</li><li>GI-tagged Cumbum cardamom variety</li><li>Spice Board-registered export units</li><li>Organic certification gaining traction</li></ul></div>
+      <div class="pc tl reveal"><div class="pc-icon">🍇</div><div class="pc-title">Grapes & Horticulture</div><div class="pc-tag">Theni · Cumbum Valley</div><p class="pc-desc">Cumbum Valley — the "Grape City of South India." Muscat and Thompson varieties supply domestic wineries and export chains.</p><ul class="pc-pts"><li>15,000+ acres of grape cultivation</li><li>Linked with Nashik wine industry chains</li><li>Pomegranate, guava, and mango complementing</li><li>FPO models strengthening farmer prices</li></ul></div>
+      <div class="pc reveal"><div class="pc-icon">🧵</div><div class="pc-title">Textiles & Handloom</div><div class="pc-tag">Both Districts</div><p class="pc-desc">Spinning mills in Palani, Oddanchatram, and Uthamapalayam supply yarn to the Tirupur knitwear cluster and domestic retailers.</p><ul class="pc-pts"><li>20+ spinning mills across both districts</li><li>Oddanchatram — key cotton market yard</li><li>Government handloom clusters at taluk HQs</li><li>Growing readymades SME sector in Theni town</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- AGRICULTURE -->
+<section id="agriculture" class="section sec-off">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Agriculture & Horticulture</div>
+      <h2 class="sec-title">Land, Water & Harvest Wealth</h2>
+      <p class="sec-intro">Fed by the Amaravathi, Vaigai, and Suruliyar rivers alongside canal networks from the Vaigai dam, both districts sustain diverse seasonal and perennial cropping systems.</p>
+    </div>
+    <div class="tbl-wrap reveal">
+      <table class="dtbl">
+        <thead>
+          <tr><th>Crop / Produce</th><th>District</th><th>Key Zones</th><th>Economic Significance</th><th>Category</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Banana</strong> (Cavendish, Nendran)</td><td>Theni</td><td>Periyakulam, Bodinayakanur</td><td>₹2,000+ Cr. annual turnover</td><td><span class="pill pill-t">Commercial</span></td></tr>
+          <tr><td><strong>Cardamom</strong> (Elettaria)</td><td>Theni</td><td>Cumbum, High Ranges</td><td>GI-tagged, Asia export quality</td><td><span class="pill pill-g">Spice</span></td></tr>
+          <tr><td><strong>Grapes</strong> (Muscat, Thompson)</td><td>Theni</td><td>Cumbum Valley</td><td>South India's noted grape belt</td><td><span class="pill pill-s">Horticulture</span></td></tr>
+          <tr><td><strong>Paddy</strong> (Ponni, IR-20)</td><td>Both</td><td>Palani, Oddanchatram, Andipatti</td><td>Core food security crop</td><td><span class="pill pill-n">Food</span></td></tr>
+          <tr><td><strong>Turmeric</strong></td><td>Dindigul</td><td>Kodaikanal hills foothill belt</td><td>National market presence</td><td><span class="pill pill-g">Spice</span></td></tr>
+          <tr><td><strong>Groundnut</strong></td><td>Dindigul</td><td>Natham, Nilakottai taluks</td><td>Oilseed processing hub</td><td><span class="pill pill-n">Oilseed</span></td></tr>
+          <tr><td><strong>Mango</strong> (Malgova, Imam Pasand)</td><td>Both</td><td>Periyakulam ("Mango City")</td><td>Major regional trade commodity</td><td><span class="pill pill-s">Horticulture</span></td></tr>
+          <tr><td><strong>Coffee & Tea</strong></td><td>Both</td><td>Kodaikanal, High Ranges</td><td>Estate cultivation, boutique brands</td><td><span class="pill pill-t">Plantation</span></td></tr>
+          <tr><td><strong>Cotton</strong></td><td>Dindigul</td><td>Oddanchatram, Palani</td><td>Feeds Tirupur knitwear belt</td><td><span class="pill pill-n">Industrial</span></td></tr>
+          <tr><td><strong>Tapioca (Cassava)</strong></td><td>Both</td><td>Theni plains, Bodi region</td><td>Starch & sago processing</td><td><span class="pill pill-n">Industrial</span></td></tr>
+          <tr><td><strong>Gherkin & Vegetables</strong></td><td>Dindigul</td><td>Peri-urban contract farming</td><td>Export through Coimbatore processors</td><td><span class="pill pill-t">Export</span></td></tr>
+          <tr><td><strong>Forest Honey</strong></td><td>Both</td><td>Palani Hills tribal belt</td><td>Premium SHG-branded products</td><td><span class="pill pill-s">Forest</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRY -->
+<section id="industry" class="section sec-white">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Manufacturing & MSME</div>
+      <h2 class="sec-title">Industrial Landscape</h2>
+      <p class="sec-intro">Beyond the signature locks and leather, both districts host a diversified MSME base spanning agro-processing, engineering goods, and construction materials.</p>
+    </div>
+    <div class="ind-cols reveal">
+      <div class="ind-col">
+        <div class="ind-head"><span></span>Dindigul District</div>
+        <div class="ind-item"><div class="ind-name">SIPCOT Industrial Complex</div><div class="ind-desc">State-promoted complex housing medium and large manufacturing units including auto components, engineering fabrication, and chemical plants.</div></div>
+        <div class="ind-item"><div class="ind-name">Brass & Metal Goods</div><div class="ind-desc">Foundries producing brass fittings, door hardware, and precision parts supply the construction and lock-making ecosystem.</div></div>
+        <div class="ind-item"><div class="ind-name">Granite Quarrying & Processing</div><div class="ind-desc">Black and grey granite quarried in Dindigul is exported internationally and supplies Tamil Nadu's booming construction sector.</div></div>
+        <div class="ind-item"><div class="ind-name">Printing & Packaging</div><div class="ind-desc">200+ commercial printing presses serve agricultural produce packaging, institutional stationery, and FMCG requirements.</div></div>
+        <div class="ind-item"><div class="ind-name">Engineering Workshops & Pump Manufacturing</div><div class="ind-desc">SME clusters provide machining, welding, and pump-set manufacturing serving agrarian irrigation infrastructure.</div></div>
+      </div>
+      <div class="ind-col">
+        <div class="ind-head"><span></span>Theni District</div>
+        <div class="ind-item"><div class="ind-name">Agro-processing & Cold Storage</div><div class="ind-desc">Multi-chamber cold storage in Bodinayakanur and Periyakulam extend shelf life of banana, grapes, and cardamom, improving farmer realisations.</div></div>
+        <div class="ind-item"><div class="ind-name">Banana Fibre & By-product Industry</div><div class="ind-desc">Emerging units producing banana fibre yarn, biodegradable plates, and organic fertiliser from pseudostem waste, attracting eco-enterprise investors.</div></div>
+        <div class="ind-item"><div class="ind-name">Hydropower — Kundah, Suruliyar & Pambar</div><div class="ind-desc">Hydroelectric projects within or adjacent to Theni contribute significantly to Tamil Nadu's electricity grid, alongside expanding solar farms.</div></div>
+        <div class="ind-item"><div class="ind-name">Textile Weaving & Readymades</div><div class="ind-desc">Andipatti and Uthamapalayam taluks host powerlooms producing cotton fabrics feeding Tirupur export garments and domestic retail chains.</div></div>
+        <div class="ind-item"><div class="ind-name">Tourism & Homestay Economy</div><div class="ind-desc">Ecotourism around Megamalai, Vaigai Dam, and Kumbakarai Falls generating hotels, adventure camps, and homestay SMEs.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CULTURE -->
+<section id="culture" class="section sec-off">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Heritage & Tradition</div>
+      <h2 class="sec-title">Culture, Arts & Living Traditions</h2>
+      <p class="sec-intro">Embedded in the ancient Pandya cultural sphere, both districts carry a rich legacy of Tamil literature, Dravidian temple architecture, classical arts, and vibrant folk traditions.</p>
+    </div>
+    <div class="cg">
+      <div class="cc reveal"><div class="cc-icon">🏛️</div><div class="cc-content"><div class="cc-tag">Architecture</div><div class="cc-title">Dravidian Temple Heritage</div><p class="cc-text">Towering gopurams, granite mandapams, and thousand-pillar halls reflect centuries of Pandya, Nayaka, and Vijayanagara patronage across both districts.</p><ul class="cc-list"><li>Dindigul Fort — 17th century rock fortress on a monolithic boulder</li><li>Palani Murugan Temple — one of the six Arupadai Veedu abodes</li><li>Suruli Falls Siva Temple — ancient cave shrine</li><li>Kottaikkarai mosques reflecting composite Islamic heritage</li></ul></div></div>
+      <div class="cc reveal"><div class="cc-icon">🎭</div><div class="cc-content"><div class="cc-tag">Performing Arts</div><div class="cc-title">Classical & Folk Arts</div><p class="cc-text">A vibrant spectrum from Bharatanatyam and Carnatic music to dynamic folk forms rooted in agriculture and temple festival traditions.</p><ul class="cc-list"><li>Kavadi Attam — devotional dance performed at Palani</li><li>Devarattam — harvest folk dance of Palani hills communities</li><li>Karagattam — traditional pot-balancing dance form</li><li>Therukoothu — street theatre at temple festivals</li></ul></div></div>
+      <div class="cc reveal"><div class="cc-icon">📚</div><div class="cc-content"><div class="cc-tag">Literature & Language</div><div class="cc-title">Tamil Literary Connections</div><p class="cc-text">Within the fertile cultural geography of the Sangam era, scholars and poets from this region contributed to classical Tamil tradition across centuries.</p><ul class="cc-list"><li>Kamban Ramayanam performances at district festivals</li><li>Active Tamil literary associations (Ilakkiya Vattam) in Dindigul</li><li>Folklore collections documenting Palani hill songs</li><li>Manuscripts preserved at Palani Murugan temple archives</li></ul></div></div>
+      <div class="cc reveal"><div class="cc-icon">🌾</div><div class="cc-content"><div class="cc-tag">Community & Society</div><div class="cc-title">Social Fabric & Communities</div><p class="cc-text">A mosaic of communities — Mudaliar, Gounder, Nadar, Kallar, Vellalar, and tribal communities — each contributing distinct customs, crafts, and food traditions.</p><ul class="cc-list"><li>Irula and Paliyan tribes of Palani Hills preserve oral traditions</li><li>Christian missionary heritage — Bishop Heber College (est. 1947)</li><li>Sufi dargahs reflecting composite cultural heritage</li><li>SHG women's craft fairs: weaving, pottery, beekeeping</li></ul></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FESTIVALS -->
+<section class="section sec-dk">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label lt">Festivals & Celebrations</div>
+      <h2 class="sec-title lt">The Calendar of Celebration</h2>
+      <p class="sec-intro lt">Festivals here are living expressions of faith, community, and the seasonal rhythms of an agrarian civilisation, drawing pilgrims and visitors from across India.</p>
+    </div>
+    <div class="fest-grid reveal">
+      <div class="fest-list">
+        <div class="fi"><div class="fi-month">January</div><div class="fi-name">Thaipusam — Palani Murugan Temple</div><div class="fi-desc">One of Tamil Nadu's grandest pilgrimages. Millions carry Kavadi up the 693 steps to Palani Murugan. An unmissable spectacle of devotion drawing pilgrims from across the world.</div></div>
+        <div class="fi"><div class="fi-month">January</div><div class="fi-name">Pongal — Harvest Festival</div><div class="fi-desc">The primary agrarian festival celebrated with Kolam art, sugarcane, and sweet rice cooking, marking the sun's northward journey and the beginning of the harvest season.</div></div>
+        <div class="fi"><div class="fi-month">February–March</div><div class="fi-name">Masi Magam — Temple Theerthams</div><div class="fi-desc">Sacred bathing festivals at temple tanks with car processions drawing vast congregations in Palani, Periyakulam, and Bodinayakanur.</div></div>
+        <div class="fi"><div class="fi-month">April</div><div class="fi-name">Tamil New Year / Chithirai Vizha</div><div class="fi-desc">New Year celebrations with temple consecrations, cultural programmes, and festive market atmosphere across both district headquarters.</div></div>
+      </div>
+      <div class="fest-list">
+        <div class="fi"><div class="fi-month">July–August</div><div class="fi-name">Aadi Perukku — River Worship</div><div class="fi-desc">Communities gather at the Vaigai and Amaravathi banks to celebrate rising monsoon waters with flowers, lamps, and food offerings in thanksgiving.</div></div>
+        <div class="fi"><div class="fi-month">October</div><div class="fi-name">Navaratri — Nine Nights</div><div class="fi-desc">Golu traditions, classical music and dance at sabhas, and Durgashtami processions reflecting the region's deep Shakti worship heritage.</div></div>
+        <div class="fi"><div class="fi-month">November</div><div class="fi-name">Karthigai Deepam</div><div class="fi-desc">Homes and temples illuminated with thousands of oil lamps on the full moon of Karthigai, creating breathtaking visual poetry across the districts.</div></div>
+        <div class="fi"><div class="fi-month">December</div><div class="fi-name">Grape Harvest Festival — Cumbum Valley</div><div class="fi-desc">Cumbum celebrates its viticultural identity with harvest events, food stalls, cultural programmes, and farmer-buyer meets attracting national traders.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOURISM -->
+<section id="tourism" class="section sec-navy">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label lt">Tourism & Destinations</div>
+      <h2 class="sec-title lt">Landscapes, Shrines & Wilderness</h2>
+      <p class="sec-intro lt">From misty hill station retreats and roaring waterfalls to ancient rock forts and sacred pilgrimage sites — one of South India's most diverse tourism canvases.</p>
+    </div>
+    <div class="tg reveal">
+      <div class="tc"><div class="tc-ico">⛰️</div><div class="tc-tag">Dindigul District</div><div class="tc-name">Kodaikanal Hill Station</div><div class="tc-desc">Tamil Nadu's premier hill station at 2,133 m. Star-shaped Kodai Lake, Bryant Park, Pillar Rocks, Bear Shola Falls, and the rare 12-year Kurinji bloom make it a year-round magnet.</div></div>
+      <div class="tc"><div class="tc-ico">🕌</div><div class="tc-tag">Dindigul District</div><div class="tc-name">Palani Murugan Temple</div><div class="tc-desc">One of the six sacred abodes of Lord Murugan atop Sivagiri Hill. Over 3 million pilgrims annually ascend the 693 steps to this ancient granite shrine.</div></div>
+      <div class="tc"><div class="tc-ico">🏰</div><div class="tc-tag">Dindigul District</div><div class="tc-name">Dindigul Rock Fort</div><div class="tc-desc">A 17th-century Madurai Nayak fort built atop a massive granite monolith, commanding panoramic views of the plains below. A historical monument of regional significance.</div></div>
+      <div class="tc"><div class="tc-ico">🦅</div><div class="tc-tag">Theni District</div><div class="tc-name">Megamalai Wildlife Sanctuary</div><div class="tc-desc">High-elevation plateau at 1,500 m, home to elephants, leopards, gaur, and 270+ bird species. Dense shola forests make it Tamil Nadu's finest eco-tourism destination.</div></div>
+      <div class="tc"><div class="tc-ico">💧</div><div class="tc-tag">Theni District</div><div class="tc-name">Kumbakarai Falls</div><div class="tc-desc">A cascading waterfall set amid dense forests and spice plantations near Theni town. A popular post-monsoon destination with spectacular seasonal flows.</div></div>
+      <div class="tc"><div class="tc-ico">🌊</div><div class="tc-tag">Theni District</div><div class="tc-name">Vaigai Dam & Reservoir</div><div class="tc-desc">Scenic reservoir flanked by Eastern Ghats foothills. Boating, nature walks, and migratory birdwatching make it a growing leisure hub for families.</div></div>
+      <div class="tc"><div class="tc-ico">🌿</div><div class="tc-tag">Dindigul District</div><div class="tc-name">Berijam Lake, Kodaikanal</div><div class="tc-desc">A pristine high-altitude reservoir within reserved forests, open only on permit. Surrounded by shola and pine — a sanctuary for birdwatchers and nature hikers.</div></div>
+      <div class="tc"><div class="tc-ico">🌄</div><div class="tc-tag">Theni District</div><div class="tc-name">Cumbum Valley Viewpoints</div><div class="tc-desc">Sweeping panoramas of vineyard terraces, banana groves, and Western Ghats ridgelines nestled between the Palani and Cardamom Hills. Beautiful year-round.</div></div>
+      <div class="tc"><div class="tc-ico">🛕</div><div class="tc-tag">Theni District</div><div class="tc-name">Suruli Falls & Temple</div><div class="tc-desc">A twin waterfall site combined with an ancient Shiva temple. The 50-metre cascade is among the most photographed landmarks in Theni district.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CUISINE -->
+<section id="cuisine" class="section sec-white">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Culinary Identity</div>
+      <h2 class="sec-title">Cuisine & Signature Foods</h2>
+      <p class="sec-intro">Rooted in Pandya, Palani hills tribal, and agricultural community traditions — robust, earthy, and distinct. Three products from these districts hold Geographical Indication Tags.</p>
+    </div>
+    <div class="fg reveal">
+      <div class="fc"><div class="fc-ico">🍖</div><div class="fc-name">Dindigul Biryani</div><div class="fc-dist">Dindigul · GI Tagged</div><div class="fc-desc">Jeera samba rice, cube mutton, aromatic spices. Distinctly rustic and earthy — different from Hyderabadi and Lucknawi styles. Holds a GI Tag.</div></div>
+      <div class="fc"><div class="fc-ico">🌿</div><div class="fc-name">Palani Panchamritam</div><div class="fc-dist">Dindigul · GI Tagged</div><div class="fc-desc">Sacred offering — banana, jaggery, dates, honey, and cardamom. The only temple prasadam to receive a GI Tag in India.</div></div>
+      <div class="fc"><div class="fc-ico">🫙</div><div class="fc-name">Bodinayakanur Cardamom</div><div class="fc-dist">Theni · GI Tagged</div><div class="fc-desc">Cardamom teas, sweets, and spice blends from Asia's 2nd largest cardamom market are sought globally.</div></div>
+      <div class="fc"><div class="fc-ico">🍌</div><div class="fc-name">Banana Products</div><div class="fc-dist">Theni</div><div class="fc-desc">Chips, halwa, flour, and jams from Theni's cottage units distributed across Tamil Nadu and Kerala under regional brand names.</div></div>
+      <div class="fc"><div class="fc-ico">🍇</div><div class="fc-name">Cumbum Grape Products</div><div class="fc-dist">Theni</div><div class="fc-desc">Fresh grape juice, raisins, and grape-based wine. Micro-winery and agritourism enterprises are developing around the viticulture economy.</div></div>
+      <div class="fc"><div class="fc-ico">☕</div><div class="fc-name">Kodaikanal Chocolates & Coffee</div><div class="fc-dist">Dindigul</div><div class="fc-desc">Artisanal chocolate makers and estate-grown coffee — a thriving cottage industry supplying tourists and online buyers with premium hill-station products.</div></div>
+      <div class="fc"><div class="fc-ico">🍚</div><div class="fc-name">Kaikari Kootu & Kuzhambu</div><div class="fc-dist">Both Districts</div><div class="fc-desc">Traditional mixed vegetable preparations using locally grown greens, yam, raw banana, and drumstick in tamarind-based gravies.</div></div>
+      <div class="fc"><div class="fc-ico">🍯</div><div class="fc-name">Palani Hills Forest Honey</div><div class="fc-dist">Both Districts</div><div class="fc-desc">Wild honey collected by Irula and Paliyan tribal communities. SHG-branded products gaining premium positioning in urban natural-foods markets.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMOGRAPHICS -->
+<section class="section sec-off">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Demographics</div>
+      <h2 class="sec-title">People, Literacy & Social Indicators</h2>
+      <p class="sec-intro">Both districts have made notable strides in education, women's empowerment, and human development indices over the past two decades.</p>
+    </div>
+    <div class="dm-grid reveal">
+      <div class="dm-panel">
+        <div class="dm-head">Dindigul District — Key Statistics</div>
+        <div class="dm-row"><span class="dm-k">Population (Census 2011)</span><span class="dm-v">38.33 Lakh</span></div>
+        <div class="dm-row"><span class="dm-k">Area</span><span class="dm-v">7,184 km²</span></div>
+        <div class="dm-row"><span class="dm-k">Literacy Rate</span><span class="dm-v">77.2%</span></div>
+        <div class="dm-row"><span class="dm-k">Sex Ratio</span><span class="dm-v">1,006 per 1,000</span></div>
+        <div class="dm-row"><span class="dm-k">Urban Population</span><span class="dm-v">~37%</span></div>
+        <div class="dm-row"><span class="dm-k">Revenue Taluks</span><span class="dm-v">14</span></div>
+        <div class="dm-row"><span class="dm-k">Revenue Villages</span><span class="dm-v">1,568+</span></div>
+        <div class="dm-row"><span class="dm-k">Major Languages</span><span class="dm-v">Tamil, Kannada, Telugu</span></div>
+        <div class="dm-row"><span class="dm-k">Key Institutions</span><span class="dm-v">Bishop Heber College, Siva College</span></div>
+      </div>
+      <div class="dm-panel">
+        <div class="dm-head">Theni District — Key Statistics</div>
+        <div class="dm-row"><span class="dm-k">Population (Census 2011)</span><span class="dm-v">12.45 Lakh</span></div>
+        <div class="dm-row"><span class="dm-k">Area</span><span class="dm-v">2,997 km²</span></div>
+        <div class="dm-row"><span class="dm-k">Literacy Rate</span><span class="dm-v">83.3%</span></div>
+        <div class="dm-row"><span class="dm-k">Sex Ratio</span><span class="dm-v">1,012 per 1,000</span></div>
+        <div class="dm-row"><span class="dm-k">Urban Population</span><span class="dm-v">~25%</span></div>
+        <div class="dm-row"><span class="dm-k">Revenue Taluks</span><span class="dm-v">8</span></div>
+        <div class="dm-row"><span class="dm-k">Revenue Villages</span><span class="dm-v">540+</span></div>
+        <div class="dm-row"><span class="dm-k">Major Languages</span><span class="dm-v">Tamil, Malayalam, Kannada</span></div>
+        <div class="dm-row"><span class="dm-k">Key Institutions</span><span class="dm-v">Theni Govt. Medical College, SSKV</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONNECTIVITY -->
+<section class="section sec-white">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label">Infrastructure & Connectivity</div>
+      <h2 class="sec-title">Transport & Energy Links</h2>
+      <p class="sec-intro">Strategic location midway between Madurai, Coimbatore, and Kerala's border makes both districts integral nodes in South India's logistics architecture.</p>
+    </div>
+    <div class="co-grid reveal">
+      <div class="co-card"><div class="co-ico">🛤️</div><div class="co-title">Rail Network</div><div class="co-detail">Dindigul Junction — a major hub on Southern Railway linking Chennai, Madurai, Coimbatore, and Tiruchirappalli. Theni connected by Madurai–Bodinayakanur line (broad-gauge conversion underway).</div></div>
+      <div class="co-card"><div class="co-ico">🛣️</div><div class="co-title">National Highways</div><div class="co-detail">NH-44 passes through Dindigul linking to Madurai and Coimbatore. NH-183 connects Theni to Madurai and Kerala border. Four-laning projects ongoing.</div></div>
+      <div class="co-card"><div class="co-ico">✈️</div><div class="co-title">Air Connectivity</div><div class="co-detail">Nearest airports: Madurai International (~80 km from Dindigul) and Coimbatore International (~120 km). Dindigul airstrip upgrade under study for charter/regional use.</div></div>
+      <div class="co-card"><div class="co-ico">⚡</div><div class="co-title">Power & Energy</div><div class="co-detail">Hydroelectric stations at Kundah, Suruliyar, and Parambikulam serve both districts. Solar capacity expanding in Theni plains. 100% rural electrification achieved.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- INVESTMENT -->
+<section id="invest" class="section sec-dk">
+  <div class="container">
+    <div class="sec-hd reveal">
+      <div class="sec-label lt">Investment Opportunities</div>
+      <h2 class="sec-title lt">Why Invest in Dindigul & Theni?</h2>
+      <p class="sec-intro lt">Trained labour force, natural resource abundance, strategic connectivity, and strong state policy support make both districts compelling investment destinations.</p>
+    </div>
+    <div class="iv-grid reveal">
+      <div class="iv-col">
+        <div class="iv-head">🏭 Manufacturing</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>SIPCOT land parcels for medium and large industry in Dindigul</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Locks cluster expansion — precision engineering & export-oriented units</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Leather goods finishing and downstream processing with existing supply chain</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Granite processing and value-added stone products for export</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Auto ancillary and engineering fabrication for Coimbatore/Chennai OEMs</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Textile spinning expansion in Oddanchatram and Uthamapalayam</div>
+      </div>
+      <div class="iv-col">
+        <div class="iv-head">🌾 Agri-Business</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Banana value chain — processing, fibre, bio-packaging, and organic fertiliser</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Cold storage and CA storage infrastructure for perishable horticulture</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Grape-based wine and food processing in Cumbum Valley</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Spice processing and exports from Bodinayakanur cardamom hub</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Organic certification and natural foods branding for premium markets</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>FPO / SHG partnership models for supply chain consolidation</div>
+      </div>
+      <div class="iv-col">
+        <div class="iv-head">🌿 Tourism & Green Energy</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Eco-resort and wellness retreat development in Kodaikanal and Megamalai</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Adventure tourism infrastructure — trekking, cycling, zip-lining</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Solar energy farms in Theni plains — significant renewable potential</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Homestay and agritourism ecosystem in Cumbum Valley</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Medical tourism linked to Theni Govt. Medical College and private hospitals</div>
+        <div class="iv-item"><span class="iv-arr">▸</span>Skill development centre partnerships and EdTech institution investments</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-main">
+    <div>
+      <div class="ft-logo-row">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 144.75"><defs><clipPath id="za"><path d="M.32 0h374.36v144.5H.32Zm0 0"/></clipPath><clipPath id="zb"><path d="M0 0h375v145H0z"/></clipPath><clipPath id="zc"><path d="M10.98 11.63h353.2v121.04H10.98Zm0 0"/></clipPath><clipPath id="zd"><path d="M20.45 11.63h334.1a9.47 9.47 0 0 1 9.47 9.46V123.2a9.46 9.46 0 0 1-9.47 9.47H20.45a9.46 9.46 0 0 1-9.47-9.47V21.1a9.47 9.47 0 0 1 9.47-9.46m0 0"/></clipPath><clipPath id="ze"><path d="M0 0h355v122H0z"/></clipPath><clipPath id="zf"><path d="M.98.63h353.2v121.04H.98Zm0 0"/></clipPath><clipPath id="zg"><path d="M10.45.63h334.1a9.47 9.47 0 0 1 9.47 9.46V112.2a9.46 9.46 0 0 1-9.47 9.47H10.45a9.46 9.46 0 0 1-9.47-9.47V10.1A9.47 9.47 0 0 1 10.45.63m0 0"/></clipPath><clipPath id="zh"><path d="M.32 0h374.14v143.73H.32Zm0 0"/></clipPath></defs><g clip-path="url(#za)"><g clip-path="url(#zb)"><g clip-path="url(#zc)"><g clip-path="url(#zd)"><g clip-path="url(#ze)" transform="translate(10 11)"><g clip-path="url(#zf)"><g clip-path="url(#zg)"><path fill="#fff" d="M.98.63h353.2v121.04H.98Zm0 0"/></g></g></g></g></g><g clip-path="url(#zh)"><path fill="#254aa0" d="M32.98.42A32.54 32.54 0 0 0 .32 32.97v77.8a32.54 32.54 0 0 0 32.66 32.55H341.8a32.54 32.54 0 0 0 32.67-32.55v-77.8A32.54 32.54 0 0 0 341.79.42Zm41.36 15.1 27.24 26.77-3.22 3.18-24.02-23.6Q62.4 33.58 50.44 45.34l-3.22-3.18zm163.75 2.37q13.32 0 22.52 5.65a35.3 35.3 0 0 1 13.8 15.5q4.6 9.88 4.6 22.45 0 13.4-4.9 23.15a34.7 34.7 0 0 1-14.09 14.99q-9.2 5.23-21.7 5.23-13.08 0-22.35-5.4A34.7 34.7 0 0 1 202 84.35q-4.71-9.7-4.71-22.52 0-13.28 4.71-23.2a34.6 34.6 0 0 1 13.86-15.34q9.14-5.4 22.23-5.4m-70.63 1.4h16.97v84.16h-16.97Zm125.1 0h35.25q6.15 0 10.2.36 4.07.35 7.26 1.53a21 21 0 0 1 9.84 7.28 19 19 0 0 1 4.07 12q0 6.81-3.77 11.63-3.78 4.81-8.14 6.58 8.49 2.47 12.27 8.12A21.5 21.5 0 0 1 363.3 79a25 25 0 0 1-4.24 13.87 20.5 20.5 0 0 1-11.44 8.81q-3.19 1.06-8.03 1.41-4.83.36-11.79.36h-35.26Z"/></g></g></g></svg>
+      </div>
+      <p class="ft-tagline">Indian Overseas Bank, Dindigul Regional Office<br>District Intelligence & Public Information Portal<br>Serving Dindigul and Theni Districts, Tamil Nadu — 2026</p>
+    </div>
+    <div>
+      <div class="ft-col-title">Sections</div>
+      <ul class="ft-links">
+        <li><a href="#overview">District Overview</a></li>
+        <li><a href="#economy">Economic Pillars</a></li>
+        <li><a href="#agriculture">Agriculture</a></li>
+        <li><a href="#industry">Industry & MSME</a></li>
+        <li><a href="#culture">Culture & Heritage</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-col-title">Explore</div>
+      <ul class="ft-links">
+        <li><a href="#tourism">Tourism & Destinations</a></li>
+        <li><a href="#cuisine">Cuisine & GI Products</a></li>
+        <li><a href="#invest">Investment Opportunities</a></li>
+        <li><a href="#">Contact Regional Office</a></li>
+        <li><a href="#">iob.in</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-col-title">IOB Portals</div>
+      <ul class="ft-links">
+        <li><a href="#">Staff Login</a></li>
+        <li><a href="#">Branch Portal</a></li>
+        <li><a href="#">Notice Board</a></li>
+        <li><a href="#">MIS Dashboard</a></li>
+        <li><a href="#">RBI Compliance</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <span>© 2026 Indian Overseas Bank — Dindigul Regional Office. All Rights Reserved.</span>
+    <div class="ft-bot-r"><span>Privacy Policy</span><span>Accessibility</span><span>IT Act 2000 Compliance</span></div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

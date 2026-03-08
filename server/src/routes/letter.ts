@@ -2,8 +2,27 @@ import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticateToken } from '../middleware/auth';
 import { createNotification } from '../services/notificationService';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
+
+// Configure multer for scanned letter uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = path.join(process.cwd(), 'uploads', 'letters');
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `signed-letter-${uniqueSuffix}${path.extname(file.originalname)}`);
+    }
+});
+const upload = multer({ storage });
 
 const toTitleCase = (str: string) => {
     if (!str) return '';
@@ -11,6 +30,29 @@ const toTitleCase = (str: string) => {
         word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
 };
+
+// Upload scanned signed copy of a letter
+router.post('/:id/upload-scan', authenticateToken, upload.single('document'), async (req: any, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No document file uploaded' });
+        }
+
+        const scannedCopyUrl = `/uploads/letters/${req.file.filename}`;
+
+        const letter = await (prisma as any).letter.update({
+            where: { id },
+            data: { scannedCopyUrl }
+        });
+
+        res.json({ message: 'Scanned document uploaded successfully', letter });
+    } catch (error) {
+        console.error('Error uploading scanned letter:', error);
+        res.status(500).json({ error: 'Failed to upload document' });
+    }
+});
 
 // Get all letters — BRANCH_USER sees only their branch (GAP 03)
 router.get('/', authenticateToken, async (req: any, res) => {
@@ -45,11 +87,44 @@ router.get('/', authenticateToken, async (req: any, res) => {
             include: { designation: true }
         });
 
+        const roBranch = await prisma.branch.findFirst({
+            where: { type: 'RO' }
+        });
+
+        let config = await (prisma as any).organizationConfig.findUnique({
+            where: { id: 'singleton' }
+        });
+
+        if (!config) {
+            config = await (prisma as any).organizationConfig.create({
+                data: {
+                    id: 'singleton',
+                    bankNameEn: "Indian Overseas Bank",
+                    bankNameTa: "இந்தியன் ஓவர்சீஸ் வங்கி",
+                    bankNameHi: "इंडियन ओवरसीज बैंक",
+                    signingAuthEn: "Regional Manager",
+                    signingAuthTa: "மண்டல மேலாளர்",
+                    signingAuthHi: "क्षेत्रीय प्रबंधक"
+                }
+            });
+        }
+
+        const organization = {
+            ...config,
+            officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
+            officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
+            officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
+            address: roBranch?.address || roBranch?.addressTa || roBranch?.addressHi || "",
+            phone: roBranch?.phone || "+91 451 2420000",
+            email: roBranch?.email || "ro.dindigul@bank.com"
+        };
+
         const metadata = {
             regionHeadName: regionHead ? toTitleCase(regionHead.fullNameEn) : "Regional Manager",
             regionHeadDesignation: regionHead?.designation?.nameEn
                 ? toTitleCase(regionHead.designation.nameEn)
-                : "Regional Manager"
+                : "Regional Manager",
+            organization
         };
 
         res.json({ letters, metadata });
@@ -101,6 +176,29 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
             res.json(updated);
         } else {
             // Create new version (GAP 19)
+            // Helper to get current organization metadata snapshot
+            const getCurrentOrgMeta = async () => {
+                let organization = await (prisma as any).organizationConfig.findUnique({
+                    where: { id: 'singleton' }
+                });
+
+                const roBranch = await prisma.branch.findFirst({
+                    where: { type: 'RO' }
+                });
+
+                return {
+                    ...organization,
+                    officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
+                    officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
+                    officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
+                    address: roBranch?.address || "Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu",
+                    addressTa: roBranch?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு",
+                    addressHi: roBranch?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"
+                };
+            };
+
+            const currentOrgMeta = await getCurrentOrgMeta();
+
             const newVersion = await (prisma as any).letter.create({
                 data: {
                     type: currentLetter.type,
@@ -111,6 +209,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     valueAtTime: currentLetter.valueAtTime,
                     budgetAtTime: currentLetter.budgetAtTime,
                     period: currentLetter.period,
+                    orgMeta: currentOrgMeta, // Snapshot the latest org details for the new version
                     status: 'DRAFT',
                     version: currentLetter.version + 1,
                     previousVersionId: currentLetter.id
@@ -167,6 +266,51 @@ router.post('/generate', async (req, res) => {
         const topBranches = uniqueSnapshots.slice(0, 3);
         const bottomBranches = uniqueSnapshots.slice(-3).reverse();
 
+        // Helper to get current organization metadata snapshot
+        const getCurrentOrgMeta = async () => {
+            let organization = await (prisma as any).organizationConfig.findUnique({
+                where: { id: 'singleton' }
+            });
+
+            const roBranch = await prisma.branch.findFirst({
+                where: { type: 'RO' }
+            });
+
+            return {
+                ...organization,
+                officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
+                officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
+                officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
+                address: roBranch?.address || "Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu",
+                addressTa: roBranch?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு",
+                addressHi: roBranch?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु",
+                phone: roBranch?.phone || "+91 451 2420000",
+                email: roBranch?.email || "ro.dindigul@bank.com"
+            };
+        };
+
+        const currentOrgMeta = await getCurrentOrgMeta();
+
+        // Helper to get March 31st figure
+        const getMarchFigure = async (branchId: string, paramId: string, snapDate: Date) => {
+            const date = new Date(snapDate);
+            const currentYear = date.getFullYear();
+            const currentMonth = date.getMonth(); // 0 is Jan, 2 is March
+            const marchYear = currentMonth <= 2 ? currentYear - 1 : currentYear;
+            const marchStart = new Date(marchYear, 2, 1, 0, 0, 0);
+            const marchEnd = new Date(marchYear, 2, 31, 23, 59, 59);
+
+            const marchSnap = await (prisma as any).snapshot.findFirst({
+                where: {
+                    branchId,
+                    parameterId: paramId,
+                    date: { gte: marchStart, lte: marchEnd }
+                },
+                orderBy: { date: 'desc' }
+            });
+            return { value: marchSnap?.value || 0, date: marchEnd };
+        };
+
         const createdLetters = [];
 
         // Generate Appreciation Letters
@@ -179,16 +323,30 @@ router.post('/generate', async (req, res) => {
                 const headName = toTitleCase(snap.branch.headUser?.fullNameEn || "The Branch Manager");
                 const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || "Branch Head");
 
+                const marchInfo = await getMarchFigure(snap.branchId, param.id, snap.date);
+                const gap = snap.value - (snap.budget || 0);
+                const performanceData = {
+                    march31stDate: marchInfo.date,
+                    march31st: marchInfo.value,
+                    latestDate: snap.date,
+                    latest: snap.value,
+                    budget: snap.budget || 0,
+                    gap: gap,
+                    status: gap >= 0 ? '+ve' : '-ve'
+                };
+                const letterMeta = { ...currentOrgMeta, performanceData };
+
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'APPRECIATION',
-                        titleEn: `Appreciation Letter - ${period}`,
-                        contentEn: `Congratulations to ${headName} (${headDesignation}) and the whole team at ${toTitleCase(snap.branch.nameEn)} Branch for outstanding performance in Total Deposits for ${period}. Your achievement of ₹ ${snap.value.toLocaleString()} Cr against the target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr is highly commendable. Keep up the good work!`,
+                        titleEn: `${param.nameEn} Target Achievement - ${period}`,
+                        contentEn: `Dear Sir/Madam,\n\nWe are writing to formally acknowledge and commend the exceptional performance of the ${toTitleCase(snap.branch.nameEn)} Branch under your leadership as ${headDesignation} for the period of ${period}.\n\nA review of the branch's performance in the ${param.nameEn} portfolio reveals an outstanding achievement of ₹ ${snap.value.toLocaleString()} Cr against the assigned target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr.\n\n[PERFORMANCE_TABLE]\n\nSuch dedication and a results-oriented approach are highly appreciated by the management. We place on record our appreciation for the diligent efforts put forth by you and your entire team. We trust that you will continue to maintain this momentum and strive for even greater milestones in the upcoming quarters.\n\nKeep up the excellent work!`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,
                         budgetAtTime: snap.budget,
-                        period: period
+                        period: period,
+                        orgMeta: letterMeta
                     }
                 });
                 createdLetters.push(letter);
@@ -205,16 +363,30 @@ router.post('/generate', async (req, res) => {
                 const headName = toTitleCase(snap.branch.headUser?.fullNameEn || "The Branch Manager");
                 const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || "Branch Head");
 
+                const marchInfo = await getMarchFigure(snap.branchId, param.id, snap.date);
+                const gap = snap.value - (snap.budget || 0);
+                const performanceData = {
+                    march31stDate: marchInfo.date,
+                    march31st: marchInfo.value,
+                    latestDate: snap.date,
+                    latest: snap.value,
+                    budget: snap.budget || 0,
+                    gap: gap,
+                    status: gap >= 0 ? '+ve' : '-ve'
+                };
+                const letterMeta = { ...currentOrgMeta, performanceData };
+
                 const letter = await (prisma as any).letter.create({
                     data: {
                         type: 'EXPLANATION',
-                        titleEn: `Plan of Action - ${period}`,
-                        contentEn: `Performance review for ${toTitleCase(snap.branch.nameEn)} Branch under the leadership of ${headName} (${headDesignation}) in Total Deposits for ${period} shows a shortfall.\n\nYour achievement was ₹ ${snap.value.toLocaleString()} Cr against expected targets of ₹ ${snap.budget?.toLocaleString() || '0'} Cr. Please submit a plan of action detailing how you will achieve the budgets going forward by the end of the week.`,
+                        titleEn: `Review of ${param.nameEn} - ${period}`,
+                        contentEn: `Dear Sir/Madam,\n\nWe are writing to draw your urgent attention to the performance of the ${toTitleCase(snap.branch.nameEn)} Branch for the period of ${period}, specifically regarding the ${param.nameEn} portfolio.\n\nA detailed review indicates a significant shortfall in achieving the allocated targets. Against an expected budget of ₹ ${snap.budget?.toLocaleString() || '0'} Cr, the branch has only achieved ₹ ${snap.value.toLocaleString()} Cr. This underperformance is a matter of serious concern for the Management.\n\n[PERFORMANCE_TABLE]\n\nAs the ${headDesignation}, you are requested to analyze the reasons for this shortfall and formulate a concrete, time-bound Action Plan to bridge this gap. You are hereby advised to submit this detailed Plan of Action to the Regional Office within the next 7 days without fail.\n\nWe expect a marked improvement in your branch's performance in the coming weeks. Please treat this matter as highly important.`,
                         branchId: snap.branchId,
                         parameterId: param.id,
                         valueAtTime: snap.value,
                         budgetAtTime: snap.budget,
-                        period: period
+                        period: period,
+                        orgMeta: letterMeta
                     }
                 });
                 createdLetters.push(letter);

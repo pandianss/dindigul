@@ -6,23 +6,7 @@ import { useState, useEffect, useRef } from "react";
 // Remove hardcoded SRM_MESSAGE, TICKER_ITEMS, and ANNOUNCEMENTS.
 // They will be loaded dynamically from the backend API.
 
-const PENDING_ACTIONS = [
-  { id: 1, type: "EXPLANATION", branch: "Chinnamanur (1560)", param: "Gross NPA", due: "25 Feb", status: "DRAFT", urgent: true },
-  { id: 2, type: "EXPLANATION", branch: "Uthamapalayam (1919)", param: "SMA-0", due: "25 Feb", status: "DRAFT", urgent: true },
-  { id: 3, type: "APPRECIATION", branch: "Dindigul Fort (1314)", param: "January Perf.", due: "28 Feb", status: "READY", urgent: false },
-  { id: 4, type: "AUDIT", branch: "Cumbum (0176)", param: "Q3 Submission", due: "28 Feb", status: "PENDING", urgent: true },
-  { id: 5, type: "AUDIT", branch: "Uthamapalayam (1919)", param: "Q3 Submission", due: "28 Feb", status: "PENDING", urgent: true },
-  { id: 6, type: "APPRECIATION", branch: "Palani (0376)", param: "Jan Deposits", due: "01 Mar", status: "READY", urgent: false },
-];
-
-const UPCOMING_EVENTS = [
-  { date: "25 Feb", day: "Wed", label: "MUDRA Loan Camp — Palani", type: "CAMP" },
-  { date: "28 Feb", day: "Sat", label: "Q3 Audit Submission Deadline", type: "DEADLINE" },
-  { date: "01 Mar", day: "Sun", label: "CBS Maintenance 01–04 AM", type: "SYSTEM" },
-  { date: "05 Mar", day: "Thu", label: "Self-Appraisal Window Closes", type: "HR" },
-  { date: "07 Mar", day: "Sat", label: "RBI MPC Review", type: "RBI" },
-  { date: "31 Mar", day: "Tue", label: "Financial Year End", type: "FY_END" },
-];
+// Remove hardcoded PENDING_ACTIONS and UPCOMING_EVENTS
 
 // KPI data (condensed from previous dashboard)
 const KPIS = [
@@ -60,9 +44,9 @@ const TYPE_STYLE = {
 };
 
 const ACTION_STYLE = {
-  EXPLANATION: { bg: "#FFF3E0", border: "#FFB74D", icon: "⚠️", label: "Explanation Letter" },
-  APPRECIATION: { bg: "#E8F5E9", border: "#66BB6A", icon: "🏆", label: "Appreciation Letter" },
-  AUDIT: { bg: "#EDE7F6", border: "#9575CD", icon: "📋", label: "Audit Pending" },
+  EXPLANATION: { bg: "#FFF3E0", border: "#FFB74D", icon: "⚠️", label: "PoA / Explanation" },
+  APPRECIATION: { bg: "#E8F5E9", border: "#66BB6A", icon: "🏆", label: "Appreciation" },
+  AUDIT: { bg: "#EDE7F6", border: "#9575CD", icon: "📋", label: "Audit Observation" },
 };
 
 const EVENT_STYLE = {
@@ -121,7 +105,17 @@ function Ticker({ items = [] }) {
               fontSize: 14, color: "rgba(255,255,255,0.85)", padding: "0 32px",
               fontWeight: 500, letterSpacing: "0.02em", flexShrink: 0,
             }}>
-              {item}
+              {item.link ? (
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-bank-gold transition-colors"
+                  style={{ color: "inherit", textDecoration: "none" }}
+                >
+                  {item.text}
+                </a>
+              ) : item.text}
               <span style={{ color: GOLD, margin: "0 16px", opacity: 0.5 }}>|</span>
             </span>
           ))}
@@ -181,6 +175,18 @@ export default function Dashboard() {
   const [liveKpis, setLiveKpis] = useState([]);
   const [branchPulse, setBranchPulse] = useState({ SURPASSED: 0, POSITIVE: 0, LAGGING: 0, NEGATIVE: 0 });
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [pendingActions, setPendingActions] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [fyMetrics, setFyMetrics] = useState({
+    financialYear: '2025-26',
+    fyWD: '0/0',
+    fyPct: 0,
+    qtr: '0/0',
+    qtrPct: 0,
+    month: '0/0',
+    monthPct: 0,
+    daysToFYEnd: 0
+  });
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
@@ -197,6 +203,9 @@ export default function Dashboard() {
           setLiveKpis(data.kpis || []);
           setBranchPulse(data.branchPulse || { SURPASSED: 0, POSITIVE: 0, LAGGING: 0, NEGATIVE: 0 });
           setLastUpdated(data.lastUpdated || null);
+          setPendingActions(data.pendingActions || []);
+          setUpcomingEvents(data.upcomingEvents || []);
+          if (data.fyMetrics) setFyMetrics(data.fyMetrics);
         }
       })
       .catch(console.error);
@@ -235,14 +244,14 @@ export default function Dashboard() {
           </div>
           <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.15)" }} />
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            Operations Command · FY 2025–26 · Q4
+            Operations Command · FY {fyMetrics.financialYear}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           {[
-            { label: "FY WD", val: "98/249", pct: 39 },
-            { label: "QTR", val: "35/66", pct: 53 },
-            { label: "MONTH", val: "13/24", pct: 54 },
+            { label: "FY WD", val: fyMetrics.fyWD, pct: fyMetrics.fyPct },
+            { label: "QTR", val: fyMetrics.qtr, pct: fyMetrics.qtrPct },
+            { label: "MONTH", val: fyMetrics.month, pct: fyMetrics.monthPct },
           ].map(w => (
             <div key={w.label} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 10.5, color: GOLD, fontWeight: 800, letterSpacing: "0.15em", marginBottom: 1 }}>{w.label}</div>
@@ -466,45 +475,51 @@ export default function Dashboard() {
                 marginLeft: "auto", background: RED, color: "#fff",
                 fontSize: 11.5, fontWeight: 900, padding: "1px 7px", borderRadius: 10,
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-              }}>{PENDING_ACTIONS.filter(a => a.urgent).length} urgent</div>
+              }}>{pendingActions.filter(a => a.urgent).length} urgent</div>
             </div>
             <div>
-              {PENDING_ACTIONS.map((a, i) => {
-                const sty = ACTION_STYLE[a.type];
-                return (
-                  <div key={a.id} style={{
-                    padding: "10px 14px",
-                    borderBottom: i < PENDING_ACTIONS.length - 1 ? "1px solid #F8FAFC" : "none",
-                    background: a.urgent ? "#FFFBF0" : "#fff",
-                    display: "flex", alignItems: "flex-start", gap: 10,
-                  }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: 8,
-                      background: sty.bg, border: `1px solid ${sty.border}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 14, flexShrink: 0,
-                    }}>{sty.icon}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em" }}>{sty.label}</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {a.branch}
+              {pendingActions.length === 0 ? (
+                <div style={{ padding: "30px 20px", textAlign: "center", color: "#94A3B8", fontSize: 13, fontWeight: 500 }}>
+                  No pending letters or audit observations.
+                </div>
+              ) : (
+                pendingActions.map((a, i) => {
+                  const sty = ACTION_STYLE[a.type] || ACTION_STYLE.AUDIT;
+                  return (
+                    <div key={a.id} style={{
+                      padding: "10px 14px",
+                      borderBottom: i < pendingActions.length - 1 ? "1px solid #F8FAFC" : "none",
+                      background: a.urgent ? "#FFFBF0" : "#fff",
+                      display: "flex", alignItems: "flex-start", gap: 10,
+                    }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 8,
+                        background: sty.bg, border: `1px solid ${sty.border}`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 14, flexShrink: 0,
+                      }}>{sty.icon}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11.5, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em" }}>{sty.label}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {a.branch}
+                        </div>
+                        <div style={{ fontSize: 13, color: "#64748B" }}>{a.param}</div>
                       </div>
-                      <div style={{ fontSize: 13, color: "#64748B" }}>{a.param}</div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div style={{
+                          fontSize: 11.5, fontWeight: 800, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                          color: a.urgent ? RED : "#64748B",
+                        }}>Due {a.due}</div>
+                        <div style={{
+                          marginTop: 3, fontSize: 10.5, fontWeight: 700,
+                          color: a.status === "READY" ? GREEN : a.status === "DRAFT" || a.status === 'PENDING' ? AMBER : "#64748B",
+                          textTransform: "uppercase", letterSpacing: "0.07em",
+                        }}>{a.status}</div>
+                      </div>
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div style={{
-                        fontSize: 11.5, fontWeight: 800, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                        color: a.urgent ? RED : "#64748B",
-                      }}>Due {a.due}</div>
-                      <div style={{
-                        marginTop: 3, fontSize: 10.5, fontWeight: 700,
-                        color: a.status === "READY" ? GREEN : a.status === "DRAFT" ? AMBER : "#64748B",
-                        textTransform: "uppercase", letterSpacing: "0.07em",
-                      }}>{a.status}</div>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -584,41 +599,47 @@ export default function Dashboard() {
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 15 }}>📅</span>
               <div style={{ fontSize: 14, fontWeight: 800, color: NAVY }}>Upcoming Events</div>
-              <div style={{ marginLeft: "auto", fontSize: 11.5, color: "#94A3B8", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>Next 6 items</div>
+              <div style={{ marginLeft: "auto", fontSize: 11.5, color: "#94A3B8", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>Next {upcomingEvents.length} items</div>
             </div>
             <div>
-              {UPCOMING_EVENTS.map((ev, i) => (
-                <div key={i} style={{
-                  padding: "9px 14px",
-                  borderBottom: i < UPCOMING_EVENTS.length - 1 ? "1px solid #F8FAFC" : "none",
-                  display: "flex", alignItems: "center", gap: 10,
-                }}>
-                  {/* Date pill */}
-                  <div style={{
-                    width: 40, textAlign: "center", flexShrink: 0,
-                    borderRadius: 8, padding: "4px 0",
-                    background: `${EVENT_STYLE[ev.type]}18`,
-                    border: `1px solid ${EVENT_STYLE[ev.type]}40`,
-                  }}>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: EVENT_STYLE[ev.type], fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", lineHeight: 1 }}>
-                      {ev.date.split(" ")[0]}
-                    </div>
-                    <div style={{ fontSize: 10.5, color: EVENT_STYLE[ev.type], fontWeight: 700, opacity: 0.7 }}>
-                      {ev.date.split(" ")[1]}
-                    </div>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {ev.label}
-                    </div>
-                    <div style={{ fontSize: 11.5, color: "#94A3B8", marginTop: 1 }}>{ev.day}</div>
-                  </div>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: "50%",
-                    background: EVENT_STYLE[ev.type], flexShrink: 0,
-                  }} />
+              {upcomingEvents.length === 0 ? (
+                <div style={{ padding: "30px 20px", textAlign: "center", color: "#94A3B8", fontSize: 13, fontWeight: 500 }}>
+                  No upcoming events or holidays.
                 </div>
-              ))}
+              ) : (
+                upcomingEvents.map((ev, i) => (
+                  <div key={i} style={{
+                    padding: "9px 14px",
+                    borderBottom: i < upcomingEvents.length - 1 ? "1px solid #F8FAFC" : "none",
+                    display: "flex", alignItems: "center", gap: 10,
+                  }}>
+                    {/* Date pill */}
+                    <div style={{
+                      width: 40, textAlign: "center", flexShrink: 0,
+                      borderRadius: 8, padding: "4px 0",
+                      background: `${EVENT_STYLE[ev.type] || '#546E7A'}18`,
+                      border: `1px solid ${EVENT_STYLE[ev.type] || '#546E7A'}40`,
+                    }}>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: EVENT_STYLE[ev.type] || '#546E7A', fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", lineHeight: 1 }}>
+                        {ev.date.split(" ")[0]}
+                      </div>
+                      <div style={{ fontSize: 10.5, color: EVENT_STYLE[ev.type] || '#546E7A', fontWeight: 700, opacity: 0.7 }}>
+                        {ev.date.split(" ")[1]}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {ev.label}
+                      </div>
+                      <div style={{ fontSize: 11.5, color: "#94A3B8", marginTop: 1 }}>{ev.day}</div>
+                    </div>
+                    <div style={{
+                      width: 8, height: 8, borderRadius: "50%",
+                      background: EVENT_STYLE[ev.type] || '#546E7A', flexShrink: 0,
+                    }} />
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -660,7 +681,7 @@ export default function Dashboard() {
                 { label: "ATMs Online", val: atms.length.toString(), color: "#66BB6A" },
                 { label: "Low Cash ATMs", val: atms.filter(a => a.balance < 50000).length.toString(), color: "#EF5350" },
                 { label: "Lagging Units", val: (branchPulse.LAGGING + branchPulse.NEGATIVE).toString(), color: GOLD },
-                { label: "Days to FY End", val: Math.ceil((new Date('2026-03-31').getTime() - Date.now()) / 86400000).toString(), color: "#64B5F6" },
+                { label: "Days to FY End", val: fyMetrics.daysToFYEnd.toString(), color: "#64B5F6" },
               ].map(s => (
                 <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "9px 10px" }}>
                   <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{s.label}</div>

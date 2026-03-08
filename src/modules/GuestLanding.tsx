@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Landmark, Award, Plus } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '../utils/cn';
 import api, { STATIC_URL, getStaticUrl } from '../services/api';
 
 interface SetupData {
@@ -9,7 +11,7 @@ interface SetupData {
     staff: number;
     totalDeposits: number;
     leadership?: { name: string; designation: string; isHead: boolean }[];
-    events?: { date: string; name: string; type: string }[];
+    events?: { date: string; name: string; type: string; venue?: string }[];
     achievements?: { title: string; description: string; date: string; category: string; photoUrl?: string }[];
     business?: { val: number, growth: number };
     deposits?: { val: number, growth: number };
@@ -33,8 +35,13 @@ const AchievementCard: React.FC<AchievementCardProps> = ({ ach, index }) => {
 
     return (
         <div className={`flex flex-col sm:flex-row items-center sm:justify-center relative w-full reveal`} style={{ transitionDelay: `${index * 100}ms` }}>
-            {/* Timeline Dot */}
-            <div className="absolute left-[15px] sm:left-1/2 top-10 w-4 h-4 rounded-full border-2 border-[#00AEEF] bg-[#1B3A6B] z-20 -translate-x-1/2 hidden sm:block shadow-[0_0_15px_rgba(0,174,239,0.5)]"></div>
+            {/* Timeline Date Marker */}
+            <div className="absolute left-[15px] sm:left-1/2 top-10 z-20 -translate-x-1/2 hidden sm:flex flex-col items-center">
+                <div className="w-4 h-4 rounded-full border-2 border-[#00AEEF] bg-[#1B3A6B] shadow-[0_0_15px_rgba(0,174,239,0.5)] mb-2"></div>
+                <div className="bg-[#1B3A6B] border border-[#00AEEF]/30 px-2 py-1 rounded text-[0.6rem] font-black text-[#00AEEF] uppercase tracking-tighter shadow-lg whitespace-nowrap">
+                    {new Date(ach.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                </div>
+            </div>
 
             <div className={`w-full sm:w-[45%] ${isEven ? 'sm:mr-auto sm:pr-12' : 'sm:ml-auto sm:pl-12'} relative`}>
                 <div className="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.07] hover:border-white/20 transition-all duration-500 shadow-xl">
@@ -396,7 +403,7 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                         {[
                             { i: '🔒', t: 'Locks Industry', tag: 'Dindigul · GI Tagged', desc: "India's premier lock-manufacturing hub, supplying ~80% of the country's brass locks. The cluster exports to over 40 countries.", c: '#1B3A6B' },
                             { i: '🧥', t: 'Leather & Tanneries', tag: 'Dindigul · Export', desc: "Among Tamil Nadu's top leather processing centres. Finished goods, shoe uppers, and industrial leather exported globally.", c: '#0090C8' },
-                            { i: '蕉', t: 'Banana Cultivation', tag: 'Theni · Commercial', desc: "One of India's foremost banana districts. Cavendish, Nendran, and Poovan varieties supply markets widely.", c: '#1B3A6B' },
+                            { i: '🍌', t: 'Banana Cultivation', tag: 'Theni · Commercial', desc: "One of India's foremost banana districts. Cavendish, Nendran, and Poovan varieties supply markets widely.", c: '#1B3A6B' },
                             { i: '🌿', t: 'Cardamom & Spices', tag: 'Theni · GI Tagged', desc: "Cumbum Valley and High Ranges produce premium small cardamom. Bodinayakanur is Asia's 2nd largest cardamom auction platform.", c: '#C8970A', gt: true },
                             { i: '🍇', t: 'Grapes & Horticulture', tag: 'Theni · Cumbum Valley', desc: 'Cumbum Valley — the "Grape City of South India." Muscat and Thompson varieties supply domestic wineries and export chains.', c: '#0090C8' },
                             { i: '🧵', t: 'Textiles & Handloom', tag: 'Both Districts', desc: 'Spinning mills in Palani, Oddanchatram, and Uthamapalayam supply yarn to the Tirupur knitwear cluster and domestic retailers.', c: '#1B3A6B' },
@@ -481,7 +488,7 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                                                 {dayEvents.map((evt: any) => (
                                                     <div key={evt.id} className="group border-b border-gray-50 last:border-0 pb-3 last:pb-0">
                                                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                            <h3 className="text-[0.95rem] font-bold text-[#1B3A6B] leading-tight">{evt.nameEn}</h3>
+                                                            <h3 className="text-[0.95rem] font-bold text-[#1B3A6B] leading-tight">{evt.name}</h3>
                                                             <span className={cn(
                                                                 "text-[0.55rem] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-current/20",
                                                                 evt.type === 'MEETING' ? 'bg-indigo-50 text-indigo-600' :
@@ -532,15 +539,17 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                         {/* Vertical Line */}
                         <div className="absolute left-[15px] sm:left-1/2 top-4 bottom-4 w-px bg-white/10 -translate-x-1/2 hidden sm:block"></div>
 
-                        <div className="space-y-12 relative">
-                            {setupData?.achievements?.length ? setupData.achievements.map((ach, i) => (
-                                <AchievementCard key={i} ach={ach} index={i} />
-                            )) : (
-                                <div className="text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-2xl">
-                                    <Award size={40} className="mx-auto text-white/10 mb-4" />
-                                    <p className="text-white/40 font-bold uppercase tracking-widest text-xs">No achievements found in timeline.</p>
-                                </div>
-                            )}
+                        <div className="max-h-[800px] overflow-y-auto custom-scrollbar px-2 sm:px-4 py-8">
+                            <div className="space-y-16 relative">
+                                {setupData?.achievements?.length ? setupData.achievements.map((ach, i) => (
+                                    <AchievementCard key={i} ach={ach} index={i} />
+                                )) : (
+                                    <div className="text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                                        <Award size={40} className="mx-auto text-white/10 mb-4" />
+                                        <p className="text-white/40 font-bold uppercase tracking-widest text-xs">No achievements found in timeline.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

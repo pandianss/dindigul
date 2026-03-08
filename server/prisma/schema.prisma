@@ -17,6 +17,7 @@ model User {
   fullNameHi           String?
   grade                String?
   role                 String            @default("BRANCH_USER")
+  gender               String            @default("M")
   photoId              String?
   section              String?
   branchId             String?
@@ -171,6 +172,8 @@ model Branch {
   latitude            Float?
   longitude           Float?
   pincode             String?
+  phone               String?
+  email               String?
   headUserId          String?              @unique
   secondLineUserId    String?              @unique
   addressHi           String?
@@ -257,6 +260,8 @@ model Letter {
   valueAtTime       Float?
   budgetAtTime      Float?
   period            String?
+  orgMeta           Json?
+  scannedCopyUrl    String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   previousVersionId String?
@@ -554,15 +559,32 @@ model SrmMessage {
 }
 
 model DashboardTicker {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   text      String
-  isActive  Boolean  @default(true)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  linkUrl   String?
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@map("dashboard_tickers")
 }
+
+model OrganizationConfig {
+  id            String   @id @default("singleton")
+  bankNameEn    String
+  bankNameTa    String?
+  bankNameHi    String?
+  signingAuthEn String
+  signingAuthTa String?
+  signingAuthHi String?
+  signatoryName String?
+  updatedAt     DateTime @updatedAt
+
+  @@map("organization_config")
+}
+
 
 model Atm {
   id          String   @id @default(uuid())

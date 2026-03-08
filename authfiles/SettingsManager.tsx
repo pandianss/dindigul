@@ -4,9 +4,6 @@ import api from '../services/api';
 import MISUpload from './admin/MISUpload';
 import BudgetUpload from './admin/BudgetUpload';
 import ParameterManager from './admin/ParameterManager';
-import NoticeManager from './admin/NoticeManager';
-import CommandCenter from './admin/CommandCenter';
-import OrganizationSettings from './admin/OrganizationSettings';
 import { getErrorMessage } from '../utils/handleError';
 import {
     Settings,
@@ -20,11 +17,10 @@ import {
     X,
     Hash,
     Upload,
-    ArrowRightLeft,
-    Megaphone
+    ArrowRightLeft
 } from 'lucide-react';
 
-type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog' | 'command' | 'organization';
+type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'misUpload' | 'budgets' | 'registry' | 'auditLog';
 
 interface MasterItem {
     id?: string;
@@ -41,12 +37,9 @@ interface MasterItem {
     address?: string;
     addressTa?: string;
     addressHi?: string;
-    phone?: string;
-    email?: string;
     riskCategory?: string;
     riskEffectiveDate?: string;
     specialStatus?: string | string[];
-    gender?: string;
     officeId?: number;
     workId?: number;
     role?: string;
@@ -91,23 +84,6 @@ const SettingsManager: React.FC = () => {
     const [branches, setBranches] = useState<MasterItem[]>([]);
     const [departments, setDepartments] = useState<MasterItem[]>([]);
 
-    const getSingularLabel = (tab: Tab) => {
-        const labels: Record<string, string> = {
-            departments: 'Department',
-            units: 'Unit',
-            designations: 'Designation',
-            staff: 'Staff Member',
-            atms: 'ATM',
-            bulletins: 'Bulletin',
-            misUpload: 'MIS File',
-            budgets: 'Budget Item',
-            registry: 'Registry Entry',
-            command: 'Command',
-            auditLog: 'Audit Log'
-        };
-        return labels[tab] || tab;
-    };
-
     const getEndpoint = (tab: Tab) => {
         if (tab === 'units') return '/branches';
         if (tab === 'staff') return '/users';
@@ -116,7 +92,7 @@ const SettingsManager: React.FC = () => {
     };
 
     const fetchData = async () => {
-        if (activeTab === 'misUpload' || activeTab === 'budgets' || activeTab === 'registry' || activeTab === 'bulletins' || activeTab === 'command') return;
+        if (activeTab === 'misUpload' || activeTab === 'budgets' || activeTab === 'registry' || activeTab === 'auditLog') return;
         setLoading(true);
         setError(null);
         try {
@@ -144,7 +120,7 @@ const SettingsManager: React.FC = () => {
     useEffect(() => {
         setData([]); // Clear old data immediately
         setSessions([]);
-        if (activeTab !== 'auditLog') fetchData();
+        fetchData();
         setShowForm(false);
         setEditingItem(null);
         setFormData({});
@@ -156,7 +132,7 @@ const SettingsManager: React.FC = () => {
                 setAuditLogs(res.data.logs || []);
                 setAuditLogsTotal(res.data.total || 0);
             } catch (err) {
-                console.error("Failed to fetch audit logs");
+                console.error('Failed to fetch audit logs');
             }
         };
 
@@ -257,24 +233,6 @@ const SettingsManager: React.FC = () => {
             alert('User transferred successfully');
         } catch (err) {
             setError(getErrorMessage(err));
-        }
-    };
-
-    const handlePurgeUnits = async () => {
-        const confirm1 = window.confirm("WARNING: You are about to irrevocably delete ALL units that do not have active constraints (staff, historical records, documents). Are you absolutely sure?");
-        if (!confirm1) return;
-        const confirm2 = window.prompt("Type 'PURGE' to confirm mass deletion of isolated units.");
-        if (confirm2 !== 'PURGE') return;
-
-        setLoading(true);
-        try {
-            const res = await api.delete('/branches/purge');
-            alert(res.data.message || 'Units purged successfully.');
-            fetchData();
-        } catch (err) {
-            setError(getErrorMessage(err));
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -595,23 +553,6 @@ const SettingsManager: React.FC = () => {
                                 onChange={e => setFormData({ ...formData, addressHi: e.target.value })}
                             />
                         </div>
-                        <div className="col-span-1">
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Phone</label>
-                            <input
-                                className="w-full p-2 border rounded"
-                                value={formData.phone || ''}
-                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                            />
-                        </div>
-                        <div className="col-span-1">
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Email</label>
-                            <input
-                                className="w-full p-2 border rounded"
-                                type="email"
-                                value={formData.email || ''}
-                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                            />
-                        </div>
                     </div>
                 );
             }
@@ -658,17 +599,6 @@ const SettingsManager: React.FC = () => {
                                 onChange={e => setFormData({ ...formData, fullNameEn: e.target.value })}
                                 required
                             />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Gender</label>
-                            <select
-                                className="w-full p-2 border rounded"
-                                value={formData.gender || 'M'}
-                                onChange={e => setFormData({ ...formData, gender: e.target.value })}
-                            >
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                            </select>
                         </div>
 
                         {/* Organizational Details */}
@@ -869,19 +799,8 @@ const SettingsManager: React.FC = () => {
                     </h2>
                     <p className="text-gray-500">Manage trilingual masters and organizational structure</p>
                 </div>
-                {!showForm && activeTab !== 'misUpload' && activeTab !== 'command' && (
+                {!showForm && activeTab !== 'misUpload' && (
                     <div className="flex gap-2">
-
-                        {activeTab === 'units' && (
-                            <button
-                                onClick={handlePurgeUnits}
-                                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-100 transition-colors uppercase tracking-widest text-[10px]"
-                                title="Danger: Delete all isolated branches"
-                            >
-                                <Trash2 size={16} />
-                                Purge Units
-                            </button>
-                        )}
                         <input
                             type="file"
                             id="csv-upload"
@@ -911,23 +830,8 @@ const SettingsManager: React.FC = () => {
                 )}
             </div>
 
-            {error && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex items-start justify-between">
-                    <div>
-                        <h4 className="font-bold flex items-center gap-2">
-                            <span className="bg-red-200 p-1 rounded-full"><X size={14} className="text-red-700" /></span>
-                            Action Failed
-                        </h4>
-                        <p className="text-sm mt-1 opacity-90">{error}</p>
-                    </div>
-                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-800 transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-            )}
-
-            <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit overflow-x-auto">
-                {(['departments', 'units', 'designations', 'staff', 'atms', 'bulletins', 'command', 'organization', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
+            <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit">
+                {(['departments', 'units', 'designations', 'staff', 'atms', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -936,33 +840,10 @@ const SettingsManager: React.FC = () => {
                             : 'text-gray-500 hover:text-bank-navy'
                             }`}
                     >
-                        {tab === 'departments' ? 'Departments' :
-                            tab === 'units' ? 'Units' :
-                                tab === 'designations' ? 'Designations' :
-                                    tab === 'staff' ? 'Staff' :
-                                        tab === 'atms' ? 'ATMs' :
-                                            tab === 'misUpload' ? 'MIS File Drops' :
-                                                tab === 'budgets' ? 'Budget' :
-                                                    tab === 'registry' ? 'In/Out Registry' :
-                                                        tab === 'bulletins' ? 'Bulletins' :
-                                                            tab === 'command' ? 'Command Center' :
-                                                                tab === 'organization' ? 'Organization' :
-                                                                    tab === 'auditLog' ? 'Auth Audit Log' : ''}
+                        {tab}
                     </button>
                 ))}
             </div>
-
-            {activeTab === 'bulletins' && (
-                <div className="mt-4">
-                    <NoticeManager />
-                </div>
-            )}
-
-            {activeTab === 'command' && (
-                <div className="mt-4">
-                    <CommandCenter />
-                </div>
-            )}
 
             {activeTab === 'misUpload' && (
                 <div className="mt-4">
@@ -983,88 +864,87 @@ const SettingsManager: React.FC = () => {
             )}
 
             {activeTab === 'auditLog' && (
-                <div className="mt-4 space-y-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <select
-                            className="p-2 border rounded font-bold text-bank-navy shadow-sm"
-                            value={auditEventFilter}
-                            onChange={(e) => {
-                                setAuditEventFilter(e.target.value);
-                                // A quick refetch instead of waiting for tab toggle
-                                api.get(`/auth/audit-log${e.target.value ? `?event=${e.target.value}` : ''}`)
-                                    .then(res => {
-                                        setAuditLogs(res.data.logs || []);
-                                        setAuditLogsTotal(res.data.total || 0);
-                                    })
-                                    .catch(console.error);
-                            }}
-                        >
-                            <option value="">All Events</option>
-                            <option value="LOGIN_SUCCESS">Login Success</option>
-                            <option value="LOGIN_FAILED">Login Failed</option>
-                            <option value="LOGOUT">Logout</option>
-                            <option value="LOCKOUT">Account Lockout</option>
-                            <option value="MFA_CHALLENGE">MFA Challenge</option>
-                            <option value="MFA_SUCCESS">MFA Success</option>
-                            <option value="MFA_FAILED">MFA Failed</option>
-                        </select>
-                        <div className="text-sm font-bold text-gray-500 uppercase">
-                            Total Records: {auditLogsTotal}
+                <div className="mt-4">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-black text-bank-navy uppercase tracking-tight">Login Audit Log</h3>
+                                <p className="text-sm text-gray-400 mt-1">{auditLogsTotal} events recorded</p>
+                            </div>
+                            <select
+                                value={auditEventFilter}
+                                onChange={e => {
+                                    setAuditEventFilter(e.target.value);
+                                    const params = e.target.value ? `?event=${e.target.value}` : '';
+                                    api.get(`/auth/audit-log${params}`).then(r => {
+                                        setAuditLogs(r.data.logs || []);
+                                        setAuditLogsTotal(r.data.total || 0);
+                                    });
+                                }}
+                                className="px-3 py-2 border border-gray-200 rounded-xl text-sm font-medium text-bank-navy outline-none focus:border-bank-teal/40"
+                            >
+                                <option value="">All Events</option>
+                                <option value="LOGIN_SUCCESS">Login Success</option>
+                                <option value="LOGIN_FAILED">Login Failed</option>
+                                <option value="LOGOUT">Logout</option>
+                                <option value="LOCKOUT">Lockout</option>
+                                <option value="MFA_CHALLENGE">MFA Challenge</option>
+                                <option value="MFA_SUCCESS">MFA Success</option>
+                                <option value="MFA_FAILED">MFA Failed</option>
+                                <option value="AUTO_LOGIN">Auto Login</option>
+                                <option value="SESSION_REVOKED">Session Revoked</option>
+                            </select>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Time</th>
+                                        <th className="px-4 py-3 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Event</th>
+                                        <th className="px-4 py-3 text-left text-xs font-black text-gray-400 uppercase tracking-wider">User</th>
+                                        <th className="px-4 py-3 text-left text-xs font-black text-gray-400 uppercase tracking-wider">IP Address</th>
+                                        <th className="px-4 py-3 text-left text-xs font-black text-gray-400 uppercase tracking-wider">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {auditLogs.length === 0 ? (
+                                        <tr><td colSpan={5} className="text-center py-12 text-gray-400">No audit events found</td></tr>
+                                    ) : auditLogs.map((log: any) => (
+                                        <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-4 py-3 text-gray-500 whitespace-nowrap font-mono text-xs">
+                                                {new Date(log.createdAt).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                                    log.event === 'LOGIN_SUCCESS' || log.event === 'MFA_SUCCESS' || log.event === 'AUTO_LOGIN'
+                                                        ? 'bg-green-100 text-green-700'
+                                                    : log.event === 'LOGIN_FAILED' || log.event === 'MFA_FAILED'
+                                                        ? 'bg-red-100 text-red-700'
+                                                    : log.event === 'LOCKOUT'
+                                                        ? 'bg-orange-100 text-orange-700'
+                                                    : log.event === 'LOGOUT' || log.event === 'SESSION_REVOKED'
+                                                        ? 'bg-gray-100 text-gray-600'
+                                                        : 'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                    {log.event.replace(/_/g, ' ')}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 font-medium text-bank-navy">{log.username}</td>
+                                            <td className="px-4 py-3 font-mono text-xs text-gray-500">{log.ipAddress || '—'}</td>
+                                            <td className="px-4 py-3 text-xs text-gray-400">
+                                                {log.metadata ? (() => {
+                                                    try {
+                                                        const m = JSON.parse(log.metadata);
+                                                        return Object.entries(m).map(([k,v]) => `${k}: ${v}`).join(', ');
+                                                    } catch { return log.metadata; }
+                                                })() : '—'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-bank-navy text-white text-xs uppercase tracking-wider">
-                                    <th className="p-4 font-bold">Timestamp</th>
-                                    <th className="p-4 font-bold">User</th>
-                                    <th className="p-4 font-bold">Event Type</th>
-                                    <th className="p-4 font-bold">IP Address</th>
-                                    <th className="p-4 font-bold">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {auditLogs.map((log) => (
-                                    <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-sm">
-                                        <td className="p-4 whitespace-nowrap text-gray-500 font-mono">
-                                            {new Date(log.createdAt).toLocaleString()}
-                                        </td>
-                                        <td className="p-4 font-bold text-bank-navy">
-                                            {log.username}
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${log.event.includes('SUCCESS') ? 'bg-green-100 text-green-800' :
-                                                log.event.includes('FAILED') || log.event.includes('LOCKOUT') ? 'bg-red-100 text-red-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                {log.event.replace('_', ' ')}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-gray-500 font-mono text-xs">
-                                            {log.ipAddress || 'Unknown'}
-                                        </td>
-                                        <td className="p-4 text-xs text-gray-500 max-w-xs truncate">
-                                            {log.metadata ? JSON.parse(log.metadata).reason || log.metadata : '-'}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {auditLogs.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} className="p-8 text-center text-gray-500 font-bold uppercase tracking-wider">
-                                            No audit logs found
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {activeTab === 'organization' && (
-                <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <OrganizationSettings />
                 </div>
             )}
 
@@ -1076,7 +956,7 @@ const SettingsManager: React.FC = () => {
                     <div className="bg-white rounded-2xl shadow-2xl border border-bank-teal/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
                         <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-4 border-b border-gray-100">
                             <h3 className="text-2xl font-black text-bank-navy uppercase tracking-tight">
-                                {editingItem ? 'Edit' : 'Create New'} {getSingularLabel(activeTab)}
+                                {editingItem ? 'Edit' : 'Create New'} {activeTab.slice(0, -1)}
                             </h3>
                             <button
                                 onClick={() => { setShowForm(false); setEditingItem(null); }}
@@ -1190,7 +1070,7 @@ const SettingsManager: React.FC = () => {
                 </div>
             )}
 
-            {(['departments', 'units', 'designations', 'staff', 'atms'] as Tab[]).includes(activeTab) && (
+            {activeTab !== 'misUpload' && activeTab !== 'budgets' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-50 border-b border-gray-100">

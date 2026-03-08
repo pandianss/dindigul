@@ -34,6 +34,7 @@ import budgetRoutes from './routes/budgetRoutes';
 import parameterRoutes from './routes/parameterRoutes';
 import internalNoteRoutes from './routes/internalNote';
 import publicRoutes from './routes/public';
+import organizationRoutes from './routes/organization';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -101,6 +102,7 @@ app.use('/api/budget', budgetRoutes);
 app.use('/api/parameters', parameterRoutes);
 app.use('/api/internal-notes', internalNoteRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/organization', organizationRoutes);
 
 import { registerChatHandlers } from './socket/chatHandler';
 

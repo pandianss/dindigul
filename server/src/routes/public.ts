@@ -131,7 +131,8 @@ router.get('/setup', async (req, res) => {
                 events: upcomingEvents.map(e => ({
                     date: e.date,
                     name: e.nameEn,
-                    type: e.type
+                    type: e.type,
+                    venue: e.venue
                 })),
                 achievements: achievements.map(a => ({
                     title: a.titleEn,

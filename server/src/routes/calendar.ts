@@ -46,8 +46,8 @@ router.post('/', async (req, res) => {
         });
         res.json(created);
     } catch (error) {
-        console.error('Error saving holiday:', error);
-        res.status(500).json({ error: 'Failed to save holiday' });
+        console.error('Error saving event:', error);
+        res.status(500).json({ error: 'Failed to save event' });
     }
 });
 
@@ -60,8 +60,8 @@ router.delete('/:id', async (req, res) => {
         });
         res.json({ success: true });
     } catch (error) {
-        console.error('Error deleting holiday:', error);
-        res.status(500).json({ error: 'Failed to delete holiday' });
+        console.error('Error deleting event:', error);
+        res.status(500).json({ error: 'Failed to delete event' });
     }
 });
 

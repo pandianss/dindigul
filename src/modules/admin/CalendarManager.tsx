@@ -102,7 +102,8 @@ const CalendarManager: React.FC = () => {
             await api.post('/calendar', {
                 nameEn: newHoliday.name,
                 date: newHoliday.date,
-                type: newHoliday.type
+                type: newHoliday.type,
+                venue: newHoliday.venue
             });
 
             setShowModal(false);
@@ -129,7 +130,7 @@ const CalendarManager: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-bold text-bank-navy">{t('nav.calendar')}</h2>
-                    <p className="text-gray-500 text-sm">Manage regional holidays and track working day pace for FY 2025-26</p>
+                    <p className="text-gray-500 text-sm">Manage regional events, holidays and track working day pace for FY 2025-26</p>
                 </div>
                 <div className="flex space-x-3">
                     <button
@@ -137,7 +138,7 @@ const CalendarManager: React.FC = () => {
                         className="btn-primary flex items-center space-x-2 shadow-lg shadow-bank-navy/20 hover:scale-[1.02] active:scale-95 transition-all"
                     >
                         <Plus size={18} />
-                        <span>Add Holiday</span>
+                        <span>Add Regional Event</span>
                     </button>
                 </div>
             </div>

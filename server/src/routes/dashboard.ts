@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middleware/auth';
+import { getFYMetrics } from '../utils/fyUtils';
 
 const router = express.Router();
 
@@ -12,9 +13,15 @@ router.get('/config', authenticateToken, async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
 
-        // 2. Fetch all active Dashboard Tickers
+        // 2. Fetch all active Dashboard Tickers that haven't expired
         const tickers = await prisma.dashboardTicker.findMany({
-            where: { isActive: true },
+            where: {
+                isActive: true,
+                OR: [
+                    { expiresAt: null },
+                    { expiresAt: { gt: new Date() } }
+                ]
+            },
             orderBy: { order: 'asc' }
         });
 
@@ -91,7 +98,54 @@ router.get('/config', authenticateToken, async (req, res) => {
             NEGATIVE: recentSnaps.filter((s: any) => s.status === 'NEGATIVE').length,
         };
 
-        // 6. Format notices
+        // 6. Fetch Pending Actions (Letters + Audit)
+        const pendingLetters = await prisma.letter.findMany({
+            where: { status: { in: ['DRAFT', 'SENT'] } },
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { branch: true, parameter: true }
+        });
+
+        const pendingAudit = await (prisma as any).auditObservation.findMany({
+            where: { status: 'PENDING' },
+            take: 5,
+            orderBy: { targetDate: 'asc' },
+            include: { branch: true }
+        });
+
+        const pendingActions = [
+            ...pendingLetters.map((l: any) => ({
+                id: l.id,
+                type: l.type, // APPRECIATION or EXPLANATION
+                branch: `${l.branch?.nameEn} (${l.branch?.code})`,
+                param: l.parameter?.nameEn || 'General',
+                due: l.period || l.createdAt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+                status: l.status,
+                urgent: l.type === 'EXPLANATION'
+            })),
+            ...pendingAudit.map((a: any) => ({
+                id: a.id,
+                type: 'AUDIT',
+                branch: `${a.branch?.nameEn} (${a.branch?.code})`,
+                param: a.observation,
+                due: a.targetDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+                status: a.status,
+                urgent: a.riskLevel === 'HIGH'
+            }))
+        ].sort((a, b) => (a.urgent === b.urgent ? 0 : a.urgent ? -1 : 1)).slice(0, 8);
+
+        // 7. Fetch Upcoming Events (Holidays)
+        const today = new Date();
+        const upcomingEvents = await prisma.holiday.findMany({
+            where: { date: { gte: today } },
+            take: 6,
+            orderBy: { date: 'asc' }
+        });
+
+        // 8. Financial Year Metrics
+        const fyMetrics = getFYMetrics();
+
+        // 9. Format notices
         const formattedNotices = notices.map((n: any) => {
             const type = n.priority === 'HIGH' ? 'URGENT' : (n.category?.toUpperCase() || 'INFO');
             return {
@@ -110,11 +164,22 @@ router.get('/config', authenticateToken, async (req, res) => {
         res.json({
             success: true,
             srmMessage,
-            tickers: tickers.map((t: any) => t.text),
+            tickers: tickers.map((t: any) => ({
+                text: t.text,
+                link: t.linkUrl
+            })),
             announcements: formattedNotices,
             kpis,
             branchPulse,
-            lastUpdated: latestDate || null
+            lastUpdated: latestDate || null,
+            pendingActions,
+            upcomingEvents: upcomingEvents.map((e: any) => ({
+                date: e.date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+                day: e.date.toLocaleDateString('en-GB', { weekday: 'short' }),
+                label: e.nameEn,
+                type: e.type || 'CAMP'
+            })),
+            fyMetrics
         });
     } catch (error) {
         console.error('Error fetching dashboard config:', error);
@@ -122,4 +187,91 @@ router.get('/config', authenticateToken, async (req, res) => {
     }
 });
 
+// 7. Admin: Update SRM Message
+router.post('/srm-message', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const { name, title, region, highlight, message } = req.body;
+    try {
+        const newMessage = await prisma.srmMessage.create({
+            data: { name, title, region, highlight, message, isActive: true }
+        });
+        // Deactivate older messages
+        await prisma.srmMessage.updateMany({
+            where: { id: { not: newMessage.id } },
+            data: { isActive: false }
+        });
+        res.json({ success: true, message: newMessage });
+    } catch (error) {
+        console.error('Error updating SRM message:', error);
+        res.status(500).json({ success: false, error: 'Failed to update message' });
+    }
+});
+
+// 8. Admin: Add Dashboard Ticker
+router.post('/tickers', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const { text, expiresAt, linkUrl } = req.body;
+    try {
+        const ticker = await prisma.dashboardTicker.create({
+            data: {
+                text,
+                expiresAt: expiresAt ? new Date(expiresAt) : null,
+                linkUrl,
+                isActive: true,
+                order: 0
+            }
+        });
+        res.json({ success: true, ticker });
+    } catch (error) {
+        console.error('Error adding ticker:', error);
+        res.status(500).json({ success: false, error: 'Failed to add ticker' });
+    }
+});
+
+// 9. Admin: Update/Toggle Ticker
+router.put('/tickers/:id', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const { text, isActive, expiresAt, linkUrl, order } = req.body;
+    try {
+        const ticker = await prisma.dashboardTicker.update({
+            where: { id: req.params.id },
+            data: {
+                text,
+                isActive,
+                expiresAt: expiresAt !== undefined ? (expiresAt ? new Date(expiresAt) : null) : undefined,
+                linkUrl,
+                order
+            }
+        });
+        res.json({ success: true, ticker });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update ticker' });
+    }
+});
+
+// 10. Admin: Delete Ticker
+router.delete('/tickers/:id', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    try {
+        await prisma.dashboardTicker.delete({ where: { id: req.params.id } });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to delete ticker' });
+    }
+});
+
+// 10. Admin: Get all tickers for management
+router.get('/admin/tickers', authenticateToken, async (req: any, res) => {
+    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    try {
+        const tickers = await prisma.dashboardTicker.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(tickers);
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch tickers' });
+    }
+});
+
 export default router;
+
