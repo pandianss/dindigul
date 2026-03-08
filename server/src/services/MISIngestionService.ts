@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import xlsx from 'xlsx';
 import { BusinessSnapshotService, MisStatus } from './BusinessSnapshotService';
 import { RuleEngine } from './RuleEngine';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 const MAPPING: Record<string, string> = {
     'MUDRA': 'Mudra',

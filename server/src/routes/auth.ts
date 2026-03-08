@@ -8,7 +8,11 @@ import { authenticateToken } from '../middleware/auth';
 import os from 'os';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    console.error('[FATAL] JWT_SECRET environment variable is not set. Refusing to start.');
+    process.exit(1);
+}
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 const SESSION_HOURS = 8;
@@ -39,7 +43,7 @@ async function recordAudit(event: AuditEvent, username: string, userId: string |
 function buildToken(user: { id: string; username: string; fullNameEn: string; branchId?: string | null }, role: string) {
     return jwt.sign(
         { id: user.id, username: user.username, role, fullNameEn: user.fullNameEn, branchId: user.branchId },
-        JWT_SECRET, { expiresIn: `${SESSION_HOURS}h` }
+        JWT_SECRET as string, { expiresIn: `${SESSION_HOURS}h` }
     );
 }
 
@@ -124,7 +128,7 @@ router.post('/login', async (req, res) => {
         const finalRole = resolveRole(user, req.body.role);
 
         if ((user as any).mfaEnabled) {
-            const tempToken = jwt.sign({ id: user.id, username: user.username, mfaPending: true, selectedRole: finalRole }, JWT_SECRET, { expiresIn: '5m' });
+            const tempToken = jwt.sign({ id: user.id, username: user.username, mfaPending: true, selectedRole: finalRole }, JWT_SECRET as string, { expiresIn: '5m' });
             await recordAudit('MFA_CHALLENGE', username, user.id, req);
             return res.json({ requiresMfa: true, tempToken });
         }
@@ -143,7 +147,7 @@ router.post('/login', async (req, res) => {
 router.post('/mfa/challenge', async (req, res) => {
     const { tempToken, code } = req.body;
     try {
-        const payload: any = jwt.verify(tempToken, JWT_SECRET);
+        const payload: any = jwt.verify(tempToken, JWT_SECRET as string);
         if (!payload.mfaPending) throw new Error('Invalid token state');
 
         const user = await prisma.user.findUnique({ where: { id: payload.id } });

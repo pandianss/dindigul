@@ -1,6 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+process.on('uncaughtException', (err) => {
+    console.error('[uncaughtException] Shutting down:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('[unhandledRejection]', reason);
+});
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -103,6 +112,17 @@ app.use('/api/parameters', parameterRoutes);
 app.use('/api/internal-notes', internalNoteRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/organization', organizationRoutes);
+
+// Global error handler — must be defined after all routes
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('[UnhandledError]', err?.stack ?? err);
+    if (res.headersSent) return next(err);
+    res.status(err?.status ?? 500).json({
+        error: process.env.NODE_ENV === 'production'
+            ? 'An internal error occurred.'
+            : (err?.message ?? 'Unknown error')
+    });
+});
 
 import { registerChatHandlers } from './socket/chatHandler';
 

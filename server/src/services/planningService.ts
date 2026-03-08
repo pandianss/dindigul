@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { parseCSV } from '../utils/csv';
 import { countWorkingDaysInInterval, getFYBoundaries, Holiday } from '../utils/calendar';
 import {
@@ -12,7 +12,7 @@ import {
     differenceInMonths
 } from 'date-fns';
 
-const prisma = new PrismaClient();
+
 
 export interface AccountOpeningCSVRow {
     REGION_NAME?: string;

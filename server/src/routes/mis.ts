@@ -10,7 +10,10 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({
+    dest: 'uploads/',
+    limits: { fileSize: 25 * 1024 * 1024 }
+});
 
 const router = Router();
 

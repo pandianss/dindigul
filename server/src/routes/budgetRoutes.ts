@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { BudgetService } from '../services/budgetService';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import multer from 'multer';
 
 const router = Router();
-const prisma = new PrismaClient();
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 /**

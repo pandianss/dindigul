@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    console.error('[FATAL] JWT_SECRET environment variable is not set. Refusing to start.');
+    process.exit(1);
+}
 
 interface AuthRequest extends Request {
     user?: any;
@@ -12,11 +16,13 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log(`[AuthMiddleware] ${req.method} ${req.path} - Token present:`, !!token);
+    if (process.env.DEBUG_AUTH === 'true') {
+        console.log(`[AuthMiddleware] ${req.method} ${req.path} - Token present:`, !!token);
+    }
 
     if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, JWT_SECRET, async (err: any, user: any) => {
+    jwt.verify(token, JWT_SECRET as string, async (err: any, user: any) => {
         if (err) {
             console.error(`[Auth] JWT Verification failed:`, err.name);
             if (err.name === 'TokenExpiredError') {

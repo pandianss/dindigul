@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { PlanningService } from '../services/planningService';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
+
 
 // Upload Account Opening CSV
 router.post('/upload', async (req, res) => {
