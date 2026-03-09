@@ -17,6 +17,7 @@ export interface User {
   username: string;
   role: Role | string;
   fullNameEn?: string;
+  section?: string | null;
   branchId?: string | null;
   branch?: {
     id?: string;

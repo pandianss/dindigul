@@ -7,8 +7,9 @@ const router = Router();
 
 // Get all designations
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: ADMIN, RO_USER, or 'admin' bypass
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER';
+    // Permission: Only ADMIN or Planning Section (RO level) can modify
+    const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
+    const canView = req.user?.role === 'ADMIN' || isPlanningRole;
     if (!canView) {
         return res.status(403).json({ error: 'Forbidden' });
     }

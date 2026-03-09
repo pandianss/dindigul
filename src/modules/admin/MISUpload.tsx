@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw, Table2, Trash2 } from 'lucide-react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const MISUpload: React.FC = () => {
+    const { user } = useAuth();
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string, details?: any } | null>(null);
@@ -188,14 +190,18 @@ const MISUpload: React.FC = () => {
                                                 </span>
                                             </td>
                                             <td className="py-4 text-right">
-                                                <button
-                                                    onClick={() => handleDelete(h.id)}
-                                                    disabled={deletingId === h.id}
-                                                    className="p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-50"
-                                                    title="Delete Ingestion Data"
-                                                >
-                                                    {deletingId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                                </button>
+                                                {(user?.role === 'ADMIN' || user?.section === 'Planning') ? (
+                                                    <button
+                                                        onClick={() => handleDelete(h.id)}
+                                                        disabled={deletingId === h.id}
+                                                        className="p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-50"
+                                                        title="Delete Ingestion Data"
+                                                    >
+                                                        {deletingId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest" title="Requires ADMIN or Planning section">View Only</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

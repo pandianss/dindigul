@@ -42,9 +42,17 @@ async function recordAudit(event: AuditEvent, username: string, userId: string |
     }
 }
 
-function buildToken(user: { id: string; username: string; fullNameEn: string; branchId?: string | null }, role: string) {
+function buildToken(user: { id: string; username: string; fullNameEn: string; branchId?: string | null; section?: string | null; departmentId?: string | null }, role: string) {
     return jwt.sign(
-        { id: user.id, username: user.username, role, fullNameEn: user.fullNameEn, branchId: user.branchId },
+        {
+            id: user.id,
+            username: user.username,
+            role,
+            fullNameEn: user.fullNameEn,
+            branchId: user.branchId,
+            section: user.section,
+            departmentId: user.departmentId
+        },
         JWT_SECRET as string, { expiresIn: `${SESSION_HOURS}h` }
     );
 }
@@ -142,6 +150,12 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         });
 
         pruneExpiredSessions();
+        // Derive section from departments if null (GAP 19)
+        if (!(user as any).section) {
+            const hasPlanning = (user as any).departments?.some((d: any) => d.code === 'PLNG' || d.nameEn?.toLowerCase().includes('planning'));
+            if (hasPlanning) (user as any).section = 'Planning';
+        }
+
         const finalRole = resolveRole(user, req.body.role);
 
         if ((user as any).mfaEnabled) {
@@ -154,7 +168,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         await createSession(user.id, token, 'manual_login', req);
         await recordAudit('LOGIN_SUCCESS', username, user.id, req, { role: finalRole });
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'An error occurred during login' });
@@ -167,8 +181,17 @@ router.post('/mfa/challenge', async (req, res) => {
         const payload: any = jwt.verify(tempToken, JWT_SECRET as string);
         if (!payload.mfaPending) throw new Error('Invalid token state');
 
-        const user = await prisma.user.findUnique({ where: { id: payload.id } });
+        const user = await prisma.user.findUnique({
+            where: { id: payload.id },
+            include: { departments: true, managedDepartments: true }
+        });
         if (!user || !(user as any).mfaSecret) return res.status(401).json({ error: 'MFA not configured' });
+
+        // Derive section from departments if null
+        if (!(user as any).section) {
+            const hasPlanning = (user as any).departments?.some((d: any) => d.code === 'PLNG' || d.nameEn?.toLowerCase().includes('planning'));
+            if (hasPlanning) (user as any).section = 'Planning';
+        }
 
         const verified = speakeasy.totp.verify({ secret: (user as any).mfaSecret, encoding: 'base32', token: code, window: 1 });
         if (!verified) {
@@ -182,7 +205,7 @@ router.post('/mfa/challenge', async (req, res) => {
         await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), lastLoginIp: req.ip ?? null } as any });
         await recordAudit('MFA_SUCCESS', user.username, user.id, req, { role: finalRole });
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
     } catch (error: any) {
         if (error.name === 'TokenExpiredError') return res.status(401).json({ error: 'MFA window expired. Please log in again.' });
         res.status(401).json({ error: 'MFA challenge failed' });
@@ -217,8 +240,21 @@ router.get('/auto-login', async (req, res) => {
         const sysUser = os.userInfo().username;
         if (sysUser.toLowerCase() === 'admin') return res.status(401).json({ error: 'Admin must login manually', requiresManual: true });
 
-        const user = await prisma.user.findUnique({ where: { username: sysUser }, include: { branch: true } });
+        const user = await prisma.user.findUnique({
+            where: { username: sysUser },
+            include: {
+                branch: true,
+                departments: true,
+                managedDepartments: true
+            }
+        });
         if (!user) return res.status(404).json({ error: `System user '${sysUser}' is not registered as staff.`, sysUser, requiresManual: true });
+
+        // Derive section from departments if null (GAP 19)
+        if (!(user as any).section) {
+            const hasPlanning = (user as any).departments?.some((d: any) => d.code === 'PLNG' || d.nameEn?.toLowerCase().includes('planning'));
+            if (hasPlanning) (user as any).section = 'Planning';
+        }
 
         const finalRole = resolveRole(user);
         const token = buildToken(user, finalRole);
@@ -227,7 +263,7 @@ router.get('/auto-login', async (req, res) => {
         await recordAudit('AUTO_LOGIN', user.username, user.id, req, { role: finalRole });
         pruneExpiredSessions();
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
         console.error('Auto-login error:', error);
         res.status(500).json({ error: 'Auto-login failed' });

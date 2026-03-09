@@ -99,6 +99,18 @@ export class RuleEngine {
                     ruleId: 'RULE-LIQ-01'
                 });
             }
+
+            // Rule 5: Cash Deficit — branch holding less cash than CRL
+            if (row.parameter === 'Cash_Excess' && Number(row.val_current) < 0) {
+                exceptions.push({
+                    type: ExceptionType.LIQUIDITY,
+                    severity: ExceptionSeverity.HIGH,
+                    parameter: row.parameter,
+                    message: `Cash deficit of ₹ ${Math.abs(Number(row.val_current)).toFixed(2)} Lakhs — branch holding below Cash Required Level.`,
+                    triggerValue: `${Number(row.val_current).toFixed(2)}`,
+                    ruleId: 'RULE-CASH-01'
+                });
+            }
         }
 
         // Persist Exceptions

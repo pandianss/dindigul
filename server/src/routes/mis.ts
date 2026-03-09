@@ -100,7 +100,8 @@ router.get('/snapshot', async (req, res) => {
 
 // Upload MIS Excel (Pivot format)
 router.post('/excel-upload', authenticateToken, upload.single('file'), async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
+    const isPlanning = req.user?.section === 'Planning';
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role) && !isPlanning) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -130,8 +131,9 @@ const misUploadSchema = z.object({
 
 // Upload MIS CSV — Admin / RO_USER only (GAP 02)
 router.post('/upload', authenticateToken, validate(misUploadSchema), async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
-        return res.status(403).json({ error: 'Forbidden: Only ADMIN or Regional Office users may upload MIS data' });
+    const isPlanning = req.user?.section === 'Planning';
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role) && !isPlanning) {
+        return res.status(403).json({ error: 'Forbidden: Only ADMIN, Regional Office users, or Planning section may upload MIS data' });
     }
 
     const { csvData, date } = req.body;
@@ -333,8 +335,9 @@ router.get('/import-logs', authenticateToken, async (req, res) => {
 
 // Delete MIS import log (cascading)
 router.delete('/import-logs/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN may delete MIS data' });
+    const isPlanning = req.user?.section === 'Planning';
+    if (req.user?.role !== 'ADMIN' && !isPlanning) {
+        return res.status(403).json({ error: 'Only ADMIN or Planning section may delete MIS data' });
     }
 
     try {

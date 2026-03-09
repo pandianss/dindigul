@@ -4,28 +4,51 @@ import { RuleEngine } from './RuleEngine';
 import prisma from '../lib/prisma';
 
 const MAPPING: Record<string, string> = {
+    // Advance sub-portfolios
     'MUDRA': 'Mudra',
     'AGRI JL': 'Agri_JL',
-    'RETAIL JL': 'Ret-Gold',
-    'GOLD': 'Gold',
+    'RETAIL JL': 'Ret-Gold',       // Gold loan advances
+    'GOLD': 'Gold',            // Gold loan balance (stock)
     'HOUSING': 'HL',
     'VEHICLE': 'VL',
-    'PERSONAL': 'PL',
+    'PERSONAL': 'PersonalLoan',    // FIXED: was 'PL' — caused naming collision
     'MORTGAGE': 'Mort',
     'EDUCATION': 'EL',
     'LIQUIRENT': 'Liq',
     'OTHER RETAIL': 'OthRet',
-    'SB': 'SB',
-    'CD': 'CD',
-    'TD': 'TD',
-    'ADV': 'Adv',
+    'TOTAL RETAIL': 'Tot_Retail',      // NEW: bank's own combined retail+gold total
+
+    // Priority / Schematic
     'MSME': 'MSME',
     'SHG': 'SHG',
     'KCC': 'KCC',
     'Govt Spon': 'Gov',
     'Oth Schematic': 'OthSch',
     'CORE AGRI': 'Core_Agri',
-    'NPA': 'NPA'
+
+    // Risk
+    'NPA': 'NPA',
+
+    // Deposits
+    'SB': 'SB',
+    'CD': 'CD',
+    'TD': 'TD',
+
+    // Advances total
+    'ADV': 'Adv',
+
+    // Cash management (NEW — populated in Mar-2026 files onward; null in older files)
+    'Cash on Hand': 'Cash_Hand',
+    'ATM Cash': 'Cash_ATM',
+    'BC Cash': 'Cash_BC',
+    'BNA Cash': 'Cash_BNA',
+    'Total Cash': 'Cash_Total',
+    'CRL': 'Cash_CRL',        // Cash Required Level (ATM authorized limit)
+    'Excess': 'Cash_Excess',     // = Total Cash − CRL
+
+    // Other
+    'Bulk Dep': 'Bulk_Dep',        // NEW — Bulk Deposits
+    'PL': 'Branch_PL',       // NEW — Branch P&L / Priority Lending aggregate
 };
 
 export class MISIngestionService {
@@ -90,7 +113,7 @@ export class MISIngestionService {
 
                     const factsData = [];
                     let coreRetSum = 0;
-                    const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PL'];
+                    const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PersonalLoan'];
                     let sb = 0, cd = 0, td = 0, adv = 0;
 
                     const rowHeaders = Object.keys(row);
@@ -184,11 +207,62 @@ export class MISIngestionService {
     }
 
     static async deleteImport(importId: string) {
-        // Since we added onDelete: Cascade in the schema, 
-        // deleting the MisImportLog will delete all linked IngestionLogs 
-        // and their respective Facts.
-        await prisma.misImportLog.delete({
+        // 1. Find all ingestion logs for this import to get units and dates
+        const logs = await prisma.ingestionLog.findMany({
+            where: { importLogId: importId },
+            include: { branch: true }
+        });
+
+        const importLog = await prisma.misImportLog.findUnique({
             where: { id: importId }
+        });
+
+        await prisma.$transaction(async (tx) => {
+            if (importLog && importLog.uniqueDates.length > 0) {
+                const dates = importLog.uniqueDates.map(d => new Date(d));
+                const unitIds = logs.map(l => l.unitId);
+
+                // 2. Identify and delete snapshots and their dependents
+                const snapshots = await tx.misSnapshot.findMany({
+                    where: {
+                        unitId: { in: unitIds },
+                        businessDate: { in: dates }
+                    },
+                    select: { id: true }
+                });
+                const snapshotIds = snapshots.map(s => s.id);
+
+                if (snapshotIds.length > 0) {
+                    await tx.misInformationPanel.deleteMany({
+                        where: { snapshotId: { in: snapshotIds } }
+                    });
+
+                    await tx.misException.deleteMany({
+                        where: { snapshotId: { in: snapshotIds } }
+                    });
+
+                    await tx.misSnapshot.deleteMany({
+                        where: { id: { in: snapshotIds } }
+                    });
+                }
+            }
+
+            // 3. Delete facts and logs
+            const logIds = logs.map(l => l.id);
+            if (logIds.length > 0) {
+                await tx.fact.deleteMany({
+                    where: { ingestionId: { in: logIds } }
+                });
+
+                await tx.ingestionLog.deleteMany({
+                    where: { id: { in: logIds } }
+                });
+            }
+
+            // 4. Delete the import log itself
+            await tx.misImportLog.delete({
+                where: { id: importId }
+            });
         });
 
         return { success: true };

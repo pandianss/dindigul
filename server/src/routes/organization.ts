@@ -56,8 +56,9 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // Update organization config (Admin only)
 router.post('/', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only admins can update organization configuration' });
+    const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
+    if (req.user.role !== 'ADMIN' && !isPlanningRole) {
+        return res.status(403).json({ error: 'Only admins or Planning department can update organization configuration' });
     }
 
     try {

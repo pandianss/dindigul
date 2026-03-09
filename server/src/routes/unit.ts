@@ -7,9 +7,10 @@ const router = Router();
 
 // Get all units (branches, RO, LPC)
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: ADMIN, RO_USER
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER';
-    if (!canView) {
+    // Permission: Only ADMIN or Planning Section (RO level) can modify
+    const isPlanningRole = req.user.role === 'RO_USER' && req.user.section === 'Planning';
+    const canManage = req.user.role === 'ADMIN' || isPlanningRole || req.user?.role === 'RO_USER';
+    if (!canManage) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     try {

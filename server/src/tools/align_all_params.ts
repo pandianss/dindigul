@@ -29,7 +29,7 @@ async function main() {
         { name: 'Core Adv', order: 300, parent: 'Adv', cat: 'Core Advances' },
         { name: 'Core Ret', order: 310, parent: 'Core Adv', cat: 'Core Advances' },
         { name: 'HL', order: 311, parent: 'Core Ret', cat: 'Core Advances' },
-        { name: 'PL', order: 312, parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'PersonalLoan', order: 312, parent: 'Core Ret', cat: 'Core Advances' },
         { name: 'EL', order: 313, parent: 'Core Ret', cat: 'Core Advances' },
         { name: 'VL', order: 314, parent: 'Core Ret', cat: 'Core Advances' },
         { name: 'Mort', order: 315, parent: 'Core Ret', cat: 'Core Advances' },

@@ -73,9 +73,11 @@ router.post('/photo', authenticateToken, async (req: any, res) => {
 
 // Get all users
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: ADMIN or RO_USER or 'admin' bypass
+    // Permission: ADMIN or RO_USER or Planning Section (RO level)
+    const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
     const canView = req.user?.role === 'ADMIN' ||
         req.user?.role === 'RO_USER' ||
+        isPlanningRole ||
         req.user?.role === 'RO_MANAGER'; // Temporary backward compatibility
 
     if (!canView) {
@@ -113,8 +115,9 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
 // Update user
 router.put('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can update users' });
+    const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
+    if (req.user?.role !== 'ADMIN' && !isPlanningRole) {
+        return res.status(403).json({ error: 'Permission denied' });
     }
     const id = req.params.id as string;
     const {

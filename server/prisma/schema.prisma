@@ -820,7 +820,7 @@ model Fact {
   value       Decimal       @db.Decimal(18, 2)
   ingestionId String?
   createdAt   DateTime      @default(now())
-  ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id])
+  ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id], onDelete: Cascade)
   branch      Branch        @relation(fields: [unitId], references: [id])
 
   @@index([date, unitId, metric])
@@ -864,7 +864,7 @@ model MisInformationPanel {
   status            String      @default("Neutral")
   val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 2)
   val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 2)
-  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id])
+  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
 
   @@map("mis_information_panels")
 }
@@ -883,7 +883,7 @@ model MisException {
   status       String      @default("OPEN")
   taskId       String?
   createdAt    DateTime    @default(now())
-  snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id])
+  snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
   branch       Branch      @relation(fields: [unitId], references: [id])
 
   @@map("mis_exceptions")

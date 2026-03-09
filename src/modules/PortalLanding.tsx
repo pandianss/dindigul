@@ -42,9 +42,9 @@ const PortalLanding: React.FC<PortalLandingProps> = ({ onSelectPortal }) => {
                         <Users className="w-7 h-7 text-bank-teal" />
                     </div>
 
-                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-bank-teal transition-colors">Guest Portal</h2>
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-bank-teal transition-colors">Guest Page</h2>
                     <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-[280px]">
-                        Public access for viewing general operational branch data, performance metrics, and general notices.
+                        Public terminal for branch performance metrics, operational status, and general banking notices.
                     </p>
 
                     <div className="mt-auto flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-bank-teal opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
@@ -65,9 +65,9 @@ const PortalLanding: React.FC<PortalLandingProps> = ({ onSelectPortal }) => {
                         <Shield className="w-7 h-7 text-bank-gold" />
                     </div>
 
-                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-bank-gold transition-colors">Region User Portal</h2>
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-bank-gold transition-colors">Login</h2>
                     <p className="text-white/50 text-sm leading-relaxed mb-8 max-w-[280px]">
-                        Secure administrative console for regional management, MIS reporting, and executive decisioning.
+                        Secure administrative console for authorized regional management, executive reporting, and decisioning.
                     </p>
 
                     <div className="mt-auto flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-bank-gold opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
