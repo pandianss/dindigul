@@ -69,61 +69,88 @@ const CorrespondenceCenter: React.FC = () => {
         const element = document.getElementById(`letter-content-${letterId}`);
         if (!element) return;
 
-        // html2canvas doesn't support oklch which is used by Tailwind v4. 
-        // We clone the element and force unsupported colors to a safe fallback before rendering
-        const clone = element.cloneNode(true) as HTMLElement;
-        clone.style.position = 'absolute';
-        clone.style.top = '-9999px';
-        document.body.appendChild(clone);
-
-        // Aggressive oklch/var to hex fallback for text, backgrounds, and borders
-        const elements = clone.querySelectorAll('*');
-        elements.forEach((el: any) => {
-            const style = window.getComputedStyle(el);
-
-            // Text color handling
-            const color = style.color || '';
-            if (color.includes('oklch') || color.includes('var(')) {
-                // Heuristic: If it's a heading or bold, make it dark navy, else slate
-                const isHeading = ['H1', 'H2', 'H3', 'P'].includes(el.tagName) && parseInt(style.fontWeight || '400') >= 600;
-                el.style.setProperty('color', isHeading ? '#21357f' : '#1e293b', 'important');
-            }
-
-            // Border color handling
-            const borderColor = style.borderColor || '';
-            if (borderColor.includes('oklch') || borderColor.includes('var(')) {
-                el.style.setProperty('border-color', '#cbd5e1', 'important');
-            }
-
-            // Background color handling
-            const bg = style.backgroundColor || '';
-            if (bg.includes('oklch') || bg.includes('var(')) {
-                // We use bg-amber/green/red lightly in UI. Fallback to simple hex equivalents if it's not transparent/white
-                if (el.className.includes('bg-green')) el.style.setProperty('background-color', '#dcfce7', 'important');
-                else if (el.className.includes('bg-red')) el.style.setProperty('background-color', '#fee2e2', 'important');
-                else if (el.className.includes('bg-amber')) el.style.setProperty('background-color', '#fef3c7', 'important');
-                else if (el.className.includes('bg-blue')) el.style.setProperty('background-color', '#dbeafe', 'important');
-                else el.style.setProperty('background-color', '#ffffff', 'important');
-            }
-        });
-
-        // Dynamic import to avoid SSR issues if this was SSR, but also just cleaner for heavy libs
         try {
             const html2pdf = (await import('html2pdf.js')).default;
+
+            // Heuristic to map oklch(L C H) to a safe static hex color to prevent html2canvas parsing crashes
+            const oklchToHex = (match: string) => {
+                const parts = match.split(/[\s,()]+/);
+                if (parts.length > 1) {
+                    let l = parseFloat(parts[1]);
+                    if (parts[1].includes('%')) l = l / 100;
+                    else if (l > 1) l = l / 100;
+
+                    if (l > 0.85) return '#f8fafc'; // light
+                    if (l > 0.6) return '#cbd5e1';  // gray
+                    if (l < 0.4) return '#1e293b';  // dark navy
+                    return '#64748b';               // mid-slate
+                }
+                return '#1e293b';
+            };
+
             const opt: any = {
                 margin: 0,
                 filename: `${title.replace(/\s+/g, '_')}_${format(new Date(), 'ddMMyyyy')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    // Intercept the internal iframe document before rendering to strip unsupported CSS functions
+                    onclone: (clonedDoc: HTMLDocument) => {
+                        // 1. Completely DESTROY all external stylesheets and injected <style> tags in the clone
+                        // Vite injects massive <style type="text/css"> blocks containing raw oklch/oklab variables
+                        // that html2canvas will crash on if left in the DOM.
+                        const linkTags = Array.from(clonedDoc.querySelectorAll('link[rel="stylesheet"], style'));
+                        linkTags.forEach((el) => {
+                            if (el.parentNode) el.parentNode.removeChild(el);
+                        });
+
+                        // 2. To maintain layout without those stylesheets, explicitly compute EVERY style from the real DOM 
+                        // and inline them onto the clone nodes securely.
+                        const clonedTree = clonedDoc.getElementById(`letter-content-${letterId}`);
+                        if (clonedTree && element) {
+                            const applyComputedSafely = (src: HTMLElement, dest: HTMLElement) => {
+                                const computed = window.getComputedStyle(src);
+                                let cssText = '';
+
+                                for (let i = 0; i < computed.length; i++) {
+                                    const propName = computed[i];
+                                    let propVal = computed.getPropertyValue(propName);
+
+                                    // Replace oklch/oklab with safe hex anywhere it appears
+                                    if (propVal && (propVal.includes('oklch') || propVal.includes('oklab') || propVal.includes('var('))) {
+                                        propVal = propVal.replace(/(oklch|oklab)\([^)]+\)/g, oklchToHex);
+                                        // Some var() fallbacks might still be uncaught, provide final structural fallbacks
+                                        if (propVal.includes('var(')) {
+                                            if (propName.includes('background')) propVal = '#ffffff';
+                                            else if (propName.includes('color') || propName.includes('fill')) propVal = '#1e293b';
+                                            else if (propName.includes('border') || propName.includes('outline')) propVal = '#cbd5e1';
+                                            else propVal = 'transparent';
+                                        }
+                                    }
+                                    cssText += `${propName}: ${propVal}; `;
+                                }
+                                dest.style.cssText = cssText;
+
+                                // Recursively process children
+                                const srcChildren = Array.from(src.children) as HTMLElement[];
+                                const destChildren = Array.from(dest.children) as HTMLElement[];
+                                for (let j = 0; j < srcChildren.length; j++) {
+                                    if (destChildren[j]) applyComputedSafely(srcChildren[j], destChildren[j]);
+                                }
+                            };
+
+                            applyComputedSafely(element, clonedTree);
+                        }
+                    }
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            await html2pdf().set(opt).from(clone).save();
+            await html2pdf().set(opt).from(element).save();
         } catch (error: any) {
             console.error('Failed to generate PDF:', error);
             alert(`Failed to generate PDF. Error: ${error?.message || error}`);
-        } finally {
-            document.body.removeChild(clone);
         }
     };
 
@@ -158,9 +185,12 @@ const CorrespondenceCenter: React.FC = () => {
         api.get('/letters')
             .then(res => res.data)
             .then(data => {
-                if (data.letters && data.metadata) {
-                    setLetters(data.letters);
+                const actualData = data.data || data.letters;
+                if (actualData && data.metadata) {
+                    setLetters(actualData);
                     setMetadata(data.metadata);
+                } else if (actualData) {
+                    setLetters(actualData);
                 } else {
                     setLetters(Array.isArray(data) ? data : []);
                 }
