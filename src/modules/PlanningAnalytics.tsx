@@ -16,6 +16,7 @@ import {
 import api from '../services/api';
 import { format } from 'date-fns';
 import { cn } from '../utils/cn';
+import { PresentationStudio } from './presentation/PresentationStudio';
 
 const formatNumber = (num: number | string | undefined) => {
     if (num === undefined || num === null) return '0';
@@ -120,7 +121,7 @@ const PlanningAnalytics: React.FC = () => {
     const [eligibleSchemes, setEligibleSchemes] = useState<string>('');
     const [showSettings, setShowSettings] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState<'overview' | 'intelligence' | 'exceptions'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'intelligence' | 'exceptions' | 'presentation_studio'>('overview');
     const [branchPeriod, setBranchPeriod] = useState<'month' | 'fy'>('month');
 
     useEffect(() => {
@@ -253,6 +254,13 @@ const PlanningAnalytics: React.FC = () => {
                             activeTab === 'exceptions' ? "bg-white text-bank-navy shadow-sm" : "text-gray-400 hover:text-gray-600")}
                     >
                         Compliance
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('presentation_studio')}
+                        className={cn("px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all",
+                            activeTab === 'presentation_studio' ? "bg-white text-bank-navy shadow-sm" : "text-gray-400 hover:text-gray-600")}
+                    >
+                        Presentation Studio
                     </button>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -842,6 +850,12 @@ const PlanningAnalytics: React.FC = () => {
                             </p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {activeTab === 'presentation_studio' && (
+                <div className="h-[800px] border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm animate-in fade-in duration-500">
+                    <PresentationStudio />
                 </div>
             )}
         </div>

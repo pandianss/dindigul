@@ -46,6 +46,7 @@ import parameterRoutes from './routes/parameterRoutes';
 import internalNoteRoutes from './routes/internalNote';
 import publicRoutes from './routes/public';
 import organizationRoutes from './routes/organization';
+import presentationRoutes from './routes/presentations';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -114,6 +115,7 @@ app.use('/api/parameters', parameterRoutes);
 app.use('/api/internal-notes', internalNoteRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/organization', organizationRoutes);
+app.use('/api/presentations', presentationRoutes);
 
 // Global error handler — must be defined after all routes
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

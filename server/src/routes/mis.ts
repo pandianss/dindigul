@@ -98,6 +98,91 @@ router.get('/snapshot', async (req, res) => {
     }
 });
 
+// GET /api/mis/regional-panel?date=YYYY-MM-DD
+// Returns all branch snapshots for a given date with their full panelData
+router.get('/regional-panel', authenticateToken, async (req: any, res) => {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: 'date query parameter required (YYYY-MM-DD)' });
+
+    try {
+        const [y, m, d] = String(date).split('-').map(Number);
+        const businessDate = new Date(Date.UTC(y, m - 1, d));
+
+        // Find all snapshots for this date
+        const snapshots = await prisma.misSnapshot.findMany({
+            where: { businessDate },
+            include: {
+                branch: { select: { id: true, code: true, nameEn: true, nameTa: true, type: true } },
+                panelData: true,
+            },
+            orderBy: { branch: { code: 'asc' } }
+        });
+
+        if (snapshots.length === 0) {
+            return res.status(404).json({ error: `No snapshots found for date ${date}` });
+        }
+
+        // Fetch parameter registry for display names
+        const registry = await prisma.misParameterRegistry.findMany({
+            where: { isEnabled: true },
+            orderBy: { orderIndex: 'asc' }
+        });
+        const regMap = Object.fromEntries(registry.map(r => [r.parameterName, r]));
+
+        // Enrich snapshots: convert Decimal to number, attach metadata
+        const enriched = snapshots
+            .filter(s => s.branch && s.branch.type !== 'REGIONAL OFFICE') // exclude RO itself
+            .map(s => ({
+                branchId: s.unitId,
+                branchCode: s.branch!.code,
+                branchName: s.branch!.nameEn,
+                status: s.status,
+                panelData: s.panelData.map(p => ({
+                    parameter: p.parameter,
+                    displayName: regMap[p.parameter]?.displayName || p.parameter,
+                    category: regMap[p.parameter]?.category || 'Other',
+                    val_current: Number(p.val_current),
+                    val_fy_start: Number(p.val_fy_start),
+                    val_prev_m_end: Number(p.val_prev_m_end),
+                    growth_fy: Number(p.growth_fy),
+                    growth_month: Number(p.growth_month),
+                    growth_day: Number(p.growth_day),
+                    budget_month: Number(p.budget_month),
+                    gap_month: Number(p.gap_month),
+                    status: p.status,
+                }))
+            }));
+
+        // Compute regional totals per parameter (for KPI slide)
+        const paramTotals: Record<string, {
+            displayName: string; category: string;
+            total: number; fyStart: number; growthFy: number;
+        }> = {};
+        for (const snap of enriched) {
+            for (const p of snap.panelData) {
+                if (!paramTotals[p.parameter]) {
+                    paramTotals[p.parameter] = { displayName: p.displayName, category: p.category, total: 0, fyStart: 0, growthFy: 0 };
+                }
+                paramTotals[p.parameter].total += p.val_current;
+                paramTotals[p.parameter].fyStart += p.val_fy_start;
+                paramTotals[p.parameter].growthFy += p.growth_fy;
+            }
+        }
+
+        res.json({
+            date,
+            businessDate: businessDate.toISOString(),
+            branchCount: enriched.length,
+            parameters: registry.map(r => ({ parameterName: r.parameterName, displayName: r.displayName, category: r.category, orderIndex: r.orderIndex })),
+            regionalTotals: paramTotals,
+            branches: enriched,
+        });
+    } catch (error: any) {
+        console.error('[regional-panel] Error:', error);
+        res.status(500).json({ error: 'Failed to fetch regional panel data' });
+    }
+});
+
 // Upload MIS Excel (Pivot format)
 router.post('/excel-upload', authenticateToken, upload.single('file'), async (req: any, res) => {
     const isPlanning = req.user?.section === 'Planning';

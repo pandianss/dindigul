@@ -48,6 +48,7 @@ interface AuthContextType {
   cancelMfa: () => void;
   logout: () => void;
   isLoading: boolean;
+  autoLogin: () => Promise<void>;
   autoLoginError: { message: string, sysUser?: string } | null;
 }
 
@@ -64,35 +65,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [autoLoginError, setAutoLoginError] = useState<{ message: string, sysUser?: string } | null>(null);
 
+  const autoLogin = async () => {
+    setIsLoading(true);
+    setAutoLoginError(null);
+    try {
+      const res = await fetch('/api/auth/auto-login');
+      const data = await res.json();
+      if (res.ok) {
+        const userWithToken: User = { ...data.user, token: data.token };
+        setUser(userWithToken);
+        sessionStorage.removeItem('manualLogout');
+        localStorage.setItem('user', JSON.stringify(userWithToken));
+        localStorage.setItem('token', data.token);
+      } else {
+        setAutoLoginError({ message: data.error, sysUser: data.sysUser });
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      // re-throw so callers (e.g. button) can handle the error message
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Run once on mount only — attempt silent login using the system OS user
   useEffect(() => {
-    const attemptAutoLogin = async () => {
-      if (sessionStorage.getItem('manualLogout') === 'true') {
-        setIsLoading(false);
-        return;
-      }
-      if (user) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch('/api/auth/auto-login');
-        const data = await res.json();
-        if (res.ok) {
-          const userWithToken: User = { ...data.user, token: data.token };
-          setUser(userWithToken);
-          localStorage.setItem('user', JSON.stringify(userWithToken));
-          localStorage.setItem('token', data.token);
-        } else if (res.status === 404 || res.status === 401) {
-          setAutoLoginError({ message: data.error, sysUser: data.sysUser });
-        }
-      } catch (error) {
-        console.error('Auto-login attempt failed:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    attemptAutoLogin();
-  }, [user]);
+    // If user already loaded from localStorage, skip
+    if (user) { setIsLoading(false); return; }
+    // If user previously manually logged out, don't auto-login
+    if (sessionStorage.getItem('manualLogout') === 'true') { setIsLoading(false); return; }
+    autoLogin().catch(() => { /* error stored in autoLoginError state */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = async (credentials: any) => {
     const res = await fetch('/api/auth/login', {
@@ -158,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, mfaPending, login, submitMfa, cancelMfa, logout, isLoading, autoLoginError }}>
+    <AuthContext.Provider value={{ user, mfaPending, login, submitMfa, cancelMfa, logout, isLoading, autoLogin, autoLoginError }}>
       {children}
     </AuthContext.Provider>
   );

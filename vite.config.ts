@@ -19,8 +19,8 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    exclude: ['echarts', 'recharts']
+    include: ['react', 'react-dom', 'recharts'],
+    exclude: ['echarts']
   },
   cacheDir: 'node_modules/.vite',
   server: {

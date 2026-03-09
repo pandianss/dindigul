@@ -8,11 +8,11 @@ interface LoginScreenProps {
 }
 
 const ROLES = [
-    { value: 'ADMIN',       label: 'System Administrator' },
-    { value: 'RO_USER',     label: 'Regional Office User' },
+    { value: 'ADMIN', label: 'System Administrator' },
+    { value: 'RO_USER', label: 'Regional Office User' },
     { value: 'BRANCH_USER', label: 'Branch Level User' },
-    { value: 'LPC_USER',    label: 'Loan Processing Centre' },
-    { value: 'GUEST',       label: 'Guest / Public View' },
+    { value: 'LPC_USER', label: 'Loan Processing Centre' },
+    { value: 'GUEST', label: 'Guest / Public View' },
 ];
 
 // ── MFA Step ─────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ const MfaStep: React.FC = () => {
                 <svg className="absolute inset-0 w-full h-full opacity-[0.025]" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="g2" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#g2)" />
@@ -135,35 +135,67 @@ const MfaStep: React.FC = () => {
 };
 
 // ── Access Denied / Auto-login Error ─────────────────────────────────────────
-const AccessDeniedScreen: React.FC<{ error: { message: string; sysUser?: string }; onManualLogin: () => void; onGuest: () => void }> = ({ error, onManualLogin, onGuest }) => (
-    <div className="min-h-screen bg-[#0A1628] flex items-center justify-center p-6">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-red-500/5 blur-[100px]" />
-        </div>
-        <div className="w-full max-w-sm relative">
-            <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
-                <div className="flex flex-col items-center mb-6">
-                    <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-                        <AlertCircle className="text-red-400" size={24} />
+const AccessDeniedScreen: React.FC<{ error: { message: string; sysUser?: string }; onManualLogin: () => void; onGuest: () => void }> = ({ error, onManualLogin, onGuest }) => {
+    const { autoLogin } = useAuth();
+    const [sysLoading, setSysLoading] = useState(false);
+    const [sysError, setSysError] = useState<string | null>(null);
+
+    const handleSystemLogin = async () => {
+        setSysLoading(true);
+        setSysError(null);
+        try {
+            await autoLogin();
+        } catch (err: any) {
+            setSysError(err.message || 'System login failed');
+        } finally {
+            setSysLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#0A1628] flex items-center justify-center p-6">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-red-500/5 blur-[100px]" />
+            </div>
+            <div className="w-full max-w-sm relative">
+                <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+                    <div className="flex flex-col items-center mb-6">
+                        <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                            <AlertCircle className="text-red-400" size={24} />
+                        </div>
+                        <h2 className="text-xl font-bold text-white mb-2">Access Restricted</h2>
+                        <p className="text-white/40 text-sm text-center leading-relaxed">{error.message}</p>
+                        {error.sysUser && (
+                            <p className="text-white/20 text-xs mt-2 font-mono">System user: <span className="text-white/40">{error.sysUser}</span></p>
+                        )}
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Access Restricted</h2>
-                    <p className="text-white/40 text-sm text-center leading-relaxed">{error.message}</p>
-                </div>
-                <div className="space-y-3">
-                    <button onClick={onManualLogin} className="w-full py-4 rounded-2xl font-bold text-white bg-[#00A896] hover:bg-[#00A896]/90 transition-all flex items-center justify-center gap-2">
-                        <Lock size={16} /> Login as Administrator
-                    </button>
-                    <button onClick={onGuest} className="w-full py-4 rounded-2xl font-semibold text-white/70 bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all">
-                        Visit Guest Portal
-                    </button>
-                    <button onClick={() => window.location.reload()} className="w-full py-3 text-white/30 hover:text-white/50 text-sm transition-colors flex items-center justify-center gap-2">
-                        <RefreshCw size={13} /> Retry automatic access
-                    </button>
+
+                    {sysError && (
+                        <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl mb-4 text-red-400 text-sm">
+                            <AlertCircle size={14} />
+                            <span>{sysError}</span>
+                        </div>
+                    )}
+
+                    <div className="space-y-3">
+                        <button onClick={handleSystemLogin} disabled={sysLoading} className="w-full py-4 rounded-2xl font-bold text-white bg-[#00A896] hover:bg-[#00A896]/90 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+                            {sysLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><User size={16} /> Login with System Username</>}
+                        </button>
+                        <button onClick={onManualLogin} className="w-full py-4 rounded-2xl font-semibold text-white/70 bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2">
+                            <Lock size={16} /> Enter Credentials Manually
+                        </button>
+                        <button onClick={onGuest} className="w-full py-4 rounded-2xl font-semibold text-white/50 bg-transparent hover:text-white/70 transition-all text-sm">
+                            Visit Guest Portal
+                        </button>
+                        <button onClick={() => window.location.reload()} className="w-full py-3 text-white/30 hover:text-white/50 text-sm transition-colors flex items-center justify-center gap-2">
+                            <RefreshCw size={13} /> Retry automatic access
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 // ── Main Login Form ───────────────────────────────────────────────────────────
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
@@ -174,7 +206,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showManualForm, setShowManualForm] = useState(false);
-    const { autoLoginError, mfaPending } = useAuth();
+    const { autoLoginError, mfaPending, autoLogin } = useAuth();
 
     // MFA flow – render the OTP step
     if (mfaPending) return <MfaStep />;
@@ -210,7 +242,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
                 <svg className="absolute inset-0 w-full h-full opacity-[0.02]" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#grid)" />
@@ -325,6 +357,25 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
                                         : <><Lock size={15} /> Authorize Access</>
                                     }
                                 </div>
+                            </button>
+
+                            {/* System Login Toggle */}
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={async () => {
+                                    setLoading(true);
+                                    try {
+                                        await autoLogin();
+                                    } catch (err: any) {
+                                        setError(err.message || 'System login failed');
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="w-full py-4 rounded-2xl font-semibold text-white/70 bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2 text-sm mt-3"
+                            >
+                                <User size={15} /> Login with System Username
                             </button>
                         </form>
                     </div>

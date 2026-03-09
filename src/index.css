@@ -20,7 +20,12 @@
   --bank-navy: var(--theme-primary, #21357f);
   --bank-gold: var(--theme-secondary, #D4AF37);
   --bank-teal: var(--theme-accent, #00A693);
+  --font-display: 'IBM Plex Serif', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 }
+
+.slide-display { font-family: var(--font-display); }
+.slide-mono { font-family: var(--font-mono); }
 
 @layer base {
   body {

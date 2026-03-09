@@ -115,6 +115,7 @@ export class BusinessSnapshotService {
         for (const unitId of allUnitIds) {
             const branch = await prisma.branch.findUnique({ where: { id: unitId } });
             if (!branch) continue;
+            if ((branch as any).type === 'REGIONAL OFFICE') continue; // RO is not a branch
 
             const uf = unitFinancials.find(u => u.unitCode === branch.code);
 
@@ -398,6 +399,7 @@ export class BusinessSnapshotService {
         const businessDate = new Date(Date.UTC(y, m - 1, d));
 
         const branches = await prisma.branch.findMany({
+            where: { NOT: { type: 'REGIONAL OFFICE' } }, // Exclude Regional Office
             orderBy: { nameEn: 'asc' }
         });
 
