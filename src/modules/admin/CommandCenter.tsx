@@ -41,6 +41,10 @@ const CommandCenter: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+    const [letterCriteria, setLetterCriteria] = useState<Record<string, string>>({});
+    const [criteriaSaving, setCriteriaSaving] = useState(false);
+    const [criteriaMsg, setCriteriaMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -62,7 +66,23 @@ const CommandCenter: React.FC = () => {
 
     useEffect(() => {
         fetchData();
+        api.get('/letters/criteria')
+            .then(r => setLetterCriteria(r.data))
+            .catch(console.error);
     }, []);
+
+    const saveCriteria = async () => {
+        setCriteriaSaving(true);
+        try {
+            await api.put('/letters/criteria', letterCriteria);
+            setCriteriaMsg({ type: 'success', text: 'Letter criteria saved.' });
+        } catch {
+            setCriteriaMsg({ type: 'error', text: 'Failed to save criteria.' });
+        } finally {
+            setCriteriaSaving(false);
+            setTimeout(() => setCriteriaMsg(null), 3000);
+        }
+    };
 
     const handleSrmSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -292,6 +312,138 @@ const CommandCenter: React.FC = () => {
                                 </div>
                             ))
                         )}
+                    </div>
+                </div>
+
+                {/* ── Letter Generation Criteria ── */}
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm lg:col-span-2">
+                    <h3 className="font-bold text-bank-navy text-lg mb-1">Monthly Letter Criteria</h3>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Controls which parameters trigger review letters, achievement thresholds, and letter counts.
+                    </p>
+
+                    {criteriaMsg && (
+                        <div className={`mb-4 px-4 py-2 rounded-lg text-sm font-bold ${criteriaMsg.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                            }`}>{criteriaMsg.text}</div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Enabled Parameters (comma-separated codes)
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_ENABLED_PARAMS'] || ''}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_ENABLED_PARAMS: e.target.value }))}
+                                placeholder="TOTAL_DEPOSITS,CASA,NPA,ADV"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Parameter codes from the Parameters table</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Inverted Parameters (lower = better, e.g. NPA)
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_INVERT_PARAMS'] || ''}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_INVERT_PARAMS: e.target.value }))}
+                                placeholder="NPA"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Auto-generate EXPLANATION on FY Decline (from March 31st)
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_FY_DECLINE_PARAMS'] || ''}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_FY_DECLINE_PARAMS: e.target.value }))}
+                                placeholder="TOTAL_DEPOSITS,CASA,ADV"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Branches that see a decline in these parameters since March 31st will receive an explanation letter</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Appreciation — Top N Branches
+                            </label>
+                            <input
+                                type="number" min="1" max="20"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_APPRECIATION_TOP_N'] || '3'}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_APPRECIATION_TOP_N: e.target.value }))}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Explanation — Bottom N Branches
+                            </label>
+                            <input
+                                type="number" min="1" max="20"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_EXPLANATION_BOTTOM_N'] || '3'}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_EXPLANATION_BOTTOM_N: e.target.value }))}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Appreciation Threshold (% of Budget)
+                            </label>
+                            <input
+                                type="number" min="0" max="200" step="5"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_APPRECIATION_THRESHOLD'] || '100'}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_APPRECIATION_THRESHOLD: e.target.value }))}
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Set to 0 to use pure rank mode (Top N only)</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">
+                                Explanation Threshold (% of Budget)
+                            </label>
+                            <input
+                                type="number" min="0" max="200" step="5"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none transition-all"
+                                value={letterCriteria['LETTER_EXPLANATION_THRESHOLD'] || '80'}
+                                onChange={e => setLetterCriteria(p => ({ ...p, LETTER_EXPLANATION_THRESHOLD: e.target.value }))}
+                            />
+                            <p className="text-xs text-gray-400 mt-1">Branches below this % receive explanation letters</p>
+                        </div>
+
+                        <div className="flex items-center gap-3 md:col-span-2 mt-2 border border-gray-100 p-4 rounded-xl bg-gray-50">
+                            <input
+                                type="checkbox"
+                                id="opRiskToggle"
+                                className="w-5 h-5 accent-bank-navy"
+                                checked={letterCriteria['LETTER_OPRISK_FROM_EXCEPTIONS'] === 'true'}
+                                onChange={e => setLetterCriteria(p => ({
+                                    ...p, LETTER_OPRISK_FROM_EXCEPTIONS: e.target.checked ? 'true' : 'false'
+                                }))}
+                            />
+                            <label htmlFor="opRiskToggle" className="text-sm font-bold text-gray-700 cursor-pointer">
+                                Auto-generate OP_RISK letters from CRITICAL MIS Exceptions
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            onClick={saveCriteria}
+                            disabled={criteriaSaving}
+                            className="bg-bank-navy text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md flex items-center gap-2"
+                        >
+                            {criteriaSaving ? 'Saving...' : 'Save Criteria'}
+                        </button>
                     </div>
                 </div>
             </div>

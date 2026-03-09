@@ -31,7 +31,7 @@ export async function createInternalNote(data: {
 
     // 2. Fetch Regional Office details for contact info
     const roLookupCode = '3933';
-    const ro = await (prisma as any).branch.findUnique({
+    const ro = await prisma.branch.findUnique({
         where: { code: roLookupCode }
     });
     console.log('[InternalNoteService] RO Branch Lookup Result:', ro ? 'Found' : 'Not Found');
@@ -44,7 +44,7 @@ export async function createInternalNote(data: {
     console.log('[InternalNoteService] Creator Branch ID:', data.creatorBranchId);
 
     if (data.creatorBranchId) {
-        const creatorBranch = await (prisma as any).branch.findUnique({
+        const creatorBranch = await prisma.branch.findUnique({
             where: { id: data.creatorBranchId }
         });
 
@@ -99,7 +99,7 @@ export async function createInternalNote(data: {
 
     // 4. Save to database
     const { date, creatorBranchId, ...dbData } = data; // Don't save manual date or branchId to DB if not in schema
-    const note = await (prisma as any).internalNote.create({
+    const note = await prisma.internalNote.create({
         data: {
             ...dbData,
             fileUrl: ''
@@ -119,7 +119,7 @@ export async function createInternalNote(data: {
         await fs.writeFile(filePath, pdfBuffer);
 
         // Update fileUrl
-        const updatedNote = await (prisma as any).internalNote.update({
+        const updatedNote = await prisma.internalNote.update({
             where: { id: note.id },
             data: { fileUrl: `/uploads/internal-notes/${fileName}` }
         });
@@ -131,7 +131,7 @@ export async function createInternalNote(data: {
 }
 
 export async function getInternalNoteById(id: string) {
-    return await (prisma as any).internalNote.findUnique({
+    return await prisma.internalNote.findUnique({
         where: { id }
     });
 }

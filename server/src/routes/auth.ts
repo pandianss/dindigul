@@ -5,6 +5,8 @@ import prisma from '../lib/prisma';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import { authenticateToken } from '../middleware/auth';
+import { z } from 'zod';
+import { validate } from '../lib/validate';
 import os from 'os';
 
 const router = Router();
@@ -26,7 +28,7 @@ type AuditEvent =
 
 async function recordAudit(event: AuditEvent, username: string, userId: string | null, req: any, metadata?: Record<string, unknown>) {
     try {
-        await (prisma as any).loginAuditLog.create({
+        await prisma.loginAuditLog.create({
             data: {
                 event, username,
                 userId: userId ?? null,
@@ -48,7 +50,7 @@ function buildToken(user: { id: string; username: string; fullNameEn: string; br
 }
 
 async function createSession(userId: string, token: string, label: string, req: any) {
-    await (prisma as any).session.create({
+    await prisma.session.create({
         data: {
             userId, token,
             expiresAt: new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000),
@@ -62,7 +64,7 @@ async function createSession(userId: string, token: string, label: string, req: 
 async function pruneExpiredSessions() {
     try {
         const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        await (prisma as any).session.deleteMany({
+        await prisma.session.deleteMany({
             where: { OR: [{ expiresAt: { lt: new Date() } }, { isActive: false, updatedAt: { lt: cutoff } }] },
         });
     } catch { /* non-critical */ }
@@ -70,14 +72,22 @@ async function pruneExpiredSessions() {
 
 function resolveRole(user: any, overrideRole?: string): string {
     let role: string = user.role;
-    if (user.username === 'admin' && overrideRole) role = overrideRole;
-    if (role === 'RO_MANAGER' || role === 'SECTION_USER') role = 'RO_USER';
     return role;
 }
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
-router.post('/register', async (req, res) => {
+const registerSchema = z.object({
+    body: z.object({
+        username: z.string().min(3, "Username must be at least 3 characters"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        fullNameEn: z.string().min(1, "Full name is required"),
+        role: z.string().min(1),
+        section: z.string().optional()
+    })
+});
+
+router.post('/register', validate(registerSchema), async (req, res) => {
     const { username, password, fullNameEn, role, section } = req.body;
     try {
         const passwordHash = await bcrypt.hash(password, 10);
@@ -88,9 +98,16 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.post('/login', async (req, res) => {
+const loginSchema = z.object({
+    body: z.object({
+        username: z.string().min(1, 'Username is required'),
+        password: z.string().min(1, 'Password is required'),
+        role: z.string().optional()
+    })
+});
+
+router.post('/login', validate(loginSchema), async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
 
     try {
         const user = await prisma.user.findUnique({ where: { username } });
@@ -220,7 +237,7 @@ router.get('/auto-login', async (req, res) => {
 router.post('/logout', authenticateToken, async (req: any, res) => {
     try {
         const token = req.headers['authorization']?.split(' ')[1];
-        if (token) await (prisma as any).session.updateMany({ where: { token, userId: req.user.id }, data: { isActive: false } });
+        if (token) await prisma.session.updateMany({ where: { token, userId: req.user.id }, data: { isActive: false } });
         await recordAudit('LOGOUT', req.user.username, req.user.id, req);
         res.json({ message: 'Logged out successfully' });
     } catch { res.status(500).json({ error: 'Logout failed' }); }
@@ -231,7 +248,7 @@ router.post('/logout', authenticateToken, async (req: any, res) => {
 router.get('/sessions', authenticateToken, async (req: any, res) => {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
     try {
-        const sessions = await (prisma as any).session.findMany({
+        const sessions = await prisma.session.findMany({
             where: { isActive: true, expiresAt: { gt: new Date() } },
             include: { user: { select: { username: true, fullNameEn: true } } },
             orderBy: { createdAt: 'desc' },
@@ -243,7 +260,7 @@ router.get('/sessions', authenticateToken, async (req: any, res) => {
 router.delete('/sessions/:id', authenticateToken, async (req: any, res) => {
     if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
     try {
-        const session = await (prisma as any).session.update({
+        const session = await prisma.session.update({
             where: { id: req.params.id },
             data: { isActive: false },
             include: { user: { select: { username: true } } },
@@ -265,13 +282,13 @@ router.get('/audit-log', authenticateToken, async (req: any, res) => {
         if (userId) where.userId = userId;
         if (event) where.event = event;
         const [logs, total] = await Promise.all([
-            (prisma as any).loginAuditLog.findMany({
+            prisma.loginAuditLog.findMany({
                 where,
                 include: { user: { select: { fullNameEn: true } } },
                 orderBy: { createdAt: 'desc' },
                 take, skip,
             }),
-            (prisma as any).loginAuditLog.count({ where }),
+            prisma.loginAuditLog.count({ where }),
         ]);
         res.json({ logs, total, page: parseInt(page as string), limit: take });
     } catch (err) {

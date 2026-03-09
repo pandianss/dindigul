@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../index';
+import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -12,29 +13,38 @@ router.get('/', authenticateToken, async (req: any, res) => {
         const scopedBranchId = req.user?.role === 'BRANCH_USER'
             ? req.user.branchId
             : (branchId ? String(branchId) : undefined);
-        const requests = await (prisma as any).branchRequest.findMany({
-            where: {
-                ...(scopedBranchId ? { branchId: scopedBranchId } : {}),
-                ...(assignedSection ? { assignedSection: String(assignedSection) } : {}),
-                ...(status ? { status: String(status) } : {})
-            },
-            orderBy: { createdAt: 'desc' },
-            include: {
-                branch: true,
-                user: {
-                    select: { fullNameEn: true, username: true }
-                },
-                comments: {
-                    include: {
-                        user: {
-                            select: { fullNameEn: true }
-                        }
+
+        const whereClause = {
+            ...(scopedBranchId ? { branchId: scopedBranchId } : {}),
+            ...(assignedSection ? { assignedSection: String(assignedSection) } : {}),
+            ...(status ? { status: String(status) } : {})
+        };
+        const { skip, take, page, limit } = parsePagination(req);
+
+        const [requests, total] = await Promise.all([
+            prisma.branchRequest.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    branch: true,
+                    user: {
+                        select: { fullNameEn: true, username: true }
                     },
-                    orderBy: { createdAt: 'asc' }
-                }
-            }
-        });
-        res.json(requests);
+                    comments: {
+                        include: {
+                            user: {
+                                select: { fullNameEn: true }
+                            }
+                        },
+                        orderBy: { createdAt: 'asc' }
+                    }
+                },
+                skip,
+                take
+            }),
+            prisma.branchRequest.count({ where: whereClause })
+        ]);
+        res.json(getPaginatedResponse(requests, total, page, limit));
     } catch (error) {
         console.error('Error fetching requests:', error);
         res.status(500).json({ error: 'Failed to fetch requests' });
@@ -45,7 +55,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 router.post('/', async (req, res) => {
     const { titleEn, contentEn, category, priority, branchId, userId, assignedSection } = req.body;
     try {
-        const request = await (prisma as any).branchRequest.create({
+        const request = await prisma.branchRequest.create({
             data: {
                 titleEn,
                 contentEn,
@@ -69,7 +79,7 @@ router.patch('/:id', async (req, res) => {
     const { id } = req.params;
     const { status, priority, assignedSection, resolutionNotes } = req.body;
     try {
-        const request = await (prisma as any).branchRequest.update({
+        const request = await prisma.branchRequest.update({
             where: { id },
             data: {
                 ...(status ? { status } : {}),
@@ -90,7 +100,7 @@ router.post('/:id/comments', async (req, res) => {
     const { id: requestId } = req.params;
     const { content, userId } = req.body;
     try {
-        const comment = await (prisma as any).comment.create({
+        const comment = await prisma.comment.create({
             data: {
                 content,
                 userId,

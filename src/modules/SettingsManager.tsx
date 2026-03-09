@@ -122,7 +122,7 @@ const SettingsManager: React.FC = () => {
         try {
             const endpoint = getEndpoint(activeTab);
             const res = await api.get(endpoint);
-            setData(res.data);
+            setData(res.data.data || res.data);
 
             if (activeTab === 'staff' || activeTab === 'atms') {
                 const [desigRes, branchRes, deptRes] = await Promise.all([

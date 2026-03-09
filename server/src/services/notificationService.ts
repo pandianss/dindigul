@@ -10,7 +10,7 @@ export const createNotification = async (
     link?: string
 ) => {
     try {
-        const notification = await (prisma as any).notification.create({
+        const notification = await prisma.notification.create({
             data: {
                 userId,
                 title,
@@ -27,7 +27,7 @@ export const createNotification = async (
 
 export const notifyAdmins = async (title: string, message: string, link?: string) => {
     try {
-        const admins = await (prisma as any).user.findMany({
+        const admins = await prisma.user.findMany({
             where: { role: 'ADMIN' }
         });
 

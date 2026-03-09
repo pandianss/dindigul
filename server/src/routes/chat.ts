@@ -12,7 +12,7 @@ router.use(authenticateToken as any);
 router.post('/query', async (req: any, res) => {
     const { branchCode, queryText, paramCodes } = req.body;
 
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Only ADMIN or Regional Office users can raise branch queries' });
     }
 
@@ -45,7 +45,7 @@ router.post('/query', async (req: any, res) => {
             type: 'ro_query',
             room: `branch:${branchCode}`,
             user: req.user.username,
-            role: ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user.role) ? req.user.role : 'RO_USER',
+            role: ['ADMIN', 'RO_USER'].includes(req.user.role) ? req.user.role : 'RO_USER',
             text: queryText,
             payload: JSON.stringify({
                 queryId: queryRecord.id,
@@ -139,7 +139,7 @@ router.post('/respond', async (req: any, res) => {
 
 // GET /api/chat/history/:room - Admin/Refresh fetching historical messages
 router.get('/history/:room', async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view full chat history' });
     }
     const { room } = req.params;
@@ -179,7 +179,7 @@ router.get('/history/:room', async (req: any, res) => {
 
 // GET /api/chat/pending - RO/ADMIN fetching unresolved queries
 router.get('/pending', async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view pending queries' });
     }
     try {
@@ -211,7 +211,7 @@ router.get('/pending', async (req: any, res) => {
 
 // GET /api/chat/history/summary/:sol - RO/ADMIN fetching summarized history
 router.get('/history/summary/:sol', async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Only ADMIN or Regional Office users can view summary history' });
     }
     const { sol } = req.params;

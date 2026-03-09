@@ -67,7 +67,7 @@ const RequestManager: React.FC = () => {
         const query = viewMode === 'RO' ? '?assignedSection=IT' : '?branchId=B001'; // Mock filters
         api.get(`/requests${query}`)
             .then((res: Record<string, any>) => {
-                setRequests(res.data);
+                setRequests(res.data.data || res.data);
                 setLoading(false);
             })
             .catch((err: unknown) => {
@@ -78,7 +78,7 @@ const RequestManager: React.FC = () => {
 
     useEffect(() => {
         fetchRequests();
-         
+
     }, [viewMode]);
 
     const handleSubmit = async (e: React.FormEvent) => {

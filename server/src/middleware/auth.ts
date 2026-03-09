@@ -32,7 +32,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
         }
 
         // GAP: Explicit session check
-        const session = await (prisma as any).session.findUnique({
+        const session = await prisma.session.findUnique({
             where: { token, isActive: true }
         });
 

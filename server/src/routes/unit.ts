@@ -7,8 +7,8 @@ const router = Router();
 
 // Get all units (branches, RO, LPC)
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: ADMIN, RO_USER, or 'admin' bypass
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || req.user?.username === 'admin';
+    // Permission: ADMIN, RO_USER
+    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER';
     if (!canView) {
         return res.status(403).json({ error: 'Forbidden' });
     }
@@ -121,7 +121,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 // Mass Purge Isolated Units
 router.delete('/purge', authenticateToken, async (req: any, res) => {
     // Permission constraint: Only full Admins
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only administrators can perform a mass purge.' });
     }
 

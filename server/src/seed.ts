@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
     const passwordHash = await bcrypt.hash('admin123', 10);
 
-    const admin = await (prisma as any).user.upsert({
+    const admin = await prisma.user.upsert({
         where: { username: 'admin' },
         update: {},
         create: {
@@ -28,7 +28,7 @@ async function main() {
     ];
 
     for (const b of branches) {
-        await (prisma as any).branch.upsert({
+        await prisma.branch.upsert({
             where: { code: b.code },
             update: {},
             create: b
@@ -54,11 +54,11 @@ async function main() {
     }
 
     // Seed some initial requests for Request Management
-    const itParam = await (prisma as any).parameter.findUnique({ where: { code: 'TOTAL_DEPOSITS' } }); // Just for user/branch context
-    const mainBranch = await (prisma as any).branch.findUnique({ where: { code: 'B001' } });
+    const itParam = await prisma.parameter.findUnique({ where: { code: 'TOTAL_DEPOSITS' } }); // Just for user/branch context
+    const mainBranch = await prisma.branch.findUnique({ where: { code: 'B001' } });
 
     if (mainBranch) {
-        await (prisma as any).branchRequest.create({
+        await prisma.branchRequest.create({
             data: {
                 titleEn: 'UPS Battery Backup Issue',
                 contentEn: 'The UPS in the cash cabin is not providing backup during power switches. Needs immediate technician visit.',
@@ -71,7 +71,7 @@ async function main() {
             }
         });
 
-        await (prisma as any).branchRequest.create({
+        await prisma.branchRequest.create({
             data: {
                 titleEn: 'Stationery Requisition - August',
                 contentEn: 'Monthly requirement for account opening forms and DD leaflets.',
@@ -86,7 +86,7 @@ async function main() {
     }
 
     // Seed committees for Phase 5
-    const olc = await (prisma as any).committee.upsert({
+    const olc = await prisma.committee.upsert({
         where: { code: 'OLC' },
         update: {},
         create: {
@@ -96,7 +96,7 @@ async function main() {
         }
     });
 
-    const lsc = await (prisma as any).committee.upsert({
+    const lsc = await prisma.committee.upsert({
         where: { code: 'LSC' },
         update: {},
         create: {
@@ -107,7 +107,7 @@ async function main() {
     });
 
     // Seed a meeting with action points
-    await (prisma as any).meeting.create({
+    await prisma.meeting.create({
         data: {
             committeeId: lsc.id,
             date: new Date(),
@@ -128,20 +128,20 @@ async function main() {
     });
 
     // Seed stationery items for Phase 6
-    const forms = await (prisma as any).stationeryItem.upsert({
+    const forms = await prisma.stationeryItem.upsert({
         where: { nameEn: 'Account Opening Forms (SB)' },
         update: {},
         create: { nameEn: 'Account Opening Forms (SB)', stockLevel: 500 }
     });
 
-    const passbooks = await (prisma as any).stationeryItem.upsert({
+    const passbooks = await prisma.stationeryItem.upsert({
         where: { nameEn: 'Savings Passbooks (Blank)' },
         update: {},
         create: { nameEn: 'Savings Passbooks (Blank)', stockLevel: 200 }
     });
 
     // Seed movements
-    await (prisma as any).stationeryMovement.create({
+    await prisma.stationeryMovement.create({
         data: {
             itemId: forms.id,
             branchId: mainBranch?.id,
@@ -152,7 +152,7 @@ async function main() {
     });
 
     // Seed dispatch records
-    await (prisma as any).dispatchRecord.create({
+    await prisma.dispatchRecord.create({
         data: {
             type: 'INWARD',
             subject: 'Circular on Gold Loan Interest Rates',
@@ -163,7 +163,7 @@ async function main() {
         }
     });
 
-    await (prisma as any).dispatchRecord.create({
+    await prisma.dispatchRecord.create({
         data: {
             type: 'OUTWARD',
             subject: 'Transfer Order - Mr. Ramesh K',
@@ -177,7 +177,7 @@ async function main() {
     console.log('Seeded/Updated initial logistics data');
 
     // Seed budgets for Phase 7
-    const itBudget = await (prisma as any).budget.upsert({
+    const itBudget = await prisma.budget.upsert({
         where: { section_financialYear: { section: 'IT', financialYear: '2025-26' } },
         update: {},
         create: {
@@ -188,7 +188,7 @@ async function main() {
         }
     });
 
-    await (prisma as any).budget.upsert({
+    await prisma.budget.upsert({
         where: { section_financialYear: { section: 'Premises', financialYear: '2025-26' } },
         update: {},
         create: {
@@ -199,7 +199,7 @@ async function main() {
         }
     });
 
-    await (prisma as any).budget.upsert({
+    await prisma.budget.upsert({
         where: { section_financialYear: { section: 'HR', financialYear: '2025-26' } },
         update: {},
         create: {
@@ -213,7 +213,7 @@ async function main() {
     console.log('Seeded/Updated Phase 7 budget data');
 
     // Seed Legal Cases for Phase 8
-    const sampleCase = await (prisma as any).legalCase.upsert({
+    const sampleCase = await prisma.legalCase.upsert({
         where: { caseNo: 'WP/4567/2025' },
         update: {},
         create: {
@@ -228,9 +228,9 @@ async function main() {
     });
 
     // Seed Recovery Actions for Phase 8
-    const dindigulMain = await (prisma as any).branch.findFirst({ where: { code: '6101' } });
+    const dindigulMain = await prisma.branch.findFirst({ where: { code: '6101' } });
     if (dindigulMain) {
-        await (prisma as any).recoveryAction.create({
+        await prisma.recoveryAction.create({
             data: {
                 accountName: 'K. Ranganathan (NPA)',
                 amountInvolved: 850000,
@@ -241,7 +241,7 @@ async function main() {
             }
         });
 
-        await (prisma as any).recoveryAction.create({
+        await prisma.recoveryAction.create({
             data: {
                 accountName: 'Latha & Co (OTS)',
                 amountInvolved: 420000,
@@ -256,9 +256,9 @@ async function main() {
     console.log('Seeded Phase 8 Legal & Recovery data');
 
     // Seed Audit Observations for Phase 9
-    const dindigulCity = await (prisma as any).branch.findFirst({ where: { code: '6102' } });
+    const dindigulCity = await prisma.branch.findFirst({ where: { code: '6102' } });
     if (dindigulCity) {
-        await (prisma as any).auditObservation.create({
+        await prisma.auditObservation.create({
             data: {
                 auditType: 'CONCURRENT',
                 observation: 'Duplicate payments detected in electricity bills for Oct-Dec 2025.',
@@ -270,7 +270,7 @@ async function main() {
             }
         });
 
-        await (prisma as any).auditObservation.create({
+        await prisma.auditObservation.create({
             data: {
                 auditType: 'LFAR',
                 observation: 'Branch keys inventory not signed by the Assistant Manager for Jan 2026.',
@@ -287,9 +287,9 @@ async function main() {
     console.log('Seeded Phase 9 Audit & Compliance data');
 
     // Seed Regional Assets for Phase 10
-    const cityBranch = await (prisma as any).branch.findFirst({ where: { code: '6101' } });
+    const cityBranch = await prisma.branch.findFirst({ where: { code: '6101' } });
     if (cityBranch) {
-        const locker = await (prisma as any).regionalAsset.create({
+        const locker = await prisma.regionalAsset.create({
             data: {
                 assetCode: 'RO/LOK/2026/01',
                 category: 'LOCKER',
@@ -301,7 +301,7 @@ async function main() {
             }
         });
 
-        const genset = await (prisma as any).regionalAsset.create({
+        const genset = await prisma.regionalAsset.create({
             data: {
                 assetCode: 'RO/MCH/2026/04',
                 category: 'MACHINERY',
@@ -314,7 +314,7 @@ async function main() {
             }
         });
 
-        await (prisma as any).maintenanceRecord.create({
+        await prisma.maintenanceRecord.create({
             data: {
                 assetId: genset.id,
                 serviceDate: new Date('2025-11-20'),

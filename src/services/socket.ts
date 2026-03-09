@@ -6,4 +6,9 @@ const SOCKET_URL = import.meta.env.VITE_WS_URL || undefined;
 export const socket = io(SOCKET_URL, {
     transports: ['websocket'],
     autoConnect: false, // Connect when SocketProvider mounts
+    auth: (cb) => {
+        const token = localStorage.getItem('token');
+        cb({ token });
+    },
+    withCredentials: true,
 });

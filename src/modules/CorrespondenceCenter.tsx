@@ -66,91 +66,22 @@ const CorrespondenceCenter: React.FC = () => {
     };
 
     const handleDownloadPdf = async (letterId: string, title: string) => {
-        const element = document.getElementById(`letter-content-${letterId}`);
-        if (!element) return;
-
         try {
-            const html2pdf = (await import('html2pdf.js')).default;
-
-            // Heuristic to map oklch(L C H) to a safe static hex color to prevent html2canvas parsing crashes
-            const oklchToHex = (match: string) => {
-                const parts = match.split(/[\s,()]+/);
-                if (parts.length > 1) {
-                    let l = parseFloat(parts[1]);
-                    if (parts[1].includes('%')) l = l / 100;
-                    else if (l > 1) l = l / 100;
-
-                    if (l > 0.85) return '#f8fafc'; // light
-                    if (l > 0.6) return '#cbd5e1';  // gray
-                    if (l < 0.4) return '#1e293b';  // dark navy
-                    return '#64748b';               // mid-slate
-                }
-                return '#1e293b';
-            };
-
-            const opt: any = {
-                margin: 0,
-                filename: `${title.replace(/\s+/g, '_')}_${format(new Date(), 'ddMMyyyy')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    // Intercept the internal iframe document before rendering to strip unsupported CSS functions
-                    onclone: (clonedDoc: HTMLDocument) => {
-                        // 1. Completely DESTROY all external stylesheets and injected <style> tags in the clone
-                        // Vite injects massive <style type="text/css"> blocks containing raw oklch/oklab variables
-                        // that html2canvas will crash on if left in the DOM.
-                        const linkTags = Array.from(clonedDoc.querySelectorAll('link[rel="stylesheet"], style'));
-                        linkTags.forEach((el) => {
-                            if (el.parentNode) el.parentNode.removeChild(el);
-                        });
-
-                        // 2. To maintain layout without those stylesheets, explicitly compute EVERY style from the real DOM 
-                        // and inline them onto the clone nodes securely.
-                        const clonedTree = clonedDoc.getElementById(`letter-content-${letterId}`);
-                        if (clonedTree && element) {
-                            const applyComputedSafely = (src: HTMLElement, dest: HTMLElement) => {
-                                const computed = window.getComputedStyle(src);
-                                let cssText = '';
-
-                                for (let i = 0; i < computed.length; i++) {
-                                    const propName = computed[i];
-                                    let propVal = computed.getPropertyValue(propName);
-
-                                    // Replace oklch/oklab with safe hex anywhere it appears
-                                    if (propVal && (propVal.includes('oklch') || propVal.includes('oklab') || propVal.includes('var('))) {
-                                        propVal = propVal.replace(/(oklch|oklab)\([^)]+\)/g, oklchToHex);
-                                        // Some var() fallbacks might still be uncaught, provide final structural fallbacks
-                                        if (propVal.includes('var(')) {
-                                            if (propName.includes('background')) propVal = '#ffffff';
-                                            else if (propName.includes('color') || propName.includes('fill')) propVal = '#1e293b';
-                                            else if (propName.includes('border') || propName.includes('outline')) propVal = '#cbd5e1';
-                                            else propVal = 'transparent';
-                                        }
-                                    }
-                                    cssText += `${propName}: ${propVal}; `;
-                                }
-                                dest.style.cssText = cssText;
-
-                                // Recursively process children
-                                const srcChildren = Array.from(src.children) as HTMLElement[];
-                                const destChildren = Array.from(dest.children) as HTMLElement[];
-                                for (let j = 0; j < srcChildren.length; j++) {
-                                    if (destChildren[j]) applyComputedSafely(srcChildren[j], destChildren[j]);
-                                }
-                            };
-
-                            applyComputedSafely(element, clonedTree);
-                        }
-                    }
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            await html2pdf().set(opt).from(element).save();
+            const response = await api.get(`/letters/${letterId}/pdf`, {
+                responseType: 'blob',
+            });
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/\s+/g, '_')}_${format(new Date(), 'ddMMyyyy')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         } catch (error: any) {
-            console.error('Failed to generate PDF:', error);
-            alert(`Failed to generate PDF. Error: ${error?.message || error}`);
+            console.error('Failed to download PDF:', error);
+            alert(`Failed to download PDF. Error: ${error?.response?.data?.error || error?.message || 'Unknown error'}`);
         }
     };
 
@@ -206,17 +137,24 @@ const CorrespondenceCenter: React.FC = () => {
         fetchLetters();
     }, []);
 
+    const [generateResult, setGenerateResult] = useState<{
+        message: string;
+        created: number;
+        skipped: number;
+        details: { branch: string; param: string; type: string; reason: string }[];
+    } | null>(null);
+
     const handleGenerate = async () => {
         setGenerating(true);
+        setGenerateResult(null);
         try {
             const response = await api.post('/letters/generate', {
                 period: format(subMonths(new Date(), 1), 'MMM yyyy')
             });
-            if (response.status === 200) {
-                fetchLetters();
-            }
-        } catch (error) {
-            console.error('Error generating letters:', error);
+            setGenerateResult(response.data);
+            fetchLetters();
+        } catch (error: any) {
+            alert(`Generation failed: ${error?.response?.data?.error || error.message}`);
         } finally {
             setGenerating(false);
         }
@@ -247,6 +185,42 @@ const CorrespondenceCenter: React.FC = () => {
                     <span>{generating ? 'Generating...' : 'Generate Monthly Drafts'}</span>
                 </button>
             </div>
+
+            {generateResult && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm animate-in fade-in slide-in-from-top-4">
+                    <p className="font-bold text-green-800 mb-2">{generateResult.message}</p>
+                    {generateResult.details.length > 0 && (
+                        <div className="overflow-auto max-h-48 custom-scrollbar">
+                            <table className="w-full text-xs">
+                                <thead>
+                                    <tr className="text-green-700 font-bold uppercase tracking-wider sticky top-0 bg-green-50">
+                                        <th className="text-left py-1 pr-4">Branch</th>
+                                        <th className="text-left py-1 pr-4">Parameter</th>
+                                        <th className="text-left py-1 pr-4">Type</th>
+                                        <th className="text-left py-1">Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {generateResult.details.map((d, i) => (
+                                        <tr key={i} className="border-t border-green-100/50 text-gray-700">
+                                            <td className="py-1 pr-4">{d.branch}</td>
+                                            <td className="py-1 pr-4 font-mono">{d.param}</td>
+                                            <td className={`py-1 pr-4 font-bold ${d.type === 'APPRECIATION' ? 'text-green-700' :
+                                                    d.type === 'EXPLANATION' ? 'text-red-700' :
+                                                        d.type === 'OP_RISK' ? 'text-orange-700' : 'text-gray-400'
+                                                }`}>{d.type}</td>
+                                            <td className="py-1 text-gray-500">{d.reason}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    <button onClick={() => setGenerateResult(null)} className="mt-2 text-xs font-bold text-green-600 hover:text-green-800 hover:underline">
+                        Dismiss
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <div className="flex justify-center py-12">

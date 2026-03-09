@@ -66,8 +66,8 @@ const DispatchManager: React.FC = () => {
                 api.get('/dispatch'),
                 api.get('/logistics/stock')
             ]);
-            setRecords(dispatchRes.data);
-            setStationery(logisticsRes.data);
+            setRecords(dispatchRes.data.data || dispatchRes.data);
+            setStationery(logisticsRes.data.data || logisticsRes.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {

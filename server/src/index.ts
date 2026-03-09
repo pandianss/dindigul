@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import jwt from 'jsonwebtoken';
+
 process.on('uncaughtException', (err) => {
     console.error('[uncaughtException] Shutting down:', err);
     process.exit(1);
@@ -133,6 +135,20 @@ const io = new Server(httpServer, {
         origin: FRONTEND_URL,
         methods: ["GET", "POST"],
         credentials: true
+    }
+});
+
+io.use((socket: any, next: any) => {
+    const token = socket.handshake.auth?.token;
+    if (!token) {
+        return next(new Error('Authentication required'));
+    }
+    try {
+        const user = jwt.verify(token, process.env.JWT_SECRET as string);
+        socket.data.user = user;
+        next();
+    } catch (err) {
+        next(new Error('Invalid or expired token'));
     }
 });
 

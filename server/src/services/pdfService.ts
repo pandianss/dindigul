@@ -39,7 +39,10 @@ export async function generatePDF(html: string): Promise<Buffer> {
         await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 2 });
 
         // networkidle0 ensures all assets (fonts, images) are loaded
-        await page.setContent(html, { waitUntil: 'networkidle0' });
+        await page.setContent(html, {
+            waitUntil: 'networkidle0',
+            timeout: 30000
+        });
 
         const pdf = await page.pdf({
             format: 'A4',

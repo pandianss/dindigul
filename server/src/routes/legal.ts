@@ -6,7 +6,7 @@ const router = Router();
 // Get all legal cases
 router.get('/cases', async (req, res) => {
     try {
-        const cases = await (prisma as any).legalCase.findMany({
+        const cases = await prisma.legalCase.findMany({
             orderBy: { nextHearingDate: 'asc' }
         });
         res.json(cases);
@@ -20,7 +20,7 @@ router.get('/cases', async (req, res) => {
 router.post('/cases', async (req, res) => {
     const { caseNo, courtName, parties, nextHearingDate, advocateName, status, category, hearingHistory } = req.body;
     try {
-        const newCase = await (prisma as any).legalCase.create({
+        const newCase = await prisma.legalCase.create({
             data: {
                 caseNo,
                 courtName,
@@ -42,7 +42,7 @@ router.post('/cases', async (req, res) => {
 // Get all recovery actions
 router.get('/recovery', async (req, res) => {
     try {
-        const recoveryActions = await (prisma as any).recoveryAction.findMany({
+        const recoveryActions = await prisma.recoveryAction.findMany({
             include: {
                 branch: true
             },
@@ -59,7 +59,7 @@ router.get('/recovery', async (req, res) => {
 router.post('/recovery', async (req, res) => {
     const { accountName, amountInvolved, type, status, branchId, remarks } = req.body;
     try {
-        const newAction = await (prisma as any).recoveryAction.create({
+        const newAction = await prisma.recoveryAction.create({
             data: {
                 accountName,
                 amountInvolved,

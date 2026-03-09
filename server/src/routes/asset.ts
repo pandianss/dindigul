@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         if (category) where.category = category;
         if (condition) where.condition = condition;
 
-        const assets = await (prisma as any).regionalAsset.findMany({
+        const assets = await prisma.regionalAsset.findMany({
             where,
             include: {
                 branch: true,
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const { assetCode, category, description, purchaseDate, purchaseValue, condition, amcExpiry, branchId } = req.body;
     try {
-        const newAsset = await (prisma as any).regionalAsset.create({
+        const newAsset = await prisma.regionalAsset.create({
             data: {
                 assetCode,
                 category,
@@ -57,7 +57,7 @@ router.post('/', async (req, res) => {
 router.get('/:id/maintenance', async (req, res) => {
     const { id } = req.params;
     try {
-        const records = await (prisma as any).maintenanceRecord.findMany({
+        const records = await prisma.maintenanceRecord.findMany({
             where: { assetId: id },
             orderBy: { serviceDate: 'desc' }
         });
@@ -72,7 +72,7 @@ router.get('/:id/maintenance', async (req, res) => {
 router.post('/maintenance', async (req, res) => {
     const { assetId, serviceDate, serviceProvider, cost, remarks, nextServiceDue } = req.body;
     try {
-        const record = await (prisma as any).maintenanceRecord.create({
+        const record = await prisma.maintenanceRecord.create({
             data: {
                 assetId,
                 serviceDate: new Date(serviceDate),
@@ -95,7 +95,7 @@ router.get('/alerts', async (req, res) => {
         const thirtyDaysFromNow = new Date();
         thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
-        const expiringAMC = await (prisma as any).regionalAsset.findMany({
+        const expiringAMC = await prisma.regionalAsset.findMany({
             where: {
                 amcExpiry: {
                     lte: thirtyDaysFromNow,

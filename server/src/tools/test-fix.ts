@@ -18,7 +18,7 @@ async function testFix() {
     } catch (error: any) {
         console.error('FAILED: Error creating internal note:', error);
     } finally {
-        await (prisma as any).$disconnect();
+        await prisma.$disconnect();
     }
 }
 

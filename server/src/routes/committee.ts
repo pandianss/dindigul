@@ -10,7 +10,7 @@ router.use(authenticateToken as any);
 // Get all committees
 router.get('/', async (req: any, res) => {
     try {
-        const committees = await (prisma as any).committee.findMany({
+        const committees = await prisma.committee.findMany({
             include: {
                 _count: {
                     select: { members: true }
@@ -32,7 +32,7 @@ router.get('/', async (req: any, res) => {
 router.get('/:id/members', async (req: any, res) => {
     const { id } = req.params;
     try {
-        const members = await (prisma as any).committeeMember.findMany({
+        const members = await prisma.committeeMember.findMany({
             where: { committeeId: id },
             include: {
                 user: {
@@ -49,13 +49,13 @@ router.get('/:id/members', async (req: any, res) => {
 
 // GAP 22: Add member to committee
 router.post('/:id/members', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can modify committees' });
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_USER') {
+        return res.status(403).json({ error: 'Only ADMIN or RO_USER can modify committees' });
     }
     const { id: committeeId } = req.params;
     const { userId, role } = req.body;
     try {
-        const member = await (prisma as any).committeeMember.upsert({
+        const member = await prisma.committeeMember.upsert({
             where: {
                 committeeId_userId: { committeeId, userId }
             },
@@ -70,12 +70,12 @@ router.post('/:id/members', async (req: any, res) => {
 
 // GAP 22: Remove member from committee
 router.delete('/:id/members/:userId', async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_MANAGER') {
-        return res.status(403).json({ error: 'Only ADMIN or RO_MANAGER can modify committees' });
+    if (req.user?.role !== 'ADMIN' && req.user?.role !== 'RO_USER') {
+        return res.status(403).json({ error: 'Only ADMIN or RO_USER can modify committees' });
     }
     const { id: committeeId, userId } = req.params;
     try {
-        await (prisma as any).committeeMember.delete({
+        await prisma.committeeMember.delete({
             where: {
                 committeeId_userId: { committeeId, userId }
             }
@@ -90,7 +90,7 @@ router.delete('/:id/members/:userId', async (req: any, res) => {
 router.get('/:id/meetings', async (req: any, res) => {
     const { id } = req.params;
     try {
-        const meetings = await (prisma as any).meeting.findMany({
+        const meetings = await prisma.meeting.findMany({
             where: { committeeId: id },
             orderBy: { date: 'desc' },
             include: {
@@ -112,13 +112,13 @@ router.get('/:id/meetings', async (req: any, res) => {
 
 // Create a new meeting minutes record
 router.post('/:id/meetings', async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Only ADMIN or Regional Office users can create meetings' });
     }
     const { id: committeeId } = req.params;
     const { date, venue, minutesJson, actionPoints } = req.body;
     try {
-        const meeting = await (prisma as any).meeting.create({
+        const meeting = await prisma.meeting.create({
             data: {
                 committeeId,
                 date: new Date(date),
@@ -149,7 +149,7 @@ router.post('/:id/meetings', async (req: any, res) => {
 router.get('/action-points/:userId', async (req: any, res) => {
     const { userId } = req.params;
     try {
-        const actionPoints = await (prisma as any).actionPoint.findMany({
+        const actionPoints = await prisma.actionPoint.findMany({
             where: { assignedToUserId: userId },
             include: {
                 meeting: {
@@ -173,7 +173,7 @@ router.patch('/action-points/:id', async (req: any, res) => {
     const { status, remarks, completionDate } = req.body;
 
     try {
-        const ap = await (prisma as any).actionPoint.findUnique({
+        const ap = await prisma.actionPoint.findUnique({
             where: { id },
             include: { assignedTo: true }
         });
@@ -182,14 +182,14 @@ router.patch('/action-points/:id', async (req: any, res) => {
             return res.status(404).json({ error: 'Action point not found' });
         }
 
-        const isAdminOrRo = ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role);
+        const isAdminOrRo = ['ADMIN', 'RO_USER'].includes(req.user?.role);
         const isAssignee = ap.assignedToUserId && ap.assignedToUserId === req.user?.id;
 
         if (!isAdminOrRo && !isAssignee) {
             return res.status(403).json({ error: 'Not authorised to update this action point' });
         }
 
-        const updated = await (prisma as any).actionPoint.update({
+        const updated = await prisma.actionPoint.update({
             where: { id },
             data: {
                 status,

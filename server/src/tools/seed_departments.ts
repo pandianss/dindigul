@@ -37,7 +37,7 @@ async function seedDepartments() {
     for (const name of newDepartments) {
         const code = generateCode(name);
 
-        await (prisma as any).department.upsert({
+        await prisma.department.upsert({
             where: { code },
             update: { nameEn: name },
             create: {

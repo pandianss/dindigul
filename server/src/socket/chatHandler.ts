@@ -4,9 +4,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 export function registerChatHandlers(io: any, socket: any) {
     socket.on('join_room', async (room: string) => {
-        // Validate room access based on role
-        // For branch:{sol} rooms, checking the connection origin or validating against a token 
-        // Here we assume the client is well-behaved or we check their role locally if needed.
+        const user = socket.data.user;
+        if (!user) {
+            socket.emit('error', { message: 'Unauthorized' });
+            return;
+        }
+
+        // Branch-specific rooms: only the branch's own users may join
+        if (room.startsWith('branch:')) {
+            const solCode = room.split(':')[1];
+            const isBranchUser = user.role === 'BRANCH_USER' || user.role === 'BRANCH';
+            const isRoOrAdmin = ['ADMIN', 'RO_USER'].includes(user.role);
+            if (!isRoOrAdmin && !(isBranchUser && user.branchCode === solCode)) {
+                socket.emit('error', { message: 'Access denied to this room' });
+                return;
+            }
+        }
+
         socket.join(room);
 
         try {

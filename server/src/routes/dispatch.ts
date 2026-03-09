@@ -1,15 +1,22 @@
 import { Router } from 'express';
 import { prisma } from '../index';
+import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 
 const router = Router();
 
 // Get all dispatch records
 router.get('/', async (req, res) => {
     try {
-        const records = await (prisma as any).dispatchRecord.findMany({
-            orderBy: { date: 'desc' }
-        });
-        res.json(records);
+        const { skip, take, page, limit } = parsePagination(req);
+        const [records, total] = await Promise.all([
+            prisma.dispatchRecord.findMany({
+                orderBy: { date: 'desc' },
+                skip,
+                take
+            }),
+            prisma.dispatchRecord.count()
+        ]);
+        res.json(getPaginatedResponse(records, total, page, limit));
     } catch (error) {
         console.error('Error fetching dispatch records:', error);
         res.status(500).json({ error: 'Failed to fetch dispatch records' });
@@ -20,7 +27,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const { type, subject, sender, recipient, referenceNo, consignmentNo, date } = req.body;
     try {
-        const record = await (prisma as any).dispatchRecord.create({
+        const record = await prisma.dispatchRecord.create({
             data: {
                 type,
                 subject,
@@ -44,7 +51,7 @@ router.patch('/:id', async (req, res) => {
     const { id } = req.params;
     const { status, consignmentNo } = req.body;
     try {
-        const record = await (prisma as any).dispatchRecord.update({
+        const record = await prisma.dispatchRecord.update({
             where: { id },
             data: { status, consignmentNo }
         });

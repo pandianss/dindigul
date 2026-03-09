@@ -21,12 +21,12 @@ const DEFAULT_CONFIG = {
 // Get organization config merged with RO branch details
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        let config = await (prisma as any).organizationConfig.findUnique({
+        let config = await prisma.organizationConfig.findUnique({
             where: { id: 'singleton' }
         });
 
         if (!config) {
-            config = await (prisma as any).organizationConfig.create({
+            config = await prisma.organizationConfig.create({
                 data: DEFAULT_CONFIG
             });
         }
@@ -68,18 +68,18 @@ router.post('/', authenticateToken, async (req: any, res) => {
             signatoryName
         } = req.body;
 
-        const config = await (prisma as any).organizationConfig.upsert({
+        const config = await prisma.organizationConfig.upsert({
             where: { id: 'singleton' },
             update: {
                 bankNameEn, bankNameTa, bankNameHi,
-                phone, email,
+
                 signingAuthEn, signingAuthTa, signingAuthHi,
                 signatoryName
             },
             create: {
                 id: 'singleton',
                 bankNameEn, bankNameTa, bankNameHi,
-                phone, email,
+
                 signingAuthEn, signingAuthTa, signingAuthHi,
                 signatoryName
             }

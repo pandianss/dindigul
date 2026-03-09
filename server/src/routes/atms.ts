@@ -11,7 +11,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
         let atms;
 
-        if (['ADMIN', 'RO_USER', 'RO_MANAGER', 'SECTION_USER'].includes(userRole)) {
+        if (['ADMIN', 'RO_USER'].includes(userRole)) {
             // Return ALL ATMs for RO / Admin / Section level, sorted by lowest balance first
             atms = await prisma.atm.findMany({
                 include: {

@@ -9,6 +9,8 @@ import { authenticateToken } from '../middleware/auth';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { z } from 'zod';
+import { validate } from '../lib/validate';
 
 const upload = multer({
     dest: 'uploads/',
@@ -27,7 +29,7 @@ interface MISRecord {
 // Get latest snapshots for dashboard
 router.get('/snapshots', async (req, res) => {
     try {
-        const snapshots = await (prisma as any).snapshot.findMany({
+        const snapshots = await prisma.snapshot.findMany({
             orderBy: { date: 'desc' },
             take: 20,
             include: {
@@ -60,7 +62,7 @@ router.get('/snapshot', async (req, res) => {
         }
 
         // Get the latest distinct snapshots for this branch
-        const snapshots = await (prisma as any).snapshot.findMany({
+        const snapshots = await prisma.snapshot.findMany({
             where: { branchId: branch.id },
             orderBy: { date: 'desc' },
             take: 50, // Get enough to likely cover all parameters for the latest date
@@ -98,7 +100,7 @@ router.get('/snapshot', async (req, res) => {
 
 // Upload MIS Excel (Pivot format)
 router.post('/excel-upload', authenticateToken, upload.single('file'), async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -119,17 +121,20 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
     }
 });
 
-// Upload MIS CSV — Admin / RO_MANAGER only (GAP 02)
-router.post('/upload', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+const misUploadSchema = z.object({
+    body: z.object({
+        csvData: z.string().min(1, 'CSV Data is required'),
+        date: z.string().min(1, 'Date is required')
+    })
+});
+
+// Upload MIS CSV — Admin / RO_USER only (GAP 02)
+router.post('/upload', authenticateToken, validate(misUploadSchema), async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden: Only ADMIN or Regional Office users may upload MIS data' });
     }
 
     const { csvData, date } = req.body;
-
-    if (!csvData || !date) {
-        return res.status(400).json({ error: 'Missing csvData or date' });
-    }
 
     try {
         const records: MISRecord[] = parse(csvData, {
@@ -143,7 +148,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
             const { BranchCode, ParameterCode, Value, Budget } = record;
 
             // Find branch
-            const branch = await (prisma as any).branch.findUnique({
+            const branch = await prisma.branch.findUnique({
                 where: { code: BranchCode }
             });
 
@@ -153,7 +158,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
             }
 
             // Find parameter
-            const parameter = await (prisma as any).parameter.findUnique({
+            const parameter = await prisma.parameter.findUnique({
                 where: { code: ParameterCode }
             });
 
@@ -165,7 +170,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
             const isNegative = Budget ? (parseFloat(Value) < parseFloat(Budget)) : false;
 
             // Upsert snapshot
-            await (prisma as any).snapshot.create({
+            await prisma.snapshot.create({
                 data: {
                     date: uploadDate,
                     value: parseFloat(Value),
@@ -182,7 +187,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
                     branchCode: branch.code,
                     branchName: branch.nameEn,
                     paramCode: parameter.code,
-                    paramName: parameter.name,
+                    paramName: parameter.nameEn,
                     newStatus: 'NEGATIVE',
                     currentActual: Value,
                     proRatedBudget: Budget,
@@ -194,7 +199,7 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
                     type: 'mis_alert',
                     user: 'System',
                     role: 'ADMIN',
-                    text: `${branch.nameEn} (${branch.code}) — ${parameter.name} moved to NEGATIVE`,
+                    text: `${branch.nameEn} (${branch.code}) — ${parameter.nameEn} moved to NEGATIVE`,
                     payload: JSON.stringify(alertPayload),
                     timestamp: new Date()
                 };
@@ -300,7 +305,7 @@ router.post('/freeze/:snapshotId', authenticateToken, async (req, res) => {
 // Get all exceptions
 router.get('/exceptions', authenticateToken, async (req, res) => {
     try {
-        const exceptions = await (prisma as any).misException.findMany({
+        const exceptions = await prisma.misException.findMany({
             where: { status: 'OPEN' },
             include: { branch: true },
             orderBy: { businessDate: 'desc' }

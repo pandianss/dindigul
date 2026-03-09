@@ -1,68 +1,45 @@
 import cron from 'node-cron';
-import { prisma } from '../index';
+import { generateLettersForPeriod } from './letterCriteriaService';
 import { createNotification } from './notificationService';
+import { prisma } from '../index';
+import { format, subMonths } from 'date-fns';
 
 export const initScheduler = () => {
-    // GAP 14: Schedule performance review letters on the 1st of every month
-    cron.schedule('0 0 1 * *', async () => {
-        console.log('Running scheduled letter generation...');
-        const monthYear = new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    // Run on the 1st of every month at 00:30 (offset to avoid midnight contention)
+    cron.schedule('30 0 1 * *', async () => {
+        const period = format(subMonths(new Date(), 1), 'MMM yyyy');
+        console.log(`[Scheduler] Starting monthly letter generation for ${period}`);
 
         try {
-            // Find the parameter for TOTAL_DEPOSITS
-            const param = await (prisma as any).parameter.findUnique({ where: { code: 'TOTAL_DEPOSITS' } });
-            if (!param) return;
+            const result = await generateLettersForPeriod(period);
+            console.log(`[Scheduler] Completed: ${result.created} created, ${result.skipped} skipped for ${period}`);
 
-            // Get performers
-            const snapshots = await (prisma as any).snapshot.findMany({
-                where: { parameterId: param.id },
-                orderBy: { value: 'desc' },
-                include: { branch: true }
-            });
-
-            if (snapshots.length === 0) return;
-
-            const top = snapshots.slice(0, 3);
-            const bottom = snapshots.slice(-3).reverse();
-
-            // Generate Appreciation Letters
-            for (const snap of top) {
-                await (prisma as any).letter.create({
-                    data: {
-                        type: 'APPRECIATION',
-                        titleEn: `[Auto] Appreciation Letter - ${monthYear}`,
-                        contentEn: `Automatic recognition for ${snap.branch.nameEn} for top performance in Total Deposits.`,
-                        branchId: snap.branchId,
-                        parameterId: param.id,
-                        valueAtTime: snap.value,
-                        budgetAtTime: snap.budget,
-                        period: monthYear
-                    }
-                });
+            // Notify admins
+            const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+            for (const admin of admins) {
+                await createNotification(
+                    admin.id,
+                    `Monthly Letters Generated — ${period}`,
+                    `${result.created} letter(s) created across ${[...new Set(result.details.map(d => d.param))].length
+                    } parameter(s). ${result.skipped} skipped.`,
+                    'SUCCESS',
+                    '/letters'
+                );
             }
-
-            // Generate Explanation Letters
-            for (const snap of bottom) {
-                await (prisma as any).letter.create({
-                    data: {
-                        type: 'EXPLANATION',
-                        titleEn: `[Auto] Explanation Letter - ${monthYear}`,
-                        contentEn: `Automated shortfall notification for ${snap.branch.nameEn}. Please review performance metrics.`,
-                        branchId: snap.branchId,
-                        parameterId: param.id,
-                        valueAtTime: snap.value,
-                        budgetAtTime: snap.budget,
-                        period: monthYear
-                    }
-                });
-            }
-
-            console.log(`Scheduled generation complete for ${monthYear}`);
         } catch (err) {
-            console.error('Scheduled task failed:', err);
+            console.error('[Scheduler] Letter generation failed:', err);
+            const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+            for (const admin of admins) {
+                await createNotification(
+                    admin.id,
+                    `Letter Generation Failed — ${period}`,
+                    `Scheduled letter generation encountered an error. Please generate manually from the Correspondence Centre.`,
+                    'ERROR',
+                    '/letters'
+                );
+            }
         }
     });
 
-    // Optional: Schedule daily ATM alerts or other maintenance tasks
-    console.log('Scheduler initialized (GAP 14)');
+    console.log('[Scheduler] Monthly letter scheduler initialised');
 };

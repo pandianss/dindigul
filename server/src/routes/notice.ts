@@ -8,7 +8,7 @@ const router = Router();
 // Get all notices
 router.get('/', authenticateToken, async (req: any, res) => {
     try {
-        const notices = await (prisma as any).notice.findMany({
+        const notices = await prisma.notice.findMany({
             orderBy: { createdAt: 'desc' },
             include: {
                 branch: true,
@@ -39,13 +39,13 @@ router.post('/', authenticateToken, async (req: any, res) => {
         let photoId = undefined;
         if (photoData) {
             const photoUrl = saveBase64Image(photoData);
-            const photo = await (prisma as any).photo.create({
+            const photo = await prisma.photo.create({
                 data: { photoUrl, aspectRatio: '16:9' } // Use 16:9 for announcements
             });
             photoId = photo.id;
         }
 
-        const notice = await (prisma as any).notice.create({
+        const notice = await prisma.notice.create({
             data: {
                 titleEn,
                 titleTa,
@@ -77,13 +77,13 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
         let photoId = undefined;
         if (photoData && photoData.startsWith('data:image')) {
             const photoUrl = saveBase64Image(photoData);
-            const photo = await (prisma as any).photo.create({
+            const photo = await prisma.photo.create({
                 data: { photoUrl, aspectRatio: '16:9' }
             });
             photoId = photo.id;
         }
 
-        const notice = await (prisma as any).notice.update({
+        const notice = await prisma.notice.update({
             where: { id },
             data: {
                 titleEn,
@@ -111,7 +111,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 router.delete('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
-        await (prisma as any).notice.delete({ where: { id } });
+        await prisma.notice.delete({ where: { id } });
         res.json({ message: 'Bulletin deleted successfully' });
     } catch (error) {
         console.error('Delete error:', error);
@@ -123,11 +123,11 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 router.post('/:id/ack', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
-        const notice = await (prisma as any).notice.findUnique({ where: { id } });
+        const notice = await prisma.notice.findUnique({ where: { id } });
         if (!notice) return res.status(404).json({ error: 'Notice not found' });
         if (!notice.requiresAck) return res.status(400).json({ error: 'Acknowledgement not required' });
 
-        const ack = await (prisma as any).noticeAck.upsert({
+        const ack = await prisma.noticeAck.upsert({
             where: {
                 noticeId_userId: {
                     noticeId: id,
@@ -151,12 +151,12 @@ router.post('/:id/ack', authenticateToken, async (req: any, res) => {
 // GAP 13: Get acknowledgement status (Admin/RO only)
 router.get('/:id/ack-status', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
     try {
-        const acks = await (prisma as any).noticeAck.findMany({
+        const acks = await prisma.noticeAck.findMany({
             where: { noticeId: id },
             include: {
                 user: { select: { fullNameEn: true, username: true } },

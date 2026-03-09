@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../index';
+import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 import { generatePDF } from '../services/pdfService';
 import { authenticateToken } from '../middleware/auth';
 import { createNotification, notifyAdmins } from '../services/notificationService';
@@ -12,7 +13,7 @@ const router = Router();
 router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
-        const note = await (prisma as any).officeNote.update({
+        const note = await prisma.officeNote.update({
             where: { id },
             data: { status: 'SUBMITTED' }
         });
@@ -27,14 +28,14 @@ router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
 
 // GAP 15: Checker approval (SUBMITTED → CHECKED)
 router.patch('/:id/check', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_MANAGER', 'SECTION_USER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
     try {
-        const note = await (prisma as any).officeNote.update({
+        const note = await prisma.officeNote.update({
             where: { id },
-            data: { status: 'CHECKED', checkerId: req.user.id, checkerApprovedAt: new Date() }
+            data: { status: 'CHECKED' }
         });
 
         await createNotification(note.preparerId, 'Note Checked', `Your note "${note.titleEn}" has been checked by ${req.user.fullNameEn}.`, 'SUCCESS', `/office-notes/${id}`);
@@ -47,14 +48,14 @@ router.patch('/:id/check', authenticateToken, async (req: any, res) => {
 
 // GAP 15: Final approver approval (CHECKED → APPROVED)
 router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
     try {
-        const note = await (prisma as any).officeNote.update({
+        const note = await prisma.officeNote.update({
             where: { id },
-            data: { status: 'APPROVED', approverId: req.user.id, approverApprovedAt: new Date() }
+            data: { status: 'APPROVED', approverId: req.user.id }
         });
 
         await createNotification(note.preparerId, 'Note Approved', `Your note "${note.titleEn}" has been final approved.`, 'SUCCESS', `/office-notes/${id}`);
@@ -67,12 +68,12 @@ router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
 
 // GAP 15: Reject note
 router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
-    if (!['ADMIN', 'RO_MANAGER', 'SECTION_USER'].includes(req.user?.role)) {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
     try {
-        const note = await (prisma as any).officeNote.update({
+        const note = await prisma.officeNote.update({
             where: { id },
             data: { status: 'REJECTED' }
         });
@@ -90,16 +91,23 @@ router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
 router.get('/', async (req, res) => {
     try {
         const { preparerId } = req.query;
-        const notes = await (prisma as any).officeNote.findMany({
-            where: {
-                ...(preparerId ? { preparerId: String(preparerId) } : {}),
-            },
-            orderBy: { createdAt: 'desc' },
-            include: {
-                preparer: true
-            }
-        });
-        res.json(notes);
+        const { skip, take, page, limit } = parsePagination(req);
+        const whereClause = {
+            ...(preparerId ? { preparerId: String(preparerId) } : {}),
+        };
+        const [notes, total] = await Promise.all([
+            prisma.officeNote.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    preparer: true
+                },
+                skip,
+                take
+            }),
+            prisma.officeNote.count({ where: whereClause })
+        ]);
+        res.json(getPaginatedResponse(notes, total, page, limit));
     } catch (error) {
         console.error('Error fetching office notes:', error);
         res.status(500).json({ error: 'Failed to fetch office notes' });
@@ -110,7 +118,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const { type, titleEn, titleTa, titleHi, contentJson, preparerId } = req.body;
     try {
-        const note = await (prisma as any).officeNote.create({
+        const note = await prisma.officeNote.create({
             data: {
                 type,
                 titleEn,
@@ -135,11 +143,11 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     const { type, titleEn, contentJson } = req.body;
     try {
-        const currentNote = await (prisma as any).officeNote.findUnique({ where: { id } });
+        const currentNote = await prisma.officeNote.findUnique({ where: { id } });
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
 
         if (currentNote.status === 'DRAFT') {
-            const updated = await (prisma as any).officeNote.update({
+            const updated = await prisma.officeNote.update({
                 where: { id },
                 data: {
                     type,
@@ -150,7 +158,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
             res.json(updated);
         } else {
             // Document is beyond draft — create new version record (GAP 19)
-            const newVersion = await (prisma as any).officeNote.create({
+            const newVersion = await prisma.officeNote.create({
                 data: {
                     type: type || currentNote.type,
                     titleEn: titleEn || currentNote.titleEn,
@@ -175,7 +183,7 @@ router.get('/:id/pdf', async (req: any, res) => {
     const { manualDate } = req.query; // Support passing a manual date
 
     try {
-        const note = await (prisma as any).officeNote.findUnique({
+        const note = await prisma.officeNote.findUnique({
             where: { id },
             include: { preparer: true }
         });
@@ -231,7 +239,7 @@ router.get('/:id/pdf', async (req: any, res) => {
         }
 
         // Fetch Regional Office details for contact info
-        const ro = await (prisma as any).branch.findUnique({
+        const ro = await prisma.branch.findUnique({
             where: { code: '6100' } // Regional Office code
         });
 

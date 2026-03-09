@@ -17,7 +17,7 @@ router.get('/observations', async (req, res) => {
         if (status) where.status = status;
         if (riskLevel) where.riskLevel = riskLevel;
 
-        const observations = await (prisma as any).auditObservation.findMany({
+        const observations = await prisma.auditObservation.findMany({
             where,
             include: { branch: true },
             orderBy: { targetDate: 'asc' }
@@ -33,7 +33,7 @@ router.get('/observations', async (req, res) => {
 router.post('/observations', async (req, res) => {
     const { auditType, observation, riskLevel, targetDate, branchId, auditDate } = req.body;
     try {
-        const newObs = await (prisma as any).auditObservation.create({
+        const newObs = await prisma.auditObservation.create({
             data: {
                 auditType,
                 observation,
@@ -55,7 +55,7 @@ router.patch('/observations/:id', async (req, res) => {
     const { id } = req.params;
     const { status, rectificationDetails } = req.body;
     try {
-        const updated = await (prisma as any).auditObservation.update({
+        const updated = await prisma.auditObservation.update({
             where: { id },
             data: { status, rectificationDetails }
         });
@@ -69,10 +69,10 @@ router.patch('/observations/:id', async (req, res) => {
 // Get compliance stats
 router.get('/stats', async (req, res) => {
     try {
-        const total = await (prisma as any).auditObservation.count();
-        const pending = await (prisma as any).auditObservation.count({ where: { status: 'PENDING' } });
-        const rectified = await (prisma as any).auditObservation.count({ where: { status: 'RECTIFIED' } });
-        const highRisk = await (prisma as any).auditObservation.count({
+        const total = await prisma.auditObservation.count();
+        const pending = await prisma.auditObservation.count({ where: { status: 'PENDING' } });
+        const rectified = await prisma.auditObservation.count({ where: { status: 'RECTIFIED' } });
+        const highRisk = await prisma.auditObservation.count({
             where: { status: 'PENDING', riskLevel: 'HIGH' }
         });
 

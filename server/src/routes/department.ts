@@ -8,12 +8,12 @@ const router = Router();
 // Get all departments
 router.get('/', authenticateToken, async (req: any, res) => {
     // Permission: ADMIN, RO_USER, or 'admin' bypass
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || req.user?.username === 'admin';
+    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER';
     if (!canView) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     try {
-        const departments = await (prisma as any).department.findMany({
+        const departments = await prisma.department.findMany({
             orderBy: { code: 'asc' }
         });
         res.json(departments);
@@ -27,7 +27,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 router.post('/', authenticateToken, async (req, res) => {
     const { code, nameEn, nameTa, nameHi } = req.body;
     try {
-        const department = await (prisma as any).department.create({
+        const department = await prisma.department.create({
             data: { code, nameEn, nameTa, nameHi }
         });
         res.json(department);
@@ -41,7 +41,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id as string;
     const { code, nameEn, nameTa, nameHi } = req.body;
     try {
-        const department = await (prisma as any).department.update({
+        const department = await prisma.department.update({
             where: { id },
             data: { code, nameEn, nameTa, nameHi }
         });
@@ -55,7 +55,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
     const id = req.params.id as string;
     try {
-        await (prisma as any).department.delete({ where: { id } });
+        await prisma.department.delete({ where: { id } });
         res.json({ message: 'Deleted' });
     } catch (error) {
         res.status(400).json({ error: 'Delete failed' });

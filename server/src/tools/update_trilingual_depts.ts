@@ -25,12 +25,12 @@ const translationMap: Record<string, { ta: string, hi: string }> = {
 async function updateDepartments() {
     console.log("Updating departments with trilingual names...");
 
-    const depts = await (prisma as any).department.findMany();
+    const depts = await prisma.department.findMany();
 
     for (const dept of depts) {
         const translations = translationMap[dept.nameEn];
         if (translations) {
-            await (prisma as any).department.update({
+            await prisma.department.update({
                 where: { id: dept.id },
                 data: {
                     nameTa: translations.ta,

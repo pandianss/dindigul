@@ -37,7 +37,7 @@ const OfficeNoteManager: React.FC = () => {
         setLoading(true);
         api.get('/office-notes')
             .then((res: Record<string, any>) => {
-                setNotes(res.data);
+                setNotes(res.data.data || res.data);
                 setLoading(false);
             })
             .catch((err: unknown) => {
@@ -47,7 +47,7 @@ const OfficeNoteManager: React.FC = () => {
     };
 
     useEffect(() => {
-         
+
         fetchNotes();
     }, []);
 

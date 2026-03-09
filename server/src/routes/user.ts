@@ -7,6 +7,10 @@ import { saveBase64Image } from '../utils/image';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
+import { validate } from '../lib/validate';
+import { parsePagination } from '../utils/pagination';
+import { userService } from '../services/userService';
 
 const router = Router();
 
@@ -72,29 +76,15 @@ router.get('/', authenticateToken, async (req: any, res) => {
     // Permission: ADMIN or RO_USER or 'admin' bypass
     const canView = req.user?.role === 'ADMIN' ||
         req.user?.role === 'RO_USER' ||
-        req.user?.role === 'RO_MANAGER' || // Temporary backward compatibility
-        req.user?.username === 'admin';
+        req.user?.role === 'RO_MANAGER'; // Temporary backward compatibility
 
     if (!canView) {
         return res.status(403).json({ error: 'Permission denied' });
     }
     try {
-        const users = await prisma.user.findMany({
-            include: {
-                photo: true,
-                branch: true,
-                department: true,
-                departments: true,
-                managedDepartments: true,
-                designation: true
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        const safeUsers = users.map(u => {
-            const { passwordHash, ...safe } = u;
-            return safe;
-        });
-        res.json(safeUsers);
+        const { skip, take, page, limit } = parsePagination(req);
+        const paginatedResponse = await userService.getUsers(skip, take, page, limit);
+        res.json(paginatedResponse);
     } catch (error) {
         console.error("Fetch users error:", error);
         res.status(500).json({ error: 'Failed to fetch users' });
@@ -103,7 +93,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create new user (Admin)
 router.post('/', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only ADMIN can create users' });
     }
     const {
@@ -113,46 +103,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
     } = req.body;
 
     try {
-        let photoId = null;
-        if (photoData) {
-            const photoUrl = saveBase64Image(photoData);
-            const photo = await prisma.photo.create({
-                data: { photoUrl, aspectRatio: '4:5' }
-            });
-            photoId = photo.id;
-        }
-
-        const user = await prisma.user.create({
-            data: {
-                username,
-                passwordHash: await bcrypt.hash('Bank@123', 10), // Default password
-                fullNameEn,
-                fullNameTa,
-                fullNameHi,
-                grade,
-                role,
-                gender,
-                departmentId,
-                departments: departmentIds ? {
-                    connect: departmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                managedDepartments: managedDepartmentIds ? {
-                    connect: managedDepartmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                designationId,
-                branchId,
-                photoId: photoId || undefined
-            }
-        });
-
-        // If marked as unit head, update the branch/LPC record
-        if (isUnitHead && branchId) {
-            await prisma.branch.update({
-                where: { id: branchId },
-                data: { headUserId: user.id }
-            });
-        }
-
+        const user = await userService.createUser(req.body);
         res.json(user);
     } catch (error) {
         console.error('User creation error:', error);
@@ -162,7 +113,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
 // Update user
 router.put('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only ADMIN can update users' });
     }
     const id = req.params.id as string;
@@ -173,57 +124,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
     } = req.body;
 
     try {
-        let photoId = undefined;
-        if (photoData) {
-            const photoUrl = saveBase64Image(photoData);
-            const photo = await prisma.photo.create({
-                data: { photoUrl, aspectRatio: '4:5' }
-            });
-            photoId = photo.id;
-        }
-
-        const user = await prisma.user.update({
-            where: { id },
-            data: {
-                fullNameEn,
-                fullNameTa,
-                fullNameHi,
-                grade,
-                role,
-                gender,
-                departmentId,
-                departments: departmentIds ? {
-                    set: departmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                managedDepartments: managedDepartmentIds ? {
-                    set: managedDepartmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                designationId,
-                branchId,
-                ...(photoId ? { photoId } : {})
-            }
-        });
-
-        // Handle Unit Head logic
-        if (branchId) {
-            if (isUnitHead) {
-                // Set as head
-                await prisma.branch.update({
-                    where: { id: branchId },
-                    data: { headUserId: user.id }
-                });
-            } else {
-                // If they were head, unset (only if it was still them)
-                const branch = await prisma.branch.findUnique({ where: { id: branchId } });
-                if (branch?.headUserId === user.id) {
-                    await prisma.branch.update({
-                        where: { id: branchId },
-                        data: { headUserId: null }
-                    });
-                }
-            }
-        }
-
+        const user = await userService.updateUser(id, req.body);
         res.json(user);
     } catch (error) {
         console.error('Update failed:', error);
@@ -233,12 +134,12 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 
 // Delete user
 router.delete('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only ADMIN can delete users' });
     }
     const id = req.params.id as string;
     try {
-        await prisma.user.delete({ where: { id } });
+        await userService.deleteUser(id);
         res.json({ message: 'Deleted' });
     } catch (error) {
         res.status(400).json({ error: 'Delete failed' });
@@ -247,7 +148,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 
 // Bulk upload users
 router.post('/bulk', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only ADMIN can bulk import users' });
     }
     const { csvContent, jsonData } = req.body;
@@ -331,7 +232,7 @@ router.post('/bulk', authenticateToken, async (req: any, res) => {
 
 // Transfer User (GAP 18)
 router.post('/:id/transfer', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN' && req.user?.username !== 'admin') {
+    if (req.user?.role !== 'ADMIN') {
         return res.status(403).json({ error: 'Only ADMIN can transfer users' });
     }
 
@@ -343,37 +244,7 @@ router.post('/:id/transfer', authenticateToken, async (req: any, res) => {
     }
 
     try {
-        const result = await prisma.$transaction(async (tx) => {
-            // 1. Close current posting
-            await tx.postingHistory.updateMany({
-                where: { userId: id, isCurrent: true },
-                data: { isCurrent: false, endDate: new Date() }
-            });
-
-            // 2. Create new posting
-            const newPosting = await tx.postingHistory.create({
-                data: {
-                    userId: id,
-                    branchId: branchId,
-                    designationId: designationId || undefined,
-                    remarks: remarks || 'Transferred by Admin',
-                    isCurrent: true,
-                    startDate: new Date()
-                }
-            });
-
-            // 3. Update User's branchId and designationId
-            const updatedUser = await tx.user.update({
-                where: { id },
-                data: {
-                    branchId,
-                    ...(designationId ? { designationId } : {})
-                }
-            });
-
-            return { updatedUser, newPosting };
-        });
-
+        const result = await userService.transferUser(id, branchId, designationId, remarks);
         res.json(result);
     } catch (error) {
         console.error('Transfer error:', error);

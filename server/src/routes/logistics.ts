@@ -6,7 +6,7 @@ const router = Router();
 // Get stock levels
 router.get('/stock', async (req, res) => {
     try {
-        const items = await (prisma as any).stationeryItem.findMany({
+        const items = await prisma.stationeryItem.findMany({
             include: {
                 movements: {
                     orderBy: { date: 'desc' },
@@ -29,7 +29,7 @@ router.post('/movement', async (req, res) => {
     const { itemId, branchId, quantity, type, remarks } = req.body;
     try {
         // Use a transaction to ensure atomic update
-        const result = await (prisma as any).$transaction(async (tx: any) => {
+        const result = await prisma.$transaction(async (tx: any) => {
             const movement = await tx.stationeryMovement.create({
                 data: {
                     itemId,

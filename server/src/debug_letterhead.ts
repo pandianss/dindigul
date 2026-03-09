@@ -10,7 +10,7 @@ async function main() {
     console.log(JSON.stringify(users, null, 2));
 
     console.log('\n--- RO Branch Details ---');
-    const ro = await (prisma as any).branch.findUnique({
+    const ro = await prisma.branch.findUnique({
         where: { code: '6100' }
     });
     console.log(JSON.stringify(ro, null, 2));

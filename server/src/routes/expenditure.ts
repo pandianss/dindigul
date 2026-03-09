@@ -6,7 +6,7 @@ const router = Router();
 // Get all budgets for the current financial year
 router.get('/budgets', async (req, res) => {
     try {
-        const budgets = await (prisma as any).budget.findMany({
+        const budgets = await prisma.budget.findMany({
             include: {
                 _count: {
                     select: { sanctions: true }
@@ -28,7 +28,7 @@ router.get('/sanctions', async (req, res) => {
         if (section) filters.section = section;
         if (status) filters.status = status;
 
-        const sanctions = await (prisma as any).expenseSanction.findMany({
+        const sanctions = await prisma.expenseSanction.findMany({
             where: filters,
             include: {
                 budget: true
@@ -46,7 +46,7 @@ router.get('/sanctions', async (req, res) => {
 router.post('/sanctions', async (req, res) => {
     const { title, sanctionDate, amount, section, vendorName, billNo, status, type, budgetId } = req.body;
     try {
-        const result = await (prisma as any).$transaction(async (tx: any) => {
+        const result = await prisma.$transaction(async (tx: any) => {
             // 1. Create the sanction
             const sanction = await tx.expenseSanction.create({
                 data: {
