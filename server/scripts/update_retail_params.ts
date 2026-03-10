@@ -10,16 +10,39 @@ async function main() {
 
     console.log('Updating MIS parameters for Core Retail changes...');
 
-    // 1. Update PersonalLoan to be under Core Retail with display name 'PL'
-    await prisma.misParameterRegistry.updateMany({
+    // 1. Update PersonalLoan to be under Core Retail with display name 'Personal Loan'
+    await prisma.misParameterRegistry.upsert({
         where: { parameterName: 'PersonalLoan' },
-        data: {
+        update: {
             category: 'Core Retail',
-            displayName: 'PL'
+            displayName: 'Personal Loan'
+        },
+        create: {
+            parameterName: 'PersonalLoan',
+            category: 'Core Retail',
+            displayName: 'Personal Loan',
+            isEnabled: true,
+            orderIndex: 20
         }
     });
 
-    // 2. Disable Tot_Retail
+    // 2. Add ProfitLoss parameter
+    await prisma.misParameterRegistry.upsert({
+        where: { parameterName: 'ProfitLoss' },
+        update: {
+            displayName: 'Profit and Loss',
+            category: 'Other'
+        },
+        create: {
+            parameterName: 'ProfitLoss',
+            displayName: 'Profit and Loss',
+            category: 'Other',
+            isEnabled: true,
+            orderIndex: 300
+        }
+    });
+
+    // 3. Disable Tot_Retail
     await prisma.misParameterRegistry.updateMany({
         where: { parameterName: 'Tot_Retail' },
         data: {
@@ -28,9 +51,9 @@ async function main() {
     });
 
     const retailParamCounts = await prisma.misParameterRegistry.count({
-        where: { category: 'Retail Advances', isEnabled: true }
+        where: { category: 'Core Retail', isEnabled: true }
     });
-    console.log(`Remaining active Retail Advances parameters: ${retailParamCounts}`);
+    console.log(`Active Core Retail parameters: ${retailParamCounts}`);
 
     console.log('Updates complete.');
 }

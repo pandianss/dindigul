@@ -12,10 +12,29 @@ interface SlideProps {
 }
 
 // Formatting helpers
-const fmtCr = (v: number) => `₹${v.toFixed(2)} Cr`;
-const fmtGrowth = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(2)} Cr`;
+const fmtCr = (v: number) => `₹${(v / 100).toFixed(2)} Cr`;
+const fmtGrowth = (v: number) => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(2)} Cr`;
 const fmtPct = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
 const truncBranch = (name: string, n = 20) => name.length > n ? name.slice(0, n - 1) + '…' : name;
+
+const isRateMetric = (metric: string) => {
+    const lower = metric.toLowerCase();
+    return lower.includes('%') || lower.includes('ratio') || lower.includes('yield') || lower.includes('cost');
+};
+
+const fmtParamValue = (v: number, paramName: string) => {
+    if (isRateMetric(paramName)) {
+        return `${v.toFixed(2)}`;
+    }
+    return fmtCr(v);
+};
+
+const fmtParamGrowth = (v: number, paramName: string) => {
+    if (isRateMetric(paramName)) {
+        return `${v >= 0 ? '+' : ''}${v.toFixed(2)}`;
+    }
+    return fmtGrowth(v);
+};
 
 // Base Slide Wrapper (handles common aspects like background, aspect ratio, slide number, annotation)
 const BaseSlide: React.FC<{ children: React.ReactNode; annotation?: string; slideNumber?: number; totalSlides?: number }> = ({ children, annotation, slideNumber, totalSlides }) => {
@@ -85,15 +104,17 @@ export const RegionalKpiSlide: React.FC<SlideProps> = ({ data, slide, slideNumbe
                             {kpi.displayName}
                         </div>
 
-                        <div className="slide-mono text-5xl font-bold text-white mb-6 tracking-tight">
-                            {kpi.total.toFixed(0)}
+                        <div className="slide-mono text-4xl font-bold text-white mb-6 tracking-tight flex items-baseline">
+                            {fmtParamValue(kpi.total, kpi.parameterName)}
+                            {isRateMetric(kpi.parameterName) && <span className="text-xl ml-1">%</span>}
                         </div>
 
                         <div className="mt-auto flex items-end justify-between border-t border-white/10 pt-4">
                             <div>
-                                <div className="text-xs text-blue-300 uppercase tracking-wider mb-1">FY Growth</div>
+                                <div className="text-xs text-blue-300 uppercase tracking-wider mb-1">YTD Growth</div>
                                 <div className={`font-semibold text-lg slide-mono ${kpi.growthFy >= 0 ? 'text-bank-teal' : 'text-red-400'}`}>
-                                    {fmtGrowth(kpi.growthFy)}
+                                    {fmtParamGrowth(kpi.growthFy, kpi.parameterName)}
+                                    {isRateMetric(kpi.parameterName) && <span className="text-xs ml-0.5">%</span>}
                                 </div>
                             </div>
                             <div className={`px-3 py-1.5 rounded text-sm font-bold slide-mono ${kpi.growthFy >= 0 ? 'bg-bank-teal/20 text-bank-teal border border-bank-teal/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
@@ -124,12 +145,16 @@ export const ParamHeaderSlide: React.FC<SlideProps> = ({ data, slide, slideNumbe
                 <div className="grid grid-cols-2 gap-16 mt-16 mt-auto mb-10 text-center w-3/5 bg-blue-900/30 backdrop-blur-md rounded-2xl p-8 border border-blue-500/20">
                     <div>
                         <div className="text-blue-300 uppercase tracking-widest text-sm mb-3">Regional Total</div>
-                        <div className="slide-mono text-4xl font-bold text-white">{fmtCr(ranking.regionalTotal)}</div>
+                        <div className="slide-mono text-4xl font-bold text-white flex justify-center items-baseline gap-1">
+                            {fmtParamValue(ranking.regionalTotal, ranking.parameterName)}
+                            {isRateMetric(ranking.parameterName) && <span className="text-2xl">%</span>}
+                        </div>
                     </div>
                     <div className="border-l border-blue-500/30 pl-16">
-                        <div className="text-blue-300 uppercase tracking-widest text-sm mb-3">FY Growth</div>
-                        <div className={`slide-mono text-4xl font-bold ${ranking.regionalGrowthFy >= 0 ? 'text-bank-teal' : 'text-red-400'}`}>
-                            {fmtGrowth(ranking.regionalGrowthFy)}
+                        <div className="text-blue-300 uppercase tracking-widest text-sm mb-3">YTD Growth</div>
+                        <div className={`slide-mono text-4xl font-bold flex justify-center items-baseline gap-1 ${ranking.regionalGrowthFy >= 0 ? 'text-bank-teal' : 'text-red-400'}`}>
+                            {fmtParamGrowth(ranking.regionalGrowthFy, ranking.parameterName)}
+                            {isRateMetric(ranking.parameterName) && <span className="text-2xl">%</span>}
                         </div>
                     </div>
                 </div>
@@ -154,7 +179,7 @@ export const RankingSlide: React.FC<SlideProps> = ({ data, slide, slideNumber, t
     const chartData = rows.map((r: any) => ({
         name: truncBranch(r.branchName),
         value: isPct ? r.growth_fy_pct : r.growth_fy,
-        displayValue: isPct ? fmtPct(r.growth_fy_pct) : fmtCr(r.growth_fy),
+        displayValue: isPct ? fmtPct(r.growth_fy_pct) : fmtParamGrowth(r.growth_fy, ranking.parameterName),
         isPositive: isTop10 // True if top 10 (green), False if bottom 10 (red)
     })).filter((r: any) => r.value !== null && !isNaN(r.value));
 
@@ -163,7 +188,8 @@ export const RankingSlide: React.FC<SlideProps> = ({ data, slide, slideNumber, t
     if (!isTop10) sortedChartData.reverse(); // For bottom, we want worst at the top.
 
     const titlePrefix = isTop10 ? "Top 10 Branches by " : "Bottom 10 Branches by ";
-    const titleSuffix = isPct ? "FY Growth %" : "FY Growth (₹)";
+    const rateSuffix = isRateMetric(ranking.parameterName) ? "%" : "(₹)";
+    const titleSuffix = isPct ? "YTD Growth %" : `YTD Growth ${rateSuffix}`;
     const defaultTitle = `${ranking.displayName} — ${titlePrefix}${titleSuffix}`;
 
     return (
@@ -211,7 +237,7 @@ export const RankingSlide: React.FC<SlideProps> = ({ data, slide, slideNumber, t
                                     </div>
                                     <div className="col-span-5 text-right pr-2">
                                         <div className={`slide-mono font-bold leading-tight ${r.growth_fy >= 0 ? 'text-bank-teal' : 'text-red-400'}`}>
-                                            {fmtGrowth(r.growth_fy)}
+                                            {fmtParamGrowth(r.growth_fy, ranking.parameterName)}
                                         </div>
                                         <div className={`text-sm slide-mono font-bold opacity-80 ${r.growth_fy_pct >= 0 ? 'text-bank-teal' : 'text-red-400'}`}>
                                             {fmtPct(r.growth_fy_pct)}
@@ -237,7 +263,7 @@ export const RankingSlide: React.FC<SlideProps> = ({ data, slide, slideNumber, t
                                 <LabelList
                                     dataKey="value"
                                     position="right"
-                                    formatter={(v: number) => isPct ? fmtPct(v) : fmtCr(v)}
+                                    formatter={(v: number) => isPct ? fmtPct(v) : fmtParamGrowth(v, ranking.parameterName)}
                                     style={{ fill: '#f8fafc', fontSize: 18, fontFamily: 'IBM Plex Mono', fontWeight: 700 }}
                                     offset={12}
                                 />

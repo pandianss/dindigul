@@ -118,7 +118,10 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await prisma.user.findUnique({
+            where: { username },
+            include: { branch: true, departments: true }
+        });
         if (!user) {
             await recordAudit('LOGIN_FAILED', username, null, req, { reason: 'user_not_found' });
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -168,7 +171,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         await createSession(user.id, token, 'manual_login', req);
         await recordAudit('LOGIN_SUCCESS', username, user.id, req, { role: finalRole });
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'An error occurred during login' });
@@ -183,7 +186,7 @@ router.post('/mfa/challenge', async (req, res) => {
 
         const user = await prisma.user.findUnique({
             where: { id: payload.id },
-            include: { departments: true, managedDepartments: true }
+            include: { branch: true, departments: true, managedDepartments: true }
         });
         if (!user || !(user as any).mfaSecret) return res.status(401).json({ error: 'MFA not configured' });
 
@@ -205,7 +208,7 @@ router.post('/mfa/challenge', async (req, res) => {
         await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date(), lastLoginIp: req.ip ?? null } as any });
         await recordAudit('MFA_SUCCESS', user.username, user.id, req, { role: finalRole });
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
     } catch (error: any) {
         if (error.name === 'TokenExpiredError') return res.status(401).json({ error: 'MFA window expired. Please log in again.' });
         res.status(401).json({ error: 'MFA challenge failed' });
@@ -263,7 +266,7 @@ router.get('/auto-login', async (req, res) => {
         await recordAudit('AUTO_LOGIN', user.username, user.id, req, { role: finalRole });
         pruneExpiredSessions();
 
-        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, section: user.section, departmentId: user.departmentId } });
+        res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
         console.error('Auto-login error:', error);
         res.status(500).json({ error: 'Auto-login failed' });

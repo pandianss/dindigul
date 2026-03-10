@@ -65,7 +65,7 @@ export const dashboardService = {
             else if (pace < -10) status = 'NEGATIVE';
 
             const formatVal = (v: number) => {
-                if (unit === 'Cr') return `₹${v.toFixed(1)} Cr`;
+                if (unit === 'Cr' || unit === 'Lakhs') return `₹${(v / 100).toFixed(1)} Cr`;
                 if (unit === '%') return `${v.toFixed(2)}%`;
                 return v.toLocaleString('en-IN');
             };

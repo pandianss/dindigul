@@ -12,6 +12,7 @@ const MAPPING: Record<string, string> = {
     'HOUSING': 'HL',
     'VEHICLE': 'VL',
     'PERSONAL': 'PersonalLoan',    // FIXED: was 'PL' — caused naming collision
+    'Personal Loan': 'PersonalLoan', // Alternative header
     'MORTGAGE': 'Mort',
     'EDUCATION': 'EL',
     'LIQUIRENT': 'Liq',
@@ -48,7 +49,7 @@ const MAPPING: Record<string, string> = {
 
     // Other
     'Bulk Dep': 'Bulk_Dep',        // NEW — Bulk Deposits
-    'PL': 'Branch_PL',       // NEW — Branch P&L / Priority Lending aggregate
+    'PL': 'ProfitLoss',       // Profit and Loss
 };
 
 export class MISIngestionService {
@@ -121,7 +122,15 @@ export class MISIngestionService {
                         const trimmedHeader = rawHeader.trim();
                         const paramName = MAPPING[trimmedHeader];
                         if (paramName) {
-                            const val = Number(row[rawHeader] || 0);
+                            let val = Number(row[rawHeader] || 0);
+
+                            // Unit normalization: Normalize everything to Lakhs in the database
+                            // Branches are already in Lakhs -> Keep as is
+                            // SOL 3933 (Regional Office) is in Crores -> Multiply by 100
+                            if (sol === '3933') {
+                                val = val * 100;
+                            }
+
                             factsData.push({
                                 unitId: branch.id,
                                 date: businessDate,
@@ -217,16 +226,25 @@ export class MISIngestionService {
             where: { id: importId }
         });
 
-        await prisma.$transaction(async (tx) => {
-            if (importLog && importLog.uniqueDates.length > 0) {
-                const dates = importLog.uniqueDates.map(d => new Date(d));
-                const unitIds = logs.map(l => l.unitId);
+        const logIds = logs.map(l => l.id);
+        const logFacts = await prisma.fact.findMany({
+            where: { ingestionId: { in: logIds } },
+            select: { date: true },
+            distinct: ['date']
+        });
 
+        await prisma.$transaction(async (tx) => {
+            const logDates = logFacts.map(f => f.date.toISOString());
+            const importDates = importLog?.uniqueDates.map(d => new Date(d).toISOString()) || [];
+            const allDates = [...new Set([...logDates, ...importDates])].map(d => new Date(d));
+            const unitIds = logs.map(l => l.unitId);
+
+            if (unitIds.length > 0 && allDates.length > 0) {
                 // 2. Identify and delete snapshots and their dependents
                 const snapshots = await tx.misSnapshot.findMany({
                     where: {
                         unitId: { in: unitIds },
-                        businessDate: { in: dates }
+                        businessDate: { in: allDates }
                     },
                     select: { id: true }
                 });

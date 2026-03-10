@@ -169,6 +169,25 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
             }
         }
 
+        // Recalculate regional percentages/ratios from the aggregated sums
+        if (paramTotals['CASA%'] && paramTotals['Total Dep'] && paramTotals['CASA']) {
+            const depTotal = paramTotals['Total Dep'];
+            const casaTotal = paramTotals['CASA'];
+            
+            paramTotals['CASA%'].total = depTotal.total > 0 ? (casaTotal.total / depTotal.total) * 100 : 0;
+            paramTotals['CASA%'].fyStart = depTotal.fyStart > 0 ? (casaTotal.fyStart / depTotal.fyStart) * 100 : 0;
+            paramTotals['CASA%'].growthFy = paramTotals['CASA%'].total - paramTotals['CASA%'].fyStart;
+        }
+
+        if (paramTotals['CD_Ratio'] && paramTotals['Total Dep'] && paramTotals['Adv']) {
+            const depTotal = paramTotals['Total Dep'];
+            const advTotal = paramTotals['Adv'];
+            
+            paramTotals['CD_Ratio'].total = depTotal.total > 0 ? (advTotal.total / depTotal.total) * 100 : 0;
+            paramTotals['CD_Ratio'].fyStart = depTotal.fyStart > 0 ? (advTotal.fyStart / depTotal.fyStart) * 100 : 0;
+            paramTotals['CD_Ratio'].growthFy = paramTotals['CD_Ratio'].total - paramTotals['CD_Ratio'].fyStart;
+        }
+
         res.json({
             date,
             businessDate: businessDate.toISOString(),

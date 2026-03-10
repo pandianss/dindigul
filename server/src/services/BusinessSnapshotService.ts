@@ -256,6 +256,33 @@ export class BusinessSnapshotService {
                     const msme = await this.getMetricValue(tx, unitId, 'MSME', d);
                     return retail + agri + msme;
                 }
+                if (lowerM === 'core ret' || lowerM === 'core_ret') {
+                    const hl = await this.getMetricValue(tx, unitId, 'HL', d);
+                    const pl = await this.getMetricValue(tx, unitId, 'PersonalLoan', d);
+                    const el = await this.getMetricValue(tx, unitId, 'EL', d);
+                    const vl = await this.getMetricValue(tx, unitId, 'VL', d);
+                    const mort = await this.getMetricValue(tx, unitId, 'Mort', d);
+                    const liq = await this.getMetricValue(tx, unitId, 'Liq', d);
+                    const oth = await this.getMetricValue(tx, unitId, 'OthRet', d);
+                    return hl + pl + el + vl + mort + liq + oth;
+                }
+                if (lowerM === 'core_agri' || lowerM === 'core agri') {
+                    const kcc = await this.getMetricValue(tx, unitId, 'KCC', d);
+                    const shg = await this.getMetricValue(tx, unitId, 'SHG', d);
+                    const gov = await this.getMetricValue(tx, unitId, 'Gov', d);
+                    const oth = await this.getMetricValue(tx, unitId, 'OthSch', d);
+                    return kcc + shg + gov + oth;
+                }
+                if (lowerM === 'msme') {
+                    const mudra = await this.getMetricValue(tx, unitId, 'Mudra', d);
+                    // Add other MSME sub-params here if they exist in Fact
+                    return mudra;
+                }
+                if (lowerM === 'ret_td' || lowerM === 'ret td') {
+                    const td = await this.getMetricValue(tx, unitId, 'TD', d);
+                    const bulk = await this.getMetricValue(tx, unitId, 'Bulk_Dep', d);
+                    return td - bulk;
+                }
                 return numVal;
             };
 

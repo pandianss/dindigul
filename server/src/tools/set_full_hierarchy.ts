@@ -53,15 +53,30 @@ async function main() {
         { name: 'CASA%', parent: 'CASA', cat: 'Key Business Parameters' },
         { name: 'TD', parent: 'Total Dep', cat: 'Key Business Parameters' },
         { name: 'Ret_TD', parent: 'TD', cat: 'Key Business Parameters' },
+        { name: 'Bulk_Dep', parent: 'TD', cat: 'Key Business Parameters' },
         { name: 'Adv', parent: 'Bus', cat: 'Key Business Parameters' },
         { name: 'CD_Ratio', parent: 'Adv', cat: 'Key Business Parameters' },
         { name: 'NPA', parent: 'Adv', cat: 'Key Business Parameters' },
         { name: 'Gold', parent: 'Adv', cat: 'Jewel Loans' },
         { name: 'Ret-Gold', parent: 'Gold', cat: 'Jewel Loans' },
         { name: 'Agri_JL', parent: 'Gold', cat: 'Jewel Loans' },
-        { name: 'Core Ret', parent: 'Adv', cat: 'Core Advances' },
-        { name: 'Core_Agri', parent: 'Adv', cat: 'Core Advances' },
-        { name: 'MSME', parent: 'Adv', cat: 'Core Advances' }
+        { name: 'Core Adv', parent: 'Adv', cat: 'Core Advances' },
+        { name: 'Core Ret', parent: 'Core Adv', cat: 'Core Advances' },
+        { name: 'HL', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'EL', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'VL', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'Mort', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'Liq', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'OthRet', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'PersonalLoan', parent: 'Core Ret', cat: 'Core Advances' },
+        { name: 'Core_Agri', parent: 'Core Adv', cat: 'Core Advances' },
+        { name: 'KCC', parent: 'Core_Agri', cat: 'Core Advances' },
+        { name: 'SHG', parent: 'Core_Agri', cat: 'Core Advances' },
+        { name: 'Gov', parent: 'Core_Agri', cat: 'Core Advances' },
+        { name: 'OthSch', parent: 'Core_Agri', cat: 'Core Advances' },
+        { name: 'MSME', parent: 'Core Adv', cat: 'Core Advances' },
+        { name: 'Mudra', parent: 'MSME', cat: 'Core Advances' },
+        { name: 'Branch_PL', parent: 'Bus', cat: 'Profitability' }
     ];
 
     for (let i = 0; i < sequence.length; i++) {
