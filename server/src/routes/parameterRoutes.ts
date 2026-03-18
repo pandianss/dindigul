@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const router = Router();
  * GET /api/parameters
  * Fetches all registered parameters with hierarchy info and full descriptive metadata.
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const { category, isEnabled } = req.query;
         const where: any = {};
@@ -57,7 +58,7 @@ router.get('/', async (req, res) => {
  * GET /api/parameters/hierarchy
  * Returns a hierarchical tree structure of parameters.
  */
-router.get('/hierarchy', async (req, res) => {
+router.get('/hierarchy', authenticateToken, async (req, res) => {
     try {
         const allParams = await prisma.misParameterRegistry.findMany({
             orderBy: { orderIndex: 'asc' }
@@ -86,10 +87,62 @@ router.get('/hierarchy', async (req, res) => {
 });
 
 /**
+ * POST /api/parameters
+ * Creates a new parameter.
+ */
+router.post('/', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
+    const {
+        parameterName,
+        displayName,
+        fullForm,
+        description,
+        category,
+        isEnabled,
+        orderIndex,
+        parentParameterName
+    } = req.body;
+
+    try {
+        // Check if parameterName already exists
+        const existingParameter = await prisma.misParameterRegistry.findUnique({
+            where: { parameterName: String(parameterName) }
+        });
+
+        if (existingParameter) {
+            return res.status(409).json({ error: `Parameter with name '${parameterName}' already exists.` });
+        }
+
+        const newParameter = await prisma.misParameterRegistry.create({
+            data: {
+                parameterName: String(parameterName),
+                displayName,
+                fullForm,
+                description,
+                category,
+                isEnabled: isEnabled !== undefined ? Boolean(isEnabled) : true, // Default to true if not provided
+                orderIndex: orderIndex !== undefined ? parseInt(String(orderIndex)) : 0, // Default to 0 if not provided
+                parentParameterName: parentParameterName || null
+            }
+        });
+
+        res.status(201).json(newParameter);
+    } catch (error) {
+        console.error('Failed to create parameter:', error);
+        res.status(500).json({ error: 'Failed to create parameter' });
+    }
+});
+
+/**
  * PUT /api/parameters/:name
  * Updates metadata for a specific parameter.
  */
-router.put('/:name', async (req, res) => {
+router.put('/:name', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     const { name } = req.params;
     const {
         displayName,
@@ -108,7 +161,7 @@ router.put('/:name', async (req, res) => {
         }
 
         const updated = await prisma.misParameterRegistry.update({
-            where: { parameterName: name },
+            where: { parameterName: String(name) },
             data: {
                 displayName,
                 fullForm,
@@ -131,23 +184,26 @@ router.put('/:name', async (req, res) => {
  * DELETE /api/parameters/:name
  * Removes a parameter if it's not being used in any active budgets.
  */
-router.delete('/:name', async (req, res) => {
+router.delete('/:name', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     const { name } = req.params;
     const { force } = req.query;
 
     try {
         if (force === 'true') {
             await prisma.$transaction([
-                prisma.budgetMaster.deleteMany({ where: { parameterName: name } }),
-                prisma.budgetHistory.deleteMany({ where: { parameterName: name } }),
-                prisma.misParameterRegistry.delete({ where: { parameterName: name } })
+                prisma.budgetMaster.deleteMany({ where: { parameterName: String(name) } }),
+                prisma.budgetHistory.deleteMany({ where: { parameterName: String(name) } }),
+                prisma.misParameterRegistry.delete({ where: { parameterName: String(name) } })
             ]);
             return res.json({ message: 'Parameter and all associated budget data deleted successfully' });
         }
 
         // Standard delete check
         const usageCount = await prisma.budgetMaster.count({
-            where: { parameterName: name }
+            where: { parameterName: String(name) }
         });
 
         if (usageCount > 0) {
@@ -157,7 +213,7 @@ router.delete('/:name', async (req, res) => {
         }
 
         await prisma.misParameterRegistry.delete({
-            where: { parameterName: name }
+            where: { parameterName: String(name) }
         });
 
         res.json({ message: 'Parameter deleted successfully' });

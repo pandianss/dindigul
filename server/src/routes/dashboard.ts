@@ -16,10 +16,19 @@ router.get('/config', authenticateToken, async (req, res) => {
 
 // 7. Admin: Update SRM Message
 router.post('/srm-message', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
-    const { name, title, region, highlight, message } = req.body;
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) {
+        console.warn(`[Dashboard] Unauthorized SRM update attempt by ${req.user.username} (Section: ${req.user.section})`);
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+    const { name, nameTa, nameHi, title, titleTa, titleHi, region, regionTa, regionHi, highlight, message } = req.body;
     try {
-        const newMessage = await dashboardService.updateSrmMessage({ name, title, region, highlight, message });
+        const newMessage = await dashboardService.updateSrmMessage({
+            name, nameTa, nameHi,
+            title, titleTa, titleHi,
+            region, regionTa, regionHi,
+            highlight, message
+        });
         res.json({ success: true, message: newMessage });
     } catch (error) {
         console.error('Error updating SRM message:', error);
@@ -29,7 +38,8 @@ router.post('/srm-message', authenticateToken, async (req: any, res) => {
 
 // 8. Admin: Add Dashboard Ticker
 router.post('/tickers', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     const { text, expiresAt, linkUrl } = req.body;
     try {
         const ticker = await dashboardService.addTicker({ text, expiresAt, linkUrl });
@@ -42,7 +52,8 @@ router.post('/tickers', authenticateToken, async (req: any, res) => {
 
 // 9. Admin: Update/Toggle Ticker
 router.put('/tickers/:id', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     const { text, isActive, expiresAt, linkUrl, order } = req.body;
     try {
         const ticker = await dashboardService.updateTicker(req.params.id, { text, isActive, expiresAt, linkUrl, order });
@@ -54,7 +65,8 @@ router.put('/tickers/:id', authenticateToken, async (req: any, res) => {
 
 // 10. Admin: Delete Ticker
 router.delete('/tickers/:id', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     try {
         await dashboardService.deleteTicker(req.params.id);
         res.json({ success: true });
@@ -65,7 +77,8 @@ router.delete('/tickers/:id', authenticateToken, async (req: any, res) => {
 
 // 10. Admin: Get all tickers for management
 router.get('/admin/tickers', authenticateToken, async (req: any, res) => {
-    if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     try {
         const tickers = await dashboardService.getAdminTickers();
         res.json(tickers);

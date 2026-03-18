@@ -189,7 +189,9 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+    const userStr = localStorage.getItem('user');
+    const token = userStr ? JSON.parse(userStr).token : null;
+    const headers = { Authorization: `Bearer ${token}` };
 
     setIsLoading(true);
 
@@ -300,9 +302,17 @@ export default function Dashboard() {
                 <div style={{ flex: 1 }}>
                   <div className="text-sm font-black text-white uppercase tracking-tight">
                     {srmMessage.name}
+                    {srmMessage.nameTa && <span className="font-tamil ml-2 text-[13px] opacity-80">{srmMessage.nameTa}</span>}
+                    {srmMessage.nameHi && <span className="font-hindi ml-2 text-[13px] opacity-80">{srmMessage.nameHi}</span>}
                   </div>
                   <div style={{ fontSize: 12.5, color: GOLD, fontWeight: 600, letterSpacing: "0.06em" }}>
-                    {srmMessage.title} · {srmMessage.region}
+                    <span className="uppercase">{srmMessage.title}</span> 
+                    {srmMessage.titleTa && <span className="font-tamil ml-1.5 opacity-90 border-l border-white/20 pl-1.5">{srmMessage.titleTa}</span>}
+                    {srmMessage.titleHi && <span className="font-hindi ml-1.5 opacity-90 border-l border-white/20 pl-1.5">{srmMessage.titleHi}</span>}
+                    <span className="mx-2 opacity-30">·</span>
+                    <span>{srmMessage.region}</span>
+                    {srmMessage.regionTa && <span className="font-tamil ml-1.5 opacity-90 border-l border-white/20 pl-1.5">{srmMessage.regionTa}</span>}
+                    {srmMessage.regionHi && <span className="font-hindi ml-1.5 opacity-90 border-l border-white/20 pl-1.5">{srmMessage.regionHi}</span>}
                   </div>
                 </div>
                 <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.35)", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>

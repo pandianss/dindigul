@@ -1,5 +1,5 @@
 import prisma from '../lib/prisma';
-import { generatePDF, renderTemplate } from './pdfService';
+import { generatePDF, renderTemplate, getRegionalOfficeData } from './pdfService';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -29,19 +29,11 @@ export async function createInternalNote(data: {
         console.warn('[InternalNoteService] Logo not found at expected path:', logoPath, ' Proceeding without it');
     }
 
-    // 2. Fetch Regional Office details for contact info
-    const roLookupCode = '3933';
-    const ro = await prisma.branch.findUnique({
-        where: { code: roLookupCode }
-    });
-    console.log('[InternalNoteService] RO Branch Lookup Result:', ro ? 'Found' : 'Not Found');
+    const RO_DATA = await getRegionalOfficeData();
 
-    // 3. Determine dynamic office title based on creator's branch
-    let officeTitleEn = 'Dindigul Regional Office';
-    let officeTitleTa = 'திண்டுக்கல் மண்டல அலுவலகம்';
-    let officeTitleHi = 'दिण्डुक्कल क्षेत्रीय कार्यालय';
-
-    console.log('[InternalNoteService] Creator Branch ID:', data.creatorBranchId);
+    let officeTitleEn = RO_DATA.officeNameEn;
+    let officeTitleTa = RO_DATA.officeNameTa;
+    let officeTitleHi = RO_DATA.officeNameHi;
 
     if (data.creatorBranchId) {
         const creatorBranch = await prisma.branch.findUnique({
@@ -49,24 +41,19 @@ export async function createInternalNote(data: {
         });
 
         if (creatorBranch) {
-            console.log('[InternalNoteService] Found Creator Branch:', creatorBranch.nameEn, 'Type:', creatorBranch.type);
             const typeLower = (creatorBranch.type || '').toLowerCase();
             const isROBranch = typeLower === 'ro' || typeLower === 'regional office' || typeLower === 'regional_office';
 
-            if (isROBranch) {
-                officeTitleEn = creatorBranch.nameEn || 'Dindigul Regional Office';
-                officeTitleTa = creatorBranch.nameTa || 'திண்டுக்கல் மண்டல அலுவலகம்';
-                officeTitleHi = creatorBranch.nameHi || 'दिण्डुक्कल क्षेत्रीय कार्यालय';
-            } else {
+            if (!isROBranch) {
                 officeTitleEn = `${creatorBranch.nameEn} Branch`;
                 officeTitleTa = `${creatorBranch.nameTa || creatorBranch.nameEn} கிளை`;
                 officeTitleHi = `${creatorBranch.nameHi || creatorBranch.nameEn} शाखा`;
+            } else {
+                officeTitleEn = creatorBranch.nameEn || RO_DATA.officeNameEn;
+                officeTitleTa = creatorBranch.nameTa || RO_DATA.officeNameTa;
+                officeTitleHi = creatorBranch.nameHi || RO_DATA.officeNameHi;
             }
-        } else {
-            console.log('[InternalNoteService] Creator Branch NOT found for ID:', data.creatorBranchId);
         }
-    } else {
-        console.log('[InternalNoteService] No Creator Branch ID provided, using RO defaults');
     }
 
     console.log('[InternalNoteService] Final Titles:', { officeTitleEn, officeTitleTa, officeTitleHi });
@@ -86,11 +73,11 @@ export async function createInternalNote(data: {
         officeTitleEn,
         officeTitleTa,
         officeTitleHi,
-        roAddressEn: ro?.address || 'Regional Office, Dindigul',
-        roAddressTa: ro?.addressTa || '',
-        roAddressHi: ro?.addressHi || '',
-        roPhone: '0451-2423344',
-        roEmail: 'rodindigul@iob.in'
+        roAddressEn: RO_DATA.addressEn,
+        roAddressTa: RO_DATA.addressTa,
+        roAddressHi: RO_DATA.addressHi,
+        roPhone: RO_DATA.phone,
+        roEmail: RO_DATA.email
     });
     console.log('[InternalNoteService] HTML Rendered');
 

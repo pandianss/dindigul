@@ -45,3 +45,13 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
         next();
     });
 };
+
+// Reusable middleware: allows ADMIN or Planning section RO_USER
+export const requireAdminOrPlanning = (req: AuthRequest, res: Response, next: NextFunction) => {
+    const user = (req as any).user;
+    const isPlanningRole = user?.role === 'RO_USER' && user?.section === 'Planning';
+    if (user?.role !== 'ADMIN' && !isPlanningRole) {
+        return res.status(403).json({ error: 'You do not have permission to perform this action.' });
+    }
+    next();
+};

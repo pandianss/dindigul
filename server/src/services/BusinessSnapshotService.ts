@@ -111,7 +111,9 @@ export class BusinessSnapshotService {
             else if (sma === 'SMA2') agg.sma2 += bal;
         }
 
-        const results = [];
+        const snapshotsToPopulate: { id: string, unitId: string }[] = [];
+        const results: any[] = [];
+
         for (const unitId of allUnitIds) {
             const branch = await prisma.branch.findUnique({ where: { id: unitId } });
             if (!branch) continue;
@@ -133,13 +135,34 @@ export class BusinessSnapshotService {
 
                     await tx.fact.deleteMany({ where: { unitId: branch.id, date: businessDate } });
 
-                    const sb = Number(uf.sbBalance || 0);
-                    const cd = Number(uf.cdBalance || 0);
-                    const td = Number(uf.tdBalance || 0);
-                    const adv = Number(uf.advBalance || 0);
+                    let sb = Number(uf.sbBalance || 0);
+                    let cd = Number(uf.cdBalance || 0);
+                    let td = Number(uf.tdBalance || 0);
+                    let adv = Number(uf.advBalance || 0);
+
+                    // Normalize to Crores for regular branches (Staging is currently in Lakhs)
+                    if (branch.type === 'Branch') {
+                        sb /= 100;
+                        cd /= 100;
+                        td /= 100;
+                        adv /= 100;
+                    }
+
                     const dep = sb + cd + td;
                     const casa = sb + cd;
-                    const port = portfolioAggs[uf.unitCode] || { retail: 0, sme: 0, agri: 0, other: 0, sma0: 0, sma1: 0, sma2: 0 };
+                    const port = portfolioAggs[uf.unitCode] || { retail: 0, sme: 0, agri: 0, other: 0, sma0: 0, sma1: 0, sma2: 0, gnpa: 0 };
+
+                    // Normalize portfolio aggs to Crores too
+                    if (branch.type === 'Branch') {
+                        port.retail /= 100;
+                        port.sme /= 100;
+                        port.agri /= 100;
+                        port.other /= 100;
+                        port.sma0 /= 100;
+                        port.sma1 /= 100;
+                        port.sma2 /= 100;
+                        if (port.gnpa) port.gnpa /= 100;
+                    }
 
                     await tx.fact.createMany({
                         data: [
@@ -171,17 +194,196 @@ export class BusinessSnapshotService {
                     update: { status: MisStatus.PROVISIONAL }
                 });
 
-                // 3. Populate Information Panel (using whatever facts are now in DB)
-                await this.populatePanelInternal(tx, snapshot.id, branch.id, businessDate);
-
-                // 4. Auto-evaluate Exceptions
-                await RuleEngine.evaluate(snapshot.id);
-
+                snapshotsToPopulate.push({ id: snapshot.id, unitId: branch.id });
                 results.push({ unitCode: branch.code, snapshotId: snapshot.id });
-            });
+            }, { timeout: 30000 });
+        }
+
+        // 3. Batch Populate & Evaluate
+        if (snapshotsToPopulate.length > 0) {
+            await prisma.$transaction(async (tx) => {
+                await this.populatePanelsBatch(tx, snapshotsToPopulate, businessDate);
+                await RuleEngine.evaluateBatch(snapshotsToPopulate.map(s => s.id));
+            }, { timeout: 120000 });
         }
 
         return { success: true, processedCount: results.length, businessDate };
+    }
+
+    public static async populatePanelsBatch(tx: any, snapshotsIdx: { id: string, unitId: string }[], date: Date) {
+        if (snapshotsIdx.length === 0) return;
+
+        const registeredParams = await tx.misParameterRegistry.findMany({
+            where: { isEnabled: true },
+            orderBy: { orderIndex: 'asc' }
+        });
+
+        const metrics = registeredParams.length > 0
+            ? registeredParams.map((p: any) => p.parameterName)
+            : [MisParameter.DEPOSIT_TOTAL, MisParameter.CASA, MisParameter.ADVANCE_TOTAL, MisParameter.BUSINESS_TOTAL];
+
+        const unitIds = [...new Set(snapshotsIdx.map(s => s.unitId))];
+        const branches = await tx.branch.findMany({ where: { id: { in: unitIds } } });
+        const branchMap = Object.fromEntries(branches.map((b: any) => [b.id, b]));
+
+        // Clear existing panel data
+        const snapshotIds = snapshotsIdx.map(s => s.id);
+        await tx.misInformationPanel.deleteMany({ where: { snapshotId: { in: snapshotIds } } });
+
+        // Temporal Setup
+        const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+        const dates = {
+            current: utcDate,
+            yesterday: new Date(utcDate.getTime() - 86400000),
+            dby: new Date(utcDate.getTime() - 172800000),
+            prevMonthEnd: new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), 0)),
+        };
+
+        const fyYear = utcDate.getUTCMonth() < 3 ? utcDate.getUTCFullYear() - 1 : utcDate.getUTCFullYear();
+        const fyDates = {
+            fyStart: new Date(Date.UTC(fyYear, 2, 31)),
+            prevFyStart: new Date(Date.UTC(fyYear - 1, 2, 31)),
+            prevFyEnd: new Date(Date.UTC(fyYear, 2, 31)),
+        };
+
+        const allDates = [...Object.values(dates), ...Object.values(fyDates)];
+        
+        // Mega-fetch Facts
+        const facts = await tx.fact.findMany({
+            where: {
+                unitId: { in: unitIds },
+                date: { in: allDates }
+            }
+        });
+
+        // Mega-fetch Budgets
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const getPeriodKey = (d: Date) => `${months[d.getUTCMonth()]}-${d.getUTCFullYear().toString().slice(-2)}`;
+        
+        const currMonthKey = getPeriodKey(utcDate);
+        const qEndMonth = (Math.floor(utcDate.getUTCMonth() / 3) * 3) + 2;
+        const qEndYear = utcDate.getUTCFullYear();
+        const quarterEndMonthKey = getPeriodKey(new Date(Date.UTC(qEndYear, qEndMonth, 1)));
+
+        const budgets = await tx.budgetMaster.findMany({
+            where: {
+                solId: { in: branches.map((b: any) => b.code) },
+                periodKey: { in: [currMonthKey, quarterEndMonthKey] },
+                isActive: true
+            }
+        });
+
+        const panelDataToCreate = [];
+
+        for (const snap of snapshotsIdx) {
+            const branch = branchMap[snap.unitId];
+            if (!branch) continue;
+
+            const unitFacts = facts.filter((f: any) => f.unitId === snap.unitId);
+            const unitBudgets = budgets.filter((b: any) => b.solId === branch.code);
+
+            const getValInner = (metric: string, d: Date) => {
+                const f = unitFacts.find((uf: any) => uf.metric === metric && Math.abs(uf.date.getTime() - d.getTime()) < 3600000); // 1hr tolerance
+                return f ? Number(f.value) : 0;
+            };
+
+            const getRatioInner = (m: string, d: Date) => {
+                const numVal = getValInner(m, d);
+                if (numVal !== 0) return numVal;
+
+                const lowerM = m.toLowerCase();
+                if (lowerM === 'cd_ratio') {
+                    const adv = getValInner('Adv', d);
+                    const dep = getValInner('Total Dep', d);
+                    return dep > 0 ? (adv / dep) * 100 : 0;
+                }
+                if (lowerM === 'casa%' || lowerM === 'casa_percent') {
+                    const casa = getValInner('CASA', d);
+                    const dep = getValInner('Total Dep', d);
+                    return dep > 0 ? (casa / dep) * 100 : 0;
+                }
+                if (lowerM === 'ret_td' || lowerM === 'ret td') {
+                    const td = getValInner('TD', d);
+                    const bulk = getValInner('Bulk_Dep', d);
+                    return td - bulk;
+                }
+                return numVal;
+            };
+
+            for (const metric of metrics) {
+                const v = {
+                    current: getRatioInner(metric, dates.current),
+                    yesterday: getRatioInner(metric, dates.yesterday),
+                    dby: getRatioInner(metric, dates.dby),
+                    pM: getRatioInner(metric, dates.prevMonthEnd),
+                    fyS: getRatioInner(metric, fyDates.fyStart),
+                    pFyS: getRatioInner(metric, fyDates.prevFyStart),
+                    pFyE: getRatioInner(metric, fyDates.prevFyEnd)
+                };
+
+                const g = {
+                    day: v.current - v.yesterday,
+                    month: v.current - v.pM,
+                    fy: v.current - v.fyS,
+                    prevFy: v.pFyE - v.pFyS
+                };
+
+                const getBudValInner = (m: string, pKey: string) => {
+                    const b = unitBudgets.find((ub: any) => ub.parameterName === m && ub.periodKey === pKey);
+                    const val = b ? Number(b.targetValue) : 0;
+                    // Normalize Lakhs to Crores if not a ratio/percent. RO data is already in Crores.
+                    const isRatio = m.includes('%') || m.toLowerCase().includes('ratio') || m.toLowerCase().includes('yield') || m.toLowerCase().includes('cost');
+                    if (isRatio) return val;
+                    return branch.type === 'REGIONAL OFFICE' ? val : val / 100;
+                };
+
+                const bMonth = getBudValInner(metric, currMonthKey);
+                const bQuarter = getBudValInner(metric, quarterEndMonthKey);
+
+                const isBetterLow = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => metric.toUpperCase().includes(k));
+                let status = 'Neutral';
+                if (bMonth > 0) {
+                    const gap = v.current - bMonth;
+                    if (isBetterLow) {
+                        if (gap <= 0) status = 'Surpassed';
+                        else if (Math.abs(gap) < bMonth * 0.1) status = 'On-Track';
+                        else status = 'Behind';
+                    } else {
+                        if (gap >= 0) status = 'Surpassed';
+                        else if (Math.abs(gap) < bMonth * 0.1) status = 'On-Track';
+                        else status = 'Behind';
+                    }
+                } else {
+                    status = (isBetterLow ? g.day <= 0 : g.day >= 0) ? 'On-Track' : 'Behind';
+                }
+
+                panelDataToCreate.push({
+                    snapshotId: snap.id,
+                    parameter: metric,
+                    val_prev_fy_start: v.pFyS,
+                    val_prev_fy_end: v.pFyE,
+                    val_fy_start: v.fyS,
+                    val_fy_end: 0,
+                    val_prev_m_end: v.pM,
+                    val_dby: v.dby,
+                    val_y_eod: v.yesterday,
+                    val_current: v.current,
+                    growth_prev_fy: g.prevFy,
+                    growth_day: g.day,
+                    growth_month: g.month,
+                    growth_fy: g.fy,
+                    budget_month: bMonth,
+                    gap_month: v.current - bMonth,
+                    budget_quarter: bQuarter,
+                    gap_quarter: v.current - bQuarter,
+                    status
+                });
+            }
+        }
+
+        if (panelDataToCreate.length > 0) {
+            await tx.misInformationPanel.createMany({ data: panelDataToCreate });
+        }
     }
 
     public static async populatePanelInternal(tx: any, snapshotId: string, unitId: string, date: Date) {
@@ -301,14 +503,19 @@ export class BusinessSnapshotService {
 
             // Budget Setup
             const getBudgetVal = async (m: string, pKey: string) => {
+                let targetVal = 0;
                 if (m.toLowerCase() === 'core adv' || m.toLowerCase() === 'core_adv') {
                     const retail = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core Ret', periodKey: pKey, isActive: true } });
                     const agri = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core_Agri', periodKey: pKey, isActive: true } });
                     const msme = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'MSME', periodKey: pKey, isActive: true } });
-                    return Number(retail?.targetValue || 0) + Number(agri?.targetValue || 0) + Number(msme?.targetValue || 0);
+                    targetVal = Number(retail?.targetValue || 0) + Number(agri?.targetValue || 0) + Number(msme?.targetValue || 0);
+                } else {
+                    const b = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: m, periodKey: pKey, isActive: true } });
+                    targetVal = Number(b?.targetValue || 0);
                 }
-                const b = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: m, periodKey: pKey, isActive: true } });
-                return Number(b?.targetValue || 0);
+                const isRatio = m.includes('%') || m.toLowerCase().includes('ratio') || m.toLowerCase().includes('yield') || m.toLowerCase().includes('cost');
+                if (isRatio) return targetVal;
+                return branch.type === 'REGIONAL OFFICE' ? targetVal : targetVal / 100;
             };
 
             const budget_month = await getBudgetVal(metric, currMonthKey);

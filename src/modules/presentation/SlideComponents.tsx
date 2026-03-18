@@ -12,8 +12,8 @@ interface SlideProps {
 }
 
 // Formatting helpers
-const fmtCr = (v: number) => `₹${(v / 100).toFixed(2)} Cr`;
-const fmtGrowth = (v: number) => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(2)} Cr`;
+const fmtCr = (v: number) => `₹${v.toFixed(2)} Cr`;
+const fmtGrowth = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(2)} Cr`;
 const fmtPct = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
 const truncBranch = (name: string, n = 20) => name.length > n ? name.slice(0, n - 1) + '…' : name;
 

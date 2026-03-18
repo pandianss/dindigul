@@ -1,16 +1,14 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { parseCSV } from '../utils/csv';
 
 const router = Router();
 
 // Get all departments
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: Only ADMIN or Planning Section (RO level) can modify
-    const isPlanningRole = req.user.role === 'RO_USER' && req.user.section === 'Planning';
-    const canManage = req.user.role === 'ADMIN' || isPlanningRole;
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER';
+    const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
+    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || isPlanning;
     if (!canView) {
         return res.status(403).json({ error: 'Forbidden' });
     }
@@ -26,7 +24,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 });
 
 // Create new department
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { code, nameEn, nameTa, nameHi } = req.body;
     try {
         const department = await prisma.department.create({
@@ -39,7 +37,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Update department
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     const { code, nameEn, nameTa, nameHi } = req.body;
     try {
@@ -54,7 +52,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete department
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     try {
         await prisma.department.delete({ where: { id } });
@@ -65,7 +63,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // Bulk upload departments
-router.post('/bulk', authenticateToken, async (req, res) => {
+router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { csvContent, jsonData } = req.body;
     try {
         let items = jsonData;

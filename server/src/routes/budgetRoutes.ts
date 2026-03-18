@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { BudgetService } from '../services/budgetService';
 import prisma from '../lib/prisma';
 import multer from 'multer';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -11,7 +12,10 @@ const upload = multer({ storage: multer.memoryStorage() });
  * POST /api/budget/upload
  * Handles Budget CSV upload with versioning.
  */
-router.post('/upload', async (req, res) => {
+router.post('/upload', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     try {
         const { csvContent, fileName } = req.body;
 
@@ -21,8 +25,8 @@ router.post('/upload', async (req, res) => {
 
         const filename = fileName || 'unknown.csv';
 
-        // Use authenticated user ID if available (middleware should provide this)
-        const uploaderId = (req as any).user?.id || 'anonymous';
+        // Use authenticated user ID if available
+        const uploaderId = req.user?.id || 'anonymous';
 
         const results = await BudgetService.processBudgets(csvContent, uploaderId, filename);
 
@@ -40,7 +44,7 @@ router.post('/upload', async (req, res) => {
  * GET /api/budget/logs
  * Retrieves history of budget uploads.
  */
-router.get('/logs', async (req, res) => {
+router.get('/logs', authenticateToken, async (req, res) => {
     try {
         const logs = await prisma.budgetImportLog.findMany({
             orderBy: { createdAt: 'desc' },
@@ -56,7 +60,7 @@ router.get('/logs', async (req, res) => {
  * GET /api/budget/master
  * Fetches current active budget records with filters.
  */
-router.get('/master', async (req, res) => {
+router.get('/master', authenticateToken, async (req, res) => {
     try {
         const { solId, parameterName, periodKey } = req.query;
         const where: any = { isActive: true };
@@ -84,12 +88,15 @@ router.get('/master', async (req, res) => {
  * PUT /api/budget/master/:id
  * Updates a budget record and archives history.
  */
-router.put('/master/:id', async (req, res) => {
+router.put('/master/:id', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     const { id } = req.params;
     const { targetValue } = req.body;
 
     try {
-        const existing = await prisma.budgetMaster.findUnique({ where: { id } });
+        const existing = await prisma.budgetMaster.findUnique({ where: { id: String(id) } });
         if (!existing) return res.status(404).json({ error: 'Budget record not found' });
 
         const newVal = typeof targetValue === 'string' ? parseFloat(targetValue.replace(/,/g, '')) : targetValue;
@@ -127,11 +134,14 @@ router.put('/master/:id', async (req, res) => {
  * DELETE /api/budget/master/:id
  * Deletes a budget record and archives as DELETE.
  */
-router.delete('/master/:id', async (req, res) => {
+router.delete('/master/:id', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     const { id } = req.params;
 
     try {
-        const existing = await prisma.budgetMaster.findUnique({ where: { id } });
+        const existing = await prisma.budgetMaster.findUnique({ where: { id: String(id) } });
         if (!existing) return res.status(404).json({ error: 'Budget record not found' });
 
         await prisma.$transaction([
@@ -160,7 +170,7 @@ router.delete('/master/:id', async (req, res) => {
  * GET /api/budget/parameters
  * Retrieves unique parameter names from active master.
  */
-router.get('/parameters', async (req, res) => {
+router.get('/parameters', authenticateToken, async (req, res) => {
     try {
         const parameters = await prisma.budgetMaster.findMany({
             where: { isActive: true },

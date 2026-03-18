@@ -1,16 +1,15 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { parseCSV } from '../utils/csv';
 
 const router = Router();
 
 // Get all units (branches, RO, LPC)
 router.get('/', authenticateToken, async (req: any, res) => {
-    // Permission: Only ADMIN or Planning Section (RO level) can modify
-    const isPlanningRole = req.user.role === 'RO_USER' && req.user.section === 'Planning';
-    const canManage = req.user.role === 'ADMIN' || isPlanningRole || req.user?.role === 'RO_USER';
-    if (!canManage) {
+    const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
+    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || isPlanning;
+    if (!canView) {
         return res.status(403).json({ error: 'Forbidden' });
     }
     try {
@@ -25,7 +24,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 });
 
 // Create new unit
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
     try {
         const unit = await prisma.branch.create({
@@ -56,7 +55,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // Update unit
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
 
@@ -120,11 +119,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Mass Purge Isolated Units
-router.delete('/purge', authenticateToken, async (req: any, res) => {
-    // Permission constraint: Only full Admins
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only administrators can perform a mass purge.' });
-    }
+router.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
 
     try {
         const allBranches = await prisma.branch.findMany({ select: { id: true, code: true } });
@@ -152,7 +147,7 @@ router.delete('/purge', authenticateToken, async (req: any, res) => {
 });
 
 // Delete individual unit
-router.delete('/:id', authenticateToken, async (req: any, res) => {
+router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
 
     // Safety Guard: Prevent users from deleting the unit they are currently assigned to
@@ -180,7 +175,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 });
 
 // Bulk upload units
-router.post('/bulk', authenticateToken, async (req, res) => {
+router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { csvContent, jsonData } = req.body;
     try {
         let items = jsonData;

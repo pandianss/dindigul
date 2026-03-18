@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma } from '../index';
 import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 import { generatePDF } from '../services/pdfService';
+import { generateReference } from '../services/referenceService';
 import { authenticateToken } from '../middleware/auth';
 import { createNotification, notifyAdmins } from '../services/notificationService';
 import fs from 'fs';
@@ -87,6 +88,20 @@ router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
 });
 
 
+// Suggest a reference number based on department
+router.get('/suggest-reference', authenticateToken, async (req: any, res) => {
+    const { deptName } = req.query;
+    if (!deptName) return res.status(400).json({ error: 'deptName required' });
+    try {
+        const { generateReference } = require('../services/referenceService');
+        const ref = await generateReference('OFFICE_NOTE', deptName);
+        res.json({ referenceNo: ref });
+    } catch (err) {
+        console.error('Reference suggestion error:', err);
+        res.status(500).json({ error: 'Failed to suggest reference' });
+    }
+});
+
 // Get all office notes
 router.get('/', async (req, res) => {
     try {
@@ -100,7 +115,9 @@ router.get('/', async (req, res) => {
                 where: whereClause,
                 orderBy: { createdAt: 'desc' },
                 include: {
-                    preparer: true
+                    preparer: {
+                        include: { department: true }
+                    }
                 },
                 skip,
                 take
@@ -116,21 +133,34 @@ router.get('/', async (req, res) => {
 
 // Create a new office note
 router.post('/', async (req, res) => {
-    const { type, titleEn, titleTa, titleHi, contentJson, preparerId } = req.body;
+    const { type, titleEn, titleTa, titleHi, contentJson, preparerId, referenceNo: manualReferenceNo, deptName: selectedDeptName } = req.body;
     try {
-        const note = await prisma.officeNote.create({
+        const preparer = await prisma.user.findUnique({
+            where: { id: preparerId },
+            include: { department: true }
+        });
+
+        const deptName = selectedDeptName || preparer?.department?.nameEn || 'ADMIN';
+        const referenceNo = manualReferenceNo || (await generateReference('OFFICE_NOTE', deptName));
+
+        const note = await (prisma.officeNote as any).create({
             data: {
                 type,
                 titleEn,
-                // These might not be in the schema yet, but for now we'll store them in contentJson if needed
-                // or assume schema was updated. I'll stick to contentJson for safety if schema is unknown.
                 contentJson: typeof contentJson === 'string'
-                    ? contentJson
-                    : JSON.stringify({ ...contentJson, titleTa, titleHi }),
+                    ? JSON.stringify({ ...JSON.parse(contentJson), titleTa, titleHi, deptName })
+                    : JSON.stringify({ ...contentJson, titleTa, titleHi, deptName }),
                 preparerId,
                 status: 'DRAFT'
             }
         });
+
+        // Update referenceNo using raw SQL to bypass Prisma Client sync issues
+        await (prisma as any).$executeRaw`
+            UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${note.id}
+        `;
+        note.referenceNo = referenceNo;
+
         res.json(note);
     } catch (error) {
         console.error('Error creating office note:', error);
@@ -141,7 +171,7 @@ router.post('/', async (req, res) => {
 // GAP 19: Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    const { type, titleEn, contentJson } = req.body;
+    const { type, titleEn, contentJson, deptName } = req.body;
     try {
         const currentNote = await prisma.officeNote.findUnique({ where: { id } });
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
@@ -152,17 +182,21 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                 data: {
                     type,
                     titleEn,
-                    contentJson: typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson)
+                    contentJson: typeof contentJson === 'string' 
+                        ? JSON.stringify({ ...JSON.parse(contentJson), deptName })
+                        : JSON.stringify({ ...contentJson, deptName })
                 }
             });
             res.json(updated);
         } else {
             // Document is beyond draft — create new version record (GAP 19)
-            const newVersion = await prisma.officeNote.create({
+            const newVersion = await (prisma.officeNote as any).create({
                 data: {
                     type: type || currentNote.type,
                     titleEn: titleEn || currentNote.titleEn,
-                    contentJson: typeof contentJson === 'string' ? contentJson : JSON.stringify(contentJson || {}),
+                    contentJson: typeof contentJson === 'string' 
+                        ? JSON.stringify({ ...JSON.parse(contentJson), deptName })
+                        : JSON.stringify({ ...(contentJson || {}), deptName }),
                     preparerId: req.user.id,
                     status: 'DRAFT',
                     version: currentNote.version + 1,
@@ -177,6 +211,26 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
     }
 });
 
+// GAP 15: Delete office note
+router.delete('/:id', authenticateToken, async (req: any, res) => {
+    const { id } = req.params;
+    try {
+        const note = await prisma.officeNote.findUnique({ where: { id } });
+        if (!note) return res.status(404).json({ error: 'Note not found' });
+
+        // Only preparer or ADMIN can delete
+        if (note.preparerId !== req.user.id && req.user.role !== 'ADMIN') {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        await prisma.officeNote.delete({ where: { id } });
+        res.json({ message: 'Note deleted successfully' });
+    } catch (err) {
+        console.error('Delete error:', err);
+        res.status(500).json({ error: 'Failed to delete note' });
+    }
+});
+
 // Generate PDF for office note
 router.get('/:id/pdf', async (req: any, res) => {
     const { id } = req.params;
@@ -185,15 +239,20 @@ router.get('/:id/pdf', async (req: any, res) => {
     try {
         const note = await prisma.officeNote.findUnique({
             where: { id },
-            include: { preparer: true }
+            include: { 
+                preparer: {
+                    include: { department: true }
+                } 
+            }
         });
 
         if (!note) return res.status(404).json({ error: 'Note not found' });
 
         const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
 
-        // Construct refNo
-        const refNo = `RO/ADMIN/${new Date(note.createdAt).getFullYear()}/${note.id.slice(-4).toUpperCase()}`;
+        // Use stored referenceNo or fallback to dynamic one if missing
+        const refNo = (note as any).referenceNo || `RO/ADMIN/${new Date(note.createdAt).getFullYear()}/${note.id.slice(-4).toUpperCase()}`;
+        
         const noteDate = manualDate || new Date(note.createdAt).toLocaleDateString('en-IN', {
             day: '2-digit',
             month: 'long',
@@ -201,83 +260,99 @@ router.get('/:id/pdf', async (req: any, res) => {
         });
 
         // Construct bodyHtml for the template
-        let bodyHtml = `
-            <div class="subject-box">
-                <div class="subject-title">SUBJECT: ${note.titleEn}</div>
-                ${content.titleTa ? `<div class="subject-ta">பொருள்: ${content.titleTa}</div>` : ''}
-            </div>
-            <div class="main-content">
-                ${content.details ? content.details.split('\n').map((p: string) => `<p>${p}</p>`).join('') : ''}
-                
-                ${content.amount ? `
-                    <div class="section-title">FINANCIAL IMPLICATIONS</div>
-                    <p>Proposed Amount: <strong>₹ ${Number(content.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></p>
-                ` : ''}
+        let bodyHtml = '';
 
-                ${content.branch ? `
-                    <div class="section-title">AFFECTED UNIT</div>
-                    <p>Unit/Branch Code & Name: <strong>${content.branch}</strong></p>
-                ` : ''}
+        if (note.type === 'PROFORMA_BRANCH_CODE') {
+            bodyHtml = `
+                <style>
+                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+                    .proforma-table td { padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
+                    .proforma-table .label { font-weight: bold; width: 40%; background-color: #f8fafc; color: #475569; }
+                    .proforma-table .value { width: 60%; color: #1e293b; }
+                    .remarks-section { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+                    .section-title { font-weight: bold; color: #1e3a5f; border-left: 4px solid #1e3a5f; padding-left: 12px; margin-bottom: 12px; font-size: 14px; }
+                </style>
 
-                ${content.justification ? `
-                    <div class="section-title">JUSTIFICATION & REMARKS</div>
-                    <p>${content.justification}</p>
-                ` : ''}
-            </div>
-        `;
+                <table class="proforma-table">
+                    <tr><td class="label">1. Date of Opening</td><td class="value">${content.dateOfOpening || '-'}</td></tr>
+                    <tr><td class="label">2. Name of the Branch / Office</td><td class="value">${content.branchName || '-'}</td></tr>
+                    <tr><td class="label">3. Permission Letter / License Details</td><td class="value">${content.permissionDetails || '-'}</td></tr>
+                    <tr><td class="label">4. Population Category</td><td class="value">${content.populationCategory || '-'}</td></tr>
+                    <tr><td class="label">5. Population Centre</td><td class="value">${content.populationCentre || '-'}</td></tr>
+                    <tr><td class="label">6. Community Development Block</td><td class="value">${content.communityBlock || '-'}</td></tr>
+                    <tr><td class="label">7. Taluk/Tehsil</td><td class="value">${content.talukTehsil || '-'}</td></tr>
+                    <tr><td class="label">8. District and State</td><td class="value">${content.districtState || '-'}</td></tr>
+                    <tr><td class="label">9. Working Hours</td><td class="value">${content.workingHours || '-'}</td></tr>
+                    <tr><td class="label">10. Complete Postal Address with Pin Code</td><td class="value">${content.postalAddress || '-'}</td></tr>
+                    <tr><td class="label">11. Nearest Currency Chest</td><td class="value">${content.currencyChest || '-'}</td></tr>
+                    <tr><td class="label">12. Authorised Dealer (FX Routing)</td><td class="value">${content.authorisedDealer || '-'}</td></tr>
+                    <tr><td class="label">13. Whether branch is under CBS</td><td class="value">${content.underCBS || '-'}</td></tr>
+                    <tr><td class="label">14. MICR Code if any obtained</td><td class="value">${content.micrCode || '-'}</td></tr>
+                </table>
 
-        // Prepare logo base64
-        let logoBase64 = '';
-        const logoPath = path.join(process.cwd(), '..', 'public', 'assets', 'logo_center.svg');
-        try {
-            console.log('[OfficeNotePDF] Loading logo from:', logoPath);
-            const logoBuffer = await fs.promises.readFile(logoPath);
-            logoBase64 = logoBuffer.toString('base64');
-            console.log('[OfficeNotePDF] Logo loaded successfully, size:', logoBuffer.length);
-        } catch (err) {
-            console.warn('[OfficeNotePDF] Logo not found at:', logoPath);
+                <div class="remarks-section">
+                    <div class="section-title">REMARKS / RECOMMENDATION</div>
+                    <p style="line-height: 1.7; text-align: justify; font-size: 13px;">${content.details || 'Submitted for obtaining branch code for the newly opened unit.'}</p>
+                </div>
+            `;
+        } else {
+            bodyHtml = `
+                <style>
+                    .section-title { font-weight: bold; color: #1e3a5f; margin: 25px 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+                    .main-para { margin-bottom: 15px; line-height: 1.7; text-align: justify; }
+                    .data-row { display: flex; margin-bottom: 8px; font-size: 13px; }
+                    .data-label { font-weight: bold; width: 180px; color: #475569; }
+                    .data-value { flex: 1; color: #1e293b; }
+                </style>
+                <div class="main-content">
+                    ${content.details ? content.details.split('\n').map((p: string) => p.trim() ? `<p class="main-para">${p}</p>` : '').join('') : ''}
+                    
+                    ${content.amount ? `
+                        <div class="section-title">FINANCIAL IMPLICATIONS</div>
+                        <div class="data-row"><div class="data-label">Proposed Amount:</div><div class="data-value">₹ ${Number(content.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div></div>
+                    ` : ''}
+
+                    ${content.branch ? `
+                        <div class="section-title">AFFECTED UNIT</div>
+                        <div class="data-row"><div class="data-label">Unit/Branch:</div><div class="data-value">${content.branch}</div></div>
+                    ` : ''}
+
+                    ${content.justification ? `
+                        <div class="section-title">JUSTIFICATION & REMARKS</div>
+                        <p class="main-para">${content.justification}</p>
+                    ` : ''}
+                </div>
+            `;
         }
 
-        // Fetch Regional Office details for contact info
-        const ro = await prisma.branch.findUnique({
-            where: { code: '6100' } // Regional Office code
-        });
+        const { generatePDF, buildPremiumLayout, getRegionalOfficeData } = require('../services/pdfService');
 
-        const { renderTemplate } = require('../services/pdfService');
-        const html = await renderTemplate('internal-note', {
+        // Fetch current RO and Org data from DB
+        const RO_DATA = await getRegionalOfficeData();
+
+        // Authority override for Proforma: Region Head signs instead of preparer
+        const isProforma = note.type === 'PROFORMA_BRANCH_CODE';
+        
+        const html = buildPremiumLayout({
+            title: isProforma ? 'PROFORMA FOR OBTENTION OF BRANCH CODE' : note.titleEn,
+            subTitle: isProforma 
+                ? 'கிளைக் குறியீடு பெறுவதற்கான படிவம் / शाखा कोड प्राप्त करने के लिए प्रोफார்मा' 
+                : undefined,
             refNo,
             date: noteDate,
-            department: 'Dindigul Regional Office',
-            classification: 'INTERNAL ONLY',
-            subject: note.titleEn,
             bodyHtml,
-            createdBy: note.preparer.fullNameEn,
-            designation: note.preparer.username,
-            logoBase64,
-            roAddressEn: ro?.address || 'Regional Office, Dindigul',
-            roAddressTa: ro?.addressTa || '',
-            roAddressHi: ro?.addressHi || '',
-            roPhone: '0451-2423344',
-            roEmail: 'rodindigul@iob.in'
+            signatoryName: isProforma ? RO_DATA.signatoryName : note.preparer.fullNameEn,
+            signatoryTitleEn: isProforma ? RO_DATA.signingAuthEn : (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer'),
+            signatoryTitleHi: isProforma ? RO_DATA.signingAuthHi : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयारकर्ता'),
+            signatoryTitleTa: isProforma ? RO_DATA.signingAuthTa : (note.preparer.role === 'ADMIN' ? 'நிர்வாகி' : 'தயாரிட்டவர்'),
+            organization: RO_DATA
         });
 
-        const pdf = await generatePDF(html);
-
-        // Save PDF to disk with name format: [date]_[refNo].pdf
-        const safeRefNo = refNo.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const safeDate = noteDate.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const fileName = `${safeDate}_${safeRefNo}.pdf`;
-        const uploadsDir = path.join(process.cwd(), 'uploads', 'office-notes');
-
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        fs.writeFileSync(path.join(uploadsDir, fileName), pdf);
+        const pdfBuffer = await generatePDF(html);
 
         res.contentType('application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-        res.send(pdf);
+        res.setHeader('Content-Disposition', `attachment; filename="OfficeNote_${note.id.slice(-4)}.pdf"`);
+        res.send(pdfBuffer);
     } catch (error) {
         console.error('Error generating PDF:', error);
         res.status(500).json({ error: 'Failed to generate PDF' });

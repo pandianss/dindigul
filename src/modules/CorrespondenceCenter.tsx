@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText } from 'lucide-react';
-import { format, subMonths } from 'date-fns';
+import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText, Calendar, TrendingUp } from 'lucide-react';
+import { format } from 'date-fns';
 import api from '../services/api';
 import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG, THEME_CONFIG } from '../constants/organization';
+import { useAuth } from '../context/AuthContext';
 
 interface Letter {
     id: string;
@@ -27,9 +28,11 @@ interface Letter {
     period: string;
     createdAt: string;
     orgMeta?: any;
+    scannedCopyUrl?: string; // Correctly define here
 }
 
 const CorrespondenceCenter: React.FC = () => {
+    const { user } = useAuth();
     const [letters, setLetters] = useState<Letter[]>([]);
     const [metadata, setMetadata] = useState<{
         regionHeadName: string,
@@ -57,6 +60,8 @@ const CorrespondenceCenter: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
     const [uploadingId, setUploadingId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'PERFORMANCE' | 'OP_RISK'>('PERFORMANCE');
+    const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
     const toTitleCase = (str: string) => {
         if (!str) return '';
@@ -148,8 +153,11 @@ const CorrespondenceCenter: React.FC = () => {
         setGenerating(true);
         setGenerateResult(null);
         try {
+            const dateObj = new Date(selectedDate);
             const response = await api.post('/letters/generate', {
-                period: format(subMonths(new Date(), 1), 'MMM yyyy')
+                period: format(dateObj, 'MMM yyyy'),
+                date: selectedDate,
+                type: activeTab
             });
             setGenerateResult(response.data);
             fetchLetters();
@@ -170,26 +178,77 @@ const CorrespondenceCenter: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 pt-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
+            {/* Header Section */}
+            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-4">
                 <div>
                     <h2 className="text-2xl font-bold text-bank-navy">Correspondence Center</h2>
-                    <p className="text-gray-500">Manage formal appreciation and explanation letters</p>
+                    <p className="text-gray-500">Manage formal letters and advisories</p>
                 </div>
-                <button
-                    onClick={handleGenerate}
-                    disabled={generating}
-                    className="btn-primary flex items-center space-x-2 bg-bank-navy text-white px-4 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
-                >
-                    <RefreshCw size={18} className={generating ? 'animate-spin' : ''} />
-                    <span>{generating ? 'Generating...' : 'Generate Monthly Drafts'}</span>
-                </button>
+
+                <div className="flex items-center bg-gray-100 p-1 rounded-xl">
+                    <button
+                        onClick={() => setActiveTab('PERFORMANCE')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center space-x-2 ${activeTab === 'PERFORMANCE'
+                            ? 'bg-white text-bank-navy shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        <Award size={16} />
+                        <span>Performance Assessment</span>
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('OP_RISK')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center space-x-2 ${activeTab === 'OP_RISK'
+                            ? 'bg-white text-bank-navy shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        <TrendingUp size={16} />
+                        <span>Operational Risk</span>
+                    </button>
+                </div>
             </div>
 
+            {/* Controls Section */}
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1">Target Data Date</label>
+                        <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                            <Calendar size={16} className="text-bank-navy" />
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="bg-transparent border-none text-sm font-bold text-bank-navy focus:ring-0"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {(user?.role === 'ADMIN' || (user?.role === 'RO_USER' && user?.section === 'Planning')) && (
+                    <button
+                        onClick={handleGenerate}
+                        disabled={generating}
+                        className="btn-primary flex items-center justify-center space-x-2 bg-bank-navy text-white px-6 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                    >
+                        <RefreshCw size={18} className={generating ? 'animate-spin' : ''} />
+                        <span>{generating ? 'Generating Documents...' : `Generate ${activeTab === 'PERFORMANCE' ? 'Performance' : 'OpRisk'} Drafts`}</span>
+                    </button>
+                )}
+            </div>
+
+            {/* Generation Results Modal/Alert */}
             {generateResult && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-sm animate-in fade-in slide-in-from-top-4">
-                    <p className="font-bold text-green-800 mb-2">{generateResult.message}</p>
-                    {generateResult.details.length > 0 && (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm animate-in fade-in slide-in-from-top-4">
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="font-bold text-green-800">{generateResult.message}</p>
+                        <button onClick={() => setGenerateResult(null)} className="text-green-600 hover:text-green-800 p-1">
+                            <X size={16} />
+                        </button>
+                    </div>
+                    {generateResult.details && generateResult.details.length > 0 && (
                         <div className="overflow-auto max-h-48 custom-scrollbar">
                             <table className="w-full text-xs">
                                 <thead>
@@ -216,90 +275,96 @@ const CorrespondenceCenter: React.FC = () => {
                             </table>
                         </div>
                     )}
-                    <button onClick={() => setGenerateResult(null)} className="mt-2 text-xs font-bold text-green-600 hover:text-green-800 hover:underline">
-                        Dismiss
-                    </button>
                 </div>
             )}
 
+            {/* Letters List */}
             {loading ? (
                 <div className="flex justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bank-navy"></div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
-                    {letters.length > 0 ? (
-                        letters.map(letter => (
-                            <div key={letter.id} className="card p-6 bg-white border border-gray-100 hover:shadow-lg transition-all">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-start space-x-4">
-                                        <div className={`p-3 rounded-xl ${letter.type === 'APPRECIATION' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                            }`}>
-                                            {letter.type === 'APPRECIATION' ? <Award size={24} /> : <AlertCircle size={24} />}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center space-x-2">
-                                                <h3 className="font-bold text-bank-navy text-lg">{letter.titleEn}</h3>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${letter.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
-                                                    letter.status === 'SENT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-                                                    }`}>
-                                                    {letter.status}
-                                                </span>
+                    {letters
+                        .filter(l => {
+                            if (activeTab === 'PERFORMANCE') return l.type === 'APPRECIATION' || l.type === 'EXPLANATION';
+                            return l.type === 'OP_RISK';
+                        })
+                        .length > 0 ? (
+                        letters
+                            .filter(l => {
+                                if (activeTab === 'PERFORMANCE') return l.type === 'APPRECIATION' || l.type === 'EXPLANATION';
+                                return l.type === 'OP_RISK';
+                            })
+                            .map(letter => (
+                                <div key={letter.id} className="card p-6 bg-white border border-gray-100 hover:shadow-lg transition-all group rounded-xl shadow-sm">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-start space-x-4">
+                                            <div className={`p-3 rounded-xl ${letter.type === 'APPRECIATION' ? 'bg-green-100 text-green-700' :
+                                                letter.type === 'OP_RISK' ? 'bg-orange-100 text-orange-700' :
+                                                    'bg-red-100 text-red-700'
+                                                }`}>
+                                                {letter.type === 'APPRECIATION' ? <Award size={24} /> :
+                                                    letter.type === 'OP_RISK' ? <TrendingUp size={24} /> :
+                                                        <AlertCircle size={24} />}
                                             </div>
-                                            <p className="text-sm font-bold text-gray-500 uppercase tracking-tighter mb-2">
-                                                To: {letter.branch.nameEn} • {letter.period}
-                                            </p>
-                                            <p className="text-gray-600 line-clamp-2 max-w-2xl">{letter.contentEn}</p>
+                                            <div>
+                                                <div className="flex items-center space-x-2">
+                                                    <h3 className="font-bold text-bank-navy text-lg">{letter.titleEn}</h3>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${letter.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
+                                                        letter.status === 'SENT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                                                        }`}>
+                                                        {letter.status}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm font-bold text-gray-500 uppercase tracking-tighter mb-2">
+                                                    To: {letter.branch.nameEn} • {letter.period}
+                                                </p>
+                                                <p className="text-gray-600 line-clamp-2 max-w-2xl">{letter.contentEn}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex flex-col space-y-2 items-end">
-                                        <div className="text-xs text-gray-400 font-medium">{format(new Date(letter.createdAt), 'dd MMM yyyy')}</div>
-                                        <button
-                                            onClick={() => setSelectedLetter(letter)}
-                                            className="text-bank-navy text-sm font-bold flex items-center hover:underline"
-                                        >
-                                            <FileText size={16} className="mr-1" /> View Document
-                                        </button>
-                                        {letter.status === 'DRAFT' && (
+                                        <div className="flex flex-col space-y-2 items-end">
+                                            <div className="text-xs text-gray-400 font-medium">{format(new Date(letter.createdAt), 'dd MMM yyyy')}</div>
                                             <button
-                                                onClick={() => updateStatus(letter.id, 'SENT')}
-                                                className="text-bank-teal text-sm font-bold flex items-center hover:underline"
+                                                onClick={() => setSelectedLetter(letter)}
+                                                className="text-bank-navy text-sm font-bold flex items-center hover:underline"
                                             >
-                                                Send to Branch <ChevronRight size={16} />
+                                                <FileText size={16} className="mr-1" /> View Document
                                             </button>
-                                        )}
-                                        {letter.status === 'SENT' && (
-                                            <div className="flex items-center space-x-1 text-blue-500 text-xs font-bold">
-                                                <RefreshCw size={14} />
-                                                <span>Awaiting Ack</span>
-                                            </div>
-                                        )}
-                                        {letter.status === 'ACKNOWLEDGED' && (
-                                            <div className="flex items-center space-x-1 text-green-500 text-xs font-bold">
-                                                <CheckCircle size={14} />
-                                                <span>Acknowledged</span>
-                                            </div>
-                                        )}
+                                            {letter.status === 'DRAFT' && (
+                                                <button
+                                                    onClick={() => updateStatus(letter.id, 'SENT')}
+                                                    className="text-bank-teal text-sm font-bold flex items-center hover:underline"
+                                                >
+                                                    Send to Branch <ChevronRight size={16} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            ))
                     ) : (
-                        <div className="text-center py-16 card border-dashed bg-gray-50">
-                            <Mail className="mx-auto text-gray-300 mb-2" size={48} />
-                            <p className="text-gray-500 font-medium text-lg">No letters generated yet</p>
-                            <p className="text-gray-400 text-sm">Click "Generate Monthly Drafts" to start automated ranking.</p>
+                        <div className="text-center py-16 card border-dashed border-2 bg-gray-50/50 rounded-2xl">
+                            <Mail className="mx-auto text-gray-300 mb-4" size={64} />
+                            <p className="text-gray-500 font-bold text-xl">No {activeTab === 'PERFORMANCE' ? 'performance letters' : 'risk advisories'} found</p>
+                            <p className="text-gray-400 text-sm mt-1">Select a date and click generate to create automated drafts.</p>
                         </div>
                     )}
                 </div>
             )}
 
+            {/* Letter Preview Modal */}
             {selectedLetter && (
                 <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 bg-bank-navy/60 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
-                    <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col items-center animate-in fade-in zoom-in-95 duration-200 my-auto sm:my-8">
-                        <div className={`w-full p-4 text-white flex justify-between items-center ${selectedLetter.type === 'APPRECIATION' ? 'bg-green-700' : 'bg-red-700'}`}>
+                    <div className="bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col items-center animate-in fade-in zoom-in-95 duration-200 my-auto sm:my-8 max-w-5xl w-full">
+                        <div className={`w-full p-4 text-white flex justify-between items-center ${selectedLetter.type === 'APPRECIATION' ? 'bg-green-700' :
+                                selectedLetter.type === 'OP_RISK' ? 'bg-orange-700' :
+                                    'bg-red-700'
+                            }`}>
                             <h2 className="text-lg font-bold flex items-center">
-                                {selectedLetter.type === 'APPRECIATION' ? <Award className="mr-2" size={20} /> : <AlertCircle className="mr-2" size={20} />}
+                                {selectedLetter.type === 'APPRECIATION' ? <Award className="mr-2" size={20} /> :
+                                    selectedLetter.type === 'OP_RISK' ? <TrendingUp className="mr-2" size={20} /> :
+                                        <AlertCircle className="mr-2" size={20} />}
                                 {selectedLetter.titleEn}
                             </h2>
                             <button onClick={() => setSelectedLetter(null)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
@@ -314,18 +379,15 @@ const CorrespondenceCenter: React.FC = () => {
                                 style={{
                                     width: '210mm',
                                     minHeight: '297mm',
-                                    padding: '20mm 15mm' // Narrower standard printing margins
+                                    padding: '20mm 15mm'
                                 }}
                             >
-                                {/* Watermark matching the UI aesthetics */}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
                                     <img src={GLOBAL_CONFIG.watermarkLogo} alt="Watermark" className="w-[500px]" />
                                 </div>
 
                                 <div className="relative z-10 h-full flex flex-col">
-                                    {/* TRILINGUAL HEADER BLOCK */}
                                     <div className="flex flex-col border-b-[1.5px] border-bank-navy pb-3 mb-6">
-                                        {/* Top Row: Logo & Bank Name (Left Aligned & Smaller) */}
                                         <div className="flex items-center space-x-5 mb-8">
                                             <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[65px] w-[65px] object-contain" />
                                             <div className="flex flex-col justify-center gap-1 py-1">
@@ -335,28 +397,23 @@ const CorrespondenceCenter: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        {/* Bottom Row: 3 Equi-width Columns (Language per column) */}
                                         <div className="w-full grid grid-cols-3 text-bank-navy mt-4">
-                                            {/* Column 1: Hindi */}
                                             <div className="flex flex-col items-center gap-1.5 pr-2">
                                                 <p className="font-hindi font-bold text-[13px] text-center leading-tight flex-shrink-0">{(selectedLetter.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
                                                 <p className="font-hindi font-medium text-[12px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
                                             </div>
 
-                                            {/* Column 2: Tamil */}
                                             <div className="flex flex-col items-center gap-1.5 px-2 border-l border-bank-navy/20 min-w-0">
                                                 <p className="font-tamil font-bold text-[12px] text-center leading-tight flex-shrink-0 whitespace-normal">{(selectedLetter.orgMeta as any)?.officeNameTa || metadata.organization?.officeNameTa || REGIONAL_OFFICE_DATA.nameTa}</p>
                                                 <p className="font-tamil font-medium text-[10px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு"}</p>
                                             </div>
 
-                                            {/* Column 3: English */}
                                             <div className="flex flex-col items-center gap-1.5 pl-2 border-l border-bank-navy/20">
                                                 <p className="font-bold capitalize text-[12px] text-center leading-tight flex-shrink-0">{((selectedLetter.orgMeta as any)?.officeNameEn || metadata.organization?.officeNameEn || REGIONAL_OFFICE_DATA.name).toLowerCase()}</p>
                                                 <p className="font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.address || metadata.organization?.address || REGIONAL_OFFICE_DATA.address}</p>
                                             </div>
                                         </div>
 
-                                        {/* Contact Info Row */}
                                         <div className="w-full flex justify-center items-center text-[11.5px] font-bold mt-3 pt-2 border-t border-bank-navy/10 gap-8 text-bank-navy">
                                             <p className="flex items-center gap-1"><span className="opacity-75">Phone:</span> {(selectedLetter.orgMeta as any)?.phone || metadata.organization?.phone || REGIONAL_OFFICE_DATA.phone}</p>
                                             <p className="flex items-center gap-1"><span className="opacity-75">Email:</span> {(selectedLetter.orgMeta as any)?.email || metadata.organization?.email || REGIONAL_OFFICE_DATA.email}</p>
@@ -371,14 +428,11 @@ const CorrespondenceCenter: React.FC = () => {
                                         <p className="font-bold mb-1">To,</p>
                                         {selectedLetter.branch.headUser ? (
                                             <div className="flex flex-col gap-0.5">
-                                                {/* Trilingual Manager Name with Salutation */}
                                                 <p className="font-bold">
                                                     {selectedLetter.branch.headUser.fullNameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}{selectedLetter.branch.headUser.fullNameHi} / </span>}
                                                     {selectedLetter.branch.headUser.fullNameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.gender === 'F' ? 'திருமதி. ' : 'திரு. '}{selectedLetter.branch.headUser.fullNameTa} / </span>}
                                                     <span>{selectedLetter.branch.headUser.gender === 'F' ? 'Smt. ' : 'Shri. '}{toTitleCase(selectedLetter.branch.headUser.fullNameEn)}</span>
                                                 </p>
-
-                                                {/* Trilingual Designation */}
                                                 <p className="font-bold">
                                                     {selectedLetter.branch.headUser.designation?.nameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.designation.nameHi} / </span>}
                                                     {selectedLetter.branch.headUser.designation?.nameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.designation.nameTa} / </span>}
@@ -388,7 +442,6 @@ const CorrespondenceCenter: React.FC = () => {
                                         ) : (
                                             <p className="font-bold mb-1">The Branch Manager</p>
                                         )}
-
                                         <div className="mt-1">
                                             <p className="capitalize">{(metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</p>
                                             <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
@@ -400,69 +453,135 @@ const CorrespondenceCenter: React.FC = () => {
                                     </h3>
 
                                     <div className="text-justify text-gray-800 flex-grow">
-                                        {selectedLetter.contentEn.split('\n\n').map((paragraph: string, i: number) => {
-                                            if (paragraph.trim() === '[PERFORMANCE_TABLE]') {
-                                                const pd = (selectedLetter.orgMeta as any)?.performanceData;
-                                                if (!pd) return null;
+                                        {(() => {
+                                            const letter = selectedLetter;
+                                            return letter.contentEn.split('\n\n').map((paragraph: string, i: number) => {
+                                                if (paragraph.trim() === '[PERFORMANCE_TABLE]') {
+                                                    const pd = (letter.orgMeta as any)?.performanceData;
+                                                    if (!pd) return null;
+                                                    const fyGrowth = pd.latest - pd.march31st;
+                                                    const forceInverted = String(letter.titleEn).toUpperCase().includes('NPA') || 
+                                                                        String((letter as any).parameterId).toUpperCase().includes('NPA') || 
+                                                                        pd.isInverted === true;
+                                                    const isAchieved = forceInverted ? (pd.latest <= pd.budget) : (pd.latest >= pd.budget);
+                                                    const gapLabel = forceInverted ? (pd.latest <= pd.budget ? 'Reduction' : 'Overrun') : (pd.latest >= pd.budget ? 'Surplus' : 'Shortfall');
+                                                    const statusLabel = isAchieved ? 'ACHIEVED' : 'SHORTFALL';
+                                                    const statusColor = isAchieved ? 'text-green-700' : 'text-red-700';
 
-                                                const fyGrowth = pd.latest - pd.march31st;
+                                                    return (
+                                                        <div key={i} className="my-6 px-4">
+                                                            <table className="w-full text-center border-collapse border border-bank-navy/40">
+                                                                <thead>
+                                                                    <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2">Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr className="text-sm">
+                                                                        <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.march31st.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                        <td className="border border-bank-navy/40 py-2 px-2 font-bold text-bank-navy">₹ {pd.latest.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${fyGrowth < 0 ? 'text-red-700' : 'text-green-700'}`}>
+                                                                            {fyGrowth < 0 ? '-' : '+'}₹ {Math.abs(fyGrowth).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
+                                                                        </td>
+                                                                        <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.budget.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
+                                                                            {pd.gap < 0 ? '-' : '+'}₹ {Math.abs(pd.gap).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr<br/>
+                                                                            <span className="text-[10px]">({gapLabel})</span>
+                                                                        </td>
+                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
+                                                                            {statusLabel}
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                if (paragraph.trim() === '[EXCEPTION_TABLE]') {
+                                                    const exceptions = (letter.orgMeta as any)?.exceptions || [];
+                                                    if (exceptions.length === 0) return <p key={i} className="text-gray-400 italic">No critical exceptions noted.</p>;
+                                                    return (
+                                                        <div key={i} className="my-6">
+                                                            <table className="w-full border-collapse border border-bank-navy/40 text-[11px]">
+                                                                <thead>
+                                                                    <tr className="bg-bank-navy/5 text-bank-navy font-bold uppercase">
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-left w-20">Rule ID</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-left w-32">Parameter</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-left">Observation</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {exceptions.map((ex: any, idx: number) => (
+                                                                        <tr key={idx}>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 font-mono">{ex.ruleId || 'N/A'}</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 font-bold">{ex.parameter}</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-red-700">{ex.message}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                if (paragraph.trim() === '[MOVEMENT_TABLE]') {
+                                                    const movement = (letter.orgMeta as any)?.dailyMovement || [];
+                                                    if (movement.length === 0) return null;
+                                                    return (
+                                                        <div key={i} className="my-6">
+                                                            <table className="w-full border-collapse border border-bank-navy/40 text-[11px]">
+                                                                <thead>
+                                                                    <tr className="bg-bank-navy/5 text-bank-navy font-bold uppercase">
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-left">Parameter</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-right">Previous Day</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-right">Latest Report</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-right">Movement</th>
+                                                                        <th className="border border-bank-navy/40 py-2 px-2 text-right">% Change</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {movement.map((m: any, idx: number) => (
+                                                                        <tr key={idx}>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 font-bold">{m.parameter}</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right">₹ {Number(m.previousValue).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right font-bold text-bank-navy">₹ {Number(m.latestValue).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                            <td className={`border border-bank-navy/40 py-2 px-2 text-right font-bold ${m.movement > 0 ? 'text-green-700' : m.movement < 0 ? 'text-red-700' : 'text-gray-600'}`}>
+                                                                                {m.movement > 0 ? '+' : ''}₹ {Number(m.movement).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
+                                                                            </td>
+                                                                            <td className={`border border-bank-navy/40 py-2 px-2 text-right font-bold ${m.pct > 0 ? 'text-green-700' : m.pct < 0 ? 'text-red-700' : 'text-gray-600'}`}>
+                                                                                {m.pct > 0 ? '+' : ''}{Number(m.pct).toFixed(2)}%
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    );
+                                                }
 
                                                 return (
-                                                    <div key={i} className="my-6 px-4">
-                                                        <table className="w-full text-center border-collapse border border-bank-navy/40">
-                                                            <thead>
-                                                                <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">Status</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr className="text-sm">
-                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.march31st.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                    <td className="border border-bank-navy/40 py-2 px-2 font-bold text-bank-navy">₹ {pd.latest.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${fyGrowth < 0 ? 'text-red-700' : 'text-green-700'}`}>
-                                                                        {fyGrowth < 0 ? '-' : '+'}₹ {Math.abs(fyGrowth).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
-                                                                    </td>
-                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.budget.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-
-                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${pd.status === '-ve' ? 'text-red-700' : 'text-green-700'}`}>
-                                                                        {pd.gap < 0 ? '-' : '+'}₹ {Math.abs(pd.gap).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
-                                                                    </td>
-                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${pd.status === '-ve' ? 'text-red-700' : 'text-green-700'}`}>
-                                                                        {pd.status === '-ve' ? 'SHORTFALL' : 'ACHIEVED'}
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
+                                                    <p key={i} className="mb-4 leading-relaxed">
+                                                        {paragraph}
+                                                    </p>
                                                 );
-                                            }
-
-                                            return (
-                                                <p key={i} className="mb-4 leading-relaxed">
-                                                    {paragraph}
-                                                </p>
-                                            );
-                                        })}
+                                            });
+                                        })()}
                                     </div>
 
                                     <div className="mt-20 flex justify-end">
                                         <div className="text-center inline-block min-w-[220px]">
-                                            {/* Signature Line at the Top */}
                                             <div className="border-t-[1.5px] border-gray-400 mb-1 pt-1"></div>
-
-                                            {/* Signatory Name - CamelCase & Parenthesis */}
                                             <div className="mb-1">
                                                 <p className="font-bold text-bank-navy text-[15px]">
                                                     ({toTitleCase((selectedLetter.orgMeta as any)?.signatoryName || metadata.organization?.signatoryName || metadata.regionHeadName)})
                                                 </p>
                                             </div>
-
-                                            {/* Trilingual Sign Off Titles - Below Name */}
                                             <div className="flex flex-col gap-1">
                                                 <p className="font-bold text-sm font-hindi text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthHi || metadata.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi}</p>
                                                 <p className="font-bold text-[11px] font-tamil text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthTa || metadata.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa}</p>
@@ -475,10 +594,9 @@ const CorrespondenceCenter: React.FC = () => {
                         </div>
 
                         <div className="p-4 border-t border-gray-100 bg-white flex justify-end space-x-3 items-center">
-                            {/* Upload / View Scanned Copy Section */}
-                            {(selectedLetter.orgMeta as any)?.scannedCopyUrl || (selectedLetter as any).scannedCopyUrl ? (
+                            {(selectedLetter.orgMeta as any)?.scannedCopyUrl || selectedLetter.scannedCopyUrl ? (
                                 <a
-                                    href={(selectedLetter.orgMeta as any)?.scannedCopyUrl || (selectedLetter as any).scannedCopyUrl}
+                                    href={(selectedLetter.orgMeta as any)?.scannedCopyUrl || selectedLetter.scannedCopyUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-4 py-2 text-bank-teal font-bold bg-bank-teal/10 hover:bg-bank-teal/20 rounded-lg transition-colors flex items-center mr-auto"
@@ -508,7 +626,6 @@ const CorrespondenceCenter: React.FC = () => {
                                 onClick={() => handleDownloadPdf(selectedLetter.id, selectedLetter.titleEn)}
                                 className="px-6 py-2 text-bank-navy font-bold hover:bg-bank-navy/5 border border-bank-navy/20 rounded-lg transition-colors flex items-center"
                             >
-                                <Award size={18} className="mr-2 opacity-0 w-0" /> {/* Spacer to align nicely */}
                                 Download PDF
                             </button>
 

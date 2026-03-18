@@ -1,50 +1,38 @@
 import { Router } from 'express';
 import { prisma } from '../index';
 import { authenticateToken } from '../middleware/auth';
+import { getRegionalOfficeData } from '../services/pdfService';
 
 const router = Router();
-
-// Default values to seed if empty
-const DEFAULT_CONFIG = {
-    id: 'singleton',
-    bankNameEn: "Indian Overseas Bank",
-    bankNameTa: "இந்தியன் ஓவர்சீஸ் வங்கி",
-    bankNameHi: "इंडियन ओवरसीज बैंक",
-    phone: "+91 451 2420000",
-    email: "ro.dindigul@bank.com",
-    signingAuthEn: "Regional Manager",
-    signingAuthTa: "மண்டல மேலாளர்",
-    signingAuthHi: "क्षेत्रीय प्रबंधक",
-    signatoryName: "CHANDRA KUMAR P"
-};
 
 // Get organization config merged with RO branch details
 router.get('/', authenticateToken, async (req, res) => {
     try {
+        const RO_DATA = await getRegionalOfficeData();
+
         let config = await prisma.organizationConfig.findUnique({
             where: { id: 'singleton' }
         });
 
         if (!config) {
             config = await prisma.organizationConfig.create({
-                data: DEFAULT_CONFIG
+                data: {
+                    id: 'singleton',
+                    bankNameEn: RO_DATA.bankNameEn,
+                    bankNameTa: RO_DATA.bankNameTa,
+                    bankNameHi: RO_DATA.bankNameHi,
+                    signingAuthEn: RO_DATA.signingAuthEn || "Regional Manager",
+                    signingAuthTa: RO_DATA.signingAuthTa || "மண்டல மேலாளர்",
+                    signingAuthHi: RO_DATA.signingAuthHi || "क्षेत्रीय प्रबंधक",
+                    signatoryName: RO_DATA.signatoryName || "CHANDRA KUMAR P"
+                }
             });
         }
 
-        // Fetch the Regional Office branch details
-        const roBranch = await prisma.branch.findFirst({
-            where: { type: 'RO' }
-        });
-
-        // Merge branch details into the config response
+        // Merge current RO data into the config response
         const mergedConfig = {
             ...config,
-            officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
-            officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
-            officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
-            address: roBranch?.address || roBranch?.addressTa || roBranch?.addressHi || "",
-            phone: roBranch?.phone || "+91 451 2420000",
-            email: roBranch?.email || "ro.dindigul@bank.com"
+            ...RO_DATA
         };
 
         res.json(mergedConfig);
@@ -54,17 +42,16 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// Update organization config (Admin only)
+// Update organization config (Admin or Planning only)
 router.post('/', authenticateToken, async (req: any, res) => {
     const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
     if (req.user.role !== 'ADMIN' && !isPlanningRole) {
-        return res.status(403).json({ error: 'Only admins or Planning department can update organization configuration' });
+        return res.status(403).json({ error: 'Unauthorized' });
     }
 
     try {
         const {
             bankNameEn, bankNameTa, bankNameHi,
-            phone, email,
             signingAuthEn, signingAuthTa, signingAuthHi,
             signatoryName
         } = req.body;
@@ -73,14 +60,12 @@ router.post('/', authenticateToken, async (req: any, res) => {
             where: { id: 'singleton' },
             update: {
                 bankNameEn, bankNameTa, bankNameHi,
-
                 signingAuthEn, signingAuthTa, signingAuthHi,
                 signatoryName
             },
             create: {
                 id: 'singleton',
                 bankNameEn, bankNameTa, bankNameHi,
-
                 signingAuthEn, signingAuthTa, signingAuthHi,
                 signatoryName
             }

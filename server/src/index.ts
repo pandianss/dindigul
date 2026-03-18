@@ -53,6 +53,7 @@ import { initScheduler } from './services/schedulerService';
 import path from 'path';
 
 const app = express();
+
 initScheduler();
 
 const PORT = process.env.PORT || 5000;

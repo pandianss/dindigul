@@ -1,28 +1,37 @@
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function checkDb() {
-    const branches = await prisma.branch.groupBy({
-        by: ['type'],
-        _count: {
-            id: true
-        }
-    });
-    console.log("Branch types:", branches);
+async function check() {
+  const targetDate = new Date(Date.UTC(2026, 2, 16));
+  const start = new Date(targetDate);
+  start.setUTCHours(0,0,0,0);
+  const end = new Date(targetDate);
+  end.setUTCHours(23,59,59,999);
 
-    const atms = await prisma.atm.count();
-    console.log("Total ATMs:", atms);
+  const snapshotCount = await prisma.misSnapshot.count({
+    where: { businessDate: { gte: start, lte: end } }
+  });
+  console.log('Snapshot Count for Mar 16:', snapshotCount);
 
-    const staff = await prisma.user.count();
-    console.log("Total Staff:", staff);
+  const totalExCount = await prisma.misException.count({
+    where: { businessDate: { gte: start, lte: end } }
+  });
+  console.log('Total Exception Count for Mar 16 (any severity):', totalExCount);
 
-    // Get latest business snapshots to see what we can show
-    const recentSnaps = await prisma.snapshot.findMany({
-        orderBy: { date: 'desc' },
-        take: 10,
-        include: { parameter: true }
-    });
-    console.log("Recent Business Snapshots:", recentSnaps.map(s => ({ code: s.parameter?.code, unit: s.parameter?.unit, val: s.value })));
+  if (totalExCount > 0) {
+      const exBreakdown = await prisma.misException.groupBy({
+          by: ['severity'],
+          where: { businessDate: { gte: start, lte: end } },
+          _count: { id: true }
+      });
+      console.log('Exception breakdown for Mar 16:', JSON.stringify(exBreakdown));
+  }
+
+  const latestSnap = await prisma.misSnapshot.findFirst({
+      orderBy: { businessDate: 'desc' }
+  });
+  console.log('Latest businessDate in misSnapshot:', latestSnap ? latestSnap.businessDate.toISOString() : 'None');
 }
 
-checkDb().catch(console.error).finally(() => prisma.$disconnect());
+check().catch(console.error).finally(() => prisma.$disconnect());

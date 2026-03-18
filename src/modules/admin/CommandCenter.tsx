@@ -6,8 +6,14 @@ import { getErrorMessage } from '../../utils/handleError';
 interface SrmMessage {
     id?: string;
     name: string;
+    nameTa?: string;
+    nameHi?: string;
     title: string;
+    titleTa?: string;
+    titleHi?: string;
     region: string;
+    regionTa?: string;
+    regionHi?: string;
     message: string;
     highlight: string;
     isActive: boolean;
@@ -24,8 +30,14 @@ interface TickerData {
 const CommandCenter: React.FC = () => {
     const [srmForm, setSrmForm] = useState<SrmMessage>({
         name: 'S. Pandian',
+        nameTa: 'சு. பாண்டியன்',
+        nameHi: 'एस. पांडियन',
         title: 'Senior Regional Manager',
+        titleTa: 'முதுநிலை மண்டல மேலாளர்',
+        titleHi: 'वरिष्ठ क्षेत्रीय प्रबंधक',
         region: 'Dindigul Region',
+        regionTa: 'திண்டுக்கல் மண்டலம்',
+        regionHi: 'डिंडीगुल क्षेत्र',
         highlight: 'Our commitment to excellence drives our digital transformation.',
         message: 'Dear Team, as we move towards a more integrated digital ecosystem, your role in adopting and championing these tools is crucial. Let us continue to serve our customers with the same passion and dedication.',
         isActive: true
@@ -91,6 +103,7 @@ const CommandCenter: React.FC = () => {
         try {
             await api.post('/dashboard/srm-message', srmForm);
             setSuccessMessage('Regional Manager\'s message updated successfully!');
+            fetchData(); // Refresh to confirm save and sync ID
             setTimeout(() => setSuccessMessage(null), 3000);
         } catch (err) {
             setError(getErrorMessage(err));
@@ -165,35 +178,94 @@ const CommandCenter: React.FC = () => {
                     </div>
 
                     <form onSubmit={handleSrmSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Manager Name</label>
-                                <input
-                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
-                                    value={srmForm.name}
-                                    onChange={e => setSrmForm({ ...srmForm, name: e.target.value })}
-                                    required
-                                />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Manager Name (English)</label>
+                                    <input
+                                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
+                                        value={srmForm.name}
+                                        onChange={e => setSrmForm({ ...srmForm, name: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Tamil Name (தமிழ்)</label>
+                                        <input
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-tamil transition-all"
+                                            value={srmForm.nameTa || ''}
+                                            onChange={e => setSrmForm({ ...srmForm, nameTa: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Hindi Name (हिंदी)</label>
+                                        <input
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-hindi transition-all"
+                                            value={srmForm.nameHi || ''}
+                                            onChange={e => setSrmForm({ ...srmForm, nameHi: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Designation / Title</label>
-                                <input
-                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
-                                    value={srmForm.title}
-                                    onChange={e => setSrmForm({ ...srmForm, title: e.target.value })}
-                                    required
-                                />
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Designation (English)</label>
+                                    <input
+                                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
+                                        value={srmForm.title}
+                                        onChange={e => setSrmForm({ ...srmForm, title: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Designation (தமிழ்)</label>
+                                        <input
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-tamil transition-all"
+                                            value={srmForm.titleTa || ''}
+                                            onChange={e => setSrmForm({ ...srmForm, titleTa: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Designation (हिंदी)</label>
+                                        <input
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-hindi transition-all"
+                                            value={srmForm.titleHi || ''}
+                                            onChange={e => setSrmForm({ ...srmForm, titleHi: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Region / Office</label>
-                            <input
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
-                                value={srmForm.region}
-                                onChange={e => setSrmForm({ ...srmForm, region: e.target.value })}
-                                required
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Region (English)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-bold transition-all"
+                                    value={srmForm.region}
+                                    onChange={e => setSrmForm({ ...srmForm, region: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Region (தமிழ்)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-tamil transition-all"
+                                    value={srmForm.regionTa || ''}
+                                    onChange={e => setSrmForm({ ...srmForm, regionTa: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Region (हिंदी)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal outline-none text-sm font-hindi transition-all"
+                                    value={srmForm.regionHi || ''}
+                                    onChange={e => setSrmForm({ ...srmForm, regionHi: e.target.value })}
+                                />
+                            </div>
                         </div>
 
                         <div>

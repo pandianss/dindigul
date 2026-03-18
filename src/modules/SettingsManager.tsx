@@ -21,7 +21,8 @@ import {
     Hash,
     Upload,
     ArrowRightLeft,
-    Megaphone
+    Megaphone,
+    Award
 } from 'lucide-react';
 
 type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog' | 'command' | 'organization';
@@ -34,6 +35,9 @@ interface MasterItem {
     fullNameTa?: string;
     nameHi?: string;
     fullNameHi?: string;
+    designationEn?: string;
+    designationTa?: string;
+    designationHi?: string;
     code?: string;
     username?: string;
     type?: string;
@@ -58,7 +62,7 @@ interface MasterItem {
     managedDepartmentIds?: string[];
     isUnitHead?: boolean;
     designation?: { nameEn: string };
-    branch?: { nameEn: string, headUserId?: string };
+    branch?: { nameEn: string, headUserId?: string, type?: string };
     department?: { nameEn: string };
     departments?: { id: string, nameEn: string }[];
     managedDepartments?: { id: string, nameEn: string }[];
@@ -121,7 +125,8 @@ const SettingsManager: React.FC = () => {
         setError(null);
         try {
             const endpoint = getEndpoint(activeTab);
-            const res = await api.get(endpoint);
+            const query = (activeTab === 'staff' || activeTab === 'atms') ? '?limit=1000' : '';
+            const res = await api.get(`${endpoint}${query}`);
             setData(res.data.data || res.data);
 
             if (activeTab === 'staff' || activeTab === 'atms') {
@@ -314,6 +319,7 @@ const SettingsManager: React.FC = () => {
     };
 
     const startEdit = (item: MasterItem) => {
+        setError(null);
         const parsedFormData = { ...item };
 
         // Parse specialStatus if it's a JSON string
@@ -650,13 +656,22 @@ const SettingsManager: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="col-span-2">
+                        <div>
                             <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Full Name (English)</label>
                             <input
                                 className="w-full p-2 border rounded"
                                 value={formData.fullNameEn || ''}
                                 onChange={e => setFormData({ ...formData, fullNameEn: e.target.value })}
                                 required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Designation Override (English)</label>
+                            <input
+                                className="w-full p-2 border rounded"
+                                value={formData.designationEn || ''}
+                                onChange={e => setFormData({ ...formData, designationEn: e.target.value })}
+                                placeholder="e.g. Senior Regional Manager"
                             />
                         </div>
                         <div>
@@ -790,7 +805,7 @@ const SettingsManager: React.FC = () => {
                             )}
                         </div>
 
-                        <div className="col-span-2">
+                        <div className="col-span-1">
                             <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Full Name (Tamil) - தமிழ்</label>
                             <input
                                 className="w-full p-2 border rounded font-tamil"
@@ -798,12 +813,28 @@ const SettingsManager: React.FC = () => {
                                 onChange={e => setFormData({ ...formData, fullNameTa: e.target.value })}
                             />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-1">
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Designation (Tamil) - தமிழ்</label>
+                            <input
+                                className="w-full p-2 border rounded font-tamil"
+                                value={formData.designationTa || ''}
+                                onChange={e => setFormData({ ...formData, designationTa: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-span-1">
                             <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Full Name (Hindi) - हिंदी</label>
                             <input
                                 className="w-full p-2 border rounded font-hindi"
                                 value={formData.fullNameHi || ''}
                                 onChange={e => setFormData({ ...formData, fullNameHi: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-span-1">
+                            <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Designation (Hindi) - हिंदी</label>
+                            <input
+                                className="w-full p-2 border rounded font-hindi"
+                                value={formData.designationHi || ''}
+                                onChange={e => setFormData({ ...formData, designationHi: e.target.value })}
                             />
                         </div>
                     </div>
@@ -1086,6 +1117,11 @@ const SettingsManager: React.FC = () => {
                             </button>
                         </div>
                         <form onSubmit={handleSave} className="space-y-6">
+                            {error && (
+                                <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 font-bold mb-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                                    {error}
+                                </div>
+                            )}
                             {renderForm()}
                             <div className="flex justify-end pt-6 mt-6 border-t border-gray-100 space-x-3">
                                 <button
@@ -1184,11 +1220,7 @@ const SettingsManager: React.FC = () => {
                 document.body
             )}
 
-            {error && (
-                <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 font-bold mb-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                    {error}
-                </div>
-            )}
+
 
             {(['departments', 'units', 'designations', 'staff', 'atms'] as Tab[]).includes(activeTab) && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -1229,6 +1261,8 @@ const SettingsManager: React.FC = () => {
                                             return (a.fullNameEn || '').localeCompare(b.fullNameEn || '');
                                         });
 
+                                        const isRegionHead = branchName === 'Unassigned / RO';
+
                                         return [
                                             // Unit Header Row
                                             <tr key={`header-${branchName}`} className="bg-slate-50/50">
@@ -1266,14 +1300,27 @@ const SettingsManager: React.FC = () => {
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
+                                                                        {item.branch?.headUserId === item.id && (
+                                                                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border shadow-sm ${
+                                                                                item.branch?.type === 'REGIONAL OFFICE' ? 'bg-bank-navy text-bank-gold border-bank-gold/30' : 'bg-bank-teal text-white border-bank-teal/30'
+                                                                            }`}>
+                                                                                <Award size={10} />
+                                                                                {item.branch?.type === 'REGIONAL OFFICE' ? 'REGION HEAD' : 'BRANCH HEAD'}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
                                                                     {activeSession ? (
                                                                         <p className="text-[10px] text-green-600 font-bold tracking-tighter uppercase">
                                                                             Active ({formatDuration(activeSession.createdAt)}) • {activeSession.osUsername} • {activeSession.ipAddress}
                                                                         </p>
                                                                     ) : (
                                                                         <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                                            {item.designation?.nameEn || 'No Designation'} • {item.grade || 'No Grade'}
+                                                                            {item.designation?.nameEn || 'No Designation'} 
+                                                                            {item.designationTa && <span className="font-tamil ml-1.5 border-l border-gray-200 pl-1.5">{item.designationTa}</span>}
+                                                                            {item.designationHi && <span className="font-hindi ml-1.5 border-l border-gray-200 pl-1.5">{item.designationHi}</span>}
+                                                                            <span className="mx-1.5 opacity-50">•</span> {item.grade || 'No Grade'}
                                                                         </p>
                                                                     )}
                                                                 </div>

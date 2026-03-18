@@ -1,12 +1,16 @@
 import { Router } from 'express';
 import { PlanningService } from '../services/planningService';
 import prisma from '../lib/prisma';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
 
 // Upload Account Opening CSV
-router.post('/upload', async (req, res) => {
+router.post('/upload', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     try {
         const { csvData, date } = req.body;
         if (!csvData) return res.status(400).json({ error: 'No CSV data provided' });
@@ -25,7 +29,10 @@ router.post('/upload', async (req, res) => {
 });
 
 // Upload Account Closure CSV
-router.post('/upload-closures', async (req, res) => {
+router.post('/upload-closures', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section === 'Planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     try {
         const { csvData, date } = req.body;
         if (!csvData) return res.status(400).json({ error: 'No CSV data provided' });
@@ -44,7 +51,7 @@ router.post('/upload-closures', async (req, res) => {
 });
 
 // Get Account Opening Analytics
-router.get('/analytics', async (req, res) => {
+router.get('/analytics', authenticateToken, async (req, res) => {
     try {
         const analytics = await PlanningService.getAnalytics();
         res.json(analytics);
@@ -55,7 +62,7 @@ router.get('/analytics', async (req, res) => {
 });
 
 // Get Specialized Intelligence Reports
-router.get('/intelligence-reports', async (req, res) => {
+router.get('/intelligence-reports', authenticateToken, async (req, res) => {
     try {
         const reports = await PlanningService.getIntelligenceReports();
         res.json(reports);
@@ -66,7 +73,10 @@ router.get('/intelligence-reports', async (req, res) => {
 });
 
 // Update System Configuration
-router.post('/config', async (req, res) => {
+router.post('/config', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section === 'Planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
     try {
         const { key, value } = req.body;
         console.log(`Updating config: ${key} = ${value}`);
@@ -96,11 +106,11 @@ router.post('/config', async (req, res) => {
 });
 
 // Get System Configuration
-router.get('/config/:key', async (req, res) => {
+router.get('/config/:key', authenticateToken, async (req, res) => {
     try {
         const { key } = req.params;
         const config = await prisma.systemConfig.findUnique({
-            where: { key }
+            where: { key: String(key) }
         });
         res.json(config);
     } catch (error: any) {

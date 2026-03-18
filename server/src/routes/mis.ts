@@ -470,7 +470,8 @@ router.get('/exception-summary', authenticateToken, async (req: any, res) => {
 
 // Bulk finalize all snapshots for a date
 router.post('/finalize-all', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user?.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Forbidden' });
     const { date } = req.body;
     if (!date) return res.status(400).json({ error: 'Missing date' });
 
@@ -485,7 +486,8 @@ router.post('/finalize-all', authenticateToken, async (req: any, res) => {
 
 // Trigger evaluation for all units on a date
 router.post('/evaluate-all', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user?.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Forbidden' });
     const { date } = req.body;
     if (!date) return res.status(400).json({ error: 'Missing date' });
 

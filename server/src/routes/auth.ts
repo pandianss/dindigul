@@ -79,8 +79,10 @@ async function pruneExpiredSessions() {
 }
 
 function resolveRole(user: any, overrideRole?: string): string {
-    let role: string = user.role;
-    return role;
+    if (user.role === 'ADMIN') return 'ADMIN';
+    // If the user belongs to a Regional Office, they should have RO_USER privileges
+    if (user.branch?.type === 'REGIONAL OFFICE') return 'RO_USER';
+    return user.role || 'BRANCH_USER';
 }
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

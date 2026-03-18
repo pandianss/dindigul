@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { parseCSV } from '../utils/csv';
 import { saveBase64Image } from '../utils/image';
 import fs from 'fs';
@@ -93,11 +93,8 @@ router.get('/', authenticateToken, async (req: any, res) => {
     }
 });
 
-// Create new user (Admin)
-router.post('/', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can create users' });
-    }
+// Create new user (Admin or Planning)
+router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const {
         username, fullNameEn, fullNameTa, fullNameHi, grade, role, gender,
         departmentId, departmentIds, managedDepartmentIds,
@@ -114,11 +111,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
 });
 
 // Update user
-router.put('/:id', authenticateToken, async (req: any, res) => {
-    const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
-    if (req.user?.role !== 'ADMIN' && !isPlanningRole) {
-        return res.status(403).json({ error: 'Permission denied' });
-    }
+router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     const {
         fullNameEn, fullNameTa, fullNameHi, grade, role, gender,
@@ -136,10 +129,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 });
 
 // Delete user
-router.delete('/:id', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can delete users' });
-    }
+router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     try {
         await userService.deleteUser(id);
@@ -150,10 +140,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 });
 
 // Bulk upload users
-router.post('/bulk', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can bulk import users' });
-    }
+router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { csvContent, jsonData } = req.body;
     try {
         let items = jsonData;
@@ -165,79 +152,134 @@ router.post('/bulk', authenticateToken, async (req: any, res) => {
             return res.status(400).json({ error: 'Invalid format' });
         }
 
-        const results = await Promise.all(items.map(async (item: any) => {
-            // Support both standard keys and Staff.csv keys
-            const username = item.username || item.Roll || item['Roll No'];
-            const fullNameEn = item.fullNameEn || item.Name;
-            const designationName = item.designationName || item.Designation;
-            const branchCode = item.branchCode || item['br code'];
+        // Deduplicate by username/roll (keep first occurrence)
+        const seen = new Set<string>();
+        const uniqueItems = items.filter((item: any) => {
+            const key = (item.username || item.Roll || item['Roll No'] || '').toString().trim();
+            if (seen.has(key) || !key) return false;
+            seen.add(key);
+            return true;
+        });
 
-            if (!username || !fullNameEn) return null;
+        // Cache designation IDs to avoid redundant upserts
+        const desigCache: Record<string, string> = {};
+        const branchCache: Record<string, string> = {};
 
-            // 1. Resolve or Create Designation
-            let designationId = item.designationId;
-            if (!designationId && designationName) {
-                const desig = await prisma.designation.upsert({
-                    where: { code: designationName.toUpperCase().replace(/\s+/g, '_') },
-                    update: { nameEn: designationName },
-                    create: {
-                        code: designationName.toUpperCase().replace(/\s+/g, '_'),
-                        nameEn: designationName,
-                        workId: 999
+        let processed = 0, skipped = 0;
+        const errors: string[] = [];
+
+        for (const item of uniqueItems) {
+            const username = (item.username || item.Roll || item['Roll No'] || '').toString().trim();
+            const fullNameEn = (item.fullNameEn || item.Name || '').toString().trim();
+            const designationName = (item.designationName || item.Designation || '').toString().trim();
+            const branchCode = (item.branchCode || item['br code'] || '').toString().trim();
+            const grade = (item.Grade || item.grade || '').toString().trim();
+
+            if (!username || !fullNameEn) { skipped++; continue; }
+
+            try {
+                // 1. Resolve Designation (with cache)
+                let designationId = item.designationId;
+                if (!designationId && designationName) {
+                    const desigCode = designationName.toUpperCase().replace(/\s+/g, '_');
+                    if (desigCache[desigCode]) {
+                        designationId = desigCache[desigCode];
+                    } else {
+                        const desig = await prisma.designation.upsert({
+                            where: { code: desigCode },
+                            update: { nameEn: designationName },
+                            create: { code: desigCode, nameEn: designationName, workId: 999 }
+                        });
+                        desigCache[desigCode] = desig.id;
+                        designationId = desig.id;
                     }
-                });
-                designationId = desig.id;
-            }
-
-            // 2. Resolve or Create Branch
-            let branchId = item.branchId;
-            if (!branchId && branchCode) {
-                const branch = await prisma.branch.upsert({
-                    where: { code: branchCode.toString() },
-                    update: {},
-                    create: {
-                        code: branchCode.toString(),
-                        nameEn: `Branch ${branchCode}`,
-                        officeId: parseInt(branchCode) || 9999,
-                        type: 'BRANCH'
-                    }
-                });
-                branchId = branch.id;
-            }
-
-            return prisma.user.upsert({
-                where: { username: username.toString() },
-                update: {
-                    fullNameEn,
-                    grade: item.Grade || item.grade,
-                    designationId,
-                    branchId,
-                    role: item.role || 'BRANCH_USER'
-                },
-                create: {
-                    username: username.toString(),
-                    passwordHash: '$2a$10$vN3XnCj7XW6Q8.r.vB1rU.z5G8wRj7v9Z1vN3XnCj7XW6Q8.r.vB1rU', // 'password'
-                    fullNameEn,
-                    grade: item.Grade || item.grade,
-                    designationId,
-                    branchId,
-                    role: item.role || 'BRANCH_USER'
                 }
-            });
-        }));
 
-        res.json({ message: `Processed ${results.filter(r => r !== null).length} users` });
+                // 2. Resolve Branch (with cache)
+                // Try multiple code formats (e.g. '174', '0174', '00174') and prefer
+                // properly-named branches over phantom "Branch XXXX" entries.
+                let branchId = item.branchId;
+                if (!branchId && branchCode) {
+                    if (branchCache[branchCode]) {
+                        branchId = branchCache[branchCode];
+                    } else {
+                        const numericCode = parseInt(branchCode);
+                        const codeVariants = [
+                            branchCode,
+                            String(numericCode).padStart(4, '0'),
+                            String(numericCode).padStart(5, '0'),
+                        ].filter((v, i, a) => a.indexOf(v) === i); // unique only
+
+                        // Fetch all candidates matching any code variant or officeId
+                        const candidates = await prisma.branch.findMany({
+                            where: {
+                                OR: [
+                                    { code: { in: codeVariants } },
+                                    { officeId: numericCode || undefined }
+                                ]
+                            }
+                        });
+
+                        // Prefer properly-named branch (not "Branch XXXX") over phantom
+                        const named = candidates.find(b => !b.nameEn.startsWith('Branch '));
+                        let branch = named ?? candidates[0];
+
+                        if (!branch) {
+                            // Create a placeholder only if truly missing
+                            branch = await prisma.branch.create({
+                                data: {
+                                    code: branchCode,
+                                    nameEn: `Branch ${branchCode}`,
+                                    officeId: numericCode || 9999,
+                                    type: 'BRANCH'
+                                }
+                            });
+                        }
+                        branchCache[branchCode] = branch.id;
+                        branchId = branch.id;
+                    }
+                }
+
+                // Extra safety: If we have branchId but no branch object (from cache), fetch it
+                let branchType = '';
+                if (branchId) {
+                    const b = await prisma.branch.findUnique({ where: { id: branchId }, select: { type: true } });
+                    branchType = b?.type || '';
+                }
+
+                // 3. Upsert User
+                await prisma.user.upsert({
+                    where: { username },
+                    update: { fullNameEn, grade, designationId, branchId },
+                    create: {
+                        username,
+                        passwordHash: await bcrypt.hash('Bank@123', 10),
+                        fullNameEn,
+                        grade,
+                        designationId,
+                        branchId,
+                        role: item.role || (branchType === 'REGIONAL OFFICE' ? 'RO_USER' : 'BRANCH_USER')
+                    }
+                });
+                processed++;
+            } catch (err: any) {
+                errors.push(`Row ${username}: ${err.message}`);
+                skipped++;
+            }
+        }
+
+        res.json({
+            message: `Bulk upload complete. Processed: ${processed}, Skipped/Failed: ${skipped}.`,
+            errors: errors.length > 0 ? errors.slice(0, 20) : undefined // Return first 20 errors if any
+        });
     } catch (error) {
         console.error('Bulk user error:', error);
-        res.status(500).json({ error: 'Failed' });
+        res.status(500).json({ error: 'Failed to process bulk upload' });
     }
 });
 
 // Transfer User (GAP 18)
-router.post('/:id/transfer', authenticateToken, async (req: any, res) => {
-    if (req.user?.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Only ADMIN can transfer users' });
-    }
+router.post('/:id/transfer', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
 
     const { id } = req.params;
     const { branchId, designationId, remarks } = req.body;

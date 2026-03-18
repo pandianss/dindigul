@@ -3,6 +3,13 @@ import { BusinessSnapshotService, MisStatus } from './BusinessSnapshotService';
 import { RuleEngine } from './RuleEngine';
 import prisma from '../lib/prisma';
 
+const CRITERIA_PARAM_MAP: Record<string, string> = {
+    'Total Dep': 'TOTAL_DEPOSITS',
+    'Adv': 'TOTAL_ADVANCES',
+    'CASA': 'CASA',
+    'NPA': 'GROSS_NPA'
+};
+
 const MAPPING: Record<string, string> = {
     // Advance sub-portfolios
     'MUDRA': 'Mudra',
@@ -49,7 +56,7 @@ const MAPPING: Record<string, string> = {
 
     // Other
     'Bulk Dep': 'Bulk_Dep',        // NEW — Bulk Deposits
-    'PL': 'ProfitLoss',       // Profit and Loss
+    'PL': 'Branch_PL',            // Profit and Loss
 };
 
 export class MISIngestionService {
@@ -65,7 +72,13 @@ export class MISIngestionService {
             dates: new Set<string>()
         };
 
-        // 1. Create Batch Import Log FIRST
+        // 1. Pre-fetch Metadata
+        const branches = await prisma.branch.findMany();
+        const branchMap = Object.fromEntries(branches.map(b => [b.code, b]));
+        const parameters = await prisma.parameter.findMany();
+        const parameterMap = Object.fromEntries(parameters.map(p => [p.code, p]));
+
+        // 2. Create Batch Import Log
         const importLog = await prisma.misImportLog.create({
             data: {
                 filename: originalFilename,
@@ -76,62 +89,72 @@ export class MISIngestionService {
             }
         });
 
+        // 3. Group rows by Business Date
+        const dataByDate: Record<string, any[]> = {};
         for (const row of data) {
-            try {
-                const solRaw = String(row['SOL'] || '');
-                const sol = solRaw.padStart(4, '0');
-                const dateRaw = String(row['DATE'] || '');
+            const dateRaw = String(row['DATE'] || '');
+            if (!dateRaw) continue;
+            if (!dataByDate[dateRaw]) dataByDate[dateRaw] = [];
+            dataByDate[dateRaw].push(row);
+        }
 
-                if (!sol || !dateRaw || sol === '0000') continue;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const getPeriodKey = (d: Date) => `${months[d.getUTCMonth()]}-${d.getUTCFullYear().toString().slice(-2)}`;
 
-                // Parse date YYYYMMDD as UTC 00:00
-                const year = parseInt(dateRaw.substring(0, 4));
-                const month = parseInt(dateRaw.substring(4, 6)) - 1;
-                const day = parseInt(dateRaw.substring(6, 8));
-                const businessDate = new Date(Date.UTC(year, month, day));
+        for (const [dateRaw, rows] of Object.entries(dataByDate)) {
+            const year = parseInt(dateRaw.substring(0, 4));
+            const month = parseInt(dateRaw.substring(4, 6)) - 1;
+            const day = parseInt(dateRaw.substring(6, 8));
+            const businessDate = new Date(Date.UTC(year, month, day));
+            results.dates.add(businessDate.toISOString().split('T')[0]);
 
-                const branch = await prisma.branch.findUnique({ where: { code: sol } });
-                if (!branch) {
-                    console.warn(`Branch not found for SOL: ${sol}`);
-                    results.failed++;
-                    continue;
-                }
+            const periodKey = getPeriodKey(businessDate);
+            const snapshotsToPopulate: { id: string, unitId: string }[] = [];
 
-                await prisma.$transaction(async (tx) => {
-                    // 2. Create Ingestion Log linked to Batch
+            await prisma.$transaction(async (tx) => {
+                const logsToCreate = [];
+                const factsToCreate = [];
+                const affectedUnitIds = new Set<string>();
+
+                for (const row of rows) {
+                    const solRaw = String(row['SOL'] || '');
+                    const sol = solRaw.padStart(4, '0');
+                    if (!sol || sol === '0000') continue;
+
+                    const branch = branchMap[sol];
+                    if (!branch) {
+                        results.failed++;
+                        continue;
+                    }
+
+                    affectedUnitIds.add(branch.id);
+
+                    // 1. Log entry for this unit/date
                     const log = await tx.ingestionLog.create({
                         data: {
                             unitId: branch.id,
                             status: 'PROCESSED',
                             filename: originalFilename,
                             importLogId: importLog.id,
-                            meta: { source: 'MIS_EXCEL_UPLOAD' }
+                            meta: { source: 'MIS_BATCH_OPTIMIZED' }
                         }
                     });
 
-                    // 3. Clear/Create Facts
-                    await tx.fact.deleteMany({ where: { unitId: branch.id, date: businessDate } });
-
-                    const factsData = [];
+                    // 2. Parse Metric Data
                     let coreRetSum = 0;
                     const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PersonalLoan'];
-                    let sb = 0, cd = 0, td = 0, adv = 0;
+                    let sb = 0, cd = 0, td = 0, adv = 0, npaVal = 0;
 
-                    const rowHeaders = Object.keys(row);
-                    for (const rawHeader of rowHeaders) {
-                        const trimmedHeader = rawHeader.trim();
-                        const paramName = MAPPING[trimmedHeader];
+                    for (const [rawHeader, rawValue] of Object.entries(row)) {
+                        const paramName = MAPPING[rawHeader.trim()];
                         if (paramName) {
-                            let val = Number(row[rawHeader] || 0);
-
-                            // Unit normalization: Normalize everything to Lakhs in the database
-                            // Branches are already in Lakhs -> Keep as is
-                            // SOL 3933 (Regional Office) is in Crores -> Multiply by 100
-                            if (sol === '3933') {
-                                val = val * 100;
+                            // Regional Office data is already in Crores. regular Branch data is in Lakhs.
+                            let val = Number(rawValue || 0);
+                            if (branch.type === 'Branch') {
+                                val /= 100;
                             }
 
-                            factsData.push({
+                            factsToCreate.push({
                                 unitId: branch.id,
                                 date: businessDate,
                                 metric: paramName,
@@ -144,57 +167,88 @@ export class MISIngestionService {
                             if (paramName === 'CD') cd = val;
                             if (paramName === 'TD') td = val;
                             if (paramName === 'Adv') adv = val;
+                            if (paramName === 'NPA') npaVal = val;
                         }
                     }
 
-                    // 4. Add Derived Facts
                     const casa = sb + cd;
                     const totalDep = casa + td;
                     const casaPct = totalDep > 0 ? (casa / totalDep) * 100 : 0;
 
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Core Ret', value: coreRetSum, ingestionId: log.id });
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CASA', value: casa, ingestionId: log.id });
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Total Dep', value: totalDep, ingestionId: log.id });
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CASA%', value: casaPct, ingestionId: log.id });
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'CD_Ratio', value: totalDep > 0 ? (adv / totalDep) * 100 : 0, ingestionId: log.id });
-                    factsData.push({ unitId: branch.id, date: businessDate, metric: 'Bus', value: totalDep + adv, ingestionId: log.id });
+                    factsToCreate.push(
+                        { unitId: branch.id, date: businessDate, metric: 'Core Ret', value: coreRetSum, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'CASA', value: casa, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'Total Dep', value: totalDep, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'CASA%', value: casaPct, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'CD_Ratio', value: totalDep > 0 ? (adv / totalDep) * 100 : 0, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'Bus', value: totalDep + adv, ingestionId: log.id }
+                    );
 
-                    if (factsData.length > 0) {
-                        await tx.fact.createMany({ data: factsData });
+                    // 3. Modern Snapshot Header
+                    const snap = await tx.misSnapshot.upsert({
+                        where: { unitId_businessDate_version: { unitId: branch.id, businessDate, version: 1 } },
+                        create: { unitId: branch.id, businessDate, status: MisStatus.PROVISIONAL, version: 1 },
+                        update: { status: MisStatus.PROVISIONAL }
+                    });
+                    snapshotsToPopulate.push({ id: snap.id, unitId: branch.id });
+
+                    // 4. Legacy Snapshots (for letter criteria)
+                    const subFacts = {
+                        'Total Dep': totalDep,
+                        'Adv': adv,
+                        'CASA': casa,
+                        'NPA': npaVal
+                    };
+
+                    for (const [factMetric, val] of Object.entries(subFacts)) {
+                        const paramCode = CRITERIA_PARAM_MAP[factMetric];
+                        const param = parameterMap[paramCode || ''];
+                        if (!param) continue;
+
+                        const budget = await tx.budgetMaster.findFirst({
+                            where: { solId: branch.code, parameterName: factMetric, periodKey, isActive: true }
+                        });
+                        const budVal = budget ? Number(budget.targetValue) : null;
+                        const status = budVal ? (factMetric === 'NPA' ? (val <= budVal ? 'POSITIVE' : 'NEGATIVE') : (val >= budVal ? 'POSITIVE' : 'NEGATIVE')) : 'NEUTRAL';
+
+                        // Use findFirst + update/create since schema doesn't have the explicit unique constraint for shorthand upsert
+                        const existingSnap = await tx.snapshot.findFirst({
+                            where: { branchId: branch.id, parameterId: param.id, date: businessDate }
+                        });
+
+                        if (existingSnap) {
+                            await tx.snapshot.update({
+                                where: { id: existingSnap.id },
+                                data: { value: val, budget: budVal, status }
+                            });
+                        } else {
+                            await tx.snapshot.create({
+                                data: { branchId: branch.id, parameterId: param.id, date: businessDate, value: val, budget: budVal, status }
+                            });
+                        }
                     }
 
-                    // 4. Upsert Snapshot Header
-                    const snapshot = await tx.misSnapshot.upsert({
-                        where: { unitId_businessDate_version: { unitId: branch.id, businessDate, version: 1 } },
-                        create: {
-                            unitId: branch.id,
-                            businessDate,
-                            status: MisStatus.PROVISIONAL,
-                            version: 1
-                        },
-                        update: {
-                            status: MisStatus.PROVISIONAL
-                        }
-                    });
+                    results.processed++;
+                    results.units.add(sol);
+                }
 
-                    // 5. Populate Panel
-                    await (BusinessSnapshotService as any).populatePanelInternal(tx, snapshot.id, branch.id, businessDate);
+                // Bulk Fact Ingestion
+                if (factsToCreate.length > 0) {
+                    await tx.fact.deleteMany({ where: { unitId: { in: Array.from(affectedUnitIds) }, date: businessDate } });
+                    await tx.fact.createMany({ data: factsToCreate });
+                }
 
-                    // 6. Auto-evaluate Exceptions
-                    await RuleEngine.evaluate(snapshot.id);
-                });
+                // Batch Population
+                await BusinessSnapshotService.populatePanelsBatch(tx, snapshotsToPopulate, businessDate);
+            }, { timeout: 60000 }); // Increase timeout for massive batches
 
-                results.processed++;
-                results.units.add(sol);
-                results.dates.add(businessDate.toISOString().split('T')[0]);
-
-            } catch (err) {
-                console.error(`Row processing failed for SOL ${row['SOL']}:`, err);
-                results.failed++;
+            // Once Panels are fully committed to database, we evaluate the rules
+            if (snapshotsToPopulate.length > 0) {
+                await RuleEngine.evaluateBatch(snapshotsToPopulate.map(s => s.id));
             }
         }
 
-        // 6. Update Batch Import Log status
+        // Finalize Import Log
         await prisma.misImportLog.update({
             where: { id: importLog.id },
             data: {

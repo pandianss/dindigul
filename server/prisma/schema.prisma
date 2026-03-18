@@ -16,6 +16,9 @@ model User {
   fullNameTa           String?
   fullNameHi           String?
   grade                String?
+  designationEn        String?
+  designationTa        String?
+  designationHi        String?
   role                 String            @default("BRANCH_USER")
   gender               String            @default("M")
   photoId              String?
@@ -271,6 +274,7 @@ model Letter {
   parameter         Parameter? @relation(fields: [parameterId], references: [id])
   previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[]   @relation("LetterHistory")
+  referenceNo       String?    @unique
 
   @@map("letters")
 }
@@ -291,6 +295,7 @@ model OfficeNote {
   preparer          User         @relation("NotePreparer", fields: [preparerId], references: [id])
   previousVersion   OfficeNote?  @relation("NoteHistory", fields: [previousVersionId], references: [id])
   nextVersions      OfficeNote[] @relation("NoteHistory")
+  referenceNo       String?      @unique
 
   @@map("office_notes")
 }
@@ -548,8 +553,14 @@ model AuditObservation {
 model SrmMessage {
   id        String   @id @default(uuid())
   name      String
+  nameTa    String?
+  nameHi    String?
   title     String
+  titleTa   String?
+  titleHi   String?
   region    String
+  regionTa  String?
+  regionHi  String?
   message   String
   highlight String
   isActive  Boolean  @default(true)
@@ -1119,4 +1130,15 @@ model PresentationDeck {
   createdBy   User          @relation(fields: [createdById], references: [id])
 
   @@map("presentation_decks")
+}
+
+model ReferenceSequence {
+  id          String   @id @default(uuid())
+  category    String   // e.g., "OFFICE_NOTE", "LETTER"
+  prefix      String   // e.g., "RO/PLNG/2026"
+  lastNumber  Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([category, prefix])
+  @@map("reference_sequences")
 }

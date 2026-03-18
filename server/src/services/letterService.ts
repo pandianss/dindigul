@@ -1,6 +1,7 @@
 import { prisma } from '../index';
 import { createNotification } from './notificationService';
 import { getPaginatedResponse } from '../utils/pagination';
+import { getRegionalOfficeData } from './pdfService';
 
 const toTitleCase = (str: string) => {
     if (!str) return '';
@@ -46,9 +47,7 @@ export const letterService = {
             include: { designation: true }
         });
 
-        const roBranch = await prisma.branch.findFirst({
-            where: { type: 'RO' }
-        });
+        const RO_DATA = await getRegionalOfficeData();
 
         let config = await prisma.organizationConfig.findUnique({
             where: { id: 'singleton' }
@@ -58,9 +57,9 @@ export const letterService = {
             config = await prisma.organizationConfig.create({
                 data: {
                     id: 'singleton',
-                    bankNameEn: "Indian Overseas Bank",
-                    bankNameTa: "இந்தியன் ஓவர்சீஸ் வங்கி",
-                    bankNameHi: "इंडियन ओवरसीज बैंक",
+                    bankNameEn: RO_DATA.bankNameEn,
+                    bankNameTa: RO_DATA.bankNameTa,
+                    bankNameHi: RO_DATA.bankNameHi,
                     signingAuthEn: "Regional Manager",
                     signingAuthTa: "மண்டல மேலாளர்",
                     signingAuthHi: "क्षेत्रीय प्रबंधक"
@@ -70,12 +69,7 @@ export const letterService = {
 
         const organization = {
             ...config,
-            officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
-            officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
-            officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
-            address: roBranch?.address || roBranch?.addressTa || roBranch?.addressHi || "",
-            phone: roBranch?.phone || "+91 451 2420000",
-            email: roBranch?.email || "ro.dindigul@bank.com"
+            ...RO_DATA
         };
 
         const metadata = {
@@ -117,23 +111,7 @@ export const letterService = {
             });
         } else {
             const getCurrentOrgMeta = async () => {
-                let organization = await prisma.organizationConfig.findUnique({
-                    where: { id: 'singleton' }
-                });
-
-                const roBranch = await prisma.branch.findFirst({
-                    where: { type: 'RO' }
-                });
-
-                return {
-                    ...organization,
-                    officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
-                    officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
-                    officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
-                    address: roBranch?.address || "Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu",
-                    addressTa: roBranch?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு",
-                    addressHi: roBranch?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"
-                };
+                return await getRegionalOfficeData();
             };
 
             const currentOrgMeta = await getCurrentOrgMeta();
@@ -182,7 +160,7 @@ export const letterService = {
         const uniqueSnapshots: any[] = [];
         const seenBranchIds = new Set();
         for (const snap of snapshots) {
-            if (!seenBranchIds.has(snap.branchId)) {
+            if (!seenBranchIds.has(snap.branchId) && snap.branch?.type !== 'REGIONAL OFFICE') {
                 uniqueSnapshots.push(snap);
                 seenBranchIds.add(snap.branchId);
             }
@@ -194,25 +172,7 @@ export const letterService = {
         const bottomBranches = uniqueSnapshots.slice(-3).reverse();
 
         const getCurrentOrgMeta = async () => {
-            let organization = await prisma.organizationConfig.findUnique({
-                where: { id: 'singleton' }
-            });
-
-            const roBranch = await prisma.branch.findFirst({
-                where: { type: 'RO' }
-            });
-
-            return {
-                ...organization,
-                officeNameEn: roBranch?.nameEn || "Dindigul Regional Office",
-                officeNameTa: roBranch?.nameTa || "திண்டுக்கல் மண்டல அலுவலகம்",
-                officeNameHi: roBranch?.nameHi || "डिंडिगुल क्षेत्रीय कार्यालय",
-                address: roBranch?.address || "Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu",
-                addressTa: roBranch?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு",
-                addressHi: roBranch?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु",
-                phone: roBranch?.phone || "+91 451 2420000",
-                email: roBranch?.email || "ro.dindigul@bank.com"
-            };
+            return await getRegionalOfficeData();
         };
 
         const currentOrgMeta = await getCurrentOrgMeta();
@@ -282,7 +242,9 @@ export const letterService = {
             });
 
             if (!existingLetter) {
-                const headDesignation = toTitleCase(snap.branch?.headUser?.designation?.nameEn || "Branch Head");
+                const headDesignation = snap.branch?.type === 'REGIONAL OFFICE' 
+                    ? "Region Head" 
+                    : toTitleCase(snap.branch?.headUser?.designation?.nameEn || "Branch Head");
 
                 const marchInfo = await getMarchFigure(snap.branchId!, param.id, snap.date);
                 const gap = snap.value - (snap.budget || 0);

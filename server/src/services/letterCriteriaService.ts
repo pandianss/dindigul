@@ -1,4 +1,6 @@
 import prisma from '../lib/prisma';
+import { getRegionalOfficeData } from './pdfService';
+import { generateReference } from './referenceService';
 
 // ── Config helpers ────────────────────────────────────────────────────────────
 
@@ -21,34 +23,67 @@ async function loadCriteria() {
 // ── Org metadata ──────────────────────────────────────────────────────────────
 
 export async function getCurrentOrgMeta() {
-    const organization = await (prisma as any).organizationConfig.findUnique({ where: { id: 'singleton' } });
-    const roBranch = await prisma.branch.findFirst({ where: { type: 'RO' } });
-    return {
-        ...organization,
-        officeNameEn: roBranch?.nameEn || 'Dindigul Regional Office',
-        officeNameTa: (roBranch as any)?.nameTa || 'திண்டுக்கல் மண்டல அலுவலகம்',
-        officeNameHi: (roBranch as any)?.nameHi || 'डिंडिगुल क्षेत्रीय कार्यालय',
-        address: (roBranch as any)?.address || 'Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu',
-        addressTa: (roBranch as any)?.addressTa || 'மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு',
-        addressHi: (roBranch as any)?.addressHi || 'क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु',
-        phone: (roBranch as any)?.phone || '+91 451 2420000',
-        email: (roBranch as any)?.email || 'ro.dindigul@bank.com',
-    };
+    return await getRegionalOfficeData();
 }
 
 // ── March 31st baseline ───────────────────────────────────────────────────────
 
-async function getMarchFigure(branchId: string, paramId: string, referenceDate: Date) {
+async function getMarchFigure(branchId: string, paramId: string, referenceDate: Date, paramCode?: string, targetUnit?: string, latestValue?: number) {
     const year = referenceDate.getFullYear();
     const month = referenceDate.getMonth(); // 0-indexed
     const marchYear = month <= 2 ? year - 1 : year;
-    const marchStart = new Date(marchYear, 2, 1);
-    const marchEnd = new Date(marchYear, 2, 31, 23, 59, 59);
+    const marchStart = new Date(marchYear, 1, 1); // Feb 1st (safety margin)
+    const marchEnd = new Date(marchYear, 2, 31, 23, 59, 59); // March 31st
+
+    // 1. Try Snapshot table first
     const snap = await (prisma as any).snapshot.findFirst({
-        where: { branchId, parameterId: paramId, date: { gte: marchStart, lte: marchEnd } },
+        where: { 
+            branchId, 
+            parameterId: paramId, 
+            date: { gte: marchStart, lte: marchEnd } 
+        },
         orderBy: { date: 'desc' }
     });
-    return { value: snap?.value || 0, date: marchEnd };
+
+    let value = 0;
+    if (snap?.value) {
+        value = Number(snap.value);
+    } else if (paramCode) {
+        // 2. Fallback to MisInformationPanel
+        const mapping: Record<string, string> = {
+            'TOTAL_ADVANCES': 'Adv',
+            'TOTAL_DEPOSITS': 'Total Dep',
+            'CASA': 'CASA',
+            'GROSS_NPA': 'NPA',
+            'CASA_RATIO': 'CASA%'
+        };
+        const misParam = mapping[paramCode];
+        if (misParam) {
+            const misPanel = await (prisma as any).misInformationPanel.findFirst({
+                where: {
+                    snapshot: { unitId: branchId },
+                    parameter: misParam
+                },
+                orderBy: { snapshot: { businessDate: 'desc' } }
+            });
+
+            if (misPanel?.val_prev_fy_end) {
+                value = Number(misPanel.val_prev_fy_end);
+            }
+        }
+    }
+
+    // ── Smart Scaling Heuristic ──────────────────────────────────────────────────
+    // If the target unit is Crores, but the historical value is > 100x the current value,
+    // it's highly likely the historical data was stored in Lakhs.
+    if (targetUnit === 'Cr' && latestValue !== undefined && latestValue > 0) {
+        if (value > latestValue * 10) { 
+            // If historical is 10x larger than current, it's likely Lakhs vs Cr (100x difference normally, but allow for growth)
+            value = value / 100;
+        }
+    }
+
+    return { value, date: marchEnd };
 }
 
 // ── Achievement % ─────────────────────────────────────────────────────────────
@@ -56,8 +91,6 @@ async function getMarchFigure(branchId: string, paramId: string, referenceDate: 
 function achievementPct(actual: number, budget: number, invert: boolean): number {
     if (budget === 0) return actual === 0 ? 100 : (invert ? 0 : 200);
     if (invert) {
-        // For NPA: achieving less than budget is good
-        // 100% = exactly at budget, >100% = better (actual < budget)
         return (budget / actual) * 100;
     }
     return (actual / budget) * 100;
@@ -103,20 +136,87 @@ We expect a marked improvement in your branch's performance in the coming weeks.
 
 function buildOpRiskContent(
     branchName: string, headDesignation: string,
-    period: string, exceptions: any[]
+    period: string
 ): string {
-    const exceptionList = exceptions
-        .map(e => `  • [${e.ruleId}] ${e.parameter}: ${e.message}`)
-        .join('\n');
     return `Dear Sir/Madam,
 
 The Risk Monitoring System has flagged the following operational risk exceptions for the ${branchName} Branch during ${period}:
 
-${exceptionList}
+[EXCEPTION_TABLE]
 
-These exceptions require your immediate attention and a written response outlining the corrective measures being undertaken. Please submit your response to the Regional Office within 3 working days.
+Further, a review of the branch's daily business movement indicates the following trends:
 
-Failure to address these exceptions in a timely manner may result in escalation to higher management.`;
+[MOVEMENT_TABLE]
+
+The above exceptions and business movements require your immediate attention. You are requested to analyze the reasons and submit a written response outlining the corrective measures to the Regional Office within 3 working days.
+
+Failure to address these observations in a timely manner may result in escalation to higher management.`;
+}
+
+async function getDailyMovement(branchId: string, referenceDate: Date) {
+    const params = [
+        { code: 'TOTAL_DEPOSITS', mis: 'Total Dep', name: 'Total Deposits' },
+        { code: 'TOTAL_ADVANCES', mis: 'Adv', name: 'Total Advances' },
+        { code: 'CASA', mis: 'CASA', name: 'CASA' },
+        { code: 'GROSS_NPA', mis: 'NPA', name: 'Gross NPA' },
+        { code: 'PROFIT_LOSS', mis: 'Branch_PL', name: 'Profit & Loss' }
+    ];
+
+    const movements = [];
+
+    for (const p of params) {
+        let snaps: any[] = [];
+        const param = await (prisma as any).parameter.findUnique({ where: { code: p.code } });
+        
+        if (param) {
+            // Try snapshots first for the most accurate/historical data, limited by the reference date
+            snaps = await (prisma as any).snapshot.findMany({
+                where: { branchId, parameterId: param.id, date: { lte: referenceDate } },
+                orderBy: { date: 'desc' },
+                take: 2
+            });
+        }
+
+        if (snaps.length >= 2) {
+            const latest = Number(snaps[0].value);
+            const previous = Number(snaps[1].value);
+            const diff = latest - previous;
+            const pct = previous !== 0 ? (diff / previous) * 100 : 0;
+
+            movements.push({
+                parameter: p.name,
+                previousValue: previous,
+                latestValue: latest,
+                movement: diff,
+                pct: pct
+            });
+        } else {
+            // Fallback to MisInformationPanel (pre-calculated from upload) for that specific date
+            const mis = await (prisma as any).misInformationPanel.findFirst({
+                where: { 
+                    snapshot: { unitId: branchId, businessDate: referenceDate },
+                    parameter: p.mis
+                }
+            });
+
+            if (mis) {
+                const latest = parseFloat(mis.val_current || '0');
+                const movement = parseFloat(mis.growth_day || '0');
+                const previous = latest - movement;
+                const pct = previous !== 0 ? (movement / previous) * 100 : 0;
+
+                movements.push({
+                    parameter: p.name,
+                    previousValue: previous,
+                    latestValue: latest,
+                    movement: movement,
+                    pct: pct
+                });
+            }
+        }
+    }
+
+    return movements;
 }
 
 // ── Core evaluation function ──────────────────────────────────────────────────
@@ -127,7 +227,11 @@ export interface GenerationResult {
     details: { branch: string; param: string; type: string; reason: string }[];
 }
 
-export async function generateLettersForPeriod(period: string): Promise<GenerationResult> {
+export async function generateLettersForPeriod(
+    period: string, 
+    options: { date?: string; type?: 'PERFORMANCE' | 'OP_RISK' | 'ALL' } = {}
+): Promise<GenerationResult> {
+    const { date, type = 'ALL' } = options;
     const criteria = await loadCriteria();
     const orgMeta = await getCurrentOrgMeta();
     const result: GenerationResult = { created: 0, skipped: 0, details: [] };
@@ -135,214 +239,234 @@ export async function generateLettersForPeriod(period: string): Promise<Generati
     const toTitleCase = (s: string) =>
         (s || '').toLowerCase().split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-    // ── Per-parameter evaluation ─────────────────────────────────────────────
-    for (const paramCode of criteria.enabledParamCodes) {
-        const param = await (prisma as any).parameter.findUnique({ where: { code: paramCode } });
-        if (!param) {
-            console.warn(`[LetterGen] Parameter '${paramCode}' not found in parameters table — skipping`);
-            result.details.push({ branch: '-', param: paramCode, type: '-', reason: 'Parameter not found' });
-            continue;
-        }
-
-        const isInverted = criteria.invertParamCodes.includes(paramCode);
-
-        // Fetch all snapshots for this parameter, deduplicated by branch
-        const snapshots = await (prisma as any).snapshot.findMany({
-            where: { parameterId: param.id },
-            orderBy: { date: 'desc' },
-            include: {
-                branch: {
-                    include: {
-                        headUser: { include: { designation: true } }
-                    }
-                }
+    // ── 1. Performance Assessment ─────────────────────────────────────────────
+    if (type === 'ALL' || type === 'PERFORMANCE') {
+        // PURGE ALL DRAFTS for Performance types BEFORE generation
+        await (prisma as any).letter.deleteMany({
+            where: { 
+                type: { in: ['APPRECIATION', 'EXPLANATION'] },
+                status: 'DRAFT'
             }
         });
-
-        // Deduplicate: one snapshot per branch (most recent)
-        const seen = new Set<string>();
-        const uniqueSnaps: any[] = [];
-        for (const s of snapshots) {
-            if (s.branchId && !seen.has(s.branchId)) {
-                seen.add(s.branchId);
-                uniqueSnaps.push(s);
+        for (const paramCode of criteria.enabledParamCodes) {
+            const param = await (prisma as any).parameter.findUnique({ where: { code: paramCode } });
+            if (!param) {
+                result.details.push({ branch: '-', param: paramCode, type: '-', reason: 'Parameter not found' });
+                continue;
             }
-        }
 
-        if (uniqueSnaps.length === 0) {
-            result.details.push({ branch: '-', param: paramCode, type: '-', reason: 'No snapshots found' });
-            continue;
-        }
+            const isInverted = criteria.invertParamCodes.includes(paramCode);
+            
+            // If specific date provided, only look for snapshots on that date
+            const snapshotQuery: any = { parameterId: param.id };
+            if (date) {
+                const [y, m, d] = date.split('-').map(Number);
+                snapshotQuery.date = new Date(Date.UTC(y, m - 1, d));
+            }
 
-        // Annotate each snapshot with achievement %
-        const annotated = uniqueSnaps.map(s => ({
-            ...s,
-            achievementPct: achievementPct(s.value, s.budget || 0, isInverted)
-        }));
+            const snapshots = await (prisma as any).snapshot.findMany({
+                where: snapshotQuery,
+                orderBy: { date: 'desc' },
+                include: {
+                    branch: {
+                        include: {
+                            headUser: { include: { designation: true, department: true } }
+                        }
+                    }
+                }
+            });
 
-        // Sort by achievement descending (best performers first)
-        annotated.sort((a, b) => b.achievementPct - a.achievementPct);
-
-        // Determine which branches receive each letter type
-        // Mode A: threshold-based (if appreciationThreshold > 0)
-        // Mode B: pure rank (top N / bottom N)
-        const appreciationCandidates: typeof annotated = [];
-        const explanationCandidates: typeof annotated = [];
-
-        // Mode C: FY Decline checks
-        const checkFyDecline = criteria.fyDeclineParamCodes.includes(paramCode);
-        const declineCandidates: typeof annotated = [];
-
-        // Pre-fetch March info for all branches to check for decline
-        for (const s of annotated) {
-            const marchInfo = await getMarchFigure(s.branchId, param.id, s.date);
-            s.marchInfo = marchInfo; // attach for later
-            if (checkFyDecline) {
-                const isDecline = isInverted
-                    ? (s.value > marchInfo.value)  // For NPA: higher is worse (decline in performance)
-                    : (s.value < marchInfo.value); // For Deposits: lower is worse
-
-                if (isDecline) {
-                    declineCandidates.push(s);
+            const seen = new Set<string>();
+            const uniqueSnaps: any[] = [];
+            for (const s of snapshots) {
+                if (s.branchId && !seen.has(s.branchId)) {
+                    if (s.branch?.type === 'REGIONAL OFFICE') continue;
+                    seen.add(s.branchId);
+                    uniqueSnaps.push(s);
                 }
             }
-        }
 
-        if (criteria.appreciationThreshold > 0) {
-            // Threshold mode: all branches meeting/exceeding threshold get appreciation
+            if (uniqueSnaps.length === 0) continue;
+
+            const annotated = uniqueSnaps.map(s => {
+                const scaledBudget = param.unit === 'Cr' ? (s.budget || 0) / 100 : (s.budget || 0);
+                return {
+                    ...s,
+                    scaledBudget,
+                    achievementPct: achievementPct(s.value, scaledBudget, isInverted)
+                };
+            });
+
+            annotated.sort((a, b) => b.achievementPct - a.achievementPct);
+
+            const appreciationCandidates: typeof annotated = [];
+            const explanationCandidates: typeof annotated = [];
+            const checkFyDecline = criteria.fyDeclineParamCodes.includes(paramCode);
+            const declineCandidates: typeof annotated = [];
+
             for (const s of annotated) {
-                if (s.achievementPct >= criteria.appreciationThreshold) {
-                    appreciationCandidates.push(s);
-                } else if (s.achievementPct < criteria.explanationThreshold) {
+                const marchInfo = await getMarchFigure(s.branchId, param.id, s.date, param.code, param.unit, s.value);
+                s.marchInfo = marchInfo;
+                if (checkFyDecline) {
+                    const isDecline = isInverted ? (s.value > marchInfo.value) : (s.value < marchInfo.value);
+                    if (isDecline) declineCandidates.push(s);
+                }
+            }
+
+            if (criteria.appreciationThreshold > 0) {
+                for (const s of annotated) {
+                    if (s.achievementPct >= criteria.appreciationThreshold) {
+                        appreciationCandidates.push(s);
+                    } else if (s.achievementPct < criteria.explanationThreshold) {
+                        explanationCandidates.push(s);
+                    }
+                }
+                appreciationCandidates.splice(criteria.appreciationTopN);
+                explanationCandidates.splice(criteria.explanationBottomN);
+            } else {
+                appreciationCandidates.push(...annotated.slice(0, criteria.appreciationTopN));
+                explanationCandidates.push(...annotated.slice(-criteria.explanationBottomN).reverse());
+            }
+
+            for (const s of declineCandidates) {
+                if (!explanationCandidates.find(c => c.branchId === s.branchId)) {
                     explanationCandidates.push(s);
                 }
             }
-            // Still cap at topN / bottomN to avoid flooding
-            appreciationCandidates.splice(criteria.appreciationTopN);
-            explanationCandidates.splice(criteria.explanationBottomN);
-        } else {
-            // Pure rank mode
-            appreciationCandidates.push(...annotated.slice(0, criteria.appreciationTopN));
-            explanationCandidates.push(...annotated.slice(-criteria.explanationBottomN).reverse());
-        }
 
-        // Add any branch that suffered an FY decline to the explanation list (if not already present)
-        for (const s of declineCandidates) {
-            if (!explanationCandidates.find(c => c.branchId === s.branchId)) {
-                explanationCandidates.push(s);
-            }
-        }
-
-        // Create APPRECIATION letters
-        for (const snap of appreciationCandidates) {
-            const existing = await (prisma as any).letter.findFirst({
-                where: { branchId: snap.branchId, parameterId: param.id, period, type: 'APPRECIATION' }
-            });
-            if (existing) {
-                result.skipped++;
-                result.details.push({ branch: snap.branch.nameEn, param: paramCode, type: 'APPRECIATION', reason: 'Already exists' });
-                continue;
-            }
-
-            const headName = toTitleCase(snap.branch.headUser?.fullNameEn || 'The Branch Manager');
-            const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || 'Branch Head');
-            const marchInfo = snap.marchInfo;
-            const gap = snap.value - (snap.budget || 0);
-            const performanceData = {
-                march31stDate: marchInfo.date,
-                march31st: marchInfo.value,
-                latestDate: snap.date,
-                latest: snap.value,
-                budget: snap.budget || 0,
-                gap,
-                status: gap >= 0 ? '+ve' : '-ve'
-            };
-
-            await (prisma as any).letter.create({
-                data: {
-                    type: 'APPRECIATION',
-                    titleEn: `${param.nameEn} Achievement - ${period}`,
-                    contentEn: buildAppreciationContent(
-                        toTitleCase(snap.branch.nameEn), headDesignation,
-                        param.nameEn, period, snap.value, snap.budget || 0),
-                    branchId: snap.branchId,
-                    parameterId: param.id,
-                    valueAtTime: snap.value,
-                    budgetAtTime: snap.budget,
-                    period,
-                    orgMeta: { ...orgMeta, performanceData }
+            for (const snap of appreciationCandidates) {
+                const existing = await (prisma as any).letter.findFirst({
+                    where: { branchId: snap.branchId, parameterId: param.id, period, type: 'APPRECIATION' }
+                });
+                
+                if (existing) {
+                    if (existing.status === 'SENT') {
+                        result.skipped++;
+                        continue;
+                    }
+                    await (prisma as any).letter.delete({ where: { id: existing.id } });
                 }
-            });
-            result.created++;
-            result.details.push({
-                branch: snap.branch.nameEn, param: paramCode, type: 'APPRECIATION',
-                reason: `${snap.achievementPct.toFixed(1)}% achievement`
-            });
-        }
 
-        // Create EXPLANATION letters
-        for (const snap of explanationCandidates) {
-            // Do not send explanation to a branch that already got appreciation for same param+period
-            const alreadyApprec = appreciationCandidates.some(a => a.branchId === snap.branchId);
-            if (alreadyApprec) continue;
+                const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || 'Branch Head');
+                const marchInfo = snap.marchInfo;
+                const gap = snap.value - snap.scaledBudget;
+                const deptName = snap.branch.headUser?.department?.nameEn || 'PLNG';
+                const referenceNo = await generateReference('LETTER', deptName);
 
-            const existing = await (prisma as any).letter.findFirst({
-                where: { branchId: snap.branchId, parameterId: param.id, period, type: 'EXPLANATION' }
-            });
-            if (existing) {
-                result.skipped++;
-                result.details.push({ branch: snap.branch.nameEn, param: paramCode, type: 'EXPLANATION', reason: 'Already exists' });
-                continue;
+                const performanceData = {
+                    march31stDate: marchInfo.date, march31st: marchInfo.value,
+                    latestDate: snap.date, latest: snap.value,
+                    budget: snap.scaledBudget, gap, status: gap >= 0 ? '+ve' : '-ve',
+                    isInverted
+                };
+
+                const letter = await (prisma as any).letter.create({
+                    data: {
+                        type: 'APPRECIATION',
+                        titleEn: `${param.nameEn} Achievement - ${period}`,
+                        contentEn: buildAppreciationContent(toTitleCase(snap.branch.nameEn), headDesignation, param.nameEn, period, snap.value, snap.scaledBudget),
+                        branchId: snap.branchId,
+                        parameterId: param.id,
+                        valueAtTime: snap.value,
+                        budgetAtTime: snap.scaledBudget,
+                        period,
+                        orgMeta: { ...orgMeta, performanceData }
+                    }
+                });
+
+                await (prisma as any).$executeRaw`
+                    UPDATE letters SET "referenceNo" = ${referenceNo} WHERE id = ${letter.id}
+                `;
+                result.created++;
             }
 
-            const headDesignation = toTitleCase(snap.branch.headUser?.designation?.nameEn || 'Branch Head');
-            const marchInfo = snap.marchInfo;
-            const gap = snap.value - (snap.budget || 0);
-            const performanceData = {
-                march31stDate: marchInfo.date, march31st: marchInfo.value,
-                latestDate: snap.date, latest: snap.value,
-                budget: snap.budget || 0, gap, status: gap >= 0 ? '+ve' : '-ve'
-            };
+            for (const snap of explanationCandidates) {
+                const alreadyApprec = appreciationCandidates.some(a => a.branchId === snap.branchId);
+                if (alreadyApprec) continue;
 
-            const isDecline = isInverted ? (snap.value > marchInfo.value) : (snap.value < marchInfo.value);
-            let reasonStr = `${snap.achievementPct.toFixed(1)}% achievement`;
-            if (checkFyDecline && isDecline) {
-                reasonStr += ` (Decline from March 31st FY)`;
-            } else if (snap.achievementPct < criteria.explanationThreshold) {
-                reasonStr += ` (below ${criteria.explanationThreshold}% threshold)`;
-            }
+                const existing = await (prisma as any).letter.findFirst({
+                    where: { branchId: snap.branchId, parameterId: param.id, period, type: 'EXPLANATION' }
+                });
 
-            await (prisma as any).letter.create({
-                data: {
-                    type: 'EXPLANATION',
-                    titleEn: `Review of ${param.nameEn} Performance - ${period}`,
-                    contentEn: buildExplanationContent(
-                        toTitleCase(snap.branch.nameEn), headDesignation,
-                        param.nameEn, period, snap.value, snap.budget || 0),
-                    branchId: snap.branchId,
-                    parameterId: param.id,
-                    valueAtTime: snap.value,
-                    budgetAtTime: snap.budget,
-                    period,
-                    orgMeta: { ...orgMeta, performanceData }
+                if (existing) {
+                    if (existing.status === 'SENT') {
+                        result.skipped++;
+                        continue;
+                    }
+                    await (prisma as any).letter.delete({ where: { id: existing.id } });
                 }
-            });
-            result.created++;
-            result.details.push({
-                branch: snap.branch.nameEn, param: paramCode, type: 'EXPLANATION',
-                reason: reasonStr
-            });
+
+                const headDesignation = snap.branch.type === 'REGIONAL OFFICE' 
+                    ? "Region Head" 
+                    : toTitleCase(snap.branch.headUser?.designation?.nameEn || 'Branch Head');
+                const marchInfo = snap.marchInfo;
+                const gap = snap.value - snap.scaledBudget;
+                const deptName = snap.branch.headUser?.department?.nameEn || 'PLNG';
+                const referenceNo = await generateReference('LETTER', deptName);
+
+                const performanceData = {
+                    march31stDate: marchInfo.date, march31st: marchInfo.value,
+                    latestDate: snap.date, latest: snap.value,
+                    budget: snap.scaledBudget, gap, status: gap >= 0 ? '+ve' : '-ve',
+                    isInverted
+                };
+
+                const letter = await (prisma as any).letter.create({
+                    data: {
+                        type: 'EXPLANATION',
+                        titleEn: `Review of ${param.nameEn} Performance - ${period}`,
+                        contentEn: buildExplanationContent(toTitleCase(snap.branch.nameEn), headDesignation, param.nameEn, period, snap.value, snap.scaledBudget),
+                        branchId: snap.branchId,
+                        parameterId: param.id,
+                        valueAtTime: snap.value,
+                        budgetAtTime: snap.scaledBudget,
+                        period,
+                        orgMeta: { ...orgMeta, performanceData }
+                    }
+                });
+
+                await (prisma as any).$executeRaw`
+                    UPDATE letters SET "referenceNo" = ${referenceNo} WHERE id = ${letter.id}
+                `;
+                result.created++;
+            }
         }
     }
 
-    // ── OP_RISK letters from CRITICAL exceptions ──────────────────────────────
-    if (criteria.opRiskFromExceptions) {
-        const criticalExceptions = await prisma.misException.findMany({
-            where: { severity: 'CRITICAL', status: 'OPEN' },
-            include: { branch: { include: { headUser: { include: { designation: true } } } } }
+    // ── 2. Operational Risk ────────────────────────────────────────────────────
+    if ((type === 'ALL' || type === 'OP_RISK') && criteria.opRiskFromExceptions) {
+        const [y, m, d] = (date || '').split('-').map(Number);
+        const businessDate = date ? new Date(Date.UTC(y, m - 1, d)) : new Date();
+        const displayPeriod = date ? `${String(businessDate.getUTCDate()).padStart(2, '0')}.${String(businessDate.getUTCMonth() + 1).padStart(2, '0')}.${businessDate.getUTCFullYear()}` : period;
+
+        // PURGE ALL DRAFTS for this type BEFORE generation
+        // This ensures a clean slate as requested by the user: "older records [should be] purged"
+        // We remove the 'period' filter to ensure Feb 2026 drafts are gone when generating Mar 16.
+        await (prisma as any).letter.deleteMany({
+            where: { 
+                type: 'OP_RISK',
+                status: 'DRAFT'
+            }
         });
 
-        // Group by branch
+        // Use a range to be safe against any time-of-day offsets
+        const startOfDay = new Date(businessDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        const endOfDay = new Date(businessDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+
+        const exceptionQuery: any = { 
+            severity: { in: ['CRITICAL', 'HIGH'] }, 
+            status: 'OPEN',
+            businessDate: { gte: startOfDay, lte: endOfDay },
+            branch: { type: { not: 'REGIONAL OFFICE' } }
+        };
+
+        const criticalExceptions = await prisma.misException.findMany({
+            where: exceptionQuery,
+            include: { branch: { include: { headUser: { include: { designation: true, department: true } } } } }
+        });
+
         const byBranch = new Map<string, typeof criticalExceptions>();
         for (const ex of criticalExceptions) {
             const arr = byBranch.get(ex.unitId) || [];
@@ -352,31 +476,47 @@ export async function generateLettersForPeriod(period: string): Promise<Generati
 
         for (const [unitId, exceptions] of byBranch) {
             const branch = exceptions[0].branch;
-            const existing = await (prisma as any).letter.findFirst({
-                where: { branchId: unitId, period, type: 'OP_RISK' }
+            
+            // Check if ANY non-draft letter remains (e.g. SENT)
+            const existingNonDraft = await (prisma as any).letter.findFirst({
+                where: { branchId: unitId, period: displayPeriod, type: 'OP_RISK', status: { not: 'DRAFT' } }
             });
-            if (existing) {
+
+            if (existingNonDraft) {
                 result.skipped++;
-                result.details.push({ branch: branch.nameEn, param: 'EXCEPTIONS', type: 'OP_RISK', reason: 'Already exists' });
                 continue;
             }
 
             const headDesignation = toTitleCase(branch.headUser?.designation?.nameEn || 'Branch Head');
-            await (prisma as any).letter.create({
+            const deptName = branch.headUser?.department?.nameEn || 'PLNG';
+            const referenceNo = await generateReference('LETTER', deptName);
+
+            const refDate = date ? businessDate : new Date();
+            const dailyMovement = await getDailyMovement(unitId, refDate);
+            
+            const letter = await (prisma as any).letter.create({
                 data: {
                     type: 'OP_RISK',
-                    titleEn: `Operational Risk Advisory - ${period}`,
-                    contentEn: buildOpRiskContent(toTitleCase(branch.nameEn), headDesignation, period, exceptions),
+                    titleEn: `Operational Risk Advisory - ${displayPeriod}`,
+                    contentEn: buildOpRiskContent(toTitleCase(branch.nameEn), headDesignation, displayPeriod),
                     branchId: unitId,
-                    period,
-                    orgMeta: orgMeta
+                    period: displayPeriod,
+                    orgMeta: { 
+                        ...orgMeta, 
+                        exceptions: exceptions.map(e => ({
+                            ruleId: e.ruleId,
+                            parameter: e.parameter,
+                            message: e.message
+                        })),
+                        dailyMovement
+                    }
                 }
             });
+
+            await (prisma as any).$executeRaw`
+                UPDATE letters SET "referenceNo" = ${referenceNo} WHERE id = ${letter.id}
+            `;
             result.created++;
-            result.details.push({
-                branch: branch.nameEn, param: 'EXCEPTIONS', type: 'OP_RISK',
-                reason: `${exceptions.length} CRITICAL exception(s)`
-            });
         }
     }
 
