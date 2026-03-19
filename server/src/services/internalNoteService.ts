@@ -88,7 +88,14 @@ export async function createInternalNote(data: {
     const { date, creatorBranchId, ...dbData } = data; // Don't save manual date or branchId to DB if not in schema
     const note = await prisma.internalNote.create({
         data: {
-            ...dbData,
+            refNo: data.refNo,
+            department: data.department,
+            departmentTa: data.departmentTa,
+            departmentHi: data.departmentHi,
+            subject: data.subject,
+            classification: data.classification,
+            createdBy: data.createdBy,
+            bodyHtml: data.bodyHtml,
             fileUrl: ''
         }
     });

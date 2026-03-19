@@ -1,28 +1,7 @@
 import prisma from '../lib/prisma';
+import { MisParameter, ExceptionSeverity, ExceptionType } from '../types/mis';
 
-export const ExceptionSeverity = {
-    LOW: 'LOW',
-    MEDIUM: 'MEDIUM',
-    HIGH: 'HIGH',
-    CRITICAL: 'CRITICAL'
-};
 
-export const ExceptionType = {
-    BUDGET_CONTROL: 'BUDGET_CONTROL',
-    GROWTH: 'GROWTH',
-    RISK: 'RISK',
-    LIQUIDITY: 'LIQUIDITY'
-};
-
-// These should match the constants in BusinessSnapshotService
-const MisParameter = {
-    DEPOSIT_TOTAL: 'Total Dep',
-    CASA: 'CASA',
-    NPA: 'NPA',
-    CD_RATIO: 'CD_Ratio',
-    YIELD_ADVANCES: 'YIELD_ADVANCES',
-    COST_DEPOSITS: 'COST_DEPOSITS'
-};
 
 export class RuleEngine {
     static async evaluate(snapshotId: string) {

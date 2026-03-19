@@ -1,5 +1,6 @@
 import xlsx from 'xlsx';
-import { BusinessSnapshotService, MisStatus } from './BusinessSnapshotService';
+import { BusinessSnapshotService } from './BusinessSnapshotService';
+import { MisStatus } from '../types/mis';
 import { RuleEngine } from './RuleEngine';
 import prisma from '../lib/prisma';
 

@@ -1,32 +1,8 @@
 import prisma from '../lib/prisma';
 import { RuleEngine } from './RuleEngine';
+import { MisParameter, MisStatus } from '../types/mis';
 
-export const MisParameter = {
-    DEPOSIT_TOTAL: 'Total Dep',
-    CASA: 'CASA',
-    SB: 'SB',
-    CD: 'CD',
-    TD: 'TD',
-    ADVANCE_TOTAL: 'Adv',
-    BUSINESS_TOTAL: 'Bus',
-    NPA: 'NPA',
-    CD_RATIO: 'CD_Ratio',
-    CASA_PERCENT: 'CASA%',
-    YIELD_ADVANCES: 'YIELD_ADVANCES',
-    COST_DEPOSITS: 'COST_DEPOSITS',
-    ADV_RETAIL: 'ADV_RETAIL',
-    ADV_SME: 'ADV_SME',
-    ADV_AGRI: 'ADV_AGRI',
-    ADV_OTHER: 'ADV_OTHER',
-    SMA0: 'SMA0',
-    SMA1: 'SMA1',
-    SMA2: 'SMA2'
-};
 
-export const MisStatus = {
-    PROVISIONAL: 'PROVISIONAL',
-    FINAL: 'FINAL'
-};
 
 export class BusinessSnapshotService {
     static async getSnapshot(unitCode: string, date: string) {

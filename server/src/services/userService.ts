@@ -52,12 +52,6 @@ export const userService = {
                 role: data.role,
                 gender: data.gender,
                 departmentId: data.departmentId,
-                departments: data.departmentIds ? {
-                    connect: data.departmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                managedDepartments: data.managedDepartmentIds ? {
-                    connect: data.managedDepartmentIds.map((id: string) => ({ id }))
-                } : undefined,
                 designationId: data.designationId,
                 branchId: data.branchId,
                 photoId: photoId || undefined
@@ -97,12 +91,6 @@ export const userService = {
                 role: data.role,
                 gender: data.gender,
                 departmentId: data.departmentId,
-                departments: data.departmentIds ? {
-                    set: data.departmentIds.map((id: string) => ({ id }))
-                } : undefined,
-                managedDepartments: data.managedDepartmentIds ? {
-                    set: data.managedDepartmentIds.map((id: string) => ({ id }))
-                } : undefined,
                 designationId: data.designationId,
                 branchId: data.branchId,
                 ...(photoId ? { photoId } : {})
