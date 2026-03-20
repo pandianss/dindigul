@@ -503,6 +503,10 @@ export async function generateLettersForPeriod(
                     period: displayPeriod,
                     orgMeta: { 
                         ...orgMeta, 
+                        signatoryName: 'NIRAJ KUMAR',
+                        signingAuthEn: 'Chief Manager',
+                        signingAuthHi: 'मुख्य प्रबंधक',
+                        signingAuthTa: 'தலைமை மேலாளர்',
                         exceptions: exceptions.map(e => ({
                             ruleId: e.ruleId,
                             parameter: e.parameter,

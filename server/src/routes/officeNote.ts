@@ -786,16 +786,22 @@ router.get('/:id/pdf', async (req: any, res) => {
             pdfSubTitle = 'भारतीय रिज़र्व बैंक को रिपोर्ट करने के लिए प्रोफार्मा / ரிசர்வ் வங்கிக்கு சமர்ப்பிப்பதற்கான படிவம்';
         }
 
+        const isPlanningOrProforma = isProforma || (note as any).deptName === 'Planning Department' || (note.contentJson && JSON.parse(note.contentJson).deptName === 'Planning Department');
+        const signatoryName = isPlanningOrProforma ? 'NIRAJ KUMAR' : note.preparer.fullNameEn;
+        const signatoryTitleEn = isPlanningOrProforma ? 'Chief Manager' : (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer');
+        const signatoryTitleHi = isPlanningOrProforma ? 'मुख्य प्रबंधक' : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयारकर्ता');
+        const signatoryTitleTa = isPlanningOrProforma ? 'தலைமை மேலாளர்' : (note.preparer.role === 'ADMIN' ? 'நிர்வாகி' : 'தயாரித்தவர்');
+
         const html = buildPremiumLayout({
             title: pdfTitle,
             subTitle: pdfSubTitle,
             refNo,
             date: noteDate,
             bodyHtml,
-            signatoryName: isProforma ? RO_DATA.signatoryName : note.preparer.fullNameEn,
-            signatoryTitleEn: isProforma ? RO_DATA.signingAuthEn : (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer'),
-            signatoryTitleHi: isProforma ? RO_DATA.signingAuthHi : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयारकर्ता'),
-            signatoryTitleTa: isProforma ? RO_DATA.signingAuthTa : (note.preparer.role === 'ADMIN' ? 'நிர்வாகி' : 'தயாரிட்டவர்'),
+            signatoryName,
+            signatoryTitleEn,
+            signatoryTitleHi,
+            signatoryTitleTa,
             organization: RO_DATA
         });
 

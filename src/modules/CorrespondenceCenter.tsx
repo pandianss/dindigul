@@ -379,76 +379,85 @@ const CorrespondenceCenter: React.FC = () => {
                                 style={{
                                     width: '210mm',
                                     minHeight: '297mm',
-                                    padding: '20mm 15mm'
+                                    padding: '20mm 15mm',
+                                    position: 'relative'
                                 }}
                             >
+                                {selectedLetter.type === 'OP_RISK' && (
+                                    <>
+                                        <div className="absolute top-0 left-0 right-0 h-[6px] bg-red-600 z-[100]" />
+                                        <div className="absolute top-4 right-4 bg-red-50 border border-red-600 text-red-600 px-3 py-1 rounded-md font-black text-[10px] flex items-center gap-1.5 z-[101] tracking-wider uppercase">
+                                            <span>⚠️</span> HIGH RISK ADVISORY
+                                        </div>
+                                    </>
+                                )}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none">
                                     <img src={GLOBAL_CONFIG.watermarkLogo} alt="Watermark" className="w-[500px]" />
                                 </div>
 
                                 <div className="relative z-10 h-full flex flex-col">
-                                    <div className="flex flex-col border-b-[1.5px] border-bank-navy pb-3 mb-6">
-                                        <div className="flex items-center space-x-5 mb-8">
-                                            <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[65px] w-[65px] object-contain" />
-                                            <div className="flex flex-col justify-center gap-1 py-1">
-                                                <h1 className="font-extrabold text-[17px] text-bank-navy font-hindi leading-none">{(selectedLetter.orgMeta as any)?.bankNameHi || metadata.organization?.bankNameHi || GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-tamil leading-none">{(selectedLetter.orgMeta as any)?.bankNameTa || metadata.organization?.bankNameTa || GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[17px] text-bank-navy font-arial leading-none capitalize">{((selectedLetter.orgMeta as any)?.bankNameEn || metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</h1>
+                                    <div className="flex flex-col border-b-[1.5px] border-bank-navy pb-3 mb-4">
+                                        <div className="flex items-center space-x-5 mb-4">
+                                            <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[60px] w-[60px] object-contain" />
+                                            <div className="flex flex-col justify-center gap-0.5 py-1">
+                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-hindi leading-none">{(selectedLetter.orgMeta as any)?.bankNameHi || metadata.organization?.bankNameHi || GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[15px] text-bank-navy font-tamil leading-none">{(selectedLetter.orgMeta as any)?.bankNameTa || metadata.organization?.bankNameTa || GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-bold text-[16px] text-bank-navy font-arial leading-none capitalize">{((selectedLetter.orgMeta as any)?.bankNameEn || metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</h1>
                                             </div>
                                         </div>
 
-                                        <div className="w-full grid grid-cols-3 text-bank-navy mt-4">
-                                            <div className="flex flex-col items-center gap-1.5 pr-2">
-                                                <p className="font-hindi font-bold text-[13px] text-center leading-tight flex-shrink-0">{(selectedLetter.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-hindi font-medium text-[12px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
+                                        <div className="w-full grid grid-cols-3 text-bank-navy mt-2">
+                                            <div className="flex flex-col items-center gap-1 pr-2">
+                                                <p className="font-hindi font-bold text-[12px] text-center leading-tight flex-shrink-0">{(selectedLetter.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-hindi font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
                                             </div>
 
-                                            <div className="flex flex-col items-center gap-1.5 px-2 border-l border-bank-navy/20 min-w-0">
-                                                <p className="font-tamil font-bold text-[12px] text-center leading-tight flex-shrink-0 whitespace-normal">{(selectedLetter.orgMeta as any)?.officeNameTa || metadata.organization?.officeNameTa || REGIONAL_OFFICE_DATA.nameTa}</p>
-                                                <p className="font-tamil font-medium text-[10px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு"}</p>
+                                            <div className="flex flex-col items-center gap-1 px-2 border-l border-bank-navy/20 min-w-0">
+                                                <p className="font-tamil font-bold text-[11px] text-center leading-tight flex-shrink-0 whitespace-normal">{(selectedLetter.orgMeta as any)?.officeNameTa || metadata.organization?.officeNameTa || REGIONAL_OFFICE_DATA.nameTa}</p>
+                                                <p className="font-tamil font-medium text-[9px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressTa || "மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு"}</p>
                                             </div>
 
-                                            <div className="flex flex-col items-center gap-1.5 pl-2 border-l border-bank-navy/20">
-                                                <p className="font-bold capitalize text-[12px] text-center leading-tight flex-shrink-0">{((selectedLetter.orgMeta as any)?.officeNameEn || metadata.organization?.officeNameEn || REGIONAL_OFFICE_DATA.name).toLowerCase()}</p>
-                                                <p className="font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.address || metadata.organization?.address || REGIONAL_OFFICE_DATA.address}</p>
+                                            <div className="flex flex-col items-center gap-1 pl-2 border-l border-bank-navy/20">
+                                                <p className="font-bold capitalize text-[11px] text-center leading-tight flex-shrink-0">{((selectedLetter.orgMeta as any)?.officeNameEn || metadata.organization?.officeNameEn || REGIONAL_OFFICE_DATA.name).toLowerCase()}</p>
+                                                <p className="font-medium text-[10px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.address || metadata.organization?.address || REGIONAL_OFFICE_DATA.address}</p>
                                             </div>
                                         </div>
 
-                                        <div className="w-full flex justify-center items-center text-[11.5px] font-bold mt-3 pt-2 border-t border-bank-navy/10 gap-8 text-bank-navy">
+                                        <div className="w-full flex justify-center items-center text-[10.5px] font-bold mt-2 pt-1.5 border-t border-bank-navy/10 gap-6 text-bank-navy">
                                             <p className="flex items-center gap-1"><span className="opacity-75">Phone:</span> {(selectedLetter.orgMeta as any)?.phone || metadata.organization?.phone || REGIONAL_OFFICE_DATA.phone}</p>
                                             <p className="flex items-center gap-1"><span className="opacity-75">Email:</span> {(selectedLetter.orgMeta as any)?.email || metadata.organization?.email || REGIONAL_OFFICE_DATA.email}</p>
                                         </div>
                                     </div>
 
-                                    <div className="text-right mb-10 text-[11.5px] font-bold text-gray-800">
-                                        <span className="font-hindi text-[12.5px]">दिनांक</span> / <span className="font-tamil text-[10.5px]">தேதி</span> / Date: {format(new Date(selectedLetter.createdAt), 'dd.MM.yyyy')}
+                                    <div className="text-right mb-6 text-[11px] font-bold text-gray-800">
+                                        <span className="font-hindi text-[12px]">दिनांक</span> / <span className="font-tamil text-[10px]">தேதி</span> / Date: {format(new Date(selectedLetter.createdAt), 'dd.MM.yyyy')}
                                     </div>
 
-                                    <div className="mb-10 text-justify">
-                                        <p className="font-bold mb-1">To,</p>
+                                    <div className="mb-6 text-justify">
+                                        <p className="font-bold mb-0.5">To,</p>
                                         {selectedLetter.branch.headUser ? (
-                                            <div className="flex flex-col gap-0.5">
+                                            <div className="flex flex-col gap-0">
                                                 <p className="font-bold">
-                                                    {selectedLetter.branch.headUser.fullNameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}{selectedLetter.branch.headUser.fullNameHi} / </span>}
-                                                    {selectedLetter.branch.headUser.fullNameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.gender === 'F' ? 'திருமதி. ' : 'திரு. '}{selectedLetter.branch.headUser.fullNameTa} / </span>}
+                                                    {selectedLetter.branch.headUser.fullNameHi && <span className="font-hindi text-[12px]">{selectedLetter.branch.headUser.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}{selectedLetter.branch.headUser.fullNameHi} / </span>}
+                                                    {selectedLetter.branch.headUser.fullNameTa && <span className="font-tamil text-[10px]">{selectedLetter.branch.headUser.gender === 'F' ? 'திருமதி. ' : 'திரு. '}{selectedLetter.branch.headUser.fullNameTa} / </span>}
                                                     <span>{selectedLetter.branch.headUser.gender === 'F' ? 'Smt. ' : 'Shri. '}{toTitleCase(selectedLetter.branch.headUser.fullNameEn)}</span>
                                                 </p>
                                                 <p className="font-bold">
-                                                    {selectedLetter.branch.headUser.designation?.nameHi && <span className="font-hindi text-[13px]">{selectedLetter.branch.headUser.designation.nameHi} / </span>}
-                                                    {selectedLetter.branch.headUser.designation?.nameTa && <span className="font-tamil text-[11px]">{selectedLetter.branch.headUser.designation.nameTa} / </span>}
+                                                    {selectedLetter.branch.headUser.designation?.nameHi && <span className="font-hindi text-[12px]">{selectedLetter.branch.headUser.designation.nameHi} / </span>}
+                                                    {selectedLetter.branch.headUser.designation?.nameTa && <span className="font-tamil text-[10px]">{selectedLetter.branch.headUser.designation.nameTa} / </span>}
                                                     <span>{toTitleCase(selectedLetter.branch.headUser.designation?.nameEn || 'Branch Head')}</span>
                                                 </p>
                                             </div>
                                         ) : (
-                                            <p className="font-bold mb-1">The Branch Manager</p>
+                                            <p className="font-bold mb-0.5">The Branch Manager</p>
                                         )}
-                                        <div className="mt-1">
+                                        <div className="mt-0.5 text-[11px]">
                                             <p className="capitalize">{(metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</p>
                                             <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
                                         </div>
                                     </div>
 
-                                    <h3 className="text-center font-bold text-xl underline mb-10 uppercase tracking-wider text-bank-navy">
+                                    <h3 className="text-center font-bold text-lg underline mb-6 uppercase tracking-wider text-bank-navy">
                                         {selectedLetter.titleEn}
                                     </h3>
 
@@ -574,18 +583,18 @@ const CorrespondenceCenter: React.FC = () => {
                                         })()}
                                     </div>
 
-                                    <div className="mt-20 flex justify-end">
-                                        <div className="text-center inline-block min-w-[220px]">
+                                    <div className="mt-8 flex justify-end">
+                                        <div className="text-center inline-block min-w-[200px]">
                                             <div className="border-t-[1.5px] border-gray-400 mb-1 pt-1"></div>
-                                            <div className="mb-1">
-                                                <p className="font-bold text-bank-navy text-[15px]">
-                                                    ({toTitleCase((selectedLetter.orgMeta as any)?.signatoryName || metadata.organization?.signatoryName || metadata.regionHeadName)})
+                                            <div className="mb-0.5">
+                                                <p className="font-bold text-bank-navy text-[13px]">
+                                                    ({selectedLetter.type === 'OP_RISK' ? 'Niraj Kumar' : toTitleCase((selectedLetter.orgMeta as any)?.signatoryName || metadata.organization?.signatoryName || metadata.regionHeadName)})
                                                 </p>
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                <p className="font-bold text-sm font-hindi text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthHi || metadata.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi}</p>
-                                                <p className="font-bold text-[11px] font-tamil text-bank-navy">{(selectedLetter.orgMeta as any)?.signingAuthTa || metadata.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa}</p>
-                                                <p className="font-bold text-[12px] text-bank-navy capitalize">{((selectedLetter.orgMeta as any)?.signingAuthEn || metadata.organization?.signingAuthEn || REGIONAL_OFFICE_DATA.signingAuthEn).toLowerCase()}</p>
+                                            <div className="flex flex-col gap-0.5">
+                                                <p className="font-bold text-[12px] font-hindi text-bank-navy">{selectedLetter.type === 'OP_RISK' ? 'मुख्य प्रबंधक' : ((selectedLetter.orgMeta as any)?.signingAuthHi || metadata.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi)}</p>
+                                                <p className="font-bold text-[10px] font-tamil text-bank-navy">{selectedLetter.type === 'OP_RISK' ? 'தலைமை மேலாளர்' : ((selectedLetter.orgMeta as any)?.signingAuthTa || metadata.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa)}</p>
+                                                <p className="font-bold text-[11px] text-bank-navy capitalize">{selectedLetter.type === 'OP_RISK' ? 'Chief Manager' : ((selectedLetter.orgMeta as any)?.signingAuthEn || metadata.organization?.signingAuthEn || REGIONAL_OFFICE_DATA.signingAuthEn).toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </div>

@@ -18,8 +18,8 @@ module.exports = {
     },
     {
       name: 'dindigul-frontend',
-      script: 'node_modules/.bin/serve',
-      args: '-s dist -l 5173',
+      script: 'node_modules/vite/bin/vite.js',
+      args: '--port 5173 --host',
       cwd: rootDir,
       exec_mode: 'fork',
       autorestart: true,

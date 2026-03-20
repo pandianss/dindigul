@@ -183,6 +183,12 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
     const org = letter.orgMeta || {};
     
     // Inject CURRENT RO data into context
+    const isOpRisk = letter.type === 'OP_RISK';
+    const signatoryName = isOpRisk ? 'NIRAJ KUMAR' : (org.signatoryName || RO_DATA.signatoryName || 'Regional Manager');
+    const signatoryTitleEn = isOpRisk ? 'Chief Manager' : (org.signingAuthEn || RO_DATA.signingAuthEn || 'Regional Manager');
+    const signatoryTitleHi = isOpRisk ? 'मुख्य प्रबंधक' : (org.signingAuthHi || RO_DATA.signingAuthHi || 'क्षेत्रीय प्रबंधक');
+    const signatoryTitleTa = isOpRisk ? 'தலைமை மேலாளர்' : (org.signingAuthTa || RO_DATA.signingAuthTa || 'மண்டல மேலாளர்');
+
     const html = buildPremiumLayout({
       title: letter.titleEn,
       refNo: letter.referenceNo || `RO/ADMIN/${new Date().getFullYear()}/${letter.id.slice(-4).toUpperCase()}`,
@@ -190,12 +196,13 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         day: '2-digit', month: '2-digit', year: 'numeric'
       }).replace(/\//g, '.'),
       bodyHtml: buildLetterBodyHtml(letter, RO_DATA),
-      signatoryName: org.signatoryName || RO_DATA.signatoryName || 'Regional Manager',
-      signatoryTitleEn: org.signingAuthEn || RO_DATA.signingAuthEn || 'Regional Manager',
-      signatoryTitleHi: org.signingAuthHi || RO_DATA.signingAuthHi || 'क्षेत्रीय प्रबंधक',
-      signatoryTitleTa: org.signingAuthTa || RO_DATA.signingAuthTa || 'மண்டல மேலாளர்',
-      organization: RO_DATA
-    });
+      signatoryName,
+      signatoryTitleEn,
+            signatoryTitleHi,
+            signatoryTitleTa,
+            organization: RO_DATA,
+            isAdvisory: isOpRisk
+        });
 
     const pdfBuffer = await generatePDF(html);
     const safeTitle = letter.titleEn.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '');

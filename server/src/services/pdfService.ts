@@ -132,9 +132,11 @@ export interface PremiumLayoutData {
         phone: string;
         email: string;
     };
+    isAdvisory?: boolean;
 }
 
 export function buildPremiumLayout(data: PremiumLayoutData): string {
+    const isAdvisory = data.isAdvisory || false;
     const org = data.organization || {
         bankNameEn: 'Indian Overseas Bank',
         bankNameHi: 'इंडियन ओवरसीज बैंक',
@@ -179,7 +181,7 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
     font-size: 11.5px;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.6;
+    line-height: 1.4;
   }
 
   .hindi { font-family: 'NotoHindi', sans-serif; }
@@ -188,41 +190,50 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   .page { width: 210mm; min-height: 297mm; position: relative; background: #fff; }
   .watermark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.04; pointer-events: none; z-index: 0; }
   .watermark img { width: 480px; }
-  .content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 250mm; }
+  .content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 250mm; ${isAdvisory ? 'padding-top: 25px;' : ''} }
 
-  .header { border-bottom: 2px solid #1e3a5f; padding-bottom: 15px; margin-bottom: 30px; }
-  .header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+  .header { border-bottom: 2px solid #1e3a5f; padding-bottom: 12px; margin-bottom: 20px; }
+  .header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; }
   .header-top img { height: 75px; width: 75px; object-fit: contain; }
-  .bank-names { display: flex; flex-direction: column; gap: 4px; }
+  .bank-names { display: flex; flex-direction: column; gap: 2px; }
   .bank-names h1 { color: #1e3a5f; line-height: 1.1; font-weight: 700; }
 
-  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #1e3a5f; margin-top: 15px; }
-  .col-grid .col { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 10px; }
+  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #1e3a5f; margin-top: 12px; }
+  .col-grid .col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 10px; }
   .col-grid .col + .col { border-left: 1px solid rgba(30,58,95,0.2); }
   .col-name { font-weight: 700; font-size: 12.5px; text-align: center; line-height: 1.3; }
-  .col-addr { font-size: 10.5px; text-align: center; line-height: 1.5; opacity: 0.9; }
+  .col-addr { font-size: 10.5px; text-align: center; line-height: 1.4; opacity: 0.9; }
   .col-addr.hindi { font-size: 11.5px; }
 
   .contact-row {
     display: flex; justify-content: center; gap: 40px;
     font-size: 11px; font-weight: 700; color: #1e3a5f;
-    margin-top: 12px; padding-top: 10px;
+    margin-top: 10px; padding-top: 8px;
     border-top: 1px solid rgba(30,58,95,0.1);
   }
 
-  .meta-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px; }
+  .meta-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
   .ref-no { font-weight: 700; color: #1e3a5f; font-size: 12px; }
   .date-line { text-align: right; font-size: 12px; font-weight: 700; color: #1e293b; }
 
-  .subject {
-    text-align: center; font-weight: 700; font-size: 17px;
-    text-decoration: underline; text-transform: uppercase;
-    letter-spacing: 0.05em; color: #1e3a5f;
-    margin-bottom: 35px; line-height: 1.4;
+  .advisory-band { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #dc2626; z-index: 100; }
+  .advisory-badge { 
+    position: absolute; top: 15px; right: 15px; 
+    background: #fee2e2; border: 1.5px solid #dc2626; color: #dc2626;
+    padding: 3px 10px; border-radius: 4px; font-weight: 800; font-size: 9px;
+    display: flex; align-items: center; gap: 4px; z-index: 101;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
 
-  .body { flex-grow: 1; color: #1e293b; font-size: 12.5px; text-align: justify; }
-  .body p { margin-bottom: 15px; }
+  .subject {
+    text-align: center; font-weight: 700; font-size: 16px;
+    text-decoration: underline; text-transform: uppercase;
+    letter-spacing: 0.05em; color: #1e3a5f;
+    margin-bottom: 20px; line-height: 1.3;
+  }
+
+  .body { flex-grow: 1; color: #1e293b; font-size: 12px; text-align: justify; }
+  .body p { margin-bottom: 10px; }
 
   .signature { margin-top: 60px; display: flex; justify-content: flex-end; }
   .signature-block { text-align: center; min-width: 220px; }
@@ -234,6 +245,8 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
 </head>
 <body>
 <div class="page">
+  ${isAdvisory ? '<div class="advisory-band"></div>' : ''}
+  ${isAdvisory ? '<div class="advisory-badge"><span>⚠️</span> HIGH RISK ADVISORY</div>' : ''}
   <div class="watermark"><img src="${watermarkSrc}" alt=""/></div>
   <div class="content">
     <div class="header">
