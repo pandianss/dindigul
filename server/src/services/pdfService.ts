@@ -133,6 +133,9 @@ export interface PremiumLayoutData {
         email: string;
     };
     isAdvisory?: boolean;
+    hideHeader?: boolean;
+    hideMeta?: boolean;
+    hideTitle?: boolean;
 }
 
 export function buildPremiumLayout(data: PremiumLayoutData): string {
@@ -249,6 +252,7 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   ${isAdvisory ? '<div class="advisory-badge"><span>⚠️</span> HIGH RISK ADVISORY</div>' : ''}
   <div class="watermark"><img src="${watermarkSrc}" alt=""/></div>
   <div class="content">
+    ${!data.hideHeader ? `
     <div class="header">
       <div class="header-top">
         <img src="${emblemSrc}" alt="Logo"/>
@@ -267,8 +271,9 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
         <span>Phone: ${org.phone}</span>
         <span>Email: ${org.email}</span>
       </div>
-    </div>
-
+    </div>` : ''}
+    
+    ${!data.hideMeta ? `
     <div class="meta-info">
       <div class="ref-no">${data.refNo ? `Ref No: ${data.refNo}` : ''}</div>
       <div class="date-line">
@@ -276,10 +281,12 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
         <span class="tamil" style="font-size:11px;">தேதி</span> /
         Date: ${data.date}
       </div>
-    </div>
-
+    </div>` : ''}
+    
+    ${!data.hideTitle ? `
     <div class="subject">${data.title}</div>
     ${data.subTitle ? `<div style="text-align:center;font-weight:700;margin-top:-25px;margin-bottom:35px;color:#475569;">${data.subTitle}</div>` : ''}
+    ` : ''}
 
     <div class="body">${data.bodyHtml}</div>
 

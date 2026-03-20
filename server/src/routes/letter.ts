@@ -72,7 +72,7 @@ router.put('/criteria', authenticateToken, async (req: any, res) => {
   const allowed = [
     'LETTER_ENABLED_PARAMS', 'LETTER_APPRECIATION_TOP_N', 'LETTER_EXPLANATION_BOTTOM_N',
     'LETTER_APPRECIATION_THRESHOLD', 'LETTER_EXPLANATION_THRESHOLD',
-    'LETTER_INVERT_PARAMS', 'LETTER_OPRISK_FROM_EXCEPTIONS'
+    'LETTER_INVERT_PARAMS', 'LETTER_OPRISK_FROM_EXCEPTIONS', 'LETTER_OPRISK_SEVERITIES'
   ];
   try {
     const updates = req.body as Record<string, string>;

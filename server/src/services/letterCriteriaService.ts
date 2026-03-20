@@ -17,6 +17,7 @@ async function loadCriteria() {
         invertParamCodes: get('LETTER_INVERT_PARAMS').split(',').map(s => s.trim()).filter(Boolean),
         fyDeclineParamCodes: get('LETTER_FY_DECLINE_PARAMS').split(',').map(s => s.trim()).filter(Boolean),
         opRiskFromExceptions: get('LETTER_OPRISK_FROM_EXCEPTIONS') === 'true',
+        opRiskSeverities: get('LETTER_OPRISK_SEVERITIES').split(',').map(s => s.trim()).filter(Boolean),
     };
 }
 
@@ -456,7 +457,7 @@ export async function generateLettersForPeriod(
         endOfDay.setUTCHours(23, 59, 59, 999);
 
         const exceptionQuery: any = { 
-            severity: { in: ['CRITICAL', 'HIGH'] }, 
+            severity: { in: criteria.opRiskSeverities.length > 0 ? criteria.opRiskSeverities : ['CRITICAL', 'HIGH'] }, 
             status: 'OPEN',
             businessDate: { gte: startOfDay, lte: endOfDay },
             branch: { type: { not: 'REGIONAL OFFICE' } }
