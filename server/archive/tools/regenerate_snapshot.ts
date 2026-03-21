@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { BusinessSnapshotService } from '../services/BusinessSnapshotService';
+import { BusinessSnapshotService } from '../../src/services/BusinessSnapshotService';
 
 const prisma = new PrismaClient();
 
 async function main() {
-    const targetDate = '2026-03-09';
+    const targetDate = '2026-03-17';
     console.log(`Regenerating snapshots for ${targetDate}...`);
     try {
         const result = await BusinessSnapshotService.generateFromStaging(targetDate);
