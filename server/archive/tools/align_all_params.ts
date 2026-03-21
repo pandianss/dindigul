@@ -45,17 +45,26 @@ async function main() {
     ];
 
     for (const item of sequence) {
-        await prisma.misParameterRegistry.update({
+        await prisma.misParameterRegistry.upsert({
             where: { parameterName: item.name },
-            data: {
+            update: {
                 parentParameterName: item.parent,
                 orderIndex: item.order,
                 category: item.cat
+            },
+            create: {
+                parameterName: item.name,
+                displayName: item.name,
+                parentParameterName: item.parent,
+                orderIndex: item.order,
+                category: item.cat,
+                isEnabled: true,
+                createdFromBudgetFlag: false
             }
         });
     }
 
-    console.log('All parameters aligned successfully.');
+    console.log('All parameters aligned and seeded successfully.');
 }
 
 main()
