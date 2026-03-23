@@ -88,12 +88,12 @@ export class BudgetService {
 
                     // Process all months for this row in parallel
                     const branch = await prisma.branch.findUnique({ where: { code: solId } });
-                    const isBranch = branch?.type === 'BRANCH' || branch?.type === 'Branch';
+                    const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch?.type?.toUpperCase() || '') || branch?.code === '3933';
 
                     await Promise.all(monthColumns.map(async (period) => {
                         const rawValue = row[period] || '0';
                         let targetValue = this.normalizeValue(rawValue);
-                        if (isBranch) targetValue /= 100;
+                        if (!isRegional) targetValue /= 100;
 
                         const effectiveDate = this.parsePeriod(period);
 

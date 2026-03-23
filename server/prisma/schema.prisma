@@ -395,8 +395,10 @@ model Notice {
   id               String      @id @default(uuid())
   titleEn          String
   titleTa          String?
+  titleHi          String?
   contentEn        String
   contentTa        String?
+  contentHi        String?
   category         String
   priority         String      @default("NORMAL")
   isPinned         Boolean     @default(false)
@@ -420,7 +422,7 @@ model NoticeAck {
   branchId  String
   createdAt DateTime @default(now())
   branch    Branch   @relation(fields: [branchId], references: [id])
-  notice    Notice   @relation(fields: [noticeId], references: [id])
+  notice    Notice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
 
   @@unique([noticeId, userId])

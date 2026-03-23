@@ -12,8 +12,10 @@ interface Notice {
     id?: string;
     titleEn: string;
     titleTa?: string;
+    titleHi?: string;
     contentEn: string;
     contentTa?: string;
+    contentHi?: string;
     category: string;
     priority: string;
     isPinned: boolean;
@@ -33,7 +35,11 @@ const NoticeManager: React.FC = () => {
     const [editingItem, setEditingItem] = useState<Notice | null>(null);
     const [formData, setFormData] = useState<Notice>({
         titleEn: '',
+        titleTa: '',
+        titleHi: '',
         contentEn: '',
+        contentTa: '',
+        contentHi: '',
         category: 'GENERAL',
         priority: 'NORMAL',
         isPinned: false,
@@ -81,7 +87,11 @@ const NoticeManager: React.FC = () => {
             setEditingItem(null);
             setFormData({
                 titleEn: '',
+                titleTa: '',
+                titleHi: '',
                 contentEn: '',
+                contentTa: '',
+                contentHi: '',
                 category: 'GENERAL',
                 priority: 'NORMAL',
                 isPinned: false,
@@ -114,7 +124,11 @@ const NoticeManager: React.FC = () => {
         setEditingItem(null);
         setFormData({
             titleEn: '',
+            titleTa: '',
+            titleHi: '',
             contentEn: '',
+            contentTa: '',
+            contentHi: '',
             category: 'GENERAL',
             priority: 'NORMAL',
             isPinned: false,
@@ -158,24 +172,60 @@ const NoticeManager: React.FC = () => {
                     </div>
 
                     <form onSubmit={handleSave} className="grid grid-cols-2 gap-6">
-                        <div className="col-span-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Title (English)</label>
-                            <input
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm font-bold transition-all"
-                                value={formData.titleEn}
-                                onChange={e => setFormData({ ...formData, titleEn: e.target.value })}
-                                required
-                            />
+                        <div className="col-span-2 grid grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Title (English)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm font-bold transition-all"
+                                    value={formData.titleEn}
+                                    onChange={e => setFormData({ ...formData, titleEn: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">தலைப்பு (தமிழ்)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm font-bold transition-all"
+                                    value={formData.titleTa || ''}
+                                    onChange={e => setFormData({ ...formData, titleTa: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">शीर्षक (हिंदी)</label>
+                                <input
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm font-bold transition-all"
+                                    value={formData.titleHi || ''}
+                                    onChange={e => setFormData({ ...formData, titleHi: e.target.value })}
+                                />
+                            </div>
                         </div>
 
-                        <div className="col-span-2">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Content / Description</label>
-                            <textarea
-                                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm min-h-[100px] transition-all"
-                                value={formData.contentEn}
-                                onChange={e => setFormData({ ...formData, contentEn: e.target.value })}
-                                required
-                            />
+                        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">Content (English)</label>
+                                <textarea
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm min-h-[100px] transition-all"
+                                    value={formData.contentEn}
+                                    onChange={e => setFormData({ ...formData, contentEn: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">உள்ளடக்கம் (தமிழ்)</label>
+                                <textarea
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm min-h-[100px] transition-all"
+                                    value={formData.contentTa || ''}
+                                    onChange={e => setFormData({ ...formData, contentTa: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1.5">विषय (हिंदी)</label>
+                                <textarea
+                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy outline-none text-sm min-h-[100px] transition-all"
+                                    value={formData.contentHi || ''}
+                                    onChange={e => setFormData({ ...formData, contentHi: e.target.value })}
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -369,7 +419,7 @@ const NoticeManager: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center justify-end space-x-2 transition-opacity">
                                             <button
                                                 onClick={() => startEdit(notice)}
                                                 className="p-1.5 text-gray-400 hover:text-bank-navy hover:bg-white rounded-lg transition-all shadow-sm"

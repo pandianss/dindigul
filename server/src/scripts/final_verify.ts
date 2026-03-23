@@ -7,7 +7,7 @@ async function main() {
     });
 
     console.log('--- Final Hierarchy Check ---');
-    params.forEach(p => {
+    params.forEach((p: any) => {
         console.log(`${p.parameterName}: parent=${p.parentParameterName}, category=${p.category}`);
     });
 }

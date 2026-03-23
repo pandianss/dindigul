@@ -33,7 +33,10 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create a notice
 router.post('/', authenticateToken, async (req: any, res) => {
-    const { titleEn, titleTa, contentEn, contentTa, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
+    if (!['ADMIN', 'RO_USER'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'Only regional admins can create bulletins' });
+    }
+    const { titleEn, titleTa, titleHi, contentEn, contentTa, contentHi, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
 
     try {
         let photoId = undefined;
@@ -49,8 +52,10 @@ router.post('/', authenticateToken, async (req: any, res) => {
             data: {
                 titleEn,
                 titleTa,
+                titleHi,
                 contentEn,
                 contentTa,
+                contentHi,
                 category,
                 priority: priority || 'NORMAL',
                 isPinned: isPinned || false,
@@ -70,8 +75,11 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
 // Update a notice
 router.put('/:id', authenticateToken, async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'Only regional admins can edit bulletins' });
+    }
     const { id } = req.params;
-    const { titleEn, titleTa, contentEn, contentTa, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
+    const { titleEn, titleTa, titleHi, contentEn, contentTa, contentHi, category, priority, isPinned, branchId, targetRole, requiresAck, photoData } = req.body;
 
     try {
         let photoId = undefined;
@@ -88,8 +96,10 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
             data: {
                 titleEn,
                 titleTa,
+                titleHi,
                 contentEn,
                 contentTa,
+                contentHi,
                 category,
                 priority,
                 isPinned,
@@ -109,6 +119,9 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 
 // Delete a notice
 router.delete('/:id', authenticateToken, async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'Only regional admins can delete bulletins' });
+    }
     const { id } = req.params;
     try {
         await prisma.notice.delete({ where: { id } });

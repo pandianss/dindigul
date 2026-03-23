@@ -231,7 +231,7 @@ export class BusinessSnapshotService {
         });
 
         // Mega-fetch Budgets
-        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const getPeriodKey = (d: Date) => `${months[d.getUTCMonth()]}-${d.getUTCFullYear().toString().slice(-2)}`;
         
         const currMonthKey = getPeriodKey(utcDate);
@@ -261,33 +261,41 @@ export class BusinessSnapshotService {
                 return f ? Number(f.value) : 0;
             };
 
-            const getRatioInner = (m: string, d: Date) => {
-                const numVal = getValInner(m, d);
-                if (numVal !== 0) return numVal;
-
+            const getRatioInner = (m: string, d: Date): number => {
                 const lowerM = m.toLowerCase();
-                if (lowerM === 'cd_ratio') {
-                    const adv = getValInner('Adv', d);
-                    const dep = getValInner('Total Dep', d);
-                    return dep > 0 ? (adv / dep) * 100 : 0;
-                }
-                if (lowerM === 'casa%' || lowerM === 'casa_percent') {
-                    const casa = getValInner('CASA', d);
-                    const dep = getValInner('Total Dep', d);
-                    return dep > 0 ? (casa / dep) * 100 : 0;
-                }
+                
+                // Force derivations for composite metrics
                 if (lowerM === 'core adv' || lowerM === 'core_adv') {
                     const ret = getValInner('Core Ret', d);
                     const agri = getValInner('Core_Agri', d);
                     const msme = getValInner('MSME', d);
                     return ret + agri + msme;
                 }
+                
                 if (lowerM === 'total dep' || lowerM === 'total_dep') {
-                    const sb = getValInner('SB', d);
-                    const cd = getValInner('CD', d);
+                    const casa = getValInner('CASA', d) || (getValInner('SB', d) + getValInner('CD', d));
                     const td = getValInner('TD', d);
-                    return sb + cd + td;
+                    return casa + td;
                 }
+
+                if (lowerM === 'casa' || lowerM === 'casa_amt') {
+                    return getValInner('CASA', d) || (getValInner('SB', d) + getValInner('CD', d));
+                }
+
+                const numVal = getValInner(m, d);
+                if (numVal !== 0) return numVal;
+
+                if (lowerM === 'cd_ratio') {
+                    const adv = getValInner('Adv', d);
+                    const dep = getRatioInner('Total Dep', d); // Use derived dep
+                    return dep > 0 ? (adv / dep) * 100 : 0;
+                }
+                if (lowerM === 'casa%' || lowerM === 'casa_percent') {
+                    const casa = getRatioInner('CASA', d); // Use derived casa
+                    const dep = getRatioInner('Total Dep', d); // Use derived dep
+                    return dep > 0 ? (casa / dep) * 100 : 0;
+                }
+                
                 return numVal;
             };
 
@@ -318,7 +326,10 @@ export class BusinessSnapshotService {
                     let val = 0;
                     const lowerM = m.toLowerCase();
                     if (lowerM === 'total dep' || lowerM === 'total_dep') {
-                        val = findVal('CASA') + findVal('TD');
+                        const casa = findVal('CASA') || (findVal('SB') + findVal('CD'));
+                        val = casa + findVal('TD');
+                    } else if (lowerM === 'casa' || lowerM === 'casa_amt') {
+                        val = findVal('CASA') || (findVal('SB') + findVal('CD'));
                     } else if (lowerM === 'core adv' || lowerM === 'core_adv') {
                         val = findVal('Core Ret') + findVal('Core_Agri') + findVal('MSME');
                     } else {
@@ -352,12 +363,12 @@ export class BusinessSnapshotService {
                     status = (isBetterLow ? g.day <= 0 : g.day >= 0) ? 'On-Track' : 'Behind';
                 }
 
-                const isBranch = branch.type === 'BRANCH' || branch.type === 'Branch';
+                const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
                 const isRatio = ['%', 'RATIO', 'PERCENT'].some(k => metric.toUpperCase().includes(k));
                 const isCount = ['COUNT', 'NUMBER', 'OPENINGS'].some(k => metric.toUpperCase().includes(k));
                 
-                // Scale to Lakhs if it's a Branch and NOT a ratio/count
-                const scale = (isBranch && !isRatio && !isCount) ? 100 : 1;
+                // Scale to Lakhs if it's a Branch (Not RO) and NOT a ratio/count
+                const scale = (!isRegional && !isRatio && !isCount) ? 100 : 1;
 
                 panelDataToCreate.push({
                     snapshotId: snap.id,

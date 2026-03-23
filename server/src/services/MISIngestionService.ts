@@ -149,9 +149,9 @@ export class MISIngestionService {
                     for (const [rawHeader, rawValue] of Object.entries(row)) {
                         const paramName = MAPPING[rawHeader.trim()];
                         if (paramName) {
-                            // Regional Office data is already in Crores. regular Branch data is in Lakhs.
+                            const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
                             let val = Number(rawValue || 0);
-                            if (branch.type === 'BRANCH' || branch.type === 'Branch') {
+                            if (!isRegional) {
                                 val /= 100;
                             }
 

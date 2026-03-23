@@ -7,6 +7,7 @@ import { authenticateToken } from '../middleware/auth';
 import { createNotification, notifyAdmins } from '../services/notificationService';
 import fs from 'fs';
 import path from 'path';
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
 
 const router = Router();
 
@@ -171,7 +172,7 @@ router.post('/', async (req, res) => {
 // GAP 19: Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    const { type, titleEn, contentJson, deptName } = req.body;
+    const { type, titleEn, contentJson, deptName, referenceNo } = req.body;
     try {
         const currentNote = await prisma.officeNote.findUnique({ where: { id } });
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
@@ -187,6 +188,14 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                         : JSON.stringify({ ...contentJson, deptName })
                 }
             });
+
+            if (referenceNo) {
+                await (prisma as any).$executeRaw`
+                    UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${id}
+                `;
+                updated.referenceNo = referenceNo;
+            }
+
             res.json(updated);
         } else {
             // Document is beyond draft — create new version record (GAP 19)
@@ -203,6 +212,14 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     previousVersionId: currentNote.id
                 }
             });
+
+            if (referenceNo) {
+                await (prisma as any).$executeRaw`
+                    UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${newVersion.id}
+                `;
+                newVersion.referenceNo = referenceNo;
+            }
+
             res.json({ message: 'New version created', note: newVersion });
         }
     } catch (err) {
@@ -254,7 +271,9 @@ router.get('/:id/pdf', async (req: any, res) => {
         const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
 
         // Use stored referenceNo or fallback to dynamic one if missing
-        const refNo = (note as any).referenceNo || `RO/ADMIN/${new Date(note.createdAt).getFullYear()}/${note.id.slice(-4).toUpperCase()}`;
+        const fallbackYear = new Date(note.createdAt).getFullYear();
+        const fallbackMonth = (new Date(note.createdAt).getMonth() + 1).toString().padStart(2, '0');
+        const refNo = (note as any).referenceNo || `RO/ADMIN/${fallbackYear}/${fallbackMonth}/${note.id.slice(-2).toUpperCase()}`;
         
         const noteDate = manualDate || new Date(note.createdAt).toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -268,12 +287,12 @@ router.get('/:id/pdf', async (req: any, res) => {
         if (note.type === 'PROFORMA_BRANCH_CODE') {
             bodyHtml = `
                 <style>
-                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-                    .proforma-table td { padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
+                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+                    .proforma-table td { padding: 6px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
                     .proforma-table .label { font-weight: bold; width: 40%; background-color: #f8fafc; color: #475569; }
                     .proforma-table .value { width: 60%; color: #1e293b; }
-                    .remarks-section { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-                    .section-title { font-weight: bold; color: #1e3a5f; border-left: 4px solid #1e3a5f; padding-left: 12px; margin-bottom: 12px; font-size: 14px; }
+                    .remarks-section { margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                    .section-title { font-weight: bold; color: #1e3a5f; border-left: 4px solid #1e3a5f; padding-left: 12px; margin-bottom: 8px; font-size: 13px; }
                 </style>
 
                 <table class="proforma-table">
@@ -295,7 +314,40 @@ router.get('/:id/pdf', async (req: any, res) => {
 
                 <div class="remarks-section">
                     <div class="section-title">REMARKS / RECOMMENDATION</div>
-                    <p style="line-height: 1.7; text-align: justify; font-size: 13px;">${content.details || 'Submitted for obtaining branch code for the newly opened unit.'}</p>
+                    <p style="line-height: 1.4; text-align: justify; font-size: 12px;">${content.details || 'Submitted for obtaining branch code for the newly opened unit.'}</p>
+                </div>
+            `;
+        } else if (note.type === 'HIGH_VALUE_DD') {
+            bodyHtml = `
+                <style>
+                    .dd-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+                    .dd-table th, .dd-table td { padding: 10px; border: 1px solid #000; vertical-align: top; text-align: left; }
+                    .dd-table th { background-color: #f1f5f9; font-weight: bold; text-transform: uppercase; color: #1e3a5f; }
+                    .dd-table .label { width: 40%; font-weight: bold; background-color: #f8fafc; }
+                    .dd-table .value { width: 60%; }
+                    .amount-cell { font-family: 'Courier New', monospace; font-weight: bold; font-size: 15px; }
+                </style>
+                <div class="dd-info">
+                    <table class="dd-table">
+                        <thead>
+                            <tr><th>Particulars</th><th>Branch reply</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="label">Name of the applicant</td><td class="value">${content.applicantName || '-'}</td></tr>
+                            <tr><td class="label">Account number</td><td class="value">${content.applicantAccount || '-'}</td></tr>
+                            <tr><td class="label">Compliance of KYC norms</td><td class="value">${content.kycCompliance || 'Yes'}</td></tr>
+                            <tr><td class="label">Date of Issue</td><td class="value">${content.dateOfIssue ? new Date(content.dateOfIssue).toLocaleDateString('en-IN') : '-'}</td></tr>
+                            <tr><td class="label">Chq no/Cash., if Chq mentioned chq number and date</td><td class="value">${content.instrumentDetails || '-'}</td></tr>
+                            <tr><td class="label">Name of Beneficiary</td><td class="value">${content.beneficiaryName || '-'}</td></tr>
+                            <tr><td class="label">Beneficiary Account number</td><td class="value">${content.beneficiaryAccount || '-'}</td></tr>
+                            <tr><td class="label">Beneficiary Bank and branch name</td><td class="value">${content.beneficiaryBankBranch || '-'}</td></tr>
+                            <tr><td class="label">Amount of DD to be issued</td><td class="value amount-cell">Rs. ${Number(content.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}/-</td></tr>
+                            <tr><td class="label">DD Favouring</td><td class="value">${content.ddFavouring || '-'}</td></tr>
+                            <tr><td class="label">DD Drawn on</td><td class="value">${content.ddDrawnOn || '-'}</td></tr>
+                            <tr><td class="label">Purpose of transaction</td><td class="value" style="text-align: justify;">${content.purpose || '-'}</td></tr>
+                            <tr><td class="label">Transaction ID</td><td class="value">${content.transactionId || '-'}</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             `;
         } else if (note.type === 'RBI_BO_PROFORMA') {
@@ -814,13 +866,35 @@ router.get('/:id/pdf', async (req: any, res) => {
         } else if (note.type === 'RBI_BO_PROFORMA') {
             pdfTitle = 'PROFORMA FOR REPORTING TO RBI - ANNEX-I';
             pdfSubTitle = 'भारतीय रिज़र्व बैंक को रिपोर्ट करने के लिए प्रोफार्मा / ரிசர்வ் வங்கிக்கு சமர்ப்பிப்பதற்கான படிவம்';
+        } else if (note.type === 'HIGH_VALUE_DD') {
+            pdfTitle = 'HIGH VALUE DD AUTHORIZATION NOTE';
+            pdfSubTitle = 'Br. Operation & Management Department / शाखा संचालन और प्रबंधन विभाग';
         }
 
-        const isPlanningOrProforma = isProforma || (note as any).deptName === 'Planning Department' || (note.contentJson && JSON.parse(note.contentJson).deptName === 'Planning Department');
-        const signatoryName = isPlanningOrProforma ? 'NIRAJ KUMAR' : note.preparer.fullNameEn;
-        const signatoryTitleEn = isPlanningOrProforma ? 'Chief Manager' : (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer');
-        const signatoryTitleHi = isPlanningOrProforma ? 'मुख्य प्रबंधक' : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयारकर्ता');
-        const signatoryTitleTa = isPlanningOrProforma ? 'தலைமை மேலாளர்' : (note.preparer.role === 'ADMIN' ? 'நிர்வாகி' : 'தயாரித்தவர்');
+        const isHighValueDD = note.type === 'HIGH_VALUE_DD';
+        
+        let deptName = (note as any).deptName;
+        if (!deptName && note.contentJson) {
+            try {
+                const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
+                deptName = content.deptName;
+            } catch (e) {}
+        }
+
+        const isPlanningOrProformaOrDD = isProforma || isHighValueDD || deptName === 'Planning Department';
+        const signatoryName = isPlanningOrProformaOrDD ? (RO_DATA.signatoryName || 'NIRAJ KUMAR') : note.preparer.fullNameEn;
+        
+        console.log(`[PDF Gen] Type: ${note.type}, isDD: ${isHighValueDD}, isPlanning/Prof/DD: ${isPlanningOrProformaOrDD}, Dept: ${deptName}`);
+        
+        let sigTitleEn = isPlanningOrProformaOrDD ? 'Chief Manager' : (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer');
+        let sigTitleHi = isPlanningOrProformaOrDD ? 'मुख्य प्रबंधक' : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयारकर्ता');
+        let sigTitleTa = isPlanningOrProformaOrDD ? 'தலைமை மேலாளர்' : (note.preparer.role === 'ADMIN' ? 'நிர்வாகி' : 'தயாரித்தவர்');
+
+        if (isHighValueDD) {
+            sigTitleEn = RO_DATA.signingAuthEn || 'Regional Manager';
+            sigTitleHi = RO_DATA.signingAuthHi || 'क्षेत्रीय प्रबंधक';
+            sigTitleTa = RO_DATA.signingAuthTa || 'மண்டல மேலாளர்';
+        }
 
         const html = buildPremiumLayout({
             title: pdfTitle,
@@ -828,11 +902,12 @@ router.get('/:id/pdf', async (req: any, res) => {
             refNo,
             date: noteDate,
             bodyHtml,
-            signatoryName: isProforma ? (RO_DATA.signatoryName || signatoryName) : signatoryName,
-            signatoryTitleEn: isProforma ? (RO_DATA.signingAuthEn || signatoryTitleEn) : signatoryTitleEn,
-            signatoryTitleHi: isProforma ? RO_DATA.signingAuthHi : (note.preparer.role === 'ADMIN' ? 'प्रशासक' : 'तैयाர்कर्ता'),
-            signatoryTitleTa: isProforma ? (RO_DATA.signingAuthTa || signatoryTitleTa) : signatoryTitleTa,
+            signatoryName: signatoryName,
+            signatoryTitleEn: sigTitleEn,
+            signatoryTitleHi: sigTitleHi,
+            signatoryTitleTa: sigTitleTa,
             organization: RO_DATA,
+            isAdvisory: false,
             hideHeader: note.type === 'RBI_BO_PROFORMA',
             hideMeta: note.type === 'RBI_BO_PROFORMA',
             hideTitle: note.type === 'RBI_BO_PROFORMA'
@@ -846,6 +921,67 @@ router.get('/:id/pdf', async (req: any, res) => {
     } catch (error) {
         console.error('Error generating PDF:', error);
         res.status(500).json({ error: 'Failed to generate PDF' });
+    }
+});
+
+
+// Get summary of High Value DD notes (Weekly/Monthly)
+router.get('/high-value-dd/summary', authenticateToken, async (req: any, res) => {
+    const { period, date } = req.query; // 'weekly' or 'monthly'
+    const referenceDate = date ? new Date(date as string) : new Date();
+
+    let startDate, endDate;
+    if (period === 'weekly') {
+        startDate = startOfWeek(referenceDate, { weekStartsOn: 1 });
+        endDate = endOfWeek(referenceDate, { weekStartsOn: 1 });
+    } else {
+        startDate = startOfMonth(referenceDate);
+        endDate = endOfMonth(referenceDate);
+    }
+
+    try {
+        const notes = await prisma.officeNote.findMany({
+            where: {
+                type: 'HIGH_VALUE_DD',
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            include: {
+                preparer: {
+                    include: {
+                        branch: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        // Generate CSV
+        const header = "SOL,Branch,DD Purchaser,Txn ID,Amount,Purpose\n";
+        const rows = notes.map(note => {
+            const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
+            const branch = note.preparer?.branch;
+            return [
+                branch?.code || '-',
+                branch?.nameEn || '-',
+                `"${(content.applicantName || '-').replace(/"/g, '""')}"`,
+                content.transactionId || '-',
+                content.amount || 0,
+                `"${(content.purpose || '-').replace(/"/g, '""')}"`
+            ].join(',');
+        }).join('\n');
+
+        const csv = header + rows;
+        const filename = `HighValueDD_Summary_${period}_${format(referenceDate, 'yyyy-MM-dd')}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
+    } catch (err) {
+        console.error('Summary generation error:', err);
+        res.status(500).json({ error: 'Failed to generate summary' });
     }
 });
 

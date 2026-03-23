@@ -176,7 +176,7 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   @font-face { font-family:'NotoTamil'; font-weight:400; src:url('data:font/truetype;base64,${notoTamil400}') format('truetype'); }
   @font-face { font-family:'NotoTamil'; font-weight:700; src:url('data:font/truetype;base64,${notoTamil700}') format('truetype'); }
 
-  @page { size: A4; margin: 20mm 15mm; }
+  @page { size: A4; margin: 15mm 15mm; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -195,30 +195,31 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   .watermark img { width: 480px; }
   .content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 250mm; ${isAdvisory ? 'padding-top: 25px;' : ''} }
 
-  .header { border-bottom: 2px solid #1e3a5f; padding-bottom: 12px; margin-bottom: 20px; }
+  .header { border-bottom: 2px solid #254aa0; padding-bottom: 12px; margin-bottom: 12px; }
   .header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; }
   .header-top img { height: 75px; width: 75px; object-fit: contain; }
   .bank-names { display: flex; flex-direction: column; gap: 2px; }
-  .bank-names h1 { color: #1e3a5f; line-height: 1.1; font-weight: 700; }
-
-  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #1e3a5f; margin-top: 12px; }
+  .bank-names h1 { color: #254aa0; line-height: 1.1; font-weight: 700; }
+ 
+  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #254aa0; margin-top: 12px; }
   .col-grid .col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 10px; }
-  .col-grid .col + .col { border-left: 1px solid rgba(30,58,95,0.2); }
+  .col-grid .col + .col { border-left: 1px solid rgba(37,74,160,0.2); }
   .col-name { font-weight: 700; font-size: 12.5px; text-align: center; line-height: 1.3; }
   .col-addr { font-size: 10.5px; text-align: center; line-height: 1.4; opacity: 0.9; }
-  .col-addr.hindi { font-size: 11.5px; }
-
+  .col-addr.hindi { font-size: 13.5px; }
+  .col-name.hindi { font-size: 14.5px; }
+ 
   .contact-row {
     display: flex; justify-content: center; gap: 40px;
-    font-size: 11px; font-weight: 700; color: #1e3a5f;
+    font-size: 11px; font-weight: 700; color: #254aa0;
     margin-top: 10px; padding-top: 8px;
-    border-top: 1px solid rgba(30,58,95,0.1);
+    border-top: 1px solid rgba(37,74,160,0.1);
   }
-
+ 
   .meta-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .ref-no { font-weight: 700; color: #1e3a5f; font-size: 12px; }
+  .ref-no { font-weight: 700; color: #254aa0; font-size: 12px; }
   .date-line { text-align: right; font-size: 12px; font-weight: 700; color: #1e293b; }
-
+ 
   .advisory-band { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #dc2626; z-index: 100; }
   .advisory-badge { 
     position: absolute; top: 15px; right: 15px; 
@@ -227,23 +228,23 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
     display: flex; align-items: center; gap: 4px; z-index: 101;
     text-transform: uppercase; letter-spacing: 0.05em;
   }
-
+ 
   .subject {
     text-align: center; font-weight: 700; font-size: 16px;
     text-decoration: underline; text-transform: uppercase;
-    letter-spacing: 0.05em; color: #1e3a5f;
-    margin-bottom: 20px; line-height: 1.3;
+    letter-spacing: 0.05em; color: #254aa0;
+    margin-bottom: 15px; line-height: 1.3;
   }
-
+ 
   .body { flex-grow: 1; color: #1e293b; font-size: 12px; text-align: justify; }
   .body p { margin-bottom: 10px; }
-
+ 
   .signature { margin-top: 60px; display: flex; justify-content: flex-end; }
   .signature-block { text-align: center; min-width: 220px; }
   .sig-line { border-top: 1.5px solid #9ca3af; margin-bottom: 6px; padding-top: 6px; }
-  .sig-name { font-weight: 700; color: #1e3a5f; font-size: 14.5px; margin-bottom: 5px; }
+  .sig-name { font-weight: 700; color: #254aa0; font-size: 14.5px; margin-bottom: 5px; }
   .sig-titles { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; }
-  .sig-titles p { font-weight: 700; color: #1e3a5f; }
+  .sig-titles p { font-weight: 700; color: #254aa0; }
 </style>
 </head>
 <body>
@@ -285,7 +286,7 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
     
     ${!data.hideTitle ? `
     <div class="subject">${data.title}</div>
-    ${data.subTitle ? `<div style="text-align:center;font-weight:700;margin-top:-25px;margin-bottom:35px;color:#475569;">${data.subTitle}</div>` : ''}
+    ${data.subTitle ? `<div style="text-align:center;font-weight:700;margin-top:5px;margin-bottom:20px;color:#475569;">${data.subTitle}</div>` : ''}
     ` : ''}
 
     <div class="body">${data.bodyHtml}</div>

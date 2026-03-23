@@ -164,8 +164,8 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
     ];
 
     const branch = await prisma.branch.findUnique({ where: { id: branchId } });
-    const isBranch = branch?.type !== 'REGIONAL OFFICE';
-    const scale = isBranch ? 100 : 1;
+    const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch?.type?.toUpperCase() || '') || branch?.code === '3933';
+    const scale = !isRegional ? 100 : 1;
 
     const movements = [];
 

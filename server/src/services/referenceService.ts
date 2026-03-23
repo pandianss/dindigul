@@ -33,7 +33,9 @@ const DEPT_SHORTFORMS: Record<string, string> = {
  * @returns Formatted reference number
  */
 export async function generateReference(category: ReferenceCategory, deptName: string): Promise<string> {
-    const year = new Date().getFullYear();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
     
     // Resolve shortform
     let shortform = DEPT_SHORTFORMS[deptName] || deptName;
@@ -43,9 +45,9 @@ export async function generateReference(category: ReferenceCategory, deptName: s
     if (shortform.includes('PLANNING')) shortform = 'PLNG';
     if (shortform.includes('RETAIL')) shortform = 'RET';
 
-    const prefix = `RO/${shortform}/${year}`;
+    const prefix = `RO/${shortform}/${year}/${month}`;
     
-    // Find all existing reference numbers with this prefix across all relevant tables
+    // Find all existing reference numbers with this prefix
     const [notes, letters] = await Promise.all([
         prisma.officeNote.findMany({
             where: { referenceNo: { startsWith: prefix } },
@@ -57,15 +59,14 @@ export async function generateReference(category: ReferenceCategory, deptName: s
         })
     ]);
 
-    // Extract numbers from formats like .../BE01, .../BE02
+    // Extract numbers from formats like .../01, .../02
     const existingNumbers = new Set<number>();
     [...notes, ...letters].forEach(item => {
         if (item.referenceNo) {
-            const parts = item.referenceNo.split('/BE');
-            if (parts.length === 2) {
-                const num = parseInt(parts[1]);
-                if (!isNaN(num)) existingNumbers.add(num);
-            }
+            const parts = item.referenceNo.split('/');
+            const lastPart = parts[parts.length - 1];
+            const num = parseInt(lastPart);
+            if (!isNaN(num)) existingNumbers.add(num);
         }
     });
 
@@ -76,7 +77,7 @@ export async function generateReference(category: ReferenceCategory, deptName: s
     }
 
     const paddedNum = nextNum.toString().padStart(2, '0');
-    const finalRef = `${prefix}/BE${paddedNum}`;
+    const finalRef = `${prefix}/${paddedNum}`;
 
     // Optional: Synchronize reference_sequences table just in case other legacy code uses it
     try {
