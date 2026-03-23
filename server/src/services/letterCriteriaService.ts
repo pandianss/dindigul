@@ -163,6 +163,10 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
         { code: 'PROFIT_LOSS', mis: 'Branch_PL', name: 'Profit & Loss' }
     ];
 
+    const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+    const isBranch = branch?.type !== 'REGIONAL OFFICE';
+    const scale = isBranch ? 100 : 1;
+
     const movements = [];
 
     for (const p of params) {
@@ -201,8 +205,8 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
             });
 
             if (mis) {
-                const latest = parseFloat(mis.val_current || '0');
-                const movement = parseFloat(mis.growth_day || '0');
+                const latest = parseFloat(mis.val_current || '0') / scale;
+                const movement = parseFloat(mis.growth_day || '0') / scale;
                 const previous = latest - movement;
                 const pct = previous !== 0 ? (movement / previous) * 100 : 0;
 

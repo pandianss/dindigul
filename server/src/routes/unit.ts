@@ -14,7 +14,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
     }
     try {
         const units = await prisma.branch.findMany({
-            orderBy: { officeId: 'asc' }
+            orderBy: { code: 'asc' }
         });
         res.json(units);
     } catch (error) {
@@ -112,9 +112,18 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
         }
 
         res.json(unit);
-    } catch (error) {
-        console.error("Update unit error:", error);
-        res.status(400).json({ error: 'Update failed' });
+    } catch (error: any) {
+        console.error("Update unit error detail:", {
+            message: error.message,
+            code: error.code,
+            meta: error.meta,
+            body: req.body
+        });
+        res.status(400).json({
+            error: 'Update failed',
+            detail: error.message,
+            code: error.code
+        });
     }
 });
 

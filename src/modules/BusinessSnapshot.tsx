@@ -96,11 +96,11 @@ const BusinessSnapshot: React.FC = () => {
                 const sorted = res.data.sort((a: any, b: any) => {
                     const typeA = (a.type || '').toUpperCase();
                     const typeB = (b.type || '').toUpperCase();
-                    const isROA = typeA.includes('REGIONAL') || typeA.includes('OFFICE');
-                    const isROB = typeB.includes('REGIONAL') || typeB.includes('OFFICE');
+                    const isROA = ['RO', 'REGIONAL', 'OFFICE', 'LPC'].some(t => typeA.includes(t));
+                    const isROB = ['RO', 'REGIONAL', 'OFFICE', 'LPC'].some(t => typeB.includes(t));
                     if (isROA && !isROB) return -1;
                     if (!isROA && isROB) return 1;
-                    return a.nameEn.localeCompare(b.nameEn);
+                    return (a.code || '').localeCompare(b.code || '');
                 });
                 setUnits(sorted);
                 if (user?.role === 'ADMIN' && !branchCode) {
@@ -276,13 +276,13 @@ const BusinessSnapshot: React.FC = () => {
                                     className="bg-transparent outline-none text-sm font-bold text-slate-700 cursor-pointer pr-4 appearance-none font-mono"
                                 >
                                     <option value="">Select Unit</option>
-                                    <optgroup label="Regional Offices">
-                                        {units.filter(u => (u.type || '').toUpperCase().includes('REGIONAL') || (u.type || '').toUpperCase().includes('OFFICE')).map(u => (
+                                    <optgroup label="Management & Oversight Units (RO/LPC)">
+                                        {units.filter(u => ['RO', 'REGIONAL', 'OFFICE', 'LPC'].some(t => (u.type || '').toUpperCase().includes(t))).map(u => (
                                             <option key={u.code} value={u.code}>{u.code} - {u.nameEn}</option>
                                         ))}
                                     </optgroup>
                                     <optgroup label="Branches">
-                                        {units.filter(u => !(u.type || '').toUpperCase().includes('REGIONAL') && !(u.type || '').toUpperCase().includes('OFFICE')).map(u => (
+                                        {units.filter(u => !['RO', 'REGIONAL', 'OFFICE', 'LPC'].some(t => (u.type || '').toUpperCase().includes(t))).map(u => (
                                             <option key={u.code} value={u.code}>{u.code} - {u.nameEn}</option>
                                         ))}
                                     </optgroup>
@@ -399,9 +399,20 @@ const BusinessSnapshot: React.FC = () => {
                                             );
                                         }
 
+                                        const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(snapshot.branch?.type?.toUpperCase() || '');
+                                        const unitLabel = isRegional ? 'Figures are in Crores' : 'Figures are in Lakhs';
+
                                         return (
                                             <>
                                                 {plWidget}
+                                                <div className="flex justify-end mb-4 px-4">
+                                                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-2xl shadow-sm">
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${isRegional ? 'bg-indigo-500' : 'bg-bank-teal'}`} />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                                            {unitLabel}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                                 {categories.map(cat => {
                                                     const items = snapshot.panelData.filter(p => p.parameter !== 'Branch_PL' && (p.metadata?.category || 'Uncategorized') === cat);
                                                     if (items.length === 0) return null;

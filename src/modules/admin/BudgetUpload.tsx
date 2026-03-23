@@ -216,7 +216,7 @@ const BudgetUpload: React.FC = () => {
                                 </div>
                                 <div className="text-center group-hover:translate-y-[-2px] transition-transform duration-500">
                                     <p className="text-md font-black text-bank-navy uppercase tracking-tight">Drop Budget CSV Here</p>
-                                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">Wide-format monthly columns (MMM-YY)</p>
+                                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">Wide-format monthly columns (dd/mm/yyyy)</p>
                                 </div>
                                 <input
                                     type="file"
@@ -512,7 +512,7 @@ const BudgetUpload: React.FC = () => {
                             </li>
                             <li className="flex gap-3 leading-relaxed">
                                 <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></span>
-                                <span>Period matching requires header format <strong className="text-amber-700">MMM-YY</strong> (e.g. MAR-26).</span>
+                                <span>Period matching requires header format <strong className="text-amber-700">dd/mm/yyyy</strong> (e.g. 31/03/2026).</span>
                             </li>
                             <li className="flex gap-3 leading-relaxed">
                                 <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></span>

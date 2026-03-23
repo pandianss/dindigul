@@ -116,20 +116,18 @@ export class BusinessSnapshotService {
                     let td = Number(uf.tdBalance || 0);
                     let adv = Number(uf.advBalance || 0);
 
-                    // Normalize to Crores for regular branches (Staging is currently in Lakhs)
-                    if (branch.type === 'Branch') {
+                    if (branch.type === 'BRANCH' || branch.type === 'Branch') {
                         sb /= 100;
                         cd /= 100;
                         td /= 100;
                         adv /= 100;
-                    }
+                    } 
 
                     const dep = sb + cd + td;
                     const casa = sb + cd;
                     const port = portfolioAggs[uf.unitCode] || { retail: 0, sme: 0, agri: 0, other: 0, sma0: 0, sma1: 0, sma2: 0, gnpa: 0 };
 
-                    // Normalize portfolio aggs to Crores too
-                    if (branch.type === 'Branch') {
+                    if (branch.type === 'BRANCH' || branch.type === 'Branch') {
                         port.retail /= 100;
                         port.sme /= 100;
                         port.agri /= 100;
@@ -233,7 +231,7 @@ export class BusinessSnapshotService {
         });
 
         // Mega-fetch Budgets
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         const getPeriodKey = (d: Date) => `${months[d.getUTCMonth()]}-${d.getUTCFullYear().toString().slice(-2)}`;
         
         const currMonthKey = getPeriodKey(utcDate);
@@ -278,10 +276,17 @@ export class BusinessSnapshotService {
                     const dep = getValInner('Total Dep', d);
                     return dep > 0 ? (casa / dep) * 100 : 0;
                 }
-                if (lowerM === 'ret_td' || lowerM === 'ret td') {
+                if (lowerM === 'core adv' || lowerM === 'core_adv') {
+                    const ret = getValInner('Core Ret', d);
+                    const agri = getValInner('Core_Agri', d);
+                    const msme = getValInner('MSME', d);
+                    return ret + agri + msme;
+                }
+                if (lowerM === 'total dep' || lowerM === 'total_dep') {
+                    const sb = getValInner('SB', d);
+                    const cd = getValInner('CD', d);
                     const td = getValInner('TD', d);
-                    const bulk = getValInner('Bulk_Dep', d);
-                    return td - bulk;
+                    return sb + cd + td;
                 }
                 return numVal;
             };
@@ -305,12 +310,26 @@ export class BusinessSnapshotService {
                 };
 
                 const getBudValInner = (m: string, pKey: string) => {
-                    const b = unitBudgets.find((ub: any) => ub.parameterName === m && ub.periodKey === pKey);
-                    const val = b ? Number(b.targetValue) : 0;
-                    // Normalize Lakhs to Crores if not a ratio/percent. RO data is already in Crores.
-                    const isRatio = m.includes('%') || m.toLowerCase().includes('ratio') || m.toLowerCase().includes('yield') || m.toLowerCase().includes('cost');
-                    if (isRatio) return val;
-                    return branch.type === 'REGIONAL OFFICE' ? val : val / 100;
+                    const findVal = (name: string) => {
+                        const b = unitBudgets.find((ub: any) => ub.parameterName === name && ub.periodKey === pKey);
+                        return b ? Number(b.targetValue) : 0;
+                    };
+
+                    let val = 0;
+                    const lowerM = m.toLowerCase();
+                    if (lowerM === 'total dep' || lowerM === 'total_dep') {
+                        val = findVal('CASA') + findVal('TD');
+                    } else if (lowerM === 'core adv' || lowerM === 'core_adv') {
+                        val = findVal('Core Ret') + findVal('Core_Agri') + findVal('MSME');
+                    } else {
+                        val = findVal(m);
+                    }
+
+                    // Normalize to Crores only if it's NOT a management unit? 
+                    // NO - user wants branches in LAKHS.
+                    // Regional data is already in Crores in the CSV.
+                    // So we just return the raw val.
+                    return val;
                 };
 
                 const bMonth = getBudValInner(metric, currMonthKey);
@@ -333,25 +352,32 @@ export class BusinessSnapshotService {
                     status = (isBetterLow ? g.day <= 0 : g.day >= 0) ? 'On-Track' : 'Behind';
                 }
 
+                const isBranch = branch.type === 'BRANCH' || branch.type === 'Branch';
+                const isRatio = ['%', 'RATIO', 'PERCENT'].some(k => metric.toUpperCase().includes(k));
+                const isCount = ['COUNT', 'NUMBER', 'OPENINGS'].some(k => metric.toUpperCase().includes(k));
+                
+                // Scale to Lakhs if it's a Branch and NOT a ratio/count
+                const scale = (isBranch && !isRatio && !isCount) ? 100 : 1;
+
                 panelDataToCreate.push({
                     snapshotId: snap.id,
                     parameter: metric,
-                    val_prev_fy_start: v.pFyS,
-                    val_prev_fy_end: v.pFyE,
-                    val_fy_start: v.fyS,
+                    val_prev_fy_start: v.pFyS * scale,
+                    val_prev_fy_end: v.pFyE * scale,
+                    val_fy_start: v.fyS * scale,
                     val_fy_end: 0,
-                    val_prev_m_end: v.pM,
-                    val_dby: v.dby,
-                    val_y_eod: v.yesterday,
-                    val_current: v.current,
-                    growth_prev_fy: g.prevFy,
-                    growth_day: g.day,
-                    growth_month: g.month,
-                    growth_fy: g.fy,
-                    budget_month: bMonth,
-                    gap_month: v.current - bMonth,
-                    budget_quarter: bQuarter,
-                    gap_quarter: v.current - bQuarter,
+                    val_prev_m_end: v.pM * scale,
+                    val_dby: v.dby * scale,
+                    val_y_eod: v.yesterday * scale,
+                    val_current: v.current * scale,
+                    growth_prev_fy: g.prevFy * scale,
+                    growth_day: g.day * scale,
+                    growth_month: g.month * scale,
+                    growth_fy: g.fy * scale,
+                    budget_month: bMonth * scale,
+                    gap_month: (v.current - bMonth) * scale,
+                    budget_quarter: bQuarter * scale,
+                    gap_quarter: (v.current - bQuarter) * scale,
                     status
                 });
             }
@@ -394,7 +420,7 @@ export class BusinessSnapshotService {
         const prevFyEnd = new Date(Date.UTC(fyYear, 2, 31));
 
         // Budget setup
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         const getPeriodKey = (d: Date) => `${months[d.getUTCMonth()]}-${d.getUTCFullYear().toString().slice(-2)}`;
         const currMonthKey = getPeriodKey(utcDate);
 
@@ -480,18 +506,31 @@ export class BusinessSnapshotService {
             // Budget Setup
             const getBudgetVal = async (m: string, pKey: string) => {
                 let targetVal = 0;
-                if (m.toLowerCase() === 'core adv' || m.toLowerCase() === 'core_adv') {
-                    const retail = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core Ret', periodKey: pKey, isActive: true } });
-                    const agri = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'Core_Agri', periodKey: pKey, isActive: true } });
-                    const msme = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: 'MSME', periodKey: pKey, isActive: true } });
-                    targetVal = Number(retail?.targetValue || 0) + Number(agri?.targetValue || 0) + Number(msme?.targetValue || 0);
+                const lowerM = m.toLowerCase();
+
+                const fetchVal = async (name: string) => {
+                    const b = await tx.budgetMaster.findFirst({
+                        where: { solId: branch.code, parameterName: name, periodKey: pKey, isActive: true }
+                    });
+                    return Number(b?.targetValue || 0);
+                };
+
+                if (lowerM === 'total dep' || lowerM === 'total_dep') {
+                    const casa = await fetchVal('CASA');
+                    const td = await fetchVal('TD');
+                    targetVal = casa + td;
+                } else if (lowerM === 'core adv' || lowerM === 'core_adv') {
+                    const retail = await fetchVal('Core Ret');
+                    const agri = await fetchVal('Core_Agri');
+                    const msme = await fetchVal('MSME');
+                    targetVal = retail + agri + msme;
                 } else {
-                    const b = await tx.budgetMaster.findFirst({ where: { solId: branch.code, parameterName: m, periodKey: pKey, isActive: true } });
-                    targetVal = Number(b?.targetValue || 0);
+                    targetVal = await fetchVal(m);
                 }
-                const isRatio = m.includes('%') || m.toLowerCase().includes('ratio') || m.toLowerCase().includes('yield') || m.toLowerCase().includes('cost');
-                if (isRatio) return targetVal;
-                return branch.type === 'REGIONAL OFFICE' ? targetVal : targetVal / 100;
+
+                // No longer dividing by 100 for branches.
+                // Regional data is in Crores, Branch data is in Lakhs in source.
+                return targetVal;
             };
 
             const budget_month = await getBudgetVal(metric, currMonthKey);

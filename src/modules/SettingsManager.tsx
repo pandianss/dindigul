@@ -548,8 +548,12 @@ const SettingsManager: React.FC = () => {
                                         <input
                                             type="date"
                                             className="w-full p-2 border rounded"
-                                            value={formData.riskEffectiveDate ? new Date(formData.riskEffectiveDate).toISOString().split('T')[0] : ''}
-                                            onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value })}
+                                            value={(() => {
+                                                if (!formData.riskEffectiveDate) return '';
+                                                const d = new Date(formData.riskEffectiveDate);
+                                                return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+                                            })()}
+                                            onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value || undefined })}
                                         />
                                     </div>
                                 </div>

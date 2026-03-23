@@ -463,54 +463,58 @@ const CorrespondenceCenter: React.FC = () => {
 
                                     <div className="text-justify text-gray-800 flex-grow">
                                         {(() => {
-                                            const letter = selectedLetter;
-                                            return letter.contentEn.split('\n\n').map((paragraph: string, i: number) => {
-                                                if (paragraph.trim() === '[PERFORMANCE_TABLE]') {
-                                                    const pd = (letter.orgMeta as any)?.performanceData;
-                                                    if (!pd) return null;
-                                                    const fyGrowth = pd.latest - pd.march31st;
-                                                    const forceInverted = String(letter.titleEn).toUpperCase().includes('NPA') || 
-                                                                        String((letter as any).parameterId).toUpperCase().includes('NPA') || 
-                                                                        pd.isInverted === true;
-                                                    const isAchieved = forceInverted ? (pd.latest <= pd.budget) : (pd.latest >= pd.budget);
-                                                    const gapLabel = forceInverted ? (pd.latest <= pd.budget ? 'Reduction' : 'Overrun') : (pd.latest >= pd.budget ? 'Surplus' : 'Shortfall');
-                                                    const statusLabel = isAchieved ? 'ACHIEVED' : 'SHORTFALL';
-                                                    const statusColor = isAchieved ? 'text-green-700' : 'text-red-700';
+                                            const isBranch = selectedLetter.branch?.type !== 'REGIONAL OFFICE';
+                                        const scale = isBranch ? 100 : 1;
+                                        const unitLabel = isBranch ? 'Lakhs' : 'Cr';
 
-                                                    return (
-                                                        <div key={i} className="my-6 px-4">
-                                                            <table className="w-full text-center border-collapse border border-bank-navy/40">
-                                                                <thead>
-                                                                    <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
-                                                                        <th className="border border-bank-navy/40 py-2 px-2">Status</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr className="text-sm">
-                                                                        <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.march31st.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                        <td className="border border-bank-navy/40 py-2 px-2 font-bold text-bank-navy">₹ {pd.latest.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${fyGrowth < 0 ? 'text-red-700' : 'text-green-700'}`}>
-                                                                            {fyGrowth < 0 ? '-' : '+'}₹ {Math.abs(fyGrowth).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
-                                                                        </td>
-                                                                        <td className="border border-bank-navy/40 py-2 px-2">₹ {pd.budget.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
-                                                                            {pd.gap < 0 ? '-' : '+'}₹ {Math.abs(pd.gap).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr<br/>
-                                                                            <span className="text-[10px]">({gapLabel})</span>
-                                                                        </td>
-                                                                        <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
-                                                                            {statusLabel}
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    );
-                                                }
+                                        const letter = selectedLetter;
+                                        return letter.contentEn.split('\n\n').map((paragraph: string, i: number) => {
+                                            if (paragraph.trim() === '[PERFORMANCE_TABLE]') {
+                                                const pd = (letter.orgMeta as any)?.performanceData;
+                                                if (!pd) return null;
+                                                const fyGrowth = pd.latest - pd.march31st;
+                                                const forceInverted = String(letter.titleEn).toUpperCase().includes('NPA') || 
+                                                                    String((letter as any).parameterId).toUpperCase().includes('NPA') || 
+                                                                    pd.isInverted === true;
+                                                const isAchieved = forceInverted ? (pd.latest <= pd.budget) : (pd.latest >= pd.budget);
+                                                const gapLabel = forceInverted ? (pd.latest <= pd.budget ? 'Reduction' : 'Overrun') : (pd.latest >= pd.budget ? 'Surplus' : 'Shortfall');
+                                                const statusLabel = isAchieved ? 'ACHIEVED' : 'SHORTFALL';
+                                                const statusColor = isAchieved ? 'text-green-700' : 'text-red-700';
+
+                                                return (
+                                                    <div key={i} className="my-6 px-4">
+                                                        <table className="w-full text-center border-collapse border border-bank-navy/40">
+                                                            <thead>
+                                                                <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr className="text-sm">
+                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {(pd.march31st * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}</td>
+                                                                    <td className="border border-bank-navy/40 py-2 px-2 font-bold text-bank-navy">₹ {(pd.latest * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}</td>
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${fyGrowth < 0 ? 'text-red-700' : 'text-green-700'}`}>
+                                                                        {fyGrowth < 0 ? '-' : '+'}₹ {Math.abs(fyGrowth * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}
+                                                                    </td>
+                                                                    <td className="border border-bank-navy/40 py-2 px-2">₹ {(pd.budget * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}</td>
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
+                                                                        {pd.gap < 0 ? '-' : '+'}₹ {Math.abs(pd.gap * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}<br/>
+                                                                        <span className="text-[10px]">({gapLabel})</span>
+                                                                    </td>
+                                                                    <td className={`border border-bank-navy/40 py-2 px-2 font-bold ${statusColor}`}>
+                                                                        {statusLabel}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            }
 
                                                 if (paragraph.trim() === '[EXCEPTION_TABLE]') {
                                                     const exceptions = (letter.orgMeta as any)?.exceptions || [];
@@ -558,10 +562,10 @@ const CorrespondenceCenter: React.FC = () => {
                                                                     {movement.map((m: any, idx: number) => (
                                                                         <tr key={idx}>
                                                                             <td className="border border-bank-navy/40 py-2 px-2 font-bold">{m.parameter}</td>
-                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right">₹ {Number(m.previousValue).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
-                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right font-bold text-bank-navy">₹ {Number(m.latestValue).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right">₹ {(Number(m.previousValue) * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}</td>
+                                                                            <td className="border border-bank-navy/40 py-2 px-2 text-right font-bold text-bank-navy">₹ {(Number(m.latestValue) * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}</td>
                                                                             <td className={`border border-bank-navy/40 py-2 px-2 text-right font-bold ${m.movement > 0 ? 'text-green-700' : m.movement < 0 ? 'text-red-700' : 'text-gray-600'}`}>
-                                                                                {m.movement > 0 ? '+' : ''}₹ {Number(m.movement).toLocaleString('en-IN', { maximumFractionDigits: 2 })} Cr
+                                                                                {m.movement > 0 ? '+' : ''}₹ {(Number(m.movement) * scale).toLocaleString('en-IN', { maximumFractionDigits: 2 })} {unitLabel}
                                                                             </td>
                                                                             <td className={`border border-bank-navy/40 py-2 px-2 text-right font-bold ${m.pct > 0 ? 'text-green-700' : m.pct < 0 ? 'text-red-700' : 'text-gray-600'}`}>
                                                                                 {m.pct > 0 ? '+' : ''}{Number(m.pct).toFixed(2)}%

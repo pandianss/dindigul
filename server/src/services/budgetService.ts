@@ -58,7 +58,12 @@ export class BudgetService {
                     let solId = row.SOL?.trim();
                     const paramName = row.PARAMETER?.trim();
 
-                    if (!solId || !paramName) {
+                    // Validation: Parameter should be a non-empty string and not just a number
+                    const isNumericParam = /^\d+$/.test(paramName || '');
+                    if (!solId || !paramName || isNumericParam) {
+                        if (paramName && isNumericParam) {
+                            console.warn(`Skipping malformed row with numeric parameter: ${paramName}`);
+                        }
                         results.errors++;
                         return;
                     }
@@ -82,17 +87,26 @@ export class BudgetService {
                     }
 
                     // Process all months for this row in parallel
+                    const branch = await prisma.branch.findUnique({ where: { code: solId } });
+                    const isBranch = branch?.type === 'BRANCH' || branch?.type === 'Branch';
+
                     await Promise.all(monthColumns.map(async (period) => {
                         const rawValue = row[period] || '0';
-                        const targetValue = this.normalizeValue(rawValue);
+                        let targetValue = this.normalizeValue(rawValue);
+                        if (isBranch) targetValue /= 100;
+
                         const effectiveDate = this.parsePeriod(period);
+
+                        // Normalize periodKey to MMM-YY (e.g. MAR-26) to match display logic
+                        const months_short = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+                        const standardPeriodKey = `${months_short[effectiveDate.getMonth()]}-${effectiveDate.getFullYear().toString().slice(-2)}`;
 
                         const existing = await prisma.budgetMaster.findUnique({
                             where: {
                                 parameterName_solId_periodKey: {
                                     parameterName: paramName,
                                     solId,
-                                    periodKey: period
+                                    periodKey: standardPeriodKey
                                 }
                             }
                         });
@@ -130,7 +144,7 @@ export class BudgetService {
                                     data: {
                                         parameterName: paramName,
                                         solId,
-                                        periodKey: period,
+                                        periodKey: standardPeriodKey,
                                         effectiveDate,
                                         targetValue,
                                         versionNo: 1,
@@ -141,10 +155,10 @@ export class BudgetService {
                                 prisma.budgetHistory.create({
                                     data: {
                                         parameterName: paramName,
-                                        solId,
-                                        periodKey: period,
+                                        solId: solId,
+                                        periodKey: standardPeriodKey,
                                         effectiveDate,
-                                        targetValue,
+                                        targetValue: targetValue,
                                         versionNo: 1,
                                         sourceBatchId: batchId,
                                         changeType: 'INSERT'
@@ -187,13 +201,34 @@ export class BudgetService {
     }
 
     private static parsePeriod(period: string): Date {
-        const [mmm, yy] = period.toUpperCase().split('-');
-        const months: { [key: string]: number } = {
-            'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5,
-            'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11
-        };
-        const year = 2000 + parseInt(yy);
-        const month = months[mmm] !== undefined ? months[mmm] : 0;
-        return new Date(year, month, 1);
+        const p = period.trim();
+
+        // 1. Handle dd/mm/yyyy or dd-mm-yyyy (3-part formats)
+        const dmyParts = p.split(/[\/\-]/);
+        if (dmyParts.length === 3) {
+            const [d, m, y] = dmyParts.map(part => parseInt(part));
+            // Basic validation: if year is 2 or 4 digits
+            const fullYear = y < 100 ? 2000 + y : y;
+            return new Date(fullYear, m - 1, d || 1);
+        }
+
+        // 2. Handle MMM-YY (Legacy fallback, e.g., MAR-26)
+        const parts = p.toUpperCase().split('-');
+        if (parts.length === 2) {
+            const [mmm, yy] = parts;
+            const months: { [key: string]: number } = {
+                'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5,
+                'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11
+            };
+            const year = 2000 + parseInt(yy);
+            const month = months[mmm] !== undefined ? months[mmm] : 0;
+            return new Date(year, month, 1);
+        }
+
+        // 3. Native parsing as last resort
+        const native = new Date(p);
+        if (!isNaN(native.getTime())) return native;
+
+        return new Date(); // Default to now if all fails
     }
 }

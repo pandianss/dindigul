@@ -231,6 +231,10 @@ function buildLetterBodyHtml(letter: any, RO_DATA: any): string {
   const headName = head ? `${salEn} ${toTitleCase(head.fullNameEn)}` : 'The Branch Manager';
   const headDesig = toTitleCase(head?.designation?.nameEn || 'Branch Head');
 
+  const isBranch = branch?.type !== 'REGIONAL OFFICE';
+  const scale = isBranch ? 100 : 1;
+  const unitLabel = isBranch ? 'Lakhs' : 'Cr';
+
   let bodyHtml = `
     <div style="margin-bottom: 25px;">
       <p style="font-weight:700;">To,</p>
@@ -274,11 +278,11 @@ function buildLetterBodyHtml(letter: any, RO_DATA: any): string {
               <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
             </tr>
             <tr>
-              <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(pd.march31st)} Cr</td>
-              <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(pd.latest)} Cr</td>
-              <td style="border:1px solid #94a3b8;padding:8px;color:${growthColor}">${fyGrowth >= 0 ? '+' : ''}₹ ${fmt(Math.abs(fyGrowth))} Cr</td>
-              <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(pd.budget)} Cr</td>
-              <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;color:${gapColor}">${pd.gap >= 0 ? '+' : ''}₹ ${fmt(gapAbs)} Cr (${gapLabel})</td>
+              <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(pd.march31st * scale)} ${unitLabel}</td>
+              <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(pd.latest * scale)} ${unitLabel}</td>
+              <td style="border:1px solid #94a3b8;padding:8px;color:${growthColor}">${fyGrowth >= 0 ? '+' : ''}₹ ${fmt(Math.abs(fyGrowth) * scale)} ${unitLabel}</td>
+              <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(pd.budget * scale)} ${unitLabel}</td>
+              <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;color:${gapColor}">${pd.gap >= 0 ? '+' : ''}₹ ${fmt(gapAbs * scale)} ${unitLabel} (${gapLabel})</td>
               <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;color:${gapColor}">${isAchieved ? 'ACHIEVED' : 'SHORTFALL'}</td>
             </tr>
           </table>
@@ -320,9 +324,9 @@ function buildLetterBodyHtml(letter: any, RO_DATA: any): string {
               return `
                 <tr>
                   <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${m.parameter}</td>
-                  <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(m.previousValue)} Cr</td>
-                  <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(m.latestValue)} Cr</td>
-                  <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${m.movement >= 0 ? '+' : ''}₹ ${fmt(m.movement)} Cr</td>
+                  <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(m.previousValue * scale)} ${unitLabel}</td>
+                  <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(m.latestValue * scale)} ${unitLabel}</td>
+                  <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${m.movement >= 0 ? '+' : ''}₹ ${fmt(m.movement * scale)} ${unitLabel}</td>
                   <td style="border:1px solid #94a3b8;padding:8px;color:${color};">${m.pct.toFixed(2)}%</td>
                 </tr>
               `;

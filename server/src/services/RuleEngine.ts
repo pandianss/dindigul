@@ -43,15 +43,15 @@ export class RuleEngine {
                 }
             }
 
-            // Rule 2: Monthly Growth (Negative growth in Other Parameters)
-            if (!isKeyBusinessParam && !isBetterLow && Number(row.growth_month || 0) < 0) {
+            // Rule 2: Daily Movement (Negative growth in Other Parameters)
+            if (!isKeyBusinessParam && !isBetterLow && Number(row.growth_day || 0) < 0) {
                 exceptions.push({
                     type: ExceptionType.GROWTH,
                     severity: ExceptionSeverity.MEDIUM,
                     parameter: row.parameter,
-                    message: `Negative growth for the month: ${Number(row.growth_month).toFixed(2)}. Portfolio performance lagging.`,
-                    triggerValue: String(row.growth_month),
-                    ruleId: 'RULE-MONTHLY-GROWTH'
+                    message: `Negative daily movement detected: ${Number(row.growth_day).toFixed(2)}. Portfolio performance lagging.`,
+                    triggerValue: String(row.growth_day),
+                    ruleId: 'RULE-DAILY-DECLINE'
                 });
             }
 
@@ -156,8 +156,8 @@ export class RuleEngine {
                     }
                 }
 
-                // Rule 2: Monthly Growth (Negative growth in Other Parameters)
-                if (!isKeyBusinessParam && !isBetterLow && Number(row.growth_month || 0) < 0) {
+                // Rule 2: Daily Movement (Negative growth in Other Parameters)
+                if (!isKeyBusinessParam && !isBetterLow && Number(row.growth_day || 0) < 0) {
                     allExceptions.push({
                         snapshotId: snapshot.id,
                         unitId: snapshot.unitId,
@@ -165,9 +165,9 @@ export class RuleEngine {
                         type: ExceptionType.GROWTH,
                         severity: ExceptionSeverity.MEDIUM,
                         parameter: row.parameter,
-                        message: `Negative growth for the month: ${Number(row.growth_month).toFixed(2)}. Portfolio performance lagging.`,
-                        triggerValue: String(row.growth_month),
-                        ruleId: 'RULE-MONTHLY-GROWTH',
+                        message: `Negative daily movement detected: ${Number(row.growth_day).toFixed(2)}. Portfolio performance lagging.`,
+                        triggerValue: String(row.growth_day),
+                        ruleId: 'RULE-DAILY-DECLINE',
                         status: 'OPEN'
                     });
                 }

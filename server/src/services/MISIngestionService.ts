@@ -151,7 +151,7 @@ export class MISIngestionService {
                         if (paramName) {
                             // Regional Office data is already in Crores. regular Branch data is in Lakhs.
                             let val = Number(rawValue || 0);
-                            if (branch.type === 'Branch') {
+                            if (branch.type === 'BRANCH' || branch.type === 'Branch') {
                                 val /= 100;
                             }
 
