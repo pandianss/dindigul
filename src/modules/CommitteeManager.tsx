@@ -10,6 +10,8 @@ import {
     Save
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { CustomDatePicker } from '../components/CustomDatePicker';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface Committee {
@@ -158,7 +160,7 @@ const CommitteeManager: React.FC = () => {
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                                         <div className="flex items-center space-x-2 text-xs text-gray-400">
                                             <Calendar size={14} />
-                                            <span>Last: {comm.meetings[0] ? format(new Date(comm.meetings[0].date), 'dd MMM yyyy') : 'No record'}</span>
+                                            <span>Last: {comm.meetings[0] ? format(parseLocalISO(comm.meetings[0].date) || new Date(), 'dd MMM yyyy') : 'No record'}</span>
                                         </div>
                                         <ChevronRight size={16} className="text-gray-300" />
                                     </div>
@@ -197,10 +199,10 @@ const CommitteeManager: React.FC = () => {
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Date of Meeting</label>
-                                                    <input
-                                                        type="date" required className="w-full p-2 border rounded-lg"
-                                                        value={minutesData.date}
-                                                        onChange={e => setMinutesData({ ...minutesData, date: e.target.value })}
+                                                    <CustomDatePicker
+                                                        selected={parseLocalISO(minutesData.date)}
+                                                        onChange={(d: Date | null) => setMinutesData({ ...minutesData, date: formatLocalISO(d) })}
+                                                        className="w-full p-2 border rounded-lg border-2 border-gray-100 focus:border-bank-teal transition-all font-bold text-bank-navy"
                                                     />
                                                 </div>
                                                 <div>
@@ -242,14 +244,14 @@ const CommitteeManager: React.FC = () => {
                                                                 setMinutesData({ ...minutesData, actionPoints: newAPs });
                                                             }}
                                                         />
-                                                        <input
-                                                            className="col-span-3 p-2 text-xs border rounded-lg" type="date"
-                                                            value={ap.dueDate}
-                                                            onChange={e => {
+                                                        <CustomDatePicker
+                                                            selected={parseLocalISO(ap.dueDate)}
+                                                            onChange={(d: Date | null) => {
                                                                 const newAPs = [...minutesData.actionPoints];
-                                                                newAPs[idx].dueDate = e.target.value;
+                                                                newAPs[idx].dueDate = formatLocalISO(d);
                                                                 setMinutesData({ ...minutesData, actionPoints: newAPs });
                                                             }}
+                                                            className="col-span-3 p-2 text-[10px] border rounded-lg font-bold text-bank-navy"
                                                         />
                                                         <select
                                                             className="col-span-3 p-2 text-xs border rounded-lg"
@@ -297,7 +299,7 @@ const CommitteeManager: React.FC = () => {
                                             </span>
                                             {ap.dueDate && (
                                                 <span className="text-[9px] font-bold bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100">
-                                                    Due: {format(new Date(ap.dueDate), 'dd MMM')}
+                                                    Due: {format(parseLocalISO(ap.dueDate) || new Date(), 'dd MMM')}
                                                 </span>
                                             )}
                                         </div>

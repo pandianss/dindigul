@@ -54,6 +54,7 @@ export const userService = {
                 departmentId: data.departmentId,
                 designationId: data.designationId,
                 branchId: data.branchId,
+                isSecondLine: data.isSecondLine || false,
                 photoId: photoId || undefined
             }
         });
@@ -62,6 +63,13 @@ export const userService = {
             await prisma.branch.update({
                 where: { id: data.branchId },
                 data: { headUserId: user.id }
+            });
+        }
+
+        if (data.isSecondLine && data.branchId) {
+            await prisma.branch.update({
+                where: { id: data.branchId },
+                data: { secondLineUserId: user.id }
             });
         }
 
@@ -93,11 +101,13 @@ export const userService = {
                 departmentId: data.departmentId,
                 designationId: data.designationId,
                 branchId: data.branchId,
+                isSecondLine: data.isSecondLine || false,
                 ...(photoId ? { photoId } : {})
             }
         });
 
         if (data.branchId) {
+            // Handle Head of Unit
             if (data.isUnitHead) {
                 await prisma.branch.update({
                     where: { id: data.branchId },
@@ -109,6 +119,22 @@ export const userService = {
                     await prisma.branch.update({
                         where: { id: data.branchId },
                         data: { headUserId: null }
+                    });
+                }
+            }
+
+            // Handle 2nd Line
+            if (data.isSecondLine) {
+                await prisma.branch.update({
+                    where: { id: data.branchId },
+                    data: { secondLineUserId: user.id }
+                });
+            } else {
+                const branch = await prisma.branch.findUnique({ where: { id: data.branchId } });
+                if (branch?.secondLineUserId === user.id) {
+                    await prisma.branch.update({
+                        where: { id: data.branchId },
+                        data: { secondLineUserId: null }
                     });
                 }
             }

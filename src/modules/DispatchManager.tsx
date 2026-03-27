@@ -13,6 +13,7 @@ import {
     PackageMinus
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO, formatLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface DispatchRecord {
@@ -48,7 +49,7 @@ const DispatchManager: React.FC = () => {
         recipient: '',
         referenceNo: '',
         consignmentNo: '',
-        date: format(new Date(), 'yyyy-MM-dd')
+        date: formatLocalISO(new Date())
     });
 
     const [stockForm, setStockForm] = useState({
@@ -199,7 +200,7 @@ const DispatchManager: React.FC = () => {
                                                 </div>
                                                 <div className="flex items-center space-x-1">
                                                     <Clock size={12} />
-                                                    <span>{format(new Date(record.date), 'dd MMM yyyy')}</span>
+                                                    <span>{format(parseLocalISO(record.date) || new Date(), 'dd MMM yyyy')}</span>
                                                 </div>
                                                 {record.consignmentNo && (
                                                     <div className="flex items-center space-x-1 text-bank-gold font-bold">

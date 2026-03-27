@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Landmark, Award, Plus } from 'lucide-react';
+import { Landmark, Award, Plus, MapPin, Camera } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO, formatLocalISO } from '../utils/dateUtils';
 import { cn } from '../utils/cn';
 import api, { STATIC_URL, getStaticUrl } from '../services/api';
 
@@ -10,7 +11,18 @@ interface SetupData {
     regionalOffices: number;
     staff: number;
     totalDeposits: number;
-    leadership?: { name: string; designation: string; isHead: boolean }[];
+    leadership?: { 
+        name: string; 
+        nameTa?: string; 
+        nameHi?: string; 
+        designation: string; 
+        designationTa?: string; 
+        designationHi?: string; 
+        isHead: boolean; 
+        isSecondLine?: boolean;
+        role: string;
+        photoUrl?: string;
+    }[];
     events?: { date: string; name: string; type: string; venue?: string }[];
     achievements?: { title: string; description: string; date: string; category: string; photoUrl?: string }[];
     business?: { val: number, growth: number };
@@ -18,6 +30,23 @@ interface SetupData {
     casa?: { val: number, growth: number };
     rtd?: { val: number, growth: number };
     advances?: { val: number, growth: number };
+    sb?: { val: number, growth: number };
+    cd?: { val: number, growth: number };
+    td?: { val: number, growth: number };
+    branchList?: Array<{
+        code: string;
+        nameEn: string;
+        district: string;
+        business: number;
+        asOnDate?: string;
+        headName?: string;
+        headDesignation?: string;
+        headPhotoUrl?: string | null;
+        secondLineName?: string;
+        secondLineDesignation?: string;
+        secondLinePhotoUrl?: string | null;
+    }>;
+    asOnDate?: string;
 }
 
 interface GuestLandingProps {
@@ -39,7 +68,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({ ach, index }) => {
             <div className="absolute left-[15px] sm:left-1/2 top-10 z-20 -translate-x-1/2 hidden sm:flex flex-col items-center">
                 <div className="w-4 h-4 rounded-full border-2 border-[#00AEEF] bg-[#1B3A6B] shadow-[0_0_15px_rgba(0,174,239,0.5)] mb-2"></div>
                 <div className="bg-[#1B3A6B] border border-[#00AEEF]/30 px-2 py-1 rounded text-[0.6rem] font-black text-[#00AEEF] uppercase tracking-tighter shadow-lg whitespace-nowrap">
-                    {new Date(ach.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    {parseLocalISO(ach.date)?.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </div>
             </div>
 
@@ -63,7 +92,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({ ach, index }) => {
                                     {ach.category}
                                 </span>
                                 <span className="text-[0.65rem] font-bold text-white/40">
-                                    {new Date(ach.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                    {parseLocalISO(ach.date)?.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                                 </span>
                             </div>
 
@@ -171,6 +200,7 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                     <div className="hidden md:flex flex-wrap gap-6 lg:gap-8 items-center mx-auto">
                         <a href="#overview" className="hover:text-[#0090C8] transition-colors">Overview</a>
                         <a href="#economy" className="hover:text-[#0090C8] transition-colors">Economy</a>
+                        <a href="#tourism" className="hover:text-[#0090C8] transition-colors">Tourism</a>
                         <a href="#organization" className="hover:text-[#0090C8] transition-colors">Leadership</a>
                         <a href="#events" className="hover:text-[#0090C8] transition-colors">Events</a>
                         <a href="#achievements" className="hover:text-[#0090C8] transition-colors">Achievements</a>
@@ -205,8 +235,8 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                             <a href="#economy" className="inline-flex items-center gap-1.5 px-6 py-2.5 text-[0.78rem] font-semibold tracking-[0.04em] rounded bg-[#0090C8] text-white border-2 border-[#0090C8] hover:bg-[#00AEEF] transition-all">
                                 Explore Economy &darr;
                             </a>
-                            <a href="#invest" className="inline-flex items-center gap-1.5 px-6 py-2.5 text-[0.78rem] font-semibold tracking-[0.04em] rounded bg-transparent text-white/80 border-2 border-white/30 hover:bg-white/10 transition-all">
-                                Investment Overview
+                            <a href="#tourism" className="inline-flex items-center gap-1.5 px-6 py-2.5 text-[0.78rem] font-semibold tracking-[0.04em] rounded bg-transparent text-white/80 border-2 border-white/30 hover:bg-white/10 transition-all">
+                                Places of Interest
                             </a>
                         </div>
                     </div>
@@ -282,26 +312,45 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                 </div>
 
                 {/* BUSINESS METRICS BAND */}
-                <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 divide-x divide-white/10 border-x border-t border-white/10 bg-[#122850]/40">
-                    {[
-                        { label: 'Total Business', data: setupData?.business },
-                        { label: 'Total Deposits', data: setupData?.deposits },
-                        { label: 'CASA', data: setupData?.casa },
-                        { label: 'RTD', data: setupData?.rtd },
-                        { label: 'Advances', data: setupData?.advances },
-                    ].map((metric, i) => (
-                        <div key={i} className="p-8 pb-6 text-center reveal border-b md:border-b-0 border-white/10 flex flex-col items-center justify-center">
-                            <div className="text-[1.6rem] font-extrabold text-white tracking-tight leading-none mb-1">
-                                {loading || !metric.data ? <span className="text-white/20 animate-pulse">...</span> : `₹${metric.data.val.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
-                            </div>
-                            <div className="text-[0.62rem] font-bold text-[#00AEEF] uppercase tracking-[0.1em]">{metric.label}</div>
-                            {metric.data && (
-                                <div className={`text-[0.65rem] font-bold mt-2 inline-flex items-center gap-1 border px-2 py-0.5 rounded-sm ${metric.data.growth >= 0 ? 'text-[#00AEEF] border-[#00AEEF]/30 bg-[#00AEEF]/5' : 'text-red-400 border-red-400/30 bg-red-400/5'}`}>
-                                    {metric.data.growth >= 0 ? '↗' : '↘'} {Math.abs(metric.data.growth).toLocaleString('en-IN', { maximumFractionDigits: 0 })} FY
-                                </div>
-                            )}
+                <div className="max-w-6xl mx-auto">
+                    <div className="flex justify-between items-center px-8 py-3 bg-[#122850]/60 border-x border-white/10">
+                        <div className="text-[0.65rem] font-bold text-[#00AEEF] uppercase tracking-[0.2em]">
+                            Regional Performance Metrics <span className="text-white/40 ml-2 tracking-normal font-medium">(₹ in Crores)</span>
                         </div>
-                    ))}
+                        {setupData && setupData.asOnDate && (
+                            <div className="text-[0.65rem] font-bold text-white/40 uppercase tracking-[0.1em]">
+                                As on {format(parseLocalISO(setupData.asOnDate) || new Date(), 'dd.MM.yyyy')}
+                            </div>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 divide-x divide-white/10 border-x border-t border-white/10 bg-[#122850]/40">
+                        {[
+                            { label: 'SB', data: setupData?.sb },
+                            { label: 'CD', data: setupData?.cd },
+                            { label: 'TD', data: setupData?.td },
+                            { label: 'Advances', data: setupData?.advances },
+                            { label: 'Total Business', data: setupData?.business },
+                        ].map((metric, i) => (
+                            <div key={i} className="p-8 pb-6 text-center reveal border-b md:border-b-0 border-white/10 flex flex-col items-center justify-center">
+                                <div className="text-[1.6rem] font-extrabold text-white tracking-tight leading-none mb-1">
+                                    {loading || !metric.data ? (
+                                        <span className="text-white/20 animate-pulse">...</span>
+                                    ) : (
+                                        <>
+                                            ₹{metric.data.val.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                            <span className="text-[0.9rem] opacity-60 font-bold ml-1">Cr</span>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="text-[0.62rem] font-bold text-[#00AEEF] uppercase tracking-[0.1em]">{metric.label}</div>
+                                {metric.data && (
+                                    <div className={`text-[0.65rem] font-bold mt-2 inline-flex items-center gap-1 border px-2 py-0.5 rounded-sm ${metric.data.growth >= 0 ? 'text-[#00AEEF] border-[#00AEEF]/30 bg-[#00AEEF]/5' : 'text-red-400 border-red-400/30 bg-red-400/5'}`}>
+                                        {metric.data.growth >= 0 ? '↗' : '↘'} {Math.abs(metric.data.growth).toLocaleString('en-IN', { maximumFractionDigits: 0 })} FY
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -313,10 +362,10 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                             District Overview
                         </div>
                         <h2 className="text-[clamp(1.4rem,2.5vw,2rem)] font-extrabold text-[#1B3A6B] tracking-[-0.02em] leading-[1.2] mb-2.5">
-                            Know Your Region
+                            The Gateway to Southern Prosperity
                         </h2>
                         <p className="text-[0.92rem] text-[#5A708A] max-w-[680px] leading-[1.8]">
-                            Dindigul and Theni represent complementary economic geographies — one anchored in manufacturing and trade; the other in horticulture, biodiversity, and hydropower.
+                            Dindigul and Theni districts form a unique economic corridor in Tamil Nadu, seamlessly blending centuries-old manufacturing traditions with modern horticultural excellence and renewable energy leadership.
                         </p>
                     </div>
 
@@ -426,40 +475,314 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                 </div>
             </section>
 
-            {/* ORGANIZATION STRUCTURE SECTION */}
-            <section id="organization" className="py-16 px-8 bg-[#F5F7FA]">
+            {/* TOURISM SECTION */}
+            <section id="tourism" className="py-20 px-8 bg-[#F5F7FA] overflow-hidden">
                 <div className="max-w-6xl mx-auto">
-                    <div className="mb-10 reveal">
-                        <div className="inline-flex items-center gap-2 text-[0.62rem] font-bold tracking-[0.18em] uppercase text-[#0090C8] mb-2 before:content-[''] before:block before:w-5 before:h-[2px] before:bg-[#0090C8]">
-                            Leadership
+                    <div className="mb-12 reveal text-center">
+                        <div className="inline-flex items-center gap-2 text-[0.62rem] font-bold tracking-[0.18em] uppercase text-[#0090C8] mb-3 before:content-[''] before:block before:w-5 before:h-[2px] before:bg-[#0090C8] after:content-[''] after:block after:w-5 after:h-[2px] after:bg-[#0090C8]">
+                            Explore the Region
                         </div>
-                        <h2 className="text-[clamp(1.4rem,2.5vw,2rem)] font-extrabold text-[#1B3A6B] tracking-[-0.02em] leading-[1.2] mb-2.5">
+                        <h2 className="text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold text-[#1B3A6B] tracking-[-0.02em] leading-[1.2] mb-4">
+                            Places of Interest
+                        </h2>
+                        <p className="text-[0.95rem] text-[#5A708A] max-w-[700px] mx-auto leading-[1.8]">
+                            Beyond its economic prowess, the region is a tapestry of breathtaking natural wonders, sacred spiritual sites, and layers of living history.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        {/* Dindigul Highlights */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-[#1B3A6B] text-white rounded-sm shadow-md">
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#1B3A6B]">Dindigul District</h3>
+                            </div>
+                            
+                            {[
+                                { 
+                                    t: 'Kodaikanal', 
+                                    tag: 'Princess of Hill Stations', 
+                                    desc: 'Nestled in the Palani Hills at 2,133m, offering the iconic Kodaikanal Lake, Bryant Park, and dramatic views from Pillar Rocks.', 
+                                    icon: '🏔️' 
+                                },
+                                { 
+                                    t: 'Palani Murugan Temple', 
+                                    tag: 'Spiritual Heritage', 
+                                    desc: 'One of the Arupadaiveedu (Six Abodes) of Lord Murugan. A majestic hilltop shrine that draws millions of devotees globally.', 
+                                    icon: '🛕' 
+                                },
+                                { 
+                                    t: 'Dindigul Rock Fort', 
+                                    tag: 'Historical Landmark', 
+                                    desc: 'A 17th-century strategic fortress built by the Nayaks and later used by Tipu Sultan, offering panoramic regional views.', 
+                                    icon: '🏰' 
+                                }
+                            ].map((spot, i) => (
+                                <div key={i} className="group bg-white border border-[#D0DCF0] p-6 rounded-lg hover:border-[#0090C8] hover:shadow-xl transition-all duration-300 reveal">
+                                    <div className="flex gap-5">
+                                        <div className="w-12 h-12 bg-[#F5F7FA] rounded-full flex items-center justify-center text-2xl group-hover:bg-[#E0F4FB] transition-colors flex-shrink-0">
+                                            {spot.icon}
+                                        </div>
+                                        <div>
+                                            <div className="text-[1.1rem] font-bold text-[#1B3A6B] mb-1 group-hover:text-[#0090C8] transition-colors">{spot.t}</div>
+                                            <div className="text-[0.6rem] font-black text-[#0090C8] uppercase tracking-[0.1em] mb-2">{spot.tag}</div>
+                                            <p className="text-[0.82rem] text-[#5A708A] leading-[1.6]">{spot.desc}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Theni Highlights */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-[#0090C8] text-white rounded-sm shadow-md">
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#1B3A6B]">Theni District</h3>
+                            </div>
+
+                            {[
+                                { 
+                                    t: 'Meghamalai', 
+                                    tag: 'High Wavy Mountains', 
+                                    desc: 'A hidden paradise of tea and cardamom plantations, misty peaks, and the serene Highwavys Dam and Lake.', 
+                                    icon: '🍃' 
+                                },
+                                { 
+                                    t: 'Suruli Falls', 
+                                    tag: 'Cascading Wonder', 
+                                    desc: "A two-stage waterfall immortalized in Tamil literature, nestled in a lush forest that filters sunlight through the canopy.", 
+                                    icon: '🌊' 
+                                },
+                                { 
+                                    t: 'Vaigai Dam', 
+                                    tag: 'The Lifeline', 
+                                    desc: 'A colossal engineering feat providing irrigation to five districts, featuring a beautifully landscaped garden and picnic park.', 
+                                    icon: '🏗️' 
+                                }
+                            ].map((spot, i) => (
+                                <div key={i} className="group bg-white border border-[#D0DCF0] p-6 rounded-lg hover:border-[#0090C8] hover:shadow-xl transition-all duration-300 reveal">
+                                    <div className="flex gap-5">
+                                        <div className="w-12 h-12 bg-[#F5F7FA] rounded-full flex items-center justify-center text-2xl group-hover:bg-[#E0F4FB] transition-colors flex-shrink-0">
+                                            {spot.icon}
+                                        </div>
+                                        <div>
+                                            <div className="text-[1.1rem] font-bold text-[#1B3A6B] mb-1 group-hover:text-[#0090C8] transition-colors">{spot.t}</div>
+                                            <div className="text-[0.6rem] font-black text-[#0090C8] uppercase tracking-[0.1em] mb-2">{spot.tag}</div>
+                                            <p className="text-[0.82rem] text-[#5A708A] leading-[1.6]">{spot.desc}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ORGANIZATION STRUCTURE SECTION */}
+            <section id="organization" className="py-20 px-8 bg-white overflow-hidden border-t border-[#D0DCF0]">
+                <div className="max-w-7xl mx-auto">
+                    <div className="mb-16 text-center reveal">
+                        <div className="inline-flex items-center gap-2 text-[0.62rem] font-bold tracking-[0.2em] uppercase text-[#0090C8] mb-3">
+                            <span className="w-8 h-[2px] bg-[#0090C8]"></span>
+                            Governance Hierarchy
+                            <span className="w-8 h-[2px] bg-[#0090C8]"></span>
+                        </div>
+                        <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-black text-[#1B3A6B] tracking-tight leading-tight">
                             Regional Organization Structure
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {setupData?.leadership?.length ? setupData.leadership.map((leader, i) => (
-                            <div key={i} className="bg-white border border-[#D0DCF0] p-6 flex flex-col items-center text-center reveal shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden">
-                                {leader.isHead && (
-                                    <div className="absolute top-0 w-full h-1 bg-[#00AEEF]"></div>
-                                )}
-                                <div className="w-20 h-20 bg-[#E0F4FB] text-[#0090C8] rounded-full flex justify-center items-center text-3xl font-bold mb-4 border-2 border-white shadow-sm">
-                                    {leader.name.charAt(0)}
+                    <div className="relative pt-8 pb-12">
+                        {/* ORGANIZATIONAL TREE */}
+                        <div className="flex flex-col items-center gap-16 relative">
+                            {/* VERTICAL CONNECTING LINE - MAIN TRUNK */}
+                            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-[#00AEEF] via-[#D0DCF0] to-transparent z-0 opacity-40"></div>
+
+                            {/* LEVEL 0: REGION HEAD */}
+                            {setupData?.leadership?.filter(l => l.isHead).map((head, i) => (
+                                <div key={i} className="relative z-10 reveal">
+                                    <div className="bg-white border-2 border-[#00AEEF] p-6 w-72 flex flex-col items-center text-center shadow-xl rounded-lg transform transition-transform hover:scale-105">
+                                        <div className="w-20 h-20 bg-[#E0F4FB] text-[#0090C8] rounded-full flex justify-center items-center text-3xl font-black mb-4 border-4 border-white shadow-md overflow-hidden relative group">
+                                            {head.photoUrl ? (
+                                                <img 
+                                                    src={getStaticUrl(head.photoUrl)} 
+                                                    alt={head.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                head.name.charAt(0)
+                                            )}
+                                        </div>
+                                        <h3 className="text-lg font-black text-[#1B3A6B] leading-tight">{head.name}</h3>
+                                        <p className="text-[0.65rem] text-[#0090C8] font-bold mt-1 uppercase tracking-[0.15em]">{head.designation}</p>
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <div className="bg-[#00AEEF] text-white text-[0.6rem] font-black px-4 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                                                Regional Head
+                                            </div>
+                                            <span className="text-[0.6rem] font-black bg-[#1B3A6B] text-white px-1.5 py-0.5 rounded">I</span>
+                                        </div>
+                                        {/* 2nd Line for Region Head if any */}
+                                        {setupData?.leadership?.filter(l => l.isSecondLine && l.role === 'RO_MANAGER').map((sec, j) => (
+                                            <div key={j} className="mt-4 pt-4 border-t border-gray-100 w-full flex flex-col items-center">
+                                                <div className="w-12 h-12 bg-[#F5F7FA] text-[#1B3A6B] rounded-full flex justify-center items-center text-xl font-black mb-2 border-2 border-white shadow-sm overflow-hidden">
+                                                    {sec.photoUrl ? (
+                                                        <img src={getStaticUrl(sec.photoUrl)} alt={sec.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        sec.name.charAt(0)
+                                                    )}
+                                                </div>
+                                                <h4 className="text-sm font-bold text-[#1B3A6B] leading-tight">{sec.name}</h4>
+                                                <p className="text-[0.55rem] text-[#5A708A] font-bold uppercase tracking-widest">{sec.designation}</p>
+                                                <div className="mt-1 text-[0.5rem] font-black text-[#0090C8] uppercase tracking-tighter">2nd Line</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {/* NODE ANCHOR POINT */}
+                                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#00AEEF] rounded-full border-4 border-white shadow-sm"></div>
                                 </div>
-                                <h3 className="text-lg font-bold text-[#1B3A6B]">{leader.name}</h3>
-                                <p className="text-[0.8rem] text-[#5A708A] font-medium mt-1 uppercase tracking-widest">{leader.designation}</p>
-                                {leader.isHead && <span className="mt-3 bg-[#FEF9EC] text-[#C8970A] text-[0.6rem] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-[#C8970A]/20">Regional Head</span>}
+                            ))}
+
+                                    {/* LEVEL 1: SECOND LINE (CMs) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-5xl relative">
+                                {/* HORIZONTAL CROSSBAR FOR CMs */}
+                                <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-[#D0DCF0] -translate-y-8 hidden md:block opacity-40"></div>
+
+                                {(() => {
+                                    const cms = (setupData?.leadership?.filter(l => !l.isHead) || [])
+                                        .sort((a, b) => a.isSecondLine === b.isSecondLine ? 0 : a.isSecondLine ? -1 : 1);
+                                    const districts = Array.from(new Set(setupData?.branchList?.map(b => b.district) || []))
+                                        .map(d => ({
+                                            name: d,
+                                            total: setupData?.branchList?.filter(b => b.district === d).reduce((acc, b) => acc + b.business, 0) || 0,
+                                            branches: setupData?.branchList?.filter(b => b.district === d) || []
+                                        }))
+                                        .sort((a, b) => b.total - a.total);
+                                    
+                                    return cms.map((cm, i) => {
+                                        const dGroup = districts[i];
+
+                                        return (
+                                            <div key={i} className="flex flex-col items-center relative reveal">
+                                                {/* VERTICAL LINE FROM CROSSBAR */}
+                                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-[#D0DCF0] -translate-y-8 hidden md:block opacity-40"></div>
+                                                
+                                                <div className="bg-white border border-[#D0DCF0] p-6 w-64 flex flex-col items-center text-center shadow-lg rounded-lg z-10 hover:border-[#0090C8] transition-colors">
+                                                    <div className="w-16 h-16 bg-[#F5F7FA] text-[#1B3A6B] rounded-full flex justify-center items-center text-2xl font-black mb-4 border-2 border-white shadow-sm overflow-hidden">
+                                                        {cm.photoUrl ? (
+                                                            <img 
+                                                                src={getStaticUrl(cm.photoUrl)} 
+                                                                alt={cm.name}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            cm.name.charAt(0)
+                                                        )}
+                                                    </div>
+                                                    <h3 className="text-base font-bold text-[#1B3A6B] leading-tight">{cm.name}</h3>
+                                                    <div className="flex items-center gap-1.5 mt-1">
+                                                        <p className="text-[0.6rem] text-[#5A708A] font-bold uppercase tracking-[0.1em]">
+                                                            {cm.designation.replace(/\s*-\s*I{1,2}\s*line$/i, '').trim()}
+                                                        </p>
+                                                        {cm.isSecondLine && (
+                                                            <span className="text-[0.45rem] font-black bg-[#5A708A] text-white px-1 rounded-sm shadow-sm">II</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* DISTRICT NODE UNDER EACH CM */}
+                                                {dGroup && (
+                                                    <div className="mt-12 w-full">
+                                                        <div className="flex flex-col items-center">
+                                                            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-[#D0DCF0] translate-y-24 opacity-20"></div>
+                                                            
+                                                            <div className="px-5 py-2 bg-[#E0F4FB] border border-[#0090C8]/20 rounded-md mb-6 z-10">
+                                                                <div className="text-[0.65rem] font-black text-[#0090C8] uppercase tracking-[0.15em]">{dGroup.name} District</div>
+                                                                <div className="text-[0.55rem] font-bold text-[#5A708A] text-center">{dGroup.branches.length} Branches · ₹{Math.round(dGroup.total).toLocaleString()} Cr</div>
+                                                            </div>
+
+                                                            {/* BRANCHES SUBTREE (Scrollable Grid) */}
+                                                            <div className="w-full bg-[#EAEEF4]/40 border border-[#D0DCF0] rounded-lg p-5 max-h-[400px] overflow-y-auto custom-scrollbar z-10 shadow-inner">
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                    {dGroup.branches.map((br, idx) => (
+                                                                        <div key={idx} className="bg-white p-3 rounded border border-[#D0DCF0]/60 flex flex-col gap-3 group hover:border-[#00AEEF]/40 transition-colors shadow-sm">
+                                                                            <div className="flex justify-between items-start">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-[0.7rem] font-bold text-[#1B3A6B] group-hover:text-[#00AEEF] transition-colors">{br.nameEn}</span>
+                                                                                    <span className="text-[0.55rem] text-[#5A708A] font-medium tracking-wider uppercase">SOL {br.code}</span>
+                                                                                </div>
+                                                                                <div className="text-right">
+                                                                                    <div className="text-[0.8rem] font-black text-[#1B3A6B]">₹{br.business.toLocaleString()} <span className="text-[0.6rem] font-bold text-[#1B3A6B]/60 ml-0.5">Cr</span></div>
+                                                                                    <div className="text-[0.5rem] font-bold text-[#0090C8] uppercase tracking-tighter">Business</div>
+                                                                                </div>
+                                                                            </div>
+                                                                            
+                                                                            {/* BRANCH LEADERSHIP MINI PROFILES */}
+                                                                            <div className="flex flex-col gap-2 pt-2 border-t border-[#D0DCF0]/40 mt-auto">
+                                                                                {/* 1st Line */}
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="w-6 h-6 rounded-full bg-[#1B3A6B]/5 border border-[#1B3A6B]/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                                                        {br.headPhotoUrl ? (
+                                                                                            <img src={getStaticUrl(br.headPhotoUrl)} alt={br.headName} className="w-full h-full object-cover" />
+                                                                                        ) : (
+                                                                                            <span className="text-[0.5rem] font-bold text-[#1B3A6B]/40">{(br.headName || 'B').charAt(0)}</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <div className="flex flex-col min-w-0">
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <span className="text-[0.58rem] font-black text-[#1B3A6B] truncate uppercase tracking-tighter">{br.headName || 'Branch Head'}</span>
+                                                                                            <span className="text-[0.4rem] font-black bg-[#1B3A6B] text-white px-1 rounded-sm">I</span>
+                                                                                        </div>
+                                                                                        <span className="text-[0.45rem] font-bold text-[#0090C8] uppercase tracking-[0.1em] truncate">
+                                                                                            {(br.headDesignation || 'Branch Head').replace(/\s*-\s*I\s*line$/i, '').trim()}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                {/* 2nd Line */}
+                                                                                {br.secondLineName && (
+                                                                                    <div className="flex items-center gap-2 pt-1.5 border-t border-[#D0DCF0]/40">
+                                                                                        <div className="w-6 h-6 rounded-full bg-[#5A708A]/5 border border-[#5A708A]/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                                                            {br.secondLinePhotoUrl ? (
+                                                                                                <img src={getStaticUrl(br.secondLinePhotoUrl)} alt={br.secondLineName} className="w-full h-full object-cover" />
+                                                                                            ) : (
+                                                                                                <span className="text-[0.5rem] font-bold text-[#5A708A]/40">{(br.secondLineName || 'O').charAt(0)}</span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        <div className="flex flex-col min-w-0">
+                                                                                            <div className="flex items-center gap-1">
+                                                                                                <span className="text-[0.58rem] font-black text-[#5A708A] truncate uppercase tracking-tighter">{br.secondLineName}</span>
+                                                                                                <span className="text-[0.4rem] font-black bg-[#5A708A] text-white px-1 rounded-sm">II</span>
+                                                                                            </div>
+                                                                                            <span className="text-[0.45rem] font-bold text-[#5A708A]/80 uppercase tracking-[0.1em] truncate">
+                                                                                                {(br.secondLineDesignation || 'Officer').replace(/\s*-\s*II\s*line$/i, '').trim()}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    });
+                                })()}
                             </div>
-                        )) : (
-                            <div className="text-[#5A708A] text-sm py-4">Leadership data currently unavailable.</div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* EVENTS SECTION */}
-            <section id="events" className="py-16 px-8 bg-white border-t border-[#D0DCF0]">
+            <section id="events" className="py-16 px-8 bg-[#F5F7FA] border-t border-[#D0DCF0]">
                 <div className="max-w-4xl mx-auto">
                     <div className="mb-10 reveal text-center">
                         <h2 className="text-[clamp(1.4rem,2.5vw,2rem)] font-extrabold text-[#1B3A6B] tracking-[-0.02em] leading-[1.2] mb-2.5">
@@ -469,14 +792,14 @@ const GuestLanding: React.FC<GuestLandingProps> = ({ onExitPortal }) => {
                     <div className="space-y-6">
                         {setupData?.events?.length ? (
                             Object.entries(setupData.events.reduce((acc: any, event) => {
-                                const dateKey = format(new Date(event.date), 'yyyy-MM-dd');
+                                const dateKey = formatLocalISO(parseLocalISO(event.date));
                                 if (!acc[dateKey]) acc[dateKey] = [];
                                 acc[dateKey].push(event);
                                 return acc;
                             }, {} as any))
                                 .sort(([a], [b]) => a.localeCompare(b))
                                 .map(([dateKey, dayEvents]: [string, any]) => {
-                                    const dateObj = new Date(dateKey);
+                                    const dateObj = parseLocalISO(dateKey) || new Date();
                                     return (
                                         <div key={dateKey} className="flex flex-col sm:flex-row items-stretch bg-white border border-[#D0DCF0] rounded-sm reveal hover:border-[#0090C8] transition-colors shadow-sm overflow-hidden min-h-[100px]">
                                             <div className="flex-shrink-0 bg-[#F5F7FA] text-center w-full sm:w-28 py-4 px-2 border-b sm:border-b-0 sm:border-r border-[#D0DCF0] flex flex-col justify-center">

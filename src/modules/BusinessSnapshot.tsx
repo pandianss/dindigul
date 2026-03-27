@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import {
     Activity,
     TrendingUp,
@@ -15,7 +16,8 @@ import {
     PanelRightOpen,
     ShieldAlert,
     LayoutDashboard,
-    ArrowRight
+    ArrowRight,
+    Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ExceptionSummary from '../components/ExceptionSummary';
@@ -61,7 +63,7 @@ interface MisException {
 interface MisSnapshot {
     id: string;
     unitId: string;
-    branch?: { nameEn: string; code: string };
+    branch?: { nameEn: string; code: string; type?: string };
     businessDate: string;
     status: string;
     panelData: SnapshotPanelData[];
@@ -72,10 +74,11 @@ const BusinessSnapshot: React.FC = () => {
     const { user } = useAuth();
     const token = localStorage.getItem('token') || (user as any)?.token;
     const [branchCode, setBranchCode] = useState((user as any)?.branch?.code || '');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalISO(new Date()));
     const [snapshot, setSnapshot] = useState<MisSnapshot | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [intelligence, setIntelligence] = useState<any | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [units, setUnits] = useState<any[]>([]);
     const [showExceptions, setShowExceptions] = useState(false);
@@ -114,6 +117,18 @@ const BusinessSnapshot: React.FC = () => {
         fetchUnits();
     }, [token, user?.role]);
 
+    const fetchIntelligence = async () => {
+        if (!branchCode) return;
+        try {
+            const response = await axios.get(`${API_BASE}/planning/intelligence-reports?solId=${branchCode}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setIntelligence(response.data);
+        } catch (err) {
+            console.error('Failed to fetch intelligence:', err);
+        }
+    };
+
     const fetchSnapshot = async () => {
         if (!branchCode) return;
         setLoading(true);
@@ -123,6 +138,7 @@ const BusinessSnapshot: React.FC = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSnapshot(response.data);
+            fetchIntelligence();
         } catch (err: any) {
             setSnapshot(null);
             setError(err.response?.data?.error || 'Failed to fetch snapshot data.');
@@ -206,7 +222,7 @@ const BusinessSnapshot: React.FC = () => {
 
     const getHeaderDates = () => {
         if (!snapshot?.businessDate) return null;
-        const d = new Date(snapshot.businessDate);
+        const d = parseLocalISO(snapshot.businessDate) || new Date();
         const utcDate = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 
         const yesterday = new Date(utcDate); yesterday.setUTCDate(utcDate.getUTCDate() - 1);
@@ -595,6 +611,96 @@ const BusinessSnapshot: React.FC = () => {
                                                         </div>
                                                     );
                                                 })}
+
+                                                {/* Intelligence Hub Section */}
+                                                <div className="mt-12 space-y-6">
+                                                    <div className="flex items-center gap-4 mb-2 px-2">
+                                                        <div className="p-3 bg-bank-gold text-white rounded-2xl shadow-lg">
+                                                            <Activity size={20} />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-xl font-black text-bank-navy uppercase tracking-tight">Intelligence Hub</h3>
+                                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Advanced Unit Analytics & Growth Patterns</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-2">
+                                                        {/* High Value Acquisition */}
+                                                        <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 hover:shadow-2xl transition-shadow duration-500">
+                                                            <h4 className="text-sm font-black text-bank-navy uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                                                                <Users className="text-bank-gold" size={18} />
+                                                                High Value Acquisition
+                                                            </h4>
+                                                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                                                {intelligence?.topCustomers?.length > 0 ? (
+                                                                    intelligence.topCustomers.map((cust: any, idx: number) => (
+                                                                        <div key={cust.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group hover:border-bank-gold transition-all duration-300">
+                                                                            <div className="flex items-center gap-4">
+                                                                                <div className="w-8 h-8 rounded-full bg-bank-gold/10 text-bank-gold flex items-center justify-center font-black text-[10px]">
+                                                                                    {idx + 1}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="text-xs font-black text-bank-navy">{cust.acctName}</p>
+                                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">{cust.schmCode} • {cust.branch?.nameEn || 'N/A'}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="text-right">
+                                                                                <p className="text-xs font-black text-bank-teal">₹{new Intl.NumberFormat('en-IN').format(cust.clrBalAmt)}</p>
+                                                                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{cust.valueBucket}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="py-20 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100">
+                                                                        No high value accounts detected
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Product Adoption */}
+                                                        <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 p-8 hover:shadow-2xl transition-shadow duration-500">
+                                                            <h4 className="text-sm font-black text-bank-navy uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                                                                <TrendingUp className="text-bank-teal" size={18} />
+                                                                Strategic Product Adoption
+                                                            </h4>
+                                                            <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                                                {intelligence?.schemeAdoption?.length > 0 ? (
+                                                                    intelligence.schemeAdoption.map((scheme: any) => (
+                                                                        <div key={scheme.schmCode} className="space-y-2">
+                                                                            <div className="flex justify-between items-end">
+                                                                                <div>
+                                                                                    <p className="text-xs font-black text-bank-navy uppercase tracking-tight">{scheme.schmCode}</p>
+                                                                                    <p className="text-[9px] font-bold text-slate-400 uppercase">{scheme.accountClass} SERIES</p>
+                                                                                </div>
+                                                                                <div className="text-right">
+                                                                                    <span className="text-xs font-black text-bank-navy">{scheme._count.foracid} ACCTS</span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                                                <div
+                                                                                    className="h-full bg-bank-teal transition-all duration-1000"
+                                                                                    style={{ width: `${Math.min((scheme._count.foracid / (intelligence?.topCustomers?.length * 2 || 1)) * 100, 100)}%` }}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="flex justify-between items-center">
+                                                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Avg Balance: ₹{new Intl.NumberFormat('en-IN').format(scheme._avg.clrBalAmt)}</p>
+                                                                                <div className="flex items-center gap-1">
+                                                                                    <div className="w-1 h-1 rounded-full bg-bank-teal animate-pulse" />
+                                                                                    <span className="text-[7px] font-black text-bank-teal uppercase">Qualified</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="py-20 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100">
+                                                                        No strategic adoption data
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </>
                                         );
                                     })()}

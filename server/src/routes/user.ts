@@ -247,20 +247,57 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                     branchType = b?.type || '';
                 }
 
-                // 3. Upsert User
-                await prisma.user.upsert({
+                // 3. Detect Line Status & Roles
+                const designationUpper = designationName.toUpperCase();
+                const gradeUpper = grade.toUpperCase();
+                
+                let isSecondLine = designationUpper.includes('- II LINE') || designationUpper.includes('SECOND LINE');
+                const isUnitHead = designationUpper.includes('- I LINE') || designationUpper.includes('HEAD');
+                const isRegionHead = (branchCode === '3933' || branchType === 'REGIONAL OFFICE') && (gradeUpper.includes('SM V') || gradeUpper.includes('TEG VI') || gradeUpper.includes('TEG VII'));
+                
+                const isHighGrade = ['SM V', 'SM IV', 'TEG VI', 'TEG VII'].includes(gradeUpper);
+
+                // 4. Upsert User
+                const user = await prisma.user.upsert({
                     where: { username },
-                    update: { fullNameEn, grade, designationId, branchId },
+                    update: { 
+                        fullNameEn, 
+                        grade, 
+                        designationId, 
+                        designationEn: designationName, // Sync user model designation with actual CSV one
+                        branchId,
+                        isSecondLine,
+                        isRegionHead,
+                        role: item.role || (isHighGrade && (branchType === 'REGIONAL OFFICE' || branchCode === '3933') ? 'RO_MANAGER' : (branchType === 'REGIONAL OFFICE' || branchCode === '3933' ? 'RO_USER' : 'BRANCH_USER'))
+                    },
                     create: {
                         username,
                         passwordHash: await bcrypt.hash('Bank@123', 10),
                         fullNameEn,
                         grade,
                         designationId,
+                        designationEn: designationName,
                         branchId,
-                        role: item.role || (branchType === 'REGIONAL OFFICE' ? 'RO_USER' : 'BRANCH_USER')
+                        isSecondLine,
+                        isRegionHead,
+                        role: item.role || (isHighGrade && (branchType === 'REGIONAL OFFICE' || branchCode === '3933') ? 'RO_MANAGER' : (branchType === 'REGIONAL OFFICE' || branchCode === '3933' ? 'RO_USER' : 'BRANCH_USER'))
                     }
                 });
+
+                // 5. Link User to Branch Hierarchy if applicable
+                if (branchId) {
+                    if (isUnitHead || isRegionHead) {
+                        await prisma.branch.update({
+                            where: { id: branchId },
+                            data: { headUserId: user.id }
+                        });
+                    } else if (isSecondLine) {
+                        await prisma.branch.update({
+                            where: { id: branchId },
+                            data: { secondLineUserId: user.id }
+                        });
+                    }
+                }
                 processed++;
             } catch (err: any) {
                 errors.push(`Row ${username}: ${err.message}`);

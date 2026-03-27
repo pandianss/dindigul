@@ -16,6 +16,8 @@ import {
 import api from '../services/api';
 import { format } from 'date-fns';
 import { cn } from '../utils/cn';
+import { CustomDatePicker } from '../components/CustomDatePicker';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import { PresentationStudio } from './presentation/PresentationStudio';
 
 const formatNumber = (num: number | string | undefined) => {
@@ -113,7 +115,7 @@ const PlanningAnalytics: React.FC = () => {
     const [stats, setStats] = useState<AnalyticsData | null>(null);
     const [intelligence, setIntelligence] = useState<any | null>(null);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(formatLocalISO(new Date()));
     const [sbThreshold, setSbThreshold] = useState<number>(0);
     const [cdThreshold, setCdThreshold] = useState<number>(0);
     const [updatingThreshold, setUpdatingThreshold] = useState(false);
@@ -379,10 +381,9 @@ const PlanningAnalytics: React.FC = () => {
                             </div>
                             <div className="flex items-center space-x-2 px-3 border-r border-gray-100">
                                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Date:</span>
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
+                                <CustomDatePicker
+                                    selected={parseLocalISO(date)}
+                                    onChange={(d: Date | null) => setDate(formatLocalISO(d))}
                                     className="bg-transparent border-none text-[10px] font-black text-bank-navy outline-none focus:ring-0 w-32"
                                 />
                             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../services/api';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import MISUpload from './admin/MISUpload';
 import BudgetUpload from './admin/BudgetUpload';
 import ParameterManager from './admin/ParameterManager';
@@ -41,6 +42,7 @@ interface MasterItem {
     code?: string;
     username?: string;
     type?: string;
+    openDate?: string;
     populationGroup?: string;
     address?: string;
     addressTa?: string;
@@ -57,12 +59,14 @@ interface MasterItem {
     grade?: string;
     designationId?: string;
     branchId?: string;
+    sealPath?: string;
     departmentId?: string;
     departmentIds?: string[];
     managedDepartmentIds?: string[];
     isUnitHead?: boolean;
+    isSecondLine?: boolean;
     designation?: { nameEn: string };
-    branch?: { nameEn: string, headUserId?: string, type?: string };
+    branch?: { nameEn: string, headUserId?: string, secondLineUserId?: string, type?: string };
     department?: { nameEn: string };
     departments?: { id: string, nameEn: string }[];
     managedDepartments?: { id: string, nameEn: string }[];
@@ -94,6 +98,29 @@ const SettingsManager: React.FC = () => {
     const [designations, setDesignations] = useState<MasterItem[]>([]);
     const [branches, setBranches] = useState<MasterItem[]>([]);
     const [departments, setDepartments] = useState<MasterItem[]>([]);
+    const [uploadingSeal, setUploadingSeal] = useState(false);
+
+    const handleSealUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formDataUpload = new FormData();
+        formDataUpload.append('seal', file);
+
+        setUploadingSeal(true);
+        setError(null);
+
+        try {
+            const res = await api.post('/departments/upload-seal', formDataUpload, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setFormData(prev => ({ ...prev, sealPath: res.data.sealPath }));
+        } catch (err: any) {
+            setError(getErrorMessage(err));
+        } finally {
+            setUploadingSeal(false);
+        }
+    };
 
     const getSingularLabel = (tab: Tab) => {
         const labels: Record<string, string> = {
@@ -338,7 +365,8 @@ const SettingsManager: React.FC = () => {
             ...parsedFormData,
             departmentIds: item.departments?.map(d => d.id) || (item.departmentId ? [item.departmentId] : []),
             managedDepartmentIds: item.managedDepartments?.map(d => d.id) || [],
-            isUnitHead: item.branch?.headUserId === item.id
+            isUnitHead: item.branch?.headUserId === item.id,
+            isSecondLine: item.isSecondLine || item.branch?.secondLineUserId === item.id
         };
 
         setFormData(initialFormData);
@@ -393,6 +421,51 @@ const SettingsManager: React.FC = () => {
                                 value={formData.nameHi || ''}
                                 onChange={e => setFormData({ ...formData, nameHi: e.target.value })}
                             />
+                        </div>
+                        <div className="col-span-2">
+                            <label className="block text-xs font-bold text-bank-navy mb-2 uppercase tracking-wider">Departmental Seal (Vector/PNG Support)</label>
+                            <div className="flex items-center space-x-4 bg-bank-teal/5 p-4 rounded-xl border border-bank-teal/20">
+                                <div className="w-16 h-16 bg-white rounded-lg border flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm">
+                                    {formData.sealPath ? (
+                                        <img src={`/${formData.sealPath}`} alt="Seal Preview" className="max-w-full max-h-full object-contain" />
+                                    ) : (
+                                        <Building2 className="text-gray-200" size={32} />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <input 
+                                        type="file" 
+                                        id="seal-upload" 
+                                        className="hidden" 
+                                        accept=".png,.jpg,.jpeg,.svg"
+                                        onChange={handleSealUpload}
+                                    />
+                                    <label 
+                                        htmlFor="seal-upload" 
+                                        className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-bold text-sm cursor-pointer transition-all ${
+                                            uploadingSeal ? 'bg-gray-100 text-gray-400' : 'bg-bank-teal text-white hover:bg-bank-navy'
+                                        }`}
+                                    >
+                                        <Upload size={16} />
+                                        <span>{uploadingSeal ? 'Uploading...' : 'Upload New Seal'}</span>
+                                    </label>
+                                    <div className="mt-2 flex items-center space-x-2">
+                                        <span className="text-[10px] font-mono text-gray-400">Path: {formData.sealPath || 'No seal uploaded'}</span>
+                                        {formData.sealPath && (
+                                            <button 
+                                                onClick={() => setFormData({ ...formData, sealPath: '' })}
+                                                className="text-red-400 hover:text-red-600 p-1"
+                                                title="Remove Seal"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-2 italic flex items-center">
+                                <Plus size={10} className="mr-1" /> Best results with SVG or transparent PNG.
+                            </p>
                         </div>
                     </div>
                 );
@@ -466,6 +539,18 @@ const SettingsManager: React.FC = () => {
                                 value={formData.officeId || ''}
                                 onChange={e => setFormData({ ...formData, officeId: parseInt(e.target.value) || 0 })}
                                 required
+                            />
+                        </div>
+                        <div className="col-span-2">
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Open Date</label>
+                            <input
+                                type="date"
+                                className="w-full p-2 border rounded"
+                                value={(() => {
+                                    const d = parseLocalISO(formData.openDate);
+                                    return formatLocalISO(d);
+                                })()}
+                                onChange={e => setFormData({ ...formData, openDate: e.target.value })}
                             />
                         </div>
                         <div className="col-span-2">
@@ -549,9 +634,8 @@ const SettingsManager: React.FC = () => {
                                             type="date"
                                             className="w-full p-2 border rounded"
                                             value={(() => {
-                                                if (!formData.riskEffectiveDate) return '';
-                                                const d = new Date(formData.riskEffectiveDate);
-                                                return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+                                                const d = parseLocalISO(formData.riskEffectiveDate);
+                                                return formatLocalISO(d);
                                             })()}
                                             onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value || undefined })}
                                         />
@@ -762,6 +846,15 @@ const SettingsManager: React.FC = () => {
                                         onChange={e => setFormData({ ...formData, isUnitHead: e.target.checked })}
                                     />
                                     <span className="text-sm font-bold text-gray-700">Set as Head of Unit</span>
+                                </label>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded text-bank-teal"
+                                        checked={formData.isSecondLine || false}
+                                        onChange={e => setFormData({ ...formData, isSecondLine: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-bold text-gray-700">Set as 2nd Line</span>
                                 </label>
                             </div>
 
@@ -1312,6 +1405,11 @@ const SettingsManager: React.FC = () => {
                                                                             }`}>
                                                                                 <Award size={10} />
                                                                                 {item.branch?.type === 'REGIONAL OFFICE' ? 'REGION HEAD' : 'BRANCH HEAD'}
+                                                                            </span>
+                                                                        )}
+                                                                        {item.isSecondLine && (
+                                                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border shadow-sm bg-orange-50 text-orange-600 border-orange-200 uppercase">
+                                                                                2nd Line
                                                                             </span>
                                                                         )}
                                                                     </div>

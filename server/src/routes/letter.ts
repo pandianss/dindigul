@@ -180,6 +180,12 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
     }
 
     const RO_DATA = await getRegionalOfficeData();
+    const { imageToBase64 } = require('../services/pdfService');
+    const planningDept = await prisma.department.findFirst({ 
+      where: { OR: [{ nameEn: 'Planning' }, { code: 'PLNG' }] } 
+    });
+    const deptSealPath = planningDept?.sealPath;
+    const deptSealSrc = deptSealPath ? imageToBase64(deptSealPath) : undefined;
     const org = letter.orgMeta || {};
     
     // Inject CURRENT RO data into context
@@ -191,7 +197,7 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
 
     const html = buildPremiumLayout({
       title: letter.titleEn,
-      refNo: letter.referenceNo || `RO/ADMIN/${new Date().getFullYear()}/${letter.id.slice(-4).toUpperCase()}`,
+      refNo: letter.referenceNo || `RO/ADMIN/${new Date(letter.createdAt).getFullYear()}/${letter.id.slice(-4).toUpperCase()}`,
       date: new Date(letter.createdAt).toLocaleDateString('en-IN', {
         day: '2-digit', month: '2-digit', year: 'numeric'
       }).replace(/\//g, '.'),
@@ -201,6 +207,7 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             signatoryTitleHi,
             signatoryTitleTa,
             organization: RO_DATA,
+            deptSealSrc,
             isAdvisory: isOpRisk
         });
 

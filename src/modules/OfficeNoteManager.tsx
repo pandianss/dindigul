@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Clock, User, Download, Eye, Building2, IndianRupee, LayoutDashboard, Pencil, Trash2, Hash, AlertCircle, FileSpreadsheet, X } from 'lucide-react';
-import { format } from 'date-fns';
+import { FileText, Plus, Clock, User, Download, Eye, Building2, IndianRupee, LayoutDashboard, Pencil, Trash2, Hash, AlertCircle, FileSpreadsheet, X, Calendar, Lock, Unlock } from 'lucide-react';
+import { format, subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { CustomDatePicker } from '../components/CustomDatePicker';
 import api from '../services/api';
 import { getErrorMessage } from '../utils/handleError';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 
 
 interface OfficeNote {
@@ -10,6 +12,7 @@ interface OfficeNote {
     type: string;
     status: string;
     titleEn: string;
+    isFrozen?: boolean;
     contentJson: string;
     referenceNo?: string;
     preparer: { fullNameEn: string, username: string };
@@ -57,6 +60,10 @@ const INITIAL_FORM = {
         purpose: '',
         transactionId: '',
         noteDate: '', // Pickable date for the header
+        branchSol: '', // Branch SOL ID
+        branchHeadGrade: '', // Grade of Branch head (Auto-populated)
+        issuingBranch: '', // Auto-populated Issuing Branch
+        policyCirculars: [{ dept: 'Central Office, Dept. of GAD', date: '', ref: '' }] as {dept: string, date: string, ref: string}[],
         // ─── RBI_BO_PROFORMA fields ────────────────────────────────────────
         rbi_action: 'ADDITION' as string,
         rbi_updatePartICode: '',
@@ -254,8 +261,11 @@ const RBIProformaForm: React.FC<{
                         </div>
                         <div>
                             <label className={labelCls}>§3.2 Effective Date of Change</label>
-                            <input className={inputCls} type="date" value={c.rbi_updateEffectiveDate as string}
-                                onChange={e => setField('rbi_updateEffectiveDate', e.target.value)} />
+                            <CustomDatePicker
+                                selected={parseLocalISO(c.rbi_updateEffectiveDate as string)}
+                                onChange={(d: Date | null) => setField('rbi_updateEffectiveDate', formatLocalISO(d))}
+                                className={inputCls}
+                            />
                         </div>
                     </div>
                 )}
@@ -280,8 +290,11 @@ const RBIProformaForm: React.FC<{
                         </div>
                         <div>
                             <label className={labelCls}>§4.4 Conversion Date</label>
-                            <input className={inputCls} type="date" value={c.rbi_conversionDate as string}
-                                onChange={e => setField('rbi_conversionDate', e.target.value)} />
+                            <CustomDatePicker
+                                selected={parseLocalISO(c.rbi_conversionDate as string)}
+                                onChange={(d: Date | null) => setField('rbi_conversionDate', formatLocalISO(d))}
+                                className={inputCls}
+                            />
                         </div>
                     </div>
                 )}
@@ -471,8 +484,11 @@ const RBIProformaForm: React.FC<{
                     </div>
                     <div>
                         <label className={labelCls}>§9.6 Date of Opening (Actual / Planned) *</label>
-                        <input className={inputCls} type="date" required value={c.rbi_dateOfOpening as string}
-                            onChange={e => setField('rbi_dateOfOpening', e.target.value)} />
+                        <CustomDatePicker
+                            selected={parseLocalISO(c.rbi_dateOfOpening as string)}
+                            onChange={(d: Date | null) => setField('rbi_dateOfOpening', formatLocalISO(d))}
+                            className={inputCls}
+                        />
                     </div>
                     {c.rbi_applicableCategory === 'WITH_AUTHORISATION' && (<>
                         <div>
@@ -482,8 +498,11 @@ const RBIProformaForm: React.FC<{
                         </div>
                         <div>
                             <label className={labelCls}>§9.4 Date of Licence Letter</label>
-                            <input className={inputCls} type="date" value={c.rbi_licenceDate as string}
-                                onChange={e => setField('rbi_licenceDate', e.target.value)} />
+                            <CustomDatePicker
+                                selected={parseLocalISO(c.rbi_licenceDate as string)}
+                                onChange={(d: Date | null) => setField('rbi_licenceDate', formatLocalISO(d))}
+                                className={inputCls}
+                            />
                         </div>
                         <div>
                             <label className={labelCls}>§9.5.1 Re-validation Reference No.</label>
@@ -492,8 +511,11 @@ const RBIProformaForm: React.FC<{
                         </div>
                         <div>
                             <label className={labelCls}>§9.5.2 Date of Re-validation</label>
-                            <input className={inputCls} type="date" value={c.rbi_revalidationDate as string}
-                                onChange={e => setField('rbi_revalidationDate', e.target.value)} />
+                            <CustomDatePicker
+                                selected={parseLocalISO(c.rbi_revalidationDate as string)}
+                                onChange={(d: Date | null) => setField('rbi_revalidationDate', formatLocalISO(d))}
+                                className={inputCls}
+                            />
                         </div>
                     </>)}
                     <div className="md:col-span-2">
@@ -764,8 +786,11 @@ const RBIProformaForm: React.FC<{
                         </div>
                         <div>
                             <label className={labelCls}>§17.2 Date of Authorisation</label>
-                            <input className={inputCls} type="date" value={c.rbi_forexAuthDate as string}
-                                onChange={e => setField('rbi_forexAuthDate', e.target.value)} />
+                            <CustomDatePicker
+                                selected={parseLocalISO(c.rbi_forexAuthDate as string)}
+                                onChange={(d: Date | null) => setField('rbi_forexAuthDate', formatLocalISO(d))}
+                                className={inputCls}
+                            />
                         </div>
                         {c.rbi_forexADCategory === 'C' && (
                             <div className="md:col-span-2">
@@ -802,6 +827,7 @@ const OfficeNoteManager: React.FC = () => {
     const [selectedDept, setSelectedDept] = useState<string>('');
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summaryConfig, setSummaryConfig] = useState({ period: 'weekly', date: format(new Date(), 'yyyy-MM-dd') });
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const fetchNotes = () => {
         setLoading(true);
@@ -858,7 +884,8 @@ const OfficeNoteManager: React.FC = () => {
                 
                 // If it's a new note OR the department was changed in the dropdown during edit
                 if (!editingId || isDeptChanged) {
-                    api.get(`/office-notes/suggest-reference?deptName=${encodeURIComponent(selectedDept)}`)
+                const noteDate = formData.contentJson.noteDate;
+                api.get(`/office-notes/suggest-reference?deptName=${encodeURIComponent(selectedDept)}${noteDate ? `&date=${noteDate}` : ''}`)
                         .then((res: any) => {
                             setFormData(prev => ({ 
                                 ...prev, 
@@ -873,7 +900,81 @@ const OfficeNoteManager: React.FC = () => {
                 setFormData(prev => ({ ...prev, referenceNo: '', deptName: '' }));
             }
         }
-    }, [selectedDept, showForm, editingId]);
+    }, [selectedDept, showForm, editingId, formData.contentJson.noteDate]);
+
+    // Auto-lookup Branch Head Grade & Name when SOL ID changes
+    useEffect(() => {
+        const sol = formData.contentJson.branchSol;
+        if (sol && sol.length === 4) {
+            api.get(`/branches/code/${sol}`)
+                .then((res: any) => {
+                    const grade = res.data.headUser?.grade || 'Not found';
+                    const branchName = res.data.nameEn || 'Not found';
+                    setFormData(prev => ({
+                        ...prev,
+                        contentJson: { 
+                            ...prev.contentJson, 
+                            branchHeadGrade: grade,
+                            issuingBranch: `${branchName} (${sol})`
+                        }
+                    }));
+                })
+                .catch(err => {
+                    console.error('SOL Lookup Error:', err);
+                    setFormData(prev => ({
+                        ...prev,
+                        contentJson: { ...prev.contentJson, branchHeadGrade: 'Error', issuingBranch: 'Error', ddDrawnOn: 'Error (Check SOL ID)' } // Added issuingBranch here
+                    }));
+                });
+        }
+    }, [formData.contentJson.branchSol]);
+
+    // Auto-update subjects for High Value DD
+    useEffect(() => {
+        if (formData.type === 'HIGH_VALUE_DD') {
+            const issuingBranch = formData.contentJson.issuingBranch || ''; // Changed from drawnOn to issuingBranch
+            const txnId = formData.contentJson.transactionId || '';
+            const applicant = formData.contentJson.applicantName || '';
+
+            const titleEn = `${issuingBranch} - ${txnId} - ${applicant}`; // Changed from drawnOn to issuingBranch
+            const titleHi = `${issuingBranch} - ${txnId} - ${applicant}`; // Changed from drawnOn to issuingBranch
+            const titleTa = `${issuingBranch} - ${txnId} - ${applicant}`; // Changed from drawnOn to issuingBranch
+
+            const currentCirculars = formData.contentJson.policyCirculars || [];
+            const hasDefaults = currentCirculars.some(c => c.ref === '1/2011-12');
+            
+            if (formData.titleEn !== titleEn || formData.titleHi !== titleHi || formData.titleTa !== titleTa || !hasDefaults) {
+                setFormData(prev => ({
+                    ...prev,
+                    titleEn,
+                    titleHi,
+                    titleTa,
+                    contentJson: {
+                        ...prev.contentJson,
+                        policyCirculars: hasDefaults ? prev.contentJson.policyCirculars : [
+                            { dept: 'Inter Branch Reconciliation Division', date: '2011-04-02', ref: '1/2011-12' },
+                            { dept: 'Banking Operations', date: '2018-11-01', ref: 'Misc/452/2018-19' }
+                        ]
+                    }
+                }));
+            }
+        }
+    }, [formData.type, formData.contentJson.issuingBranch, formData.contentJson.transactionId, formData.contentJson.applicantName]); // Added issuingBranch to dependencies
+    
+    // Auto-sync Note Date and Date of Issue for High Value DD
+    useEffect(() => {
+        if (formData.type === 'HIGH_VALUE_DD' && formData.contentJson.noteDate) {
+            if (formData.contentJson.dateOfIssue !== formData.contentJson.noteDate) {
+                setFormData(prev => ({
+                    ...prev,
+                    contentJson: {
+                        ...prev.contentJson,
+                        dateOfIssue: prev.contentJson.noteDate
+                    }
+                }));
+            }
+        }
+    }, [formData.type, formData.contentJson.noteDate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -964,6 +1065,39 @@ const OfficeNoteManager: React.FC = () => {
         }
     };
 
+    const handleFreeze = async (id: string, title: string) => {
+        if (!window.confirm(`Are you sure you want to FREEZE "${title}"? This will lock the document data and signatories permanently. No further changes in staff or settings will affect this PDF.`)) return;
+        try {
+            await api.patch(`/office-notes/${id}/freeze`);
+            fetchNotes();
+        } catch (error) {
+            alert(getErrorMessage(error));
+        }
+    };
+
+    const handleDownloadSelected = async () => {
+        if (selectedIds.length === 0) return;
+        
+        for (const id of selectedIds) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                const content = JSON.parse(note.contentJson || '{}');
+                await handleDownloadPDF(note.id, note.titleEn, content.noteDate);
+                // Smaller delay to avoid browser blocking multiple downloads
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+    };
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const selectAll = () => {
+        if (selectedIds.length === notes.length) setSelectedIds([]);
+        else setSelectedIds(notes.map(n => n.id));
+    };
+
     return (
         <div className="space-y-6 pt-6">
             <div className="flex items-center justify-between">
@@ -972,12 +1106,21 @@ const OfficeNoteManager: React.FC = () => {
                     <p className="text-gray-500 font-medium mt-1">Full-blown vector document generation for Regional Office use cases</p>
                 </div>
                 <div className="flex items-center space-x-3">
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={handleDownloadSelected}
+                            className="flex items-center space-x-2 bg-orange-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-600 transition-all shadow-lg active:scale-95 animate-in fade-in slide-in-from-right-4"
+                        >
+                            <Download size={20} />
+                            <span>Download {selectedIds.length} Selected</span>
+                        </button>
+                    )}
                     <button
                         onClick={() => setShowSummaryModal(true)}
                         className="flex items-center space-x-2 bg-white text-bank-navy border-2 border-bank-navy px-6 py-3 rounded-xl font-bold hover:bg-bank-navy hover:text-white transition-all shadow-md active:scale-95"
                     >
                         <FileSpreadsheet size={20} />
-                        <span>Generate Summary</span>
+                        <span>Summary Report</span>
                     </button>
                     <button
                         onClick={() => {
@@ -1029,11 +1172,10 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                             <div className="md:col-span-1">
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Note Date (Optional)</label>
-                                <input
-                                    type="date"
+                                <CustomDatePicker
+                                    selected={parseLocalISO(formData.contentJson.noteDate)}
+                                    onChange={(d: Date | null) => setFormData({ ...formData, contentJson: { ...formData.contentJson, noteDate: formatLocalISO(d) } })}
                                     className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy font-bold bg-gray-50/50"
-                                    value={formData.contentJson.noteDate || ''}
-                                    onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, noteDate: e.target.value } })}
                                 />
                             </div>
                             <div className="md:col-span-1">
@@ -1068,10 +1210,11 @@ const OfficeNoteManager: React.FC = () => {
                                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Subject (English)</label>
                                     <input
                                         type="text" required={formData.type !== 'RBI_BO_PROFORMA'}
-                                        className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all"
+                                        className={`w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                                         placeholder="Clear, concise subject heading"
                                         value={formData.titleEn}
                                         onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
+                                        readOnly={formData.type === 'HIGH_VALUE_DD'}
                                     />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -1079,20 +1222,22 @@ const OfficeNoteManager: React.FC = () => {
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-tamil">பொருள் (Tamil)</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-tamil text-sm"
-                                            placeholder="தமிழில் பொருள்"
+                                            className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-tamil text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                            placeholder="அதிக மதிப்புள்ள கோரிக்கை வரைவோலை"
                                             value={formData.titleTa}
                                             onChange={(e) => setFormData({ ...formData, titleTa: e.target.value })}
+                                            readOnly={formData.type === 'HIGH_VALUE_DD'}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-hindi">विषय (Hindi)</label>
                                         <input
                                             type="text"
-                                            className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-hindi text-sm"
-                                            placeholder="हिंदी में विषय"
+                                            className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-hindi text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                            placeholder="उच्च मूल्य का डिमांड ड्राफ्ट"
                                             value={formData.titleHi}
                                             onChange={(e) => setFormData({ ...formData, titleHi: e.target.value })}
+                                            readOnly={formData.type === 'HIGH_VALUE_DD'}
                                         />
                                     </div>
                                 </div>
@@ -1193,6 +1338,18 @@ const OfficeNoteManager: React.FC = () => {
                                         High Value DD - Required Parameters
                                     </h4>
                                 </div>
+
+                                {/* Branch Information */}
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Branch SOL ID</label>
+                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal font-mono font-bold" maxLength={4} placeholder="XXXX"
+                                        value={formData.contentJson.branchSol} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, branchSol: e.target.value } })} />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Grade of Branch head (Auto)</label>
+                                    <input type="text" readOnly className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-400 font-bold outline-none" 
+                                        value={formData.contentJson.branchHeadGrade} placeholder="Auto-populated after SOL" />
+                                </div>
                                 
                                 {/* Applicant Section */}
                                 <div>
@@ -1217,31 +1374,36 @@ const OfficeNoteManager: React.FC = () => {
                                 {/* Issue Details */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Date of Issue</label>
-                                    <input type="date" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" 
-                                        value={formData.contentJson.dateOfIssue} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, dateOfIssue: e.target.value } })} />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Chq no/Cash., Details</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" placeholder="From Account / Chq No & Date"
-                                        value={formData.contentJson.instrumentDetails} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, instrumentDetails: e.target.value } })} />
+                                    <CustomDatePicker
+                                        selected={parseLocalISO(formData.contentJson.dateOfIssue)}
+                                        onChange={(d: Date | null) => setFormData({ ...formData, contentJson: { ...formData.contentJson, dateOfIssue: formatLocalISO(d) } })}
+                                        className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400 font-bold text-bank-navy"
+                                    />
                                 </div>
 
                                 {/* Beneficiary Section */}
-                                <div>
+                                <div className="md:col-span-2">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Name of Beneficiary</label>
                                     <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal" 
                                         value={formData.contentJson.beneficiaryName} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, beneficiaryName: e.target.value } })} />
                                 </div>
+                                
+                                {/* Branch Fields */}
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Beneficiary Account number</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" placeholder="-"
-                                        value={formData.contentJson.beneficiaryAccount} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, beneficiaryAccount: e.target.value } })} />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Beneficiary Bank & Branch</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" placeholder="-"
-                                        value={formData.contentJson.beneficiaryBankBranch} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, beneficiaryBankBranch: e.target.value } })} />
-                                </div>
+                                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Issuing Branch</label>
+                                     <input
+                                         type="text"
+                                         className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy font-bold bg-gray-50/50 cursor-not-allowed"
+                                         value={formData.contentJson.issuingBranch || ''}
+                                         readOnly
+                                     />
+                                 </div>
+                                 <div className="md:col-span-2">
+                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">DD Drawn on</label>
+                                     <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" 
+                                         placeholder="Enter payable branch name"
+                                         value={formData.contentJson.ddDrawnOn} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, ddDrawnOn: e.target.value } })} />
+                                 </div>
 
                                 {/* DD Details */}
                                 <div>
@@ -1249,27 +1411,99 @@ const OfficeNoteManager: React.FC = () => {
                                     <input type="number" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" 
                                         value={formData.contentJson.amount} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, amount: e.target.value } })} />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">DD Favouring</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal" 
-                                        value={formData.contentJson.ddFavouring} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, ddFavouring: e.target.value } })} />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">DD Drawn on</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal" 
-                                        value={formData.contentJson.ddDrawnOn} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, ddDrawnOn: e.target.value } })} />
-                                </div>
 
                                 {/* Transaction / Purpose */}
-                                <div className="md:col-span-2">
+                                 <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Transaction ID</label>
+                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal" 
+                                        value={formData.contentJson.transactionId} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, transactionId: e.target.value } })} />
+                                </div>
+                                <div className="md:col-span-3">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Purpose of transaction</label>
                                     <textarea rows={2} className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" 
                                         value={formData.contentJson.purpose} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, purpose: e.target.value } })} />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Transaction ID</label>
-                                    <input type="text" className="w-full px-4 py-2 border rounded-lg outline-none focus:border-bank-teal" 
-                                        value={formData.contentJson.transactionId} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, transactionId: e.target.value } })} />
+
+                                {/* Policy Circular References */}
+                                <div className="md:col-span-3 mt-4">
+                                    <div className="flex items-center justify-between mb-4 border-b border-bank-teal/20 pb-2">
+                                        <h4 className="text-bank-navy font-bold text-sm uppercase tracking-wider flex items-center">
+                                            <Hash className="mr-2 text-bank-teal" size={16} />
+                                            Policy Circular References
+                                        </h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newCirculars = [...(formData.contentJson.policyCirculars || [])];
+                                                newCirculars.push({ dept: '', date: '', ref: '' });
+                                                setFormData({ ...formData, contentJson: { ...formData.contentJson, policyCirculars: newCirculars } });
+                                            }}
+                                            className="flex items-center space-x-1 px-3 py-1 bg-bank-teal text-white rounded hover:bg-opacity-90 transition-all text-[10px] font-bold uppercase"
+                                        >
+                                            <Plus size={12} />
+                                            <span>Add Circular</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {(formData.contentJson.policyCirculars || []).map((circular: any, index: number) => (
+                                            <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 bg-white rounded-xl border border-bank-teal/10 relative group">
+                                                {index > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newCirculars = [...formData.contentJson.policyCirculars];
+                                                            newCirculars.splice(index, 1);
+                                                            setFormData({ ...formData, contentJson: { ...formData.contentJson, policyCirculars: newCirculars } });
+                                                        }}
+                                                        className="absolute -right-2 -top-2 p-1 bg-red-50 text-red-500 rounded-full hover:bg-red-100 transition-all opacity-0 group-hover:opacity-100 border border-red-100"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                )}
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Issuing Department</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full px-3 py-2 border rounded-lg outline-none focus:border-bank-teal text-xs"
+                                                        placeholder="e.g. Central Office, GAD"
+                                                        value={circular.dept}
+                                                        onChange={(e) => {
+                                                            const newCirculars = [...formData.contentJson.policyCirculars];
+                                                            newCirculars[index].dept = e.target.value;
+                                                            setFormData({ ...formData, contentJson: { ...formData.contentJson, policyCirculars: newCirculars } });
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Circular Date</label>
+                                                    <CustomDatePicker
+                                                        selected={parseLocalISO(circular.date)}
+                                                        onChange={(d: Date | null) => {
+                                                            const newCirculars = [...formData.contentJson.policyCirculars];
+                                                            newCirculars[index].date = formatLocalISO(d);
+                                                            setFormData({ ...formData, contentJson: { ...formData.contentJson, policyCirculars: newCirculars } });
+                                                        }}
+                                                        className="w-full px-3 py-2 border rounded-lg outline-none focus:border-bank-teal text-xs font-bold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Circular Reference</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full px-3 py-2 border rounded-lg outline-none focus:border-bank-teal text-xs"
+                                                        placeholder="e.g. 1/2023-24"
+                                                        value={circular.ref}
+                                                        onChange={(e) => {
+                                                            const newCirculars = [...formData.contentJson.policyCirculars];
+                                                            newCirculars[index].ref = e.target.value;
+                                                            setFormData({ ...formData, contentJson: { ...formData.contentJson, policyCirculars: newCirculars } });
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         ) : formData.type === 'RBI_BO_PROFORMA' ? (
@@ -1305,11 +1539,11 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         )}
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && (
+                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && (
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Detailed Narrative / Proposal</label>
                                 <textarea
-                                    rows={6} required={formData.type !== 'RBI_BO_PROFORMA'}
+                                    rows={6} required={formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD'}
                                     className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all leading-relaxed"
                                     placeholder="Structure your note clearly with background, facts, and recommendation..."
                                     value={formData.contentJson.details}
@@ -1318,7 +1552,7 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         )}
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && (
+                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && (
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Justification & Policy Reference</label>
                                 <input
@@ -1350,66 +1584,123 @@ const OfficeNoteManager: React.FC = () => {
                     <p className="text-gray-400 font-bold animate-pulse">Establishing secure document connection...</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-4">
+                    {notes.length > 0 ? (
+                        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 rounded-xl border-dashed border-2 border-gray-200 mb-2">
+                           <label className="flex items-center space-x-2 cursor-pointer group">
+                                <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-bank-teal focus:ring-bank-teal cursor-pointer"
+                                    checked={selectedIds.length === notes.length && notes.length > 0}
+                                    onChange={selectAll} />
+                                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest group-hover:text-bank-navy transition-colors">Select All Documents ({notes.length})</span>
+                           </label>
+                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter italic">Optimized View: Tight Height & Metadata</span>
+                        </div>
+                    ) : null}
                     {notes.length > 0 ? (
                         notes.map((note: OfficeNote) => (
-                            <div key={note.id} className="group card p-8 bg-white hover:border-bank-teal shadow-sm hover:shadow-xl transition-all border-2 border-transparent relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 rounded-bl-full -mr-16 -mt-16 group-hover:bg-bank-teal/5 transition-colors"></div>
+                            <div key={note.id} className={`group card p-4 bg-white hover:border-bank-teal shadow-sm hover:shadow-lg transition-all border-2 relative overflow-hidden ${selectedIds.includes(note.id) ? 'border-bank-teal bg-bank-teal/[0.02]' : 'border-transparent'}`}>
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-bl-full -mr-12 -mt-12 group-hover:bg-bank-teal/5 transition-colors"></div>
 
                                 <div className="flex items-center justify-between relative z-10">
-                                    <div className="flex items-center space-x-6">
-                                        <div className="p-4 rounded-2xl bg-bank-navy/5 text-bank-navy group-hover:bg-bank-navy group-hover:text-white transition-all">
-                                            <FileText size={32} />
+                                    <div className="flex items-center space-x-4">
+                                        <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-bank-teal focus:ring-bank-teal cursor-pointer z-20"
+                                            checked={selectedIds.includes(note.id)}
+                                            onChange={() => toggleSelect(note.id)} />
+                                        <div className="p-3 rounded-xl bg-bank-navy/5 text-bank-navy group-hover:bg-bank-navy group-hover:text-white transition-all">
+                                            <FileText size={24} />
                                         </div>
                                         <div>
                                             <div className="flex items-center space-x-3">
-                                                <h3 className="text-xl font-bold text-bank-navy">{note.titleEn}</h3>
-                                                <span className="bg-bank-teal/10 text-bank-teal text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm border border-bank-teal/20">
-                                                    {note.type.replace(/_/g, ' ')}
-                                                </span>
+                                                <h3 className="text-lg font-bold text-bank-navy leading-tight">{note.titleEn}</h3>
+                                                {(() => {
+                                                    const content = JSON.parse(note.contentJson || '{}');
+                                                    return content.isFrozen ? (
+                                                        <span className="bg-amber-100 text-amber-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-amber-200 flex items-center space-x-1">
+                                                            <Lock size={10} />
+                                                            <span>Frozen</span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="bg-bank-teal/10 text-bank-teal text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-bank-teal/20">
+                                                            {note.type.replace(/_/g, ' ')}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
-                                            <div className="flex items-center space-x-4 text-sm text-gray-400 font-medium mt-2">
-                                                <span className="flex items-center space-x-1.5"><User size={14} className="text-bank-teal" /> <span>{note.preparer?.fullNameEn || 'System Admin'}</span></span>
+                                            <div className="flex items-center space-x-4 text-[11px] text-gray-400 font-medium mt-1">
+                                                <span className="flex items-center space-x-1.5"><User size={12} className="text-bank-teal" /> <span>{note.preparer?.fullNameEn || 'System Admin'}</span></span>
                                                 <span className="text-gray-200">|</span>
-                                                <span className="flex items-center space-x-1.5"><Clock size={14} className="text-bank-teal" /> <span>{format(new Date(note.createdAt), 'do MMMM yyyy, HH:mm')}</span></span>
+                                                {(() => {
+                                                    const content = JSON.parse(note.contentJson || '{}');
+                                                    const displayDate = content.noteDate ? parseLocalISO(content.noteDate) : new Date(note.createdAt);
+                                                    return (
+                                                        <span className="flex items-center space-x-1.5">
+                                                            {content.noteDate ? <Calendar size={12} className="text-bank-teal" /> : <Clock size={12} className="text-bank-teal" />}
+                                                            <span>{format(displayDate || new Date(), content.noteDate ? 'do MMMM yyyy' : 'do MMMM yyyy, HH:mm')}</span>
+                                                        </span>
+                                                    );
+                                                })()}
                                                 <span className="text-gray-200">|</span>
-                                                <span className="font-mono text-[10px] text-gray-400 font-bold uppercase">REF: {note.referenceNo || 'PENDING'}</span>
+                                                <span className="font-mono text-[9px] text-gray-400 font-bold uppercase">REF: {note.referenceNo || 'PENDING'}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center space-x-3">
+                                    <div className="flex items-center space-x-2">
                                         <button
                                             onClick={() => {
                                                 const content = JSON.parse(note.contentJson || '{}');
                                                 handleDownloadPDF(note.id, note.titleEn, content.noteDate);
                                             }}
-                                            className="flex items-center space-x-2 bg-white text-bank-teal border-2 border-bank-teal px-5 py-2.5 rounded-xl font-bold hover:bg-bank-teal hover:text-white transition-all shadow-md active:scale-95"
+                                            className="flex items-center space-x-2 bg-bank-navy text-white px-4 py-1.5 rounded-xl font-semibold hover:bg-bank-navy/90 hover:shadow-bank-navy/20 transition-all shadow-md active:scale-95 group"
                                         >
-                                            <Download size={18} />
-                                            <span>Vector PDF</span>
+                                            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
+                                            <span className="text-xs">Vector PDF</span>
                                         </button>
                                         <button 
                                             onClick={() => {
                                                 const content = JSON.parse(note.contentJson || '{}');
                                                 handlePreviewPDF(note.id, content.noteDate);
                                             }}
-                                            className="p-3 text-gray-300 hover:text-bank-navy hover:bg-gray-100 rounded-xl transition-all tooltip"
+                                            className="p-2 text-gray-300 hover:text-bank-navy hover:bg-gray-100 rounded-lg transition-all tooltip"
                                         >
-                                            <Eye size={24} />
+                                            <Eye size={20} />
                                         </button>
-                                        <div className="h-8 w-[1px] bg-gray-100 mx-2"></div>
-                                        <button 
-                                            onClick={() => handleEdit(note)}
-                                            className="p-3 text-gray-300 hover:text-bank-teal hover:bg-bank-teal/5 rounded-xl transition-all"
-                                        >
-                                            <Pencil size={20} />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDelete(note.id)}
-                                            className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                        >
-                                            <Trash2 size={20} />
-                                        </button>
+                                        <div className="h-6 w-[1px] bg-gray-100 mx-1"></div>
+                                        {(() => {
+                                            const content = JSON.parse(note.contentJson || '{}');
+                                            const isFrozen = content.isFrozen;
+                                            return (
+                                                <>
+                                                    {!isFrozen && (
+                                                        <button 
+                                                            onClick={() => handleFreeze(note.id, note.titleEn)}
+                                                            className="p-2 text-gray-300 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                                            title="Freeze Document"
+                                                        >
+                                                            <Unlock size={18} />
+                                                        </button>
+                                                    )}
+                                                    {isFrozen && (
+                                                        <div className="p-2 text-amber-500" title="Document Locked">
+                                                            <Lock size={18} />
+                                                        </div>
+                                                    )}
+                                                    <button 
+                                                        onClick={() => handleEdit(note)}
+                                                        disabled={isFrozen}
+                                                        className={`p-2 rounded-lg transition-all ${isFrozen ? 'text-gray-100 cursor-not-allowed' : 'text-gray-300 hover:text-bank-teal hover:bg-bank-teal/5'}`}
+                                                    >
+                                                        <Pencil size={18} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(note.id)}
+                                                        disabled={isFrozen}
+                                                        className={`p-2 rounded-lg transition-all ${isFrozen ? 'text-gray-100 cursor-not-allowed' : 'text-gray-300 hover:text-red-500 hover:bg-red-50'}`}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
@@ -1462,11 +1753,10 @@ const OfficeNoteManager: React.FC = () => {
                                 
                                 <div>
                                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Reference Date</label>
-                                    <input
-                                        type="date"
-                                        className="w-full px-5 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-bold text-bank-navy"
-                                        value={summaryConfig.date}
-                                        onChange={(e) => setSummaryConfig({ ...summaryConfig, date: e.target.value })}
+                                    <CustomDatePicker
+                                        selected={parseLocalISO(summaryConfig.date)}
+                                        onChange={(d: Date | null) => setSummaryConfig({ ...summaryConfig, date: formatLocalISO(d) })}
+                                        className="w-full px-5 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-bold text-bank-navy bg-white shadow-sm hover:shadow-md transition-shadow"
                                     />
                                     <p className="text-[10px] text-gray-400 mt-2 italic px-1">
                                         * Report will cover the week/month containing this date.

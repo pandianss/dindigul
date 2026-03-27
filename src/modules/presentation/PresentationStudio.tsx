@@ -6,8 +6,8 @@ import { SlideRenderer } from './SlideComponents';
 import { FullScreenShow } from './FullScreenShow';
 import api from '../../services/api';
 import { MonitorPlay, Save, FileEdit, Eye, Play, ArrowUp, ArrowDown, EyeOff, FileText, Calendar, Plus, LayoutGrid } from 'lucide-react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { CustomDatePicker } from '../../components/CustomDatePicker';
+import { formatLocalISO, parseLocalISO } from '../../utils/dateUtils';
 
 export const PresentationStudio: React.FC = () => {
     // Data Hook
@@ -23,7 +23,7 @@ export const PresentationStudio: React.FC = () => {
 
     // Initial load
     useEffect(() => {
-        const dStr = selectedDate.toISOString().split('T')[0];
+        const dStr = formatLocalISO(selectedDate);
         load(dStr);
     }, [selectedDate, load]);
 
@@ -99,11 +99,10 @@ export const PresentationStudio: React.FC = () => {
                     {/* Date Picker */}
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <DatePicker
+                        <CustomDatePicker
                             selected={selectedDate}
                             onChange={(d: Date | null) => { if (d) { setSelectedDate(d); setSlides([]); } }}
-                            dateFormat="dd MMM yyyy"
-                            className="text-sm border-none bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 focus:ring-2 focus:ring-bank-teal w-32 font-medium"
+                            className="text-sm border-none bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 focus:ring-2 focus:ring-bank-teal w-40 font-bold text-bank-navy shadow-inner"
                         />
                     </div>
                 </div>

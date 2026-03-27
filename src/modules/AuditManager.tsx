@@ -13,6 +13,8 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { CustomDatePicker } from '../components/CustomDatePicker';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface AuditObservation {
@@ -210,8 +212,8 @@ const AuditManager: React.FC = () => {
                                         <p className="text-bank-navy font-medium text-sm leading-relaxed mb-2">{obs.observation}</p>
                                         <div className="flex items-center space-x-6 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                                             <span className="flex items-center space-x-1"><Building2 size={12} /> <span>{obs.branch.nameEn} ({obs.branch.code})</span></span>
-                                            <span className="flex items-center space-x-1"><Calendar size={12} /> <span>Audit Date: {format(new Date(obs.auditDate), 'dd MMM yyyy')}</span></span>
-                                            <span className="flex items-center space-x-1"><Clock size={12} /> <span>Target: {format(new Date(obs.targetDate), 'dd MMM yyyy')}</span></span>
+                                            <span className="flex items-center space-x-1"><Calendar size={12} /> <span>Audit Date: {format(parseLocalISO(obs.auditDate) || new Date(), 'dd MMM yyyy')}</span></span>
+                                            <span className="flex items-center space-x-1"><Clock size={12} /> <span>Target: {format(parseLocalISO(obs.targetDate) || new Date(), 'dd MMM yyyy')}</span></span>
                                         </div>
                                         {obs.rectificationDetails && (
                                             <div className="mt-2 p-2 bg-bank-teal/5 rounded-lg border border-bank-teal/10">
@@ -299,20 +301,18 @@ const AuditManager: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Audit Date</label>
-                                <input
-                                    type="date"
-                                    className="w-full p-2.5 border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 text-sm"
-                                    value={form.auditDate}
-                                    onChange={e => setForm({ ...form, auditDate: e.target.value })}
+                                <CustomDatePicker
+                                    selected={parseLocalISO(form.auditDate)}
+                                    onChange={(d: Date | null) => setForm({ ...form, auditDate: formatLocalISO(d) })}
+                                    className="w-full p-2.5 border-gray-200 border-2 rounded-lg focus:border-bank-teal transition-all text-sm font-bold bg-gray-50/50"
                                 />
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Rectification Target</label>
-                                <input
-                                    type="date" required
-                                    className="w-full p-2.5 border-gray-200 rounded-lg focus:ring-2 focus:ring-bank-teal/20 text-sm"
-                                    value={form.targetDate}
-                                    onChange={e => setForm({ ...form, targetDate: e.target.value })}
+                                <CustomDatePicker
+                                    selected={parseLocalISO(form.targetDate)}
+                                    onChange={(d: Date | null) => setForm({ ...form, targetDate: formatLocalISO(d) })}
+                                    className="w-full p-2.5 border-gray-200 border-2 rounded-lg focus:border-bank-teal transition-all text-sm font-bold bg-gray-50/50"
                                 />
                             </div>
                         </div>

@@ -21,7 +21,7 @@ function fontToBase64(filename: string): string {
     }
 }
 
-function imageToBase64(assetRelPath: string): string {
+export function imageToBase64(assetRelPath: string): string {
     try {
         const fullPath = path.join(process.cwd(), '..', 'public', assetRelPath);
         const buffer = readFileSync(fullPath);
@@ -72,21 +72,33 @@ export async function getRegionalOfficeData() {
 
     // 3. Resolve Signatory (Details available in staff if not overridden)
     let signatoryName = orgConfig?.signatoryName || '';
+    let signatoryNameHi = '';
+    let signatoryNameTa = '';
     let signingAuthEn = orgConfig?.signingAuthEn || 'Regional Manager';
     let signingAuthHi = orgConfig?.signingAuthHi || 'क्षेत्रीय प्रबंधक';
     let signingAuthTa = orgConfig?.signingAuthTa || 'மண்டல மேலாளர்';
 
-    if (!signatoryName && ro?.headUserId) {
-        const roHead = await prisma.user.findUnique({
+    // Try to find the user record to get trilingual names and latest designation
+    let signatoryUser = null;
+    if (signatoryName) {
+        signatoryUser = await prisma.user.findFirst({
+            where: { fullNameEn: signatoryName }
+        });
+    } else if (ro?.headUserId) {
+        signatoryUser = await prisma.user.findUnique({
             where: { id: ro.headUserId }
         });
-        if (roHead) {
-            signatoryName = roHead.fullNameEn;
-            // Use staff-specific trilingual designations if available, otherwise default to "Region Head"
-            signingAuthEn = roHead.designationEn || "Region Head";
-            signingAuthHi = roHead.designationHi || "क्षेत्र प्रमुख";
-            signingAuthTa = roHead.designationTa || "மண்டலத் தலைவர்";
-        }
+    }
+
+    if (signatoryUser) {
+        signatoryName = signatoryUser.fullNameEn;
+        signatoryNameHi = signatoryUser.fullNameHi || '';
+        signatoryNameTa = signatoryUser.fullNameTa || '';
+        
+        // Use orgConfig overrides if present, else fallback to staff designations
+        signingAuthEn = orgConfig?.signingAuthEn || signatoryUser.designationEn || "Region Head";
+        signingAuthHi = orgConfig?.signingAuthHi || signatoryUser.designationHi || "क्षेत्र प्रमुख";
+        signingAuthTa = orgConfig?.signingAuthTa || signatoryUser.designationTa || "மண்டலத் தலைவர்";
     }
 
     return {
@@ -102,6 +114,8 @@ export async function getRegionalOfficeData() {
         phone: ro?.phone || '+91 451 2420000',
         email: ro?.email || 'ro.dindigul@iob.in',
         signatoryName,
+        signatoryNameHi,
+        signatoryNameTa,
         signingAuthEn,
         signingAuthHi,
         signingAuthTa
@@ -119,6 +133,7 @@ export interface PremiumLayoutData {
     signatoryTitleEn?: string;
     signatoryTitleHi?: string;
     signatoryTitleTa?: string;
+    deptSealSrc?: string;
     organization?: {
         bankNameEn: string;
         bankNameHi: string;
@@ -136,6 +151,9 @@ export interface PremiumLayoutData {
     hideHeader?: boolean;
     hideMeta?: boolean;
     hideTitle?: boolean;
+    initiator?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string };
+    reviewers?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string }[];
+    approver?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string };
 }
 
 export function buildPremiumLayout(data: PremiumLayoutData): string {
@@ -176,15 +194,15 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   @font-face { font-family:'NotoTamil'; font-weight:400; src:url('data:font/truetype;base64,${notoTamil400}') format('truetype'); }
   @font-face { font-family:'NotoTamil'; font-weight:700; src:url('data:font/truetype;base64,${notoTamil700}') format('truetype'); }
 
-  @page { size: A4; margin: 15mm 15mm; }
+  @page { size: A4; margin: 10mm 12mm; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'Inter', Arial, sans-serif;
-    font-size: 11.5px;
+    font-size: 11px;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.4;
+    line-height: 1.25;
   }
 
   .hindi { font-family: 'NotoHindi', sans-serif; }
@@ -195,13 +213,13 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   .watermark img { width: 480px; }
   .content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 250mm; ${isAdvisory ? 'padding-top: 25px;' : ''} }
 
-  .header { border-bottom: 2px solid #254aa0; padding-bottom: 12px; margin-bottom: 12px; }
-  .header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; }
-  .header-top img { height: 75px; width: 75px; object-fit: contain; }
+  .header { border-bottom: 2px solid #254aa0; padding-top: 5px; padding-bottom: 5px; margin-bottom: 5px; }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .header-top img { height: 60px; width: 60px; object-fit: contain; }
   .bank-names { display: flex; flex-direction: column; gap: 2px; }
-  .bank-names h1 { color: #254aa0; line-height: 1.1; font-weight: 700; }
+  .bank-names h1 { color: #254aa0; line-height: 1.3; font-weight: 700; }
  
-  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #254aa0; margin-top: 12px; }
+  .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #254aa0; margin-top: 8px; }
   .col-grid .col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 10px; }
   .col-grid .col + .col { border-left: 1px solid rgba(37,74,160,0.2); }
   .col-name { font-weight: 700; font-size: 12.5px; text-align: center; line-height: 1.3; }
@@ -216,9 +234,9 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
     border-top: 1px solid rgba(37,74,160,0.1);
   }
  
-  .meta-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .ref-no { font-weight: 700; color: #254aa0; font-size: 12px; }
-  .date-line { text-align: right; font-size: 12px; font-weight: 700; color: #1e293b; }
+  .meta-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .ref-no { font-weight: 700; color: #254aa0; font-size: 10.5px; }
+  .date-line { text-align: right; font-size: 10.5px; font-weight: 700; color: #1e293b; }
  
   .advisory-band { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #dc2626; z-index: 100; }
   .advisory-badge { 
@@ -230,21 +248,57 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
   }
  
   .subject {
-    text-align: center; font-weight: 700; font-size: 16px;
-    text-decoration: underline; text-transform: uppercase;
+    text-align: center; font-weight: 700; font-size: 15px;
+    text-transform: uppercase;
     letter-spacing: 0.05em; color: #254aa0;
-    margin-bottom: 15px; line-height: 1.3;
+    margin-bottom: 6px; line-height: 1.1;
   }
  
-  .body { flex-grow: 1; color: #1e293b; font-size: 12px; text-align: justify; }
-  .body p { margin-bottom: 10px; }
+  .body { flex-grow: 1; color: #1e293b; font-size: 11px; text-align: justify; }
+  .body p { margin-bottom: 4px; }
  
-  .signature { margin-top: 60px; display: flex; justify-content: flex-end; }
-  .signature-block { text-align: center; min-width: 220px; }
-  .sig-line { border-top: 1.5px solid #9ca3af; margin-bottom: 6px; padding-top: 6px; }
-  .sig-name { font-weight: 700; color: #254aa0; font-size: 14.5px; margin-bottom: 5px; }
-  .sig-titles { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; }
+  .signatures-container { 
+    position: relative; 
+    margin-top: 20px; 
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    gap: 30px; 
+  }
+  .sig-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-end; 
+    gap: 15px;
+    width: 100%;
+  }
+  
+  .sig-block { text-align: center; width: 175px; position: relative; }
+  .sig-block.preparer .sig-line { width: 175px; }
+
+  .signing-space { height: 25px; }
+  .sig-line { border-top: 1.1px solid #9ca3af; margin-bottom: 2px; padding-top: 1px; }
+  .sig-name { font-weight: 700; color: #254aa0; font-size: 10px; margin-bottom: 1px; line-height: 1.1; }
+  .sig-titles { display: flex; flex-direction: column; gap: 0px; font-size: 8px; line-height: 1.1; }
   .sig-titles p { font-weight: 700; color: #254aa0; }
+  .approved-status { font-weight: 700; color: #254aa0; font-size: 9px; margin-bottom: 4px; text-align: center; width: 100%; }
+
+  .dept-seal {
+    position: absolute;
+    top: -95px; 
+    left: 50%;
+    transform: translateX(-50%) rotate(-12deg);
+    width: 100px;
+    height: 100px;
+    opacity: 0.45;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .dept-seal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 </style>
 </head>
 <body>
@@ -258,9 +312,9 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
       <div class="header-top">
         <img src="${emblemSrc}" alt="Logo"/>
         <div class="bank-names">
-          <h1 class="hindi" style="font-size:19px;">${org.bankNameHi}</h1>
-          <h1 class="tamil" style="font-size:18px;">${org.bankNameTa}</h1>
-          <h1 style="font-size:19px;">${org.bankNameEn}</h1>
+          <h1 class="hindi" style="font-size:17px;">${org.bankNameHi}</h1>
+          <h1 class="tamil" style="font-size:15.5px;">${org.bankNameTa}</h1>
+          <h1 style="font-size:17px;">${org.bankNameEn}</h1>
         </div>
       </div>
       <div class="col-grid">
@@ -291,18 +345,73 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
 
     <div class="body">${data.bodyHtml}</div>
 
-    ${data.signatoryName ? `
-    <div class="signature">
-      <div class="signature-block">
-        <div class="sig-line"></div>
-        <p class="sig-name">(${data.signatoryName})</p>
-        <div class="sig-titles">
-          ${data.signatoryTitleHi ? `<p class="hindi">${data.signatoryTitleHi}</p>` : ''}
-          ${data.signatoryTitleTa ? `<p class="tamil">${data.signatoryTitleTa}</p>` : ''}
-          ${data.signatoryTitleEn ? `<p>${data.signatoryTitleEn}</p>` : ''}
+    ${data.initiator || data.reviewers ? `
+    <div class="signatures-container">
+      <!-- Row 1: Initiator (Preparer) -->
+      ${data.initiator ? `
+      <div class="sig-row">
+        <div class="sig-block preparer">
+          <div class="signing-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">
+            ${data.initiator.nameHi ? `<p class="hindi">(${data.initiator.nameHi})</p>` : ''}
+            ${data.initiator.nameTa ? `<p class="tamil">(${data.initiator.nameTa})</p>` : ''}
+            <p>(${data.initiator.name})</p>
+          </div>
+          <div class="sig-titles">
+            ${data.initiator.titleHi ? `<p class="hindi">${data.initiator.titleHi}</p>` : ''}
+            ${data.initiator.titleTa ? `<p class="tamil">${data.initiator.titleTa}</p>` : ''}
+            <p>${data.initiator.titleEn}</p>
+          </div>
+        </div>
+        <!-- Spacers to keep preparer left if we want it to stay strictly left in a flex space-between -->
+        <div style="flex:1"></div>
+        <div style="flex:1"></div>
+      </div>
+      ` : ''}
+
+      <!-- Row 2: Reviewers & Approver -->
+      <div class="sig-row">
+        <!-- Reviewers -->
+        ${(data.reviewers || []).map(rev => `
+        <div class="sig-block">
+          <div class="signing-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">
+            ${rev.nameHi ? `<p class="hindi">(${rev.nameHi})</p>` : ''}
+            ${rev.nameTa ? `<p class="tamil">(${rev.nameTa})</p>` : ''}
+            <p>(${rev.name})</p>
+          </div>
+          <div class="sig-titles">
+            ${rev.titleHi ? `<p class="hindi">${rev.titleHi}</p>` : ''}
+            ${rev.titleTa ? `<p class="tamil">${rev.titleTa}</p>` : ''}
+            <p>${rev.titleEn}</p>
+          </div>
+        </div>
+        `).join('')}
+
+        <!-- Approver -->
+        <div class="sig-block">
+          ${data.deptSealSrc ? `<div class="dept-seal"><img src="${data.deptSealSrc}" alt="Seal"/></div>` : ''}
+          <p class="approved-status">
+            <span class="hindi">अनुमोदित</span> / <span class="tamil">ஒப்புதல் அளிக்கப்பட்டது</span> / Approved
+          </p>
+          <div class="signing-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">
+            ${data.approver?.nameHi ? `<p class="hindi">(${data.approver.nameHi})</p>` : ''}
+            ${data.approver?.nameTa ? `<p class="tamil">(${data.approver.nameTa})</p>` : ''}
+            <p>(${data.approver?.name || data.signatoryName || '-'})</p>
+          </div>
+          <div class="sig-titles">
+            ${data.approver?.titleHi || data.signatoryTitleHi ? `<p class="hindi">${data.approver?.titleHi || data.signatoryTitleHi}</p>` : ''}
+            ${data.approver?.titleTa || data.signatoryTitleTa ? `<p class="tamil">${data.approver?.titleTa || data.signatoryTitleTa}</p>` : ''}
+            ${data.approver?.titleEn || data.signatoryTitleEn ? `<p>${data.approver?.titleEn || data.signatoryTitleEn}</p>` : ''}
+          </div>
         </div>
       </div>
-    </div>` : ''}
+    </div>
+    ` : ''}
   </div>
 </div>
 </body>

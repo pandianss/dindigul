@@ -392,14 +392,17 @@ export class PlanningService {
     /**
      * Specialized Intelligence Reports.
      */
-    static async getIntelligenceReports() {
+    static async getIntelligenceReports(solId?: string) {
         const now = new Date();
         const cal = await prisma.calendarMaster.findUnique({ where: { calDate: startOfDay(now) } });
         const monthKey = cal?.monthKey || format(now, 'yyyy-MM');
 
         // 1. Top Customers
         const topCustomers = await prisma.accountOpening.findMany({
-            where: { isQualified: true },
+            where: { 
+                isQualified: true,
+                ...(solId ? { solId } : {})
+            },
             orderBy: { customerValueScore: 'desc' },
             take: 20,
             include: { branch: { select: { nameEn: true } } }
@@ -416,7 +419,8 @@ export class PlanningService {
             by: ['schmCode', 'accountClass'],
             where: {
                 isQualified: true,
-                ...(strategicSchemes.length > 0 ? { schmCode: { in: strategicSchemes } } : {})
+                ...(strategicSchemes.length > 0 ? { schmCode: { in: strategicSchemes } } : {}),
+                ...(solId ? { solId } : {})
             },
             _count: { foracid: true },
             _avg: { clrBalAmt: true },
@@ -426,7 +430,10 @@ export class PlanningService {
         // 3. Branch Performance Leaderboard (using Fact tables)
         const branchLeaderboard = await prisma.factSbDailyBranch.groupBy({
             by: ['solId'],
-            where: { openDay: { gte: startOfMonth(now) } },
+            where: { 
+                openDay: { gte: startOfMonth(now) },
+                ...(solId ? { solId } : {})
+            },
             _sum: { netSbOpened: true, qualifiedCount: true }
         });
 
@@ -442,14 +449,20 @@ export class PlanningService {
         // 4. Rejection Summary
         const rejectionSummary = await prisma.accountOpening.groupBy({
             by: ['rejectionReason'],
-            where: { isQualified: false },
+            where: { 
+                isQualified: false,
+                ...(solId ? { solId } : {})
+            },
             _count: { foracid: true }
         });
 
         // 5. Detailed Scheme Rejections
         const rejectedSchemes = await prisma.accountOpening.groupBy({
             by: ['schmCode'],
-            where: { rejectionReason: 'NON_ELIGIBLE_SCHEME' },
+            where: { 
+                rejectionReason: 'NON_ELIGIBLE_SCHEME',
+                ...(solId ? { solId } : {})
+            },
             _count: { foracid: true },
             orderBy: { _count: { foracid: 'desc' } },
             take: 10
@@ -468,7 +481,7 @@ export class PlanningService {
     /**
      * Calculates SB/CD analytics based on Fact tables and Calendar Master.
      */
-    static async getAnalytics() {
+    static async getAnalytics(solId?: string) {
         const now = new Date();
         const bDate = startOfDay(now);
         const cal = await prisma.calendarMaster.findUnique({ where: { calDate: bDate } });
@@ -521,30 +534,48 @@ export class PlanningService {
         const monthStart = currentMonthDates._min.calDate || startOfMonth(bDate);
 
         const sbThisMonth = await prisma.factSbDailyBranch.aggregate({
-            where: { openDay: { gte: monthStart, lte: bDate } },
+            where: { 
+                openDay: { gte: monthStart, lte: bDate },
+                ...(solId ? { solId } : {})
+            },
             _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
         const sbLastMonth = await prisma.factSbDailyBranch.aggregate({
-            where: { openDay: { gte: lastMonthStart, lte: lastMonthEnd } },
+            where: { 
+                openDay: { gte: lastMonthStart, lte: lastMonthEnd },
+                ...(solId ? { solId } : {})
+            },
             _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
         const fyBoundaries = getFYBoundaries(bDate);
         const sbFY = await prisma.factSbDailyBranch.aggregate({
-            where: { openDay: { gte: fyBoundaries.start, lte: bDate } },
+            where: { 
+                openDay: { gte: fyBoundaries.start, lte: bDate },
+                ...(solId ? { solId } : {})
+            },
             _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
         });
 
         // 4. CD Stats using Fact tables
         const cdThisMonth = await prisma.factCdMonthlyBranch.aggregate({
-            where: { monthKey },
+            where: { 
+                monthKey,
+                ...(solId ? { solId } : {})
+            },
             _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
         const cdLastMonth = await prisma.factCdMonthlyBranch.aggregate({
-            where: { monthKey: format(lastMonthStart, 'yyyy-MM') },
+            where: { 
+                monthKey: format(lastMonthStart, 'yyyy-MM'),
+                ...(solId ? { solId } : {})
+            },
             _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
         const cdFY = await prisma.factCdMonthlyBranch.aggregate({
-            where: { monthKey: { gte: format(fyBoundaries.start, 'yyyy-MM') } }, // Simple range
+            where: { 
+                monthKey: { gte: format(fyBoundaries.start, 'yyyy-MM') },
+                ...(solId ? { solId } : {})
+            },
             _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
         });
 
@@ -555,7 +586,8 @@ export class PlanningService {
         const sbBalances = await prisma.accountOpening.aggregate({
             where: {
                 accountClass: 'SB',
-                acctOpnDate: { gte: monthStart, lte: bDate }
+                acctOpnDate: { gte: monthStart, lte: bDate },
+                ...(solId ? { solId } : {})
             },
             _sum: { clrBalAmt: true }
         });
@@ -563,7 +595,8 @@ export class PlanningService {
         const sbBalancesFY = await prisma.accountOpening.aggregate({
             where: {
                 accountClass: 'SB',
-                acctOpnDate: { gte: fyBoundaries.start, lte: bDate }
+                acctOpnDate: { gte: fyBoundaries.start, lte: bDate },
+                ...(solId ? { solId } : {})
             },
             _sum: { clrBalAmt: true }
         });
@@ -571,7 +604,8 @@ export class PlanningService {
         const cdBalances = await prisma.accountOpening.aggregate({
             where: {
                 accountClass: 'CD',
-                acctOpnDate: { gte: monthStart, lte: bDate }
+                acctOpnDate: { gte: monthStart, lte: bDate },
+                ...(solId ? { solId } : {})
             },
             _sum: { clrBalAmt: true }
         });
@@ -579,7 +613,8 @@ export class PlanningService {
         const cdBalancesFY = await prisma.accountOpening.aggregate({
             where: {
                 accountClass: 'CD',
-                acctOpnDate: { gte: fyBoundaries.start, lte: bDate }
+                acctOpnDate: { gte: fyBoundaries.start, lte: bDate },
+                ...(solId ? { solId } : {})
             },
             _sum: { clrBalAmt: true }
         });

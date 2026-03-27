@@ -214,6 +214,7 @@ model Department {
   nameEn    String
   nameTa    String?
   nameHi    String?
+  sealPath  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   mainUsers User[]   @relation("UserDepartment")

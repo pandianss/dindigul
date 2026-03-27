@@ -14,6 +14,7 @@ import {
     History
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO, formatLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface RegionalAsset {
@@ -50,7 +51,7 @@ const AssetManager: React.FC = () => {
         assetCode: '',
         category: 'FURNITURE',
         description: '',
-        purchaseDate: format(new Date(), 'yyyy-MM-dd'),
+        purchaseDate: formatLocalISO(new Date()),
         purchaseValue: 0,
         condition: 'GOOD',
         amcExpiry: '',
@@ -103,7 +104,7 @@ const AssetManager: React.FC = () => {
         try {
             const response = await api.post('/assets/maintenance', {
                 assetId,
-                serviceDate: new Date(),
+                serviceDate: formatLocalISO(new Date()),
                 serviceProvider: provider,
                 cost: parseFloat(cost),
                 nextServiceDue: nextDate,
@@ -209,13 +210,13 @@ const AssetManager: React.FC = () => {
                                                     <Building2 size={12} /> <span>{asset.branch.nameEn}</span>
                                                 </div>
                                                 <div className="flex items-center space-x-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                                    <Calendar size={12} /> <span>Purchase: {format(new Date(asset.purchaseDate), 'MMM yyyy')}</span>
+                                                    <Calendar size={12} /> <span>Purchase: {format(parseLocalISO(asset.purchaseDate) || new Date(), 'MMM yyyy')}</span>
                                                 </div>
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-sm font-black text-bank-navy">₹{asset.purchaseValue.toLocaleString()}</p>
                                                 {asset.amcExpiry && (
-                                                    <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded">AMC: {format(new Date(asset.amcExpiry), 'dd/MM/yy')}</span>
+                                                    <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded">AMC: {format(parseLocalISO(asset.amcExpiry) || new Date(), 'dd/MM/yy')}</span>
                                                 )}
                                             </div>
                                         </div>
@@ -273,14 +274,14 @@ const AssetManager: React.FC = () => {
                                                 <div key={record.id} className="relative pl-6 pb-2 border-l border-gray-100 last:pb-0">
                                                     <div className="absolute left-[-5px] top-0 w-2.5 h-2.5 rounded-full bg-bank-teal border-2 border-white shadow-sm" />
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <span className="text-[10px] font-bold text-bank-navy">{format(new Date(record.serviceDate), 'dd MMM yyyy')}</span>
+                                                        <span className="text-[10px] font-bold text-bank-navy">{format(parseLocalISO(record.serviceDate) || new Date(), 'dd MMM yyyy')}</span>
                                                         <span className="text-[10px] font-black text-bank-teal">₹{record.cost.toLocaleString()}</span>
                                                     </div>
                                                     <p className="text-xs font-bold text-gray-500 mb-0.5">{record.serviceProvider}</p>
                                                     <p className="text-[10px] text-gray-400 italic mb-2">{record.remarks || 'No remarks recorded'}</p>
                                                     <div className="flex items-center space-x-1.5 text-[9px] font-black text-amber-600 bg-amber-50 w-fit px-1.5 py-0.5 rounded">
                                                         <Clock size={10} />
-                                                        <span>Next Service: {format(new Date(record.nextServiceDue), 'dd MMM yyyy')}</span>
+                                                        <span>Next Service: {format(parseLocalISO(record.nextServiceDue) || new Date(), 'dd MMM yyyy')}</span>
                                                     </div>
                                                 </div>
                                             ))

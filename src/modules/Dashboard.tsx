@@ -187,6 +187,7 @@ export default function Dashboard() {
     monthPct: 0,
     daysToFYEnd: 0
   });
+  const [anniversaries, setAnniversaries] = useState([]);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -208,6 +209,7 @@ export default function Dashboard() {
           setPendingActions(data.pendingActions || []);
           setUpcomingEvents(data.upcomingEvents || []);
           if (data.fyMetrics) setFyMetrics(data.fyMetrics);
+          setAnniversaries(data.anniversaries || []);
         }
       })
       .catch(console.error);
@@ -265,7 +267,7 @@ export default function Dashboard() {
           ))}
           <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.15)" }} />
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
-            22 Feb 2026 · Sun
+            {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · {new Date().toLocaleDateString('en-GB', { weekday: 'short' })}
           </div>
         </div>
       </div>
@@ -473,6 +475,117 @@ export default function Dashboard() {
           background: "#F8FAFC",
         }}>
 
+          {/* Dashboard Alerts / Anniversaries */}
+          <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 12px rgba(198,40,40,0.15)", border: `1px solid ${RED}33` }}>
+            <div style={{ padding: "12px 16px", background: `linear-gradient(135deg, ${RED}, #b71c1c)`, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>🚨</span>
+              <div style={{ fontSize: 14, fontWeight: 900, color: "#fff", letterSpacing: "0.05em" }}>DASHBOARD ALERTS</div>
+              {anniversaries.length > 0 && (
+                <div style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.7)", background: "rgba(0,0,0,0.2)", padding: "1px 8px", borderRadius: 10 }}>
+                  {anniversaries.length} MILESTONES
+                </div>
+              )}
+            </div>
+            <div style={{ maxHeight: 200, overflowY: "auto" }} className="custom-scrollbar">
+              {anniversaries.length === 0 ? (
+                <div style={{ padding: "30px 20px", textAlign: "center", color: "#94A3B8", fontSize: 13, fontWeight: 500 }}>
+                  No branch anniversaries in the next 15 days.
+                </div>
+              ) : (
+                anniversaries.map((ann, i) => (
+                  <div key={ann.id} style={{
+                    padding: "10px 14px",
+                    borderBottom: i < anniversaries.length - 1 ? "1px solid #FEE2E2" : "none",
+                    display: "flex", alignItems: "center", gap: 10,
+                    background: "#FFF5F5"
+                  }}>
+                    <div style={{
+                      width: 42, textAlign: "center", flexShrink: 0,
+                      borderRadius: 8, padding: "5px 0",
+                      background: "#fff",
+                      border: `2px solid ${RED}22`,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+                    }}>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: RED, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", lineHeight: 1 }}>
+                        {ann.date.split(" ")[0]}
+                      </div>
+                      <div style={{ fontSize: 10, color: RED, fontWeight: 800, opacity: 0.8, textTransform: "uppercase" }}>
+                        {ann.date.split(" ")[1]}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: NAVY, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {ann.name}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#991B1B", marginTop: 1, display: "flex", alignItems: "center", gap: 6, fontWeight: 700 }}>
+                        <span style={{ background: "rgba(198,40,40,0.1)", padding: "1px 6px", borderRadius: 10 }}>{ann.code}</span>
+                        <span>•</span>
+                        <span>{ann.years}{(() => {
+                            const n = ann.years;
+                            if (n % 100 >= 11 && n % 100 <= 13) return 'th';
+                            switch (n % 10) {
+                              case 1: return 'st';
+                              case 2: return 'nd';
+                              case 3: return 'rd';
+                              default: return 'th';
+                            }
+                          })()} Anniversary</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Quick stats — live branch pulse */}
+          <div style={{ background: NAVY, borderRadius: 12, padding: "16px 16px" }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: GOLD, letterSpacing: "0.08em", marginBottom: 4, textTransform: "uppercase" }}>
+              Branch Pulse
+            </div>
+            {lastUpdated && (
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginBottom: 10, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+                As of {new Date(lastUpdated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </div>
+            )}
+            {[
+              { label: "SURPASSED", count: branchPulse.SURPASSED, color: "#66BB6A" },
+              { label: "POSITIVE", count: branchPulse.POSITIVE, color: "#64B5F6" },
+              { label: "LAGGING", count: branchPulse.LAGGING, color: "#FFB74D" },
+              { label: "NEGATIVE", count: branchPulse.NEGATIVE, color: "#EF5350" },
+            ].map(item => {
+              const total = branchPulse.SURPASSED + branchPulse.POSITIVE + branchPulse.LAGGING + branchPulse.NEGATIVE || 1;
+              return (
+                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em", width: 80 }}>{item.label}</div>
+                  <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2 }}>
+                    <div style={{ height: 4, width: `${(item.count / total) * 100}%`, background: item.color, borderRadius: 2, opacity: 0.8 }} />
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "#fff", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", width: 20, textAlign: "right" }}>
+                    {item.count}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {[
+                { label: "ATMs Online", val: atms.length.toString(), color: "#66BB6A" },
+                { label: "Low Cash ATMs", val: atms.filter(a => a.balance < 50000).length.toString(), color: "#EF5350" },
+                { label: "Lagging Units", val: (branchPulse.LAGGING + branchPulse.NEGATIVE).toString(), color: GOLD },
+                { label: "Days to FY End", val: fyMetrics.daysToFYEnd.toString(), color: "#64B5F6" },
+              ].map(s => (
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "9px 10px" }}>
+                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{s.label}</div>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: s.color, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>{s.val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Pending Actions */}
           <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{
@@ -533,7 +646,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── ATM Monitor ─────────────────────────────────────────────── */}
+          {/* ATM Monitor */}
           <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", justifyItems: "center", gap: 8 }}>
               <span style={{ fontSize: 15 }}>🏧</span>
@@ -650,54 +763,6 @@ export default function Dashboard() {
                   </div>
                 ))
               )}
-            </div>
-          </div>
-
-          {/* Quick stats — live branch pulse */}
-          <div style={{ background: NAVY, borderRadius: 12, padding: "16px 16px" }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: GOLD, letterSpacing: "0.08em", marginBottom: 4, textTransform: "uppercase" }}>
-              Branch Pulse
-            </div>
-            {lastUpdated && (
-              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginBottom: 10, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
-                As of {new Date(lastUpdated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-              </div>
-            )}
-            {[
-              { label: "SURPASSED", count: branchPulse.SURPASSED, color: "#66BB6A" },
-              { label: "POSITIVE", count: branchPulse.POSITIVE, color: "#64B5F6" },
-              { label: "LAGGING", count: branchPulse.LAGGING, color: "#FFB74D" },
-              { label: "NEGATIVE", count: branchPulse.NEGATIVE, color: "#EF5350" },
-            ].map(item => {
-              const total = branchPulse.SURPASSED + branchPulse.POSITIVE + branchPulse.LAGGING + branchPulse.NEGATIVE || 1;
-              return (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em", width: 80 }}>{item.label}</div>
-                  <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2 }}>
-                    <div style={{ height: 4, width: `${(item.count / total) * 100}%`, background: item.color, borderRadius: 2, opacity: 0.8 }} />
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: "#fff", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", width: 20, textAlign: "right" }}>
-                    {item.count}
-                  </div>
-                </div>
-              );
-            })}
-
-            <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {[
-                { label: "ATMs Online", val: atms.length.toString(), color: "#66BB6A" },
-                { label: "Low Cash ATMs", val: atms.filter(a => a.balance < 50000).length.toString(), color: "#EF5350" },
-                { label: "Lagging Units", val: (branchPulse.LAGGING + branchPulse.NEGATIVE).toString(), color: GOLD },
-                { label: "Days to FY End", val: fyMetrics.daysToFYEnd.toString(), color: "#64B5F6" },
-              ].map(s => (
-                <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "9px 10px" }}>
-                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{s.label}</div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: s.color, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>{s.val}</div>
-                </div>
-              ))}
             </div>
           </div>
 

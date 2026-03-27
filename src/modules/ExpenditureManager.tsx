@@ -14,6 +14,8 @@ import {
     DollarSign
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { CustomDatePicker } from '../components/CustomDatePicker';
+import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface Budget {
@@ -203,7 +205,7 @@ const ExpenditureManager: React.FC = () => {
                                                 </div>
                                                 <div className="flex items-center space-x-4 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                                                     <span className="flex items-center space-x-1"><Building2 size={12} /> <span>{sanction.section}</span></span>
-                                                    <span className="flex items-center space-x-1"><Calendar size={12} /> <span>{format(new Date(sanction.sanctionDate), 'dd MMM yyyy')}</span></span>
+                                                    <span className="flex items-center space-x-1"><Calendar size={12} /> <span>{format(parseLocalISO(sanction.sanctionDate) || new Date(), 'dd MMM yyyy')}</span></span>
                                                     {sanction.vendorName && <span className="text-bank-navy/60">Vendor: {sanction.vendorName}</span>}
                                                 </div>
                                             </div>
@@ -314,10 +316,10 @@ const ExpenditureManager: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Sanction Date</label>
-                                    <input
-                                        type="date" className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
-                                        value={form.date}
-                                        onChange={e => setForm({ ...form, date: e.target.value })}
+                                    <CustomDatePicker
+                                        selected={parseLocalISO(form.date)}
+                                        onChange={(d: Date | null) => setForm({ ...form, date: formatLocalISO(d) })}
+                                        className="w-full p-3 border-gray-200 border-2 rounded-xl focus:border-bank-teal transition-all text-sm font-bold bg-gray-50/50"
                                     />
                                 </div>
                             </div>

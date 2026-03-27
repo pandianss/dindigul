@@ -53,7 +53,8 @@ router.post('/upload-closures', authenticateToken, async (req: any, res) => {
 // Get Account Opening Analytics
 router.get('/analytics', authenticateToken, async (req, res) => {
     try {
-        const analytics = await PlanningService.getAnalytics();
+        const { solId } = req.query;
+        const analytics = await PlanningService.getAnalytics(solId as string);
         res.json(analytics);
     } catch (error: any) {
         console.error('Analytics error:', error);
@@ -64,7 +65,8 @@ router.get('/analytics', authenticateToken, async (req, res) => {
 // Get Specialized Intelligence Reports
 router.get('/intelligence-reports', authenticateToken, async (req, res) => {
     try {
-        const reports = await PlanningService.getIntelligenceReports();
+        const { solId } = req.query;
+        const reports = await PlanningService.getIntelligenceReports(solId as string);
         res.json(reports);
     } catch (error: any) {
         console.error('Intelligence reports error:', error);

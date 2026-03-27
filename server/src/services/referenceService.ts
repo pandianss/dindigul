@@ -30,12 +30,14 @@ const DEPT_SHORTFORMS: Record<string, string> = {
  * This implementation fills gaps (reuses numbers from deleted notes).
  * @param category Document category
  * @param deptName Full department name or code
+ * @param date Optional date to use for year and month
  * @returns Formatted reference number
+ * @throws Error if department is missing
  */
-export async function generateReference(category: ReferenceCategory, deptName: string): Promise<string> {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+export async function generateReference(category: ReferenceCategory, deptName: string, date?: Date | string): Promise<string> {
+    const refDate = date ? new Date(date) : new Date();
+    const year = refDate.getFullYear();
+    const month = (refDate.getMonth() + 1).toString().padStart(2, '0');
     
     // Resolve shortform
     let shortform = DEPT_SHORTFORMS[deptName] || deptName;

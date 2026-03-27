@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Award, AlertCircle, RefreshCw, CheckCircle, ChevronRight, X, FileText, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG, THEME_CONFIG } from '../constants/organization';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +14,7 @@ interface Letter {
     contentEn: string;
     branch: {
         nameEn: string;
+        type: string;
         headUser?: {
             fullNameEn: string;
             fullNameHi?: string | null;
@@ -26,6 +28,7 @@ interface Letter {
         };
     };
     period: string;
+    parameterId?: string;
     createdAt: string;
     orgMeta?: any;
     scannedCopyUrl?: string; // Correctly define here
@@ -153,7 +156,7 @@ const CorrespondenceCenter: React.FC = () => {
         setGenerating(true);
         setGenerateResult(null);
         try {
-            const dateObj = new Date(selectedDate);
+            const dateObj = parseLocalISO(selectedDate) || new Date();
             const response = await api.post('/letters/generate', {
                 period: format(dateObj, 'MMM yyyy'),
                 date: selectedDate,
@@ -474,7 +477,7 @@ const CorrespondenceCenter: React.FC = () => {
                                                 if (!pd) return null;
                                                 const fyGrowth = pd.latest - pd.march31st;
                                                 const forceInverted = String(letter.titleEn).toUpperCase().includes('NPA') || 
-                                                                    String((letter as any).parameterId).toUpperCase().includes('NPA') || 
+                                                                    String(letter.parameterId).toUpperCase().includes('NPA') || 
                                                                     pd.isInverted === true;
                                                 const isAchieved = forceInverted ? (pd.latest <= pd.budget) : (pd.latest >= pd.budget);
                                                 const gapLabel = forceInverted ? (pd.latest <= pd.budget ? 'Reduction' : 'Overrun') : (pd.latest >= pd.budget ? 'Surplus' : 'Shortfall');
@@ -486,10 +489,10 @@ const CorrespondenceCenter: React.FC = () => {
                                                         <table className="w-full text-center border-collapse border border-bank-navy/40">
                                                             <thead>
                                                                 <tr className="bg-bank-navy/5 text-bank-navy font-bold text-[10px] uppercase tracking-wider">
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(new Date(pd.march31stDate), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.march31stDate ? format(parseLocalISO(pd.march31stDate) || new Date(), 'dd.MM.yyyy') : 'March 31st'} Actuals</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(parseLocalISO(pd.latestDate) || new Date(), 'dd.MM.yyyy') : 'Latest'} Actuals</th>
                                                                     <th className="border border-bank-navy/40 py-2 px-2">FY Growth</th>
-                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(new Date(pd.latestDate), 'dd.MM.yyyy') : 'Latest'} Budget</th>
+                                                                    <th className="border border-bank-navy/40 py-2 px-2">{pd.latestDate ? format(parseLocalISO(pd.latestDate) || new Date(), 'dd.MM.yyyy') : 'Latest'} Budget</th>
                                                                     <th className="border border-bank-navy/40 py-2 px-2">Gap to Budget</th>
                                                                     <th className="border border-bank-navy/40 py-2 px-2">Status</th>
                                                                 </tr>

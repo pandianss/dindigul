@@ -5,6 +5,29 @@ import { parseCSV } from '../utils/csv';
 
 const router = Router();
 
+// Get unit by SOL code
+router.get('/code/:code', authenticateToken, async (req: any, res) => {
+    const { code } = req.params;
+    try {
+        const unit = await prisma.branch.findUnique({
+            where: { code },
+            include: {
+                headUser: {
+                    select: {
+                        grade: true,
+                        fullNameEn: true
+                    }
+                }
+            }
+        });
+        if (!unit) return res.status(404).json({ error: 'Unit not found' });
+        res.json(unit);
+    } catch (error) {
+        console.error('Failed to fetch unit details:', error);
+        res.status(500).json({ error: 'Failed to fetch unit details' });
+    }
+});
+
 // Get all units (branches, RO, LPC)
 router.get('/', authenticateToken, async (req: any, res) => {
     const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
@@ -25,7 +48,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create new unit
 router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, openDate } = req.body;
     try {
         const unit = await prisma.branch.create({
             data: {
@@ -44,7 +67,8 @@ router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res
                 addressTa,
                 addressHi,
                 phone,
-                email
+                email,
+                openDate
             }
         });
         res.json(unit);
@@ -57,7 +81,7 @@ router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res
 // Update unit
 router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate } = req.body;
+    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, openDate } = req.body;
 
     try {
         const oldUnit = await prisma.branch.findUnique({ where: { id } });
@@ -80,7 +104,8 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
                 addressTa,
                 addressHi,
                 phone,
-                email
+                email,
+                openDate
             }
         });
 
@@ -197,7 +222,7 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
         }
 
         const results = await Promise.all(items.map(async (item: any) => {
-            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi } = item;
+            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi, openDate, district, sNo } = item;
             if (!code || !nameEn) return null;
 
             return prisma.branch.upsert({
@@ -208,7 +233,8 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                     specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
-                    ifsc, address, addressTa, addressHi
+                    ifsc, address, addressTa, addressHi, openDate, district,
+                    sNo: sNo ? parseInt(sNo) : undefined
                 },
                 create: {
                     code,
@@ -217,7 +243,8 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                     specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
-                    ifsc, address, addressTa, addressHi
+                    ifsc, address, addressTa, addressHi, openDate, district,
+                    sNo: sNo ? parseInt(sNo) : undefined
                 }
             });
         }));

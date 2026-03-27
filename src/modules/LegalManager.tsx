@@ -15,6 +15,7 @@ import {
     Save
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface LegalCase {
@@ -160,7 +161,7 @@ const LegalManager: React.FC = () => {
                         </div>
                     </div>
                     <p className="text-2xl font-black text-bank-navy">
-                        {cases.filter(c => c.nextHearingDate && new Date(c.nextHearingDate) > new Date()).length}
+                        {cases.filter(c => c.nextHearingDate && (parseLocalISO(c.nextHearingDate)?.getTime() || 0) > new Date().getTime()).length}
                     </p>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pending Hearings</p>
                 </div>
@@ -230,7 +231,7 @@ const LegalManager: React.FC = () => {
                                                     <Clock size={12} />
                                                     <span className="text-xs font-black">Next Hearing</span>
                                                 </div>
-                                                <p className="text-sm font-bold text-bank-navy">{format(new Date(courtCase.nextHearingDate), 'dd MMM yyyy')}</p>
+                                                <p className="text-sm font-bold text-bank-navy">{format(parseLocalISO(courtCase.nextHearingDate) || new Date(), 'dd MMM yyyy')}</p>
                                             </div>
                                         )}
                                     </div>

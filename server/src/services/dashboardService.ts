@@ -131,6 +131,42 @@ export const dashboardService = {
         });
 
         const fyMetrics = getFYMetrics();
+        const curDate = new Date();
+        const anniversaryCheckDates = Array.from({ length: 16 }, (_, i) => {
+            const d = new Date(curDate);
+            d.setDate(curDate.getDate() + i);
+            return { month: d.getMonth() + 1, day: d.getDate(), year: d.getFullYear() };
+        });
+
+        const allBranches = await prisma.branch.findMany({
+            where: { openDate: { not: null } },
+            select: { id: true, nameEn: true, code: true, openDate: true }
+        });
+
+        const anniversaries = allBranches.filter(b => {
+            const parts = b.openDate!.split('-');
+            if (parts.length !== 3) return false;
+            const m = parseInt(parts[1]);
+            const d = parseInt(parts[2]);
+            const y = parseInt(parts[0]);
+            
+            const match = anniversaryCheckDates.find(ad => ad.month === m && ad.day === d);
+            if (!match) return false;
+            
+            (b as any).years = match.year - y;
+            (b as any).displayDate = `${d.toString().padStart(2, '0')} ${new Date(2000, m - 1).toLocaleDateString('en-GB', { month: 'short' })}`;
+            return true;
+        }).map((b: any) => ({
+            id: b.id,
+            name: b.nameEn,
+            code: b.code,
+            years: b.years,
+            date: b.displayDate,
+            _m: parseInt(b.openDate!.split('-')[1]),
+            _d: parseInt(b.openDate!.split('-')[2])
+        })).sort((a, b) => (a._m - b._m) || (a._d - b._d));
+
+        console.log(`[Dashboard] Found ${anniversaries.length} upcoming anniversaries`);
 
         const formattedNotices = notices.map((n: any) => {
             const type = n.priority === 'URGENT' ? 'URGENT' : (n.category?.toUpperCase() || 'INFO');
@@ -165,6 +201,7 @@ export const dashboardService = {
                 label: e.nameEn,
                 type: e.type || 'CAMP'
             })),
+            anniversaries,
             fyMetrics
         };
     },

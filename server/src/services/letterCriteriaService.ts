@@ -356,7 +356,7 @@ export async function generateLettersForPeriod(
                 const marchInfo = snap.marchInfo;
                 const gap = snap.value - snap.scaledBudget;
                 const deptName = snap.branch.headUser?.department?.nameEn || 'PLNG';
-                const referenceNo = await generateReference('LETTER', deptName);
+                const referenceNo = await generateReference('LETTER', deptName, snap.date);
 
                 const performanceData = {
                     march31stDate: marchInfo.date, march31st: marchInfo.value,
@@ -407,7 +407,7 @@ export async function generateLettersForPeriod(
                 const marchInfo = snap.marchInfo;
                 const gap = snap.value - snap.scaledBudget;
                 const deptName = snap.branch.headUser?.department?.nameEn || 'PLNG';
-                const referenceNo = await generateReference('LETTER', deptName);
+                const referenceNo = await generateReference('LETTER', deptName, snap.date);
 
                 const performanceData = {
                     march31stDate: marchInfo.date, march31st: marchInfo.value,
@@ -494,9 +494,8 @@ export async function generateLettersForPeriod(
 
             const headDesignation = toTitleCase(branch.headUser?.designation?.nameEn || 'Branch Head');
             const deptName = branch.headUser?.department?.nameEn || 'PLNG';
-            const referenceNo = await generateReference('LETTER', deptName);
-
             const refDate = date ? businessDate : new Date();
+            const referenceNo = await generateReference('LETTER', deptName, refDate);
             const dailyMovement = await getDailyMovement(unitId, refDate);
             
             const letter = await (prisma as any).letter.create({

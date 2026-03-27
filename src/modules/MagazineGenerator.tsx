@@ -11,6 +11,7 @@ import {
     BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 
 interface MagazineNotice {
@@ -126,8 +127,8 @@ const MagazineGenerator: React.FC = () => {
                                 {events.map((event, idx) => (
                                     <div key={idx} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-start space-x-4">
                                         <div className="bg-bank-navy/5 text-bank-navy p-3 rounded-lg flex flex-col items-center min-w-[60px]">
-                                            <span className="text-lg font-black leading-none">{format(new Date(event.date), 'dd')}</span>
-                                            <span className="text-[10px] uppercase font-bold">{format(new Date(event.date), 'EEE')}</span>
+                                            <span className="text-lg font-black leading-none">{format(parseLocalISO(event.date) || new Date(), 'dd')}</span>
+                                            <span className="text-[10px] uppercase font-bold">{format(parseLocalISO(event.date) || new Date(), 'EEE')}</span>
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-bank-navy leading-tight mb-1">{event.name}</h4>
@@ -162,7 +163,7 @@ const MagazineGenerator: React.FC = () => {
                                         </div>
                                         <p className="text-gray-600 text-sm leading-relaxed mb-4">{notice.contentEn}</p>
                                         <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                            <span>Issued: {format(new Date(notice.createdAt), 'dd MMM yyyy')}</span>
+                                            <span>Issued: {format(parseLocalISO(notice.createdAt) || new Date(notice.createdAt), 'dd MMM yyyy')}</span>
                                             <span className="text-bank-teal">{notice.category}</span>
                                         </div>
                                     </div>
