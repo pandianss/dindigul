@@ -130,6 +130,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 import { registerChatHandlers } from './socket/chatHandler';
+import { userService } from './services/userService';
 
 const httpServer = createServer(app);
 
@@ -166,7 +167,13 @@ io.on('connection', (socket: any) => {
     });
 });
 
-httpServer.listen(Number(PORT), '0.0.0.0', () => {
+httpServer.listen(Number(PORT), '0.0.0.0', async () => {
+    try {
+        await userService.ensureAdminUser();
+        console.log('[System] Admin user verification complete.');
+    } catch (err) {
+        console.error('[System] Failed to verify/create admin user:', err);
+    }
     console.log(`Secured Server running on port ${PORT}`);
 });
 

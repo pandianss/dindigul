@@ -8,8 +8,37 @@ import { createNotification, notifyAdmins } from '../services/notificationServic
 import fs from 'fs';
 import path from 'path';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
+import multer from 'multer';
 
 const router = Router();
+
+// Configure multer for scanned office note uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = path.join(process.cwd(), 'uploads', 'office-notes');
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'OFFICE_NOTE_SIGNED_' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only PDF and Image files are allowed'));
+        }
+    }
+});
+
 
 // GAP 15: Submit note for review (DRAFT → SUBMITTED)
 router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
@@ -280,6 +309,52 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Upload scanned signed copy (GAP: GL Enabling workflow)
+router.post('/:id/upload-scan', authenticateToken, upload.single('document'), async (req: any, res) => {
+    const { id } = req.params;
+    if (!req.file) return res.status(400).json({ error: 'No document file uploaded' });
+
+    try {
+        const scannedCopyUrl = `/uploads/office-notes/${req.file.filename}`;
+        const note = await prisma.officeNote.update({
+            where: { id },
+            data: { 
+                scannedCopyUrl,
+                status: 'SIGNED' // Update status to reflect signed copy is attached
+            }
+        });
+
+        await createNotification(note.preparerId, 'Signed Copy Uploaded', `Signed copy for note "${note.titleEn}" has been uploaded successfully.`, 'SUCCESS', `/office-notes/${id}`);
+
+        res.json({ message: 'Scanned document uploaded successfully', note });
+    } catch (err) {
+        console.error('Upload scan error:', err);
+        res.status(500).json({ error: 'Failed to upload document' });
+    }
+});
+
+// Forward to Regional Office
+router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
+    const { id } = req.params;
+    try {
+        const currentNote = await prisma.officeNote.findUnique({ where: { id } });
+        if (!currentNote) return res.status(404).json({ error: 'Note not found' });
+
+        const note = await prisma.officeNote.update({
+            where: { id },
+            data: { status: 'FORWARDED_TO_RO' }
+        });
+
+        await notifyAdmins('Office Note Forwarded to RO', `Note "${note.titleEn}" has been forwarded to Regional Office by ${req.user.fullNameEn}.`, `/office-notes/${id}`);
+
+        res.json(note);
+    } catch (err) {
+        console.error('Forward error:', err);
+        res.status(500).json({ error: 'Failed to forward note' });
+    }
+});
+
+
 // GAP 19: Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
@@ -394,7 +469,7 @@ router.get('/:id/pdf', async (req: any, res) => {
 
         if (!note) return res.status(404).json({ error: 'Note not found' });
 
-        const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
+        const content = (typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson) as any;
 
         // Use stored referenceNo or fallback to dynamic one if missing
         const fallbackYear = new Date(note.createdAt).getFullYear();
@@ -509,6 +584,287 @@ router.get('/:id/pdf', async (req: any, res) => {
                     <p style="line-height: 1.5; text-align: justify; font-size: 12.5px; color: #1e293b; font-weight: 500;">
                         Since the branch request satisfies extant guidelines in the referred circulars, we may approve the entry in Finacle using HHVDD menu.
                     </p>
+                </div>
+            `;
+        } else if (note.type === 'EXPENSE_APPROVAL') {
+            bodyHtml = `
+                <style>
+                    .exp-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12.5px; }
+                    .exp-table th, .exp-table td { padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; }
+                    .exp-table th { background-color: #f1f5f9; font-weight: bold; color: #1e3a5f; text-transform: uppercase; font-size: 11px; }
+                    .exp-table .label { font-weight: bold; background-color: #f8fafc; width: 40%; color: #334155; }
+                    .exp-table .value { width: 60%; color: #0f172a; }
+                    .amount { font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; text-align: right; }
+                    .section-hdr { font-weight: bold; font-size: 13px; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; margin-bottom: 8px; margin-top: 20px; padding-bottom: 3px; display: inline-block; text-transform: uppercase; }
+                </style>
+                <div style="margin-bottom: 12px; font-weight: bold; font-family: 'NotoTamil', 'NotoHindi', sans-serif; text-align: center;">
+                    <div style="font-size: 16px;">${note.titleEn || 'Note for Administrative Approval and Expenditure Sanction'}</div>
+                    <div style="width: 100%; border-bottom: 1.5px solid #000; margin-top: 6px;"></div>
+                </div>
+
+                <div class="section-hdr">1. Background & Justification</div>
+                <p style="text-align: justify; line-height: 1.5; font-size: 13px; color: #1e293b; white-space: pre-wrap;">${content.expensePurpose || '-'}</p>
+
+                <div class="section-hdr">2. Financial Details</div>
+                <table class="exp-table">
+                    <tbody>
+                        <tr><td class="label">Expense Category</td><td class="value">${content.expenseCategory || '-'} Expenditure</td></tr>
+                        <tr><td class="label">General Ledger (GL) Budget Head</td><td class="value">${content.budgetHead || '-'}</td></tr>
+                        <tr><td class="label">Budget Allocated for FY</td><td class="value amount">₹ ${Number(content.budgetAllocated || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr><td class="label">Budget Utilised till Date</td><td class="value amount">₹ ${Number(content.budgetUtilized || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr><td class="label" style="background-color: #e2e8f0; color: #000; font-size: 13px;">Proposed Expenditure Amount</td><td class="value amount" style="font-size: 15px; color: #000; font-weight: 900;">₹ ${Number(content.proposedAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="section-hdr">3. Statutory & Vendor Details</div>
+                <table class="exp-table">
+                    <tbody>
+                        <tr><td class="label">Selected Vendor / Beneficiary</td><td class="value" style="font-weight: bold">${content.vendorName || '-'}</td></tr>
+                        <tr><td class="label">Vendor PAN</td><td class="value">${content.vendorPan || '-'}</td></tr>
+                        <tr><td class="label">Vendor GSTIN</td><td class="value">${content.vendorGst || '-'}</td></tr>
+                        <tr><td class="label">Quotation Basis</td><td class="value">${content.quotationBasis || '-'}</td></tr>
+                        ${content.quotationBasis === 'L1' ? `<tr><td class="label">Quotation Breakdown</td><td class="value" style="white-space: pre-wrap;">${content.quotationDetails || '-'}</td></tr>` : ''}
+                        <tr><td class="label">TDS Applicability</td><td class="value font-bold">${content.tdsApplicable || '-'}</td></tr>
+                        <tr><td class="label">GST Applicability</td><td class="value font-bold">${content.gstApplicable || '-'}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="section-hdr" style="margin-top: 25px;">4. Recommendation & Sanction</div>
+                <p style="text-align: justify; line-height: 1.5; font-size: 13.5px; color: #000; font-weight: 500; white-space: pre-wrap; margin-bottom: 40px;">${content.recommendation || '-'}</p>
+            `;
+        } else if (note.type === 'BROKEN_INTEREST') {
+            const fmt = (d: string) => d ? new Date(d).toLocaleDateString('en-GB') : '-';
+            const startDate = fmt(content.brokenPeriodStart);
+            const endDate = fmt(content.brokenPeriodEnd);
+            const openDate = fmt(content.depositOpenDate);
+            const principalVal = parseFloat(content.principalAmount || '0');
+            const rateVal = parseFloat(content.effectiveInterestRate || '0');
+            const daysVal = parseInt(content.brokenPeriodDays || '0');
+            const freq = content.compoundingFrequency || 'SIMPLE';
+            const rDec = rateVal / 100;
+            const t = daysVal / 365;
+            let biInterest = parseFloat(content.calculatedInterest || '0');
+            if (principalVal > 0 && rateVal > 0 && daysVal > 0) {
+                if (freq === 'SIMPLE') {
+                    biInterest = principalVal * rDec * daysVal / 365;
+                } else {
+                    const n = freq === 'MONTHLY' ? 12 : freq === 'QUARTERLY' ? 4 : freq === 'HALFYEARLY' ? 2 : 1;
+                    biInterest = principalVal * Math.pow(1 + rDec / n, n * t) - principalVal;
+                }
+            }
+            const freqLabelMap: Record<string,string> = {
+                SIMPLE: 'Simple Interest (P × R × D / 365)',
+                QUARTERLY: 'Compound — Quarterly',
+                MONTHLY: 'Compound — Monthly',
+                HALFYEARLY: 'Compound — Half-Yearly',
+                ANNUALLY: 'Compound — Annually',
+            };
+            const freqLabel = freqLabelMap[freq] || freq;
+            const principalFmt = principalVal > 0
+                ? `₹ ${principalVal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-';
+            const interestFmt = biInterest > 0
+                ? `₹ ${biInterest.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-';
+            let formula = '';
+            if (principalVal > 0 && rateVal > 0 && daysVal > 0) {
+                if (freq === 'SIMPLE') {
+                    formula = `₹${principalVal.toLocaleString('en-IN')} × ${rateVal}% × ${daysVal} days ÷ 365 = ${interestFmt}`;
+                } else {
+                    const n = freq === 'MONTHLY' ? 12 : freq === 'QUARTERLY' ? 4 : freq === 'HALFYEARLY' ? 2 : 1;
+                    formula = `₹${principalVal.toLocaleString('en-IN')} × (1 + ${rateVal}%/${n})^(${n}×${t.toFixed(4)}y) − P = ${interestFmt}`;
+                }
+            }
+            const isOrg = (content.depositorType || '').toLowerCase().includes('org');
+            const custCategory = content.customerCategory || 'General';
+            const dobStr = content.customerDob ? fmt(content.customerDob) : '-';
+            const ageStr = content.customerAge ? `${content.customerAge} years` : '-';
+
+            bodyHtml = `
+                <style>
+                    .bi-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13.5px; }
+                    .bi-table th, .bi-table td { border: 1px solid #dee2e6; padding: 9px 13px; text-align: left; }
+                    .bi-table th { background-color: #f8f9fa; font-weight: bold; width: 45%; color: #343a40; }
+                    .bi-table .val { color: #212529; font-family: "Courier New", Courier, monospace; font-weight: 600; }
+                    .bi-table .val-plain { color: #212529; font-weight: 600; }
+                    .bi-table .val-hl { color: #166534; font-family: "Courier New", Courier, monospace; font-weight: 700; font-size: 15px; }
+                    .bi-table .val-rate { color: #dc2626; font-family: "Courier New", Courier, monospace; font-weight: 700; }
+                    .bi-table .val-cat { color: #7c3aed; font-weight: 700; }
+                    .bi-section { margin-top: 28px; font-size: 15px; font-weight: bold; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 12px; }
+                    .bi-text { text-align: justify; line-height: 1.6; font-size: 13.5px; color: #333; white-space: pre-wrap; }
+                    .bi-formula { font-family: "Courier New", Courier, monospace; font-size: 12px; color: #333; margin-top: 6px; padding: 8px 12px; background: #f0f4f8; border-left: 3px solid #1e3a8a; }
+                </style>
+
+                <div class="bi-section">1. Depositor &amp; Deposit Details</div>
+                <table class="bi-table">
+                    <tbody>
+                        <tr><th>Depositor Type</th><td class="val-plain">${content.depositorType || 'Individual'}</td></tr>
+                        <tr><th>Customer Category</th><td class="val-cat">${custCategory}${custCategory === 'Senior Citizen' ? ' (60–79 yrs, +0.50% spread)' : custCategory === 'Super Senior Citizen' ? ' (80+ yrs, +0.75% spread)' : ''}</td></tr>
+                        <tr><th>CIF ID / Customer ID</th><td class="val">${content.cifId || '-'}</td></tr>
+                        <tr><th>TD / FD Account Number</th><td class="val">${content.tdAccountNo || '-'}</td></tr>
+                        <tr><th>Deposit Open Date</th><td class="val-plain">${openDate}</td></tr>
+                        <tr><th>Contract Rate of Interest</th><td class="val-rate">${content.contractRate || '-'} %</td></tr>
+                        <tr><th>Date of Birth</th><td class="val-plain">${isOrg ? '<em>N/A — Organization</em>' : dobStr}</td></tr>
+                        <tr><th>Age</th><td class="val-plain">${isOrg ? '<em>N/A — Organization</em>' : ageStr}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="bi-section">2. Rate Criteria</div>
+                <table class="bi-table">
+                    <tbody>
+                        <tr><th>Base Interest Rate Claimed</th><td class="val">${content.claimedInterestRate || '0.00'} %</td></tr>
+                        <tr><th>Additional Spread (Senior / Super Senior Citizen)</th><td class="val">${content.additionalSpread || '0.00'} %</td></tr>
+                        <tr><th>Effective Interest Rate</th><td class="val-rate">${content.effectiveInterestRate || '0.00'} %</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="bi-section">3. Broken Period Details</div>
+                <table class="bi-table">
+                    <tbody>
+                        <tr><th>Period Start Date</th><td class="val-plain">${startDate}</td></tr>
+                        <tr><th>Period End Date</th><td class="val-plain">${endDate}</td></tr>
+                        <tr><th>Total Days Claimed</th><td class="val">${content.brokenPeriodDays || '-'} Days</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="bi-section">4. Interest Calculation &mdash; ${freqLabel}</div>
+                <table class="bi-table">
+                    <tbody>
+                        <tr><th>Principal / Deposit Amount</th><td class="val">${principalFmt}</td></tr>
+                        <tr><th>Compounding Method</th><td class="val-plain">${freqLabel}</td></tr>
+                        <tr><th>Effective Rate of Interest</th><td class="val-rate">${content.effectiveInterestRate || '0.00'} % p.a.</td></tr>
+                        <tr><th>Number of Days (Broken Period)</th><td class="val">${content.brokenPeriodDays || '-'} Days</td></tr>
+                        <tr><th style="background-color:#f0fdf4;">Broken Period Interest Amount</th><td class="val-hl">${interestFmt}</td></tr>
+                    </tbody>
+                </table>
+                ${formula ? `<div class="bi-formula">Formula: ${formula}</div>` : ''}
+
+                <div class="bi-section">5. Justification / Calculation Narrative</div>
+                <div class="bi-text">${content.brokenPeriodJustification || 'No justification provided.'}</div>
+
+                <div style="margin-top: 40px; font-size: 13px; color: #6c757d; font-style: italic; border-top: 1px dashed #ccc; padding-top: 10px;">
+                    Note: Interest computed per RBI Master Circular on Interest Rates on Rupee Deposits (DBOD.No.Dir.BC.1/13.03.00/2012-13, Para 2.3 &amp; 2.9).
+                </div>
+            `;
+        } else if (note.type === 'REVERSAL_CHARGES') {
+            const chargeDate = content.revOriginalChargeDate ? new Date(content.revOriginalChargeDate).toLocaleDateString('en-GB') : '-';
+            const origAmt = parseFloat(content.revOriginalChargeAmount || '0');
+            const revAmt = parseFloat(content.revReversalAmount || '0');
+
+            const fmtAmt = (val: number) => val > 0 
+                ? `₹ ${val.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-';
+
+            bodyHtml = `
+                <style>
+                    .rev-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13.5px; }
+                    .rev-table th, .rev-table td { border: 1px solid #dee2e6; padding: 10px 14px; text-align: left; }
+                    .rev-table th { background-color: #f8f9fa; font-weight: bold; width: 45%; color: #343a40; }
+                    .rev-table .val { color: #212529; font-weight: 600; font-family: "Courier New", Courier, monospace; }
+                    .rev-table .val-amt { color: #dc2626; font-weight: 700; font-family: "Courier New", Courier, monospace; }
+                    .rev-table .val-rev { color: #166534; font-weight: 700; font-family: "Courier New", Courier, monospace; font-size: 15px; }
+                    .rev-section { margin-top: 25px; font-size: 15px; font-weight: bold; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
+                    .rev-text { text-align: justify; line-height: 1.6; font-size: 13.5px; color: #333; white-space: pre-wrap; margin-top: 10px; }
+                    .rev-reason { font-weight: bold; color: #1e3a8a; }
+                </style>
+
+                <div class="rev-section">1. Account / Customer Details</div>
+                <table class="rev-table">
+                    <tbody>
+                        <tr><th>Customer Name</th><td class="val">${content.revCustomerName || '-'}</td></tr>
+                        <tr><th>Account Number</th><td class="val">${content.revAccountNumber || '-'}</td></tr>
+                        <tr><th>CIF ID / Customer ID</th><td class="val">${content.revCifId || '-'}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="rev-section">2. Original Charge Information</div>
+                <table class="rev-table">
+                    <tbody>
+                        <tr><th>Type of Charge Charged</th><td class="val">${content.revChargeType || '-'}</td></tr>
+                        <tr><th>Date of Original Charge</th><td class="val">${chargeDate}</td></tr>
+                        <tr><th>Original Amount Charged</th><td class="val-amt">${fmtAmt(origAmt)}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="rev-section">3. Reversal Justification</div>
+                <table class="rev-table">
+                    <tbody>
+                        <tr><th>Proposed Reversal Amount</th><td class="val-rev">${fmtAmt(revAmt)}</td></tr>
+                        <tr><th>Root Cause / Reason</th><td class="val" style="color:#1e3a8a;">${content.revReason || '-'}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="rev-text">
+                    <p><strong>Detailed Justification:</strong></p>
+                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">${content.revJustification || 'No justification provided.'}</div>
+                </div>
+
+                <div style="margin-top: 40px; font-size: 12px; color: #6c757d; font-style: italic; border-top: 1px dashed #ccc; padding-top: 10px;">
+                    Note: Waiver of legitimate bank charges is subject to internal audit guidelines. First-time waivers or system errors must be clearly documented and approved as per the delegation of powers.
+                </div>
+            `;
+        } else if (note.type === 'GL_HEAD_ACTIVATION') {
+            bodyHtml = `
+                <style>
+                    .gl-header { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 5px; text-decoration: underline; }
+                    .gl-subheader { text-align: center; font-size: 12px; margin-bottom: 20px; font-style: italic; }
+                    .gl-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; table-layout: fixed; }
+                    .gl-table th, .gl-table td { border: 1px solid #000; padding: 6px 10px; text-align: left; vertical-align: top; }
+                    .gl-table th { width: 40%; font-weight: bold; background-color: #f3f4f6; }
+                    .gl-val { font-weight: bold; font-family: "Courier New", Courier, monospace; word-wrap: break-word; }
+                    .gl-section { background-color: #e5e7eb; font-weight: bold; padding: 4px 10px; margin-top: 15px; border: 1px solid #000; font-size: 13px; }
+                    .gl-sign-area { margin-top: 30px; display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; padding-top: 10px; }
+                </style>
+
+                <div style="text-align: right; font-weight: bold; font-size: 12px; margin-bottom: 10px;">Annexure 2</div>
+                <div class="gl-header">Request Mandate form for RE OPENING OF BLOCKED GL Head / Account</div>
+                <div class="gl-subheader">(To be filed by Owner department/unit For RE-OPENING / ENABLING Internal Office Account)</div>
+
+                <table class="gl-table">
+                    <tbody>
+                        <tr><th>Ownership: Name of the CO Department/Unit with code</th><td class="gl-val">${content.glOwnershipDept || '-'}</td></tr>
+                        <tr><th>Operation User: Name of the department/unit/Branch</th><td class="gl-val">${content.glOperationUser || '-'}</td></tr>
+                        <tr><th>GL Office Account No - &lt;FORACID&gt;</th><td class="gl-val">${content.glAccountNo || '-'}</td></tr>
+                        <tr><th>Account Description</th><td class="gl-val">${content.glAccountDesc || '-'}</td></tr>
+                        <tr>
+                            <th>Purpose of Reopening/ Enabling</th>
+                            <td class="gl-val">
+                                <div><strong>Justification/Fund Flow:</strong></div>
+                                <div style="white-space: pre-wrap; margin-top: 5px;">${content.glPurpose || '-'}</div>
+                            </td>
+                        </tr>
+                        <tr><th>Type of Operation</th><td class="gl-val">${content.glOpType || '-'} / ${content.glDrCrBoth || '-'}</td></tr>
+                        <tr><th>Is the Account - recorder of Asset or Liability</th><td class="gl-val">${content.glAssetLiability || '-'}</td></tr>
+                        <tr><th>Activity - Parking / Pooling / Generic</th><td class="gl-val">${content.glActivity || '-'}</td></tr>
+                        <tr><th>Any Limits / Restrictions</th><td class="gl-val">${content.glLimits || '-'}</td></tr>
+                        <tr><th>Name of the monitoring CO Dept/ Unit</th><td class="gl-val">${content.glMonitoringDept || '-'}</td></tr>
+                        <tr><th>For Operation by Branch Only/ Inter Branch / CO only/ Inter CO Dept./ Branch &amp; CO</th><td class="gl-val">${content.glOperationBy || '-'}</td></tr>
+                        <tr><th>CASH Operation</th><td class="gl-val">${content.glCashOp || '-'}</td></tr>
+                        <tr><th>Is it a Finacle Mandatory A/C?</th><td class="gl-val">${content.glFinacleMandatory || '-'}</td></tr>
+                        <tr><th>Does the Account need Pointer facility</th><td class="gl-val">${content.glPointerFacility || '-'}</td></tr>
+                        <tr><th>Revoke of Status to Block / Periodicity of Liveliness of account</th><td class="gl-val">${content.glRevokeStatus || '-'}</td></tr>
+                        <tr><th>Whether RO need delegated power to Unblock and Enable</th><td class="gl-val">${content.glRoPower || '-'}</td></tr>
+                        <tr><th>Reconciliation Mandate</th><td class="gl-val">${content.glReconMandate || '-'}</td></tr>
+                        <tr><th>Whether Account will be reconciled to ZERO by Day End - EOD-Check required?</th><td class="gl-val">${content.glReconZeroEod || '-'}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="gl-sign-area">
+                    <div style="width: 30%;">
+                        <div>Date: ${new Date().toLocaleDateString('en-GB')}</div>
+                        <div style="margin-top: 40px;">Intending User Department/Unit</div>
+                    </div>
+                    <div style="width: 30%; text-align: right;">
+                        <div style="margin-top: 55px;">Signature &amp; Seal of Branch Head</div>
+                    </div>
+                </div>
+
+                <div class="gl-section">Remarks by Regional Office (In Case of Branch Request)</div>
+                <div style="height: 60px; border: 1px solid #000; border-top: none; padding: 10px; font-size: 11px; color: #666;">
+                    Date: ........................ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Seal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Signature: ........................
+                </div>
+
+                <div class="gl-section">Remarks/ Recommendation by Central Office Department/ HOD Ownership</div>
+                <div style="height: 80px; border: 1px solid #000; border-top: none; padding: 10px; font-size: 11px;">
+                    <p>Recommended to REOPEN/ ENABLE GL a/c................................................</p>
+                    <p style="margin-top: 20px;">Date: ........................ &nbsp;&nbsp;&nbsp;&nbsp; Seal &nbsp;&nbsp;&nbsp;&nbsp; HOD/GM Signature: ........................</p>
                 </div>
             `;
         } else if (note.type === 'RBI_BO_PROFORMA') {

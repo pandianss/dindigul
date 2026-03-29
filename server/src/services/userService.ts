@@ -4,6 +4,23 @@ import { saveBase64Image } from '../utils/image';
 import { getPaginatedResponse } from '../utils/pagination';
 
 export const userService = {
+    async ensureAdminUser() {
+        const admin = await prisma.user.findUnique({ where: { username: 'admin' } });
+        if (!admin) {
+            console.log('[System] Admin user not found. Creating default admin user...');
+            const passwordHash = await bcrypt.hash('admin123', 10);
+            await prisma.user.create({
+                data: {
+                    username: 'admin',
+                    passwordHash,
+                    fullNameEn: 'System Administrator',
+                    role: 'ADMIN',
+                    section: 'IT'
+                }
+            });
+            console.log('[System] Default admin user created successfully.');
+        }
+    },
     async getUsers(skip: number, take: number, page: number, limit: number) {
         const [users, total] = await Promise.all([
             prisma.user.findMany({

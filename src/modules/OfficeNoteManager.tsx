@@ -15,7 +15,8 @@ interface OfficeNote {
     isFrozen?: boolean;
     contentJson: string;
     referenceNo?: string;
-    preparer: { fullNameEn: string, username: string };
+    scannedCopyUrl?: string; // New field for signed copy
+    preparer: { id: string, fullNameEn: string, username: string, branchId?: string };
     createdAt: string;
 }
 
@@ -166,7 +167,813 @@ const INITIAL_FORM = {
         rbi_forexSettlingPartICode: '',
         rbi_cspManned: 'MANNED' as string,
         rbi_remarks: '',
+        // ─── EXPENSE_APPROVAL fields ───────────────────────────────────────
+        expenseCategory: 'REVENUE' as string,
+        budgetHead: '',
+        budgetAllocated: '',
+        budgetUtilized: '',
+        proposedAmount: '',
+        vendorName: '',
+        vendorPan: '',
+        vendorGst: '',
+        tdsApplicable: 'Yes' as string,
+        gstApplicable: 'Yes' as string,
+        quotationBasis: 'L1' as string,
+        quotationDetails: '',
+        expensePurpose: '',
+        recommendation: '',
+        // ─── BROKEN_INTEREST fields ──────────────────────────────────────────────
+        // ─ Customer / Deposit identifiers
+        cifId: '',
+        tdAccountNo: '',
+        depositorType: 'Individual' as string,
+        customerDob: '',
+        customerAge: '',
+        depositOpenDate: '',
+        contractRate: '',
+        // ─ Rate criteria
+        brokenPeriodStart: '',
+        brokenPeriodEnd: '',
+        brokenPeriodDays: '',
+        principalAmount: '',
+        claimedInterestRate: '',
+        customerCategory: 'General' as string,
+        additionalSpread: '0' as string,
+        effectiveInterestRate: '',
+        compoundingFrequency: 'SIMPLE' as string,
+        calculatedInterest: '',
+        brokenPeriodJustification: '',
+        // ─── REVERSAL_CHARGES fields ───────────────────────────────────────
+        revCustomerName: '',
+        revAccountNumber: '',
+        revCifId: '',
+        revChargeType: 'SMS Charges' as string,
+        revOriginalChargeDate: '',
+        revOriginalChargeAmount: '',
+        revReversalAmount: '',
+        revReason: 'Bank Error' as string,
+        revJustification: '',
+        // ─── GL_HEAD_ACTIVATION fields ───────────────────────────────────────
+        glOwnershipDept: '',
+        glOperationUser: '',
+        glAccountNo: '',
+        glAccountDesc: '',
+        glPurpose: '',
+        glOpType: 'System' as string,
+        glDrCrBoth: 'Both' as string,
+        glAssetLiability: 'Liability' as string,
+        glActivity: 'Generic' as string,
+        glLimits: 'No' as string,
+        glMonitoringDept: '',
+        glOperationBy: 'Branch only' as string,
+        glCashOp: 'No' as string,
+        glFinacleMandatory: 'Yes' as string,
+        glPointerFacility: 'Yes' as string,
+        glRevokeStatus: '',
+        glRoPower: 'No' as string,
+        glReconMandate: 'Reconciliation to zero by same day' as string,
+        glReconZeroEod: 'No' as string,
     }
+};
+
+// ─── Expense Approval Form Component ─────────────────────────────────────
+const ExpenseApprovalForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as typeof INITIAL_FORM.contentJson;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
+    
+    return (
+        <div className="space-y-6">
+            <SectionCard title="1. Expense Categorization & Budget Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Expense Category *</label>
+                        <select className={inputCls} value={c.expenseCategory as string} onChange={e => setField('expenseCategory', e.target.value)}>
+                            <option value="REVENUE">Revenue Expenditure</option>
+                            <option value="CAPITAL">Capital Expenditure</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>General Ledger (GL) Budget Head *</label>
+                        <select className={inputCls} value={c.budgetHead as string} onChange={e => setField('budgetHead', e.target.value)}>
+                            <option value="">Select or Type Below</option>
+                            <option value="Repairs and Maintenance">Repairs and Maintenance</option>
+                            <option value="Printing and Stationery">Printing and Stationery</option>
+                            <option value="Advertisement and Publicity">Advertisement and Publicity</option>
+                            <option value="Travelling Expenses">Travelling Expenses</option>
+                            <option value="Legal Charges">Legal Charges</option>
+                            <option value="Other Expenditure">Other Expenditure</option>
+                        </select>
+                        <input type="text" className={`mt-2 ${inputCls}`} placeholder="Or type custom budget head..." value={c.budgetHead as string} onChange={e => setField('budgetHead', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>FY Allocated Budget (₹)</label>
+                        <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetAllocated as string} onChange={e => setField('budgetAllocated', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Utilised Budget till Date (₹)</label>
+                        <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetUtilized as string} onChange={e => setField('budgetUtilized', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+            
+            <SectionCard title="2. Proposal & Vendor Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Purpose of Expense / Justification *</label>
+                        <textarea rows={3} className={inputCls} placeholder="Detailed reason for the expenditure..." value={c.expensePurpose as string} onChange={e => setField('expensePurpose', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Proposed Expenditure Amount (₹) *</label>
+                        <input className={inputCls} type="number" required placeholder="Enter Proposed Amount" value={c.proposedAmount as string} onChange={e => setField('proposedAmount', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Quotation Basis *</label>
+                        <select className={inputCls} value={c.quotationBasis as string} onChange={e => setField('quotationBasis', e.target.value)}>
+                            <option value="L1">L1 out of 3 Quotations</option>
+                            <option value="SINGLE">Single Dispensation / Proprietary</option>
+                            <option value="EMPANELED">Empaneled Vendor</option>
+                            <option value="NA">Not Applicable / Subscription</option>
+                        </select>
+                    </div>
+                    {c.quotationBasis === 'L1' && (
+                        <div className="md:col-span-2">
+                            <label className={labelCls}>Quotation Details (L1, L2, L3)</label>
+                            <textarea rows={2} className={inputCls} placeholder="e.g. L1: Vendor A (₹2000), L2: Vendor B (₹2500)..." value={c.quotationDetails as string} onChange={e => setField('quotationDetails', e.target.value)} />
+                        </div>
+                    )}
+                    <div className="md:col-span-2 border-t pt-2 mt-2">
+                        <p className="text-xs font-bold text-bank-teal uppercase mb-2">Selected Vendor Information</p>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Name of Vendor / Beneficiary</label>
+                        <input className={inputCls} type="text" placeholder="Vendor Name" value={c.vendorName as string} onChange={e => setField('vendorName', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Vendor PAN</label>
+                        <input className={inputCls} type="text" placeholder="ABCDE1234F" value={c.vendorPan as string} onChange={e => setField('vendorPan', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Vendor GSTIN</label>
+                        <input className={inputCls} type="text" placeholder="22ABCDE1234F1Z5" value={c.vendorGst as string} onChange={e => setField('vendorGst', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+            
+            <SectionCard title="3. Statutory Requirements & Recommendation">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Is TDS Applicable? *</label>
+                        <select className={inputCls} value={c.tdsApplicable as string} onChange={e => setField('tdsApplicable', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Is GST Applicable? *</label>
+                        <select className={inputCls} value={c.gstApplicable as string} onChange={e => setField('gstApplicable', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Specific Recommendation / Sanction Request *</label>
+                        <textarea rows={3} className={inputCls} placeholder="e.g. Submitted for according administrative approval and financial sanction of ₹..." value={c.recommendation as string} onChange={e => setField('recommendation', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
+};
+
+// helper: compute interest based on simple or compound frequency
+// freq: SIMPLE | QUARTERLY | MONTHLY | HALFYEARLY | ANNUALLY
+const calcInterestBI = (
+    principal: string | number,
+    effectiveRate: string | number,
+    days: string | number,
+    freq: string
+): string => {
+    const p = parseFloat(String(principal)) || 0;
+    const r = parseFloat(String(effectiveRate)) || 0;
+    const d = parseFloat(String(days)) || 0;
+    if (p <= 0 || r <= 0 || d <= 0) return '';
+    const rDec = r / 100;
+    if (freq === 'SIMPLE') {
+        // Simple interest: P x R x D / 365 (per RBI Para 2.3)
+        return (p * rDec * d / 365).toFixed(2);
+    }
+    // Compound interest: A = P x (1 + r/n)^(n x t), Interest = A - P
+    // t is in years = D / 365
+    const n = freq === 'MONTHLY' ? 12 : freq === 'QUARTERLY' ? 4 : freq === 'HALFYEARLY' ? 2 : 1;
+    const t = d / 365;
+    const maturity = p * Math.pow(1 + rDec / n, n * t);
+    return (maturity - p).toFixed(2);
+};
+
+// ─── Broken Period Interest Form Component ───────────────────────────────
+const BrokenPeriodInterestForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as typeof INITIAL_FORM.contentJson;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
+    
+    const handleCategoryChange = (val: string) => {
+        let spread = '0';
+        if (val === 'Senior Citizen') spread = '0.50';
+        if (val === 'Super Senior Citizen') spread = '0.75';
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            const baseRate = parseFloat(currentC.claimedInterestRate || '0') || 0;
+            const newSpread = parseFloat(spread) || 0;
+            const effective = (baseRate + newSpread).toFixed(2);
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    customerCategory: val,
+                    additionalSpread: spread,
+                    effectiveInterestRate: effective !== '0.00' ? effective : '',
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, effective, currentC.brokenPeriodDays, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    const handleRateSpreadChange = (key: 'claimedInterestRate' | 'additionalSpread', val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            const baseRate = key === 'claimedInterestRate' ? parseFloat(val) : parseFloat(currentC.claimedInterestRate || '0');
+            const spread = key === 'additionalSpread' ? parseFloat(val) : parseFloat(currentC.additionalSpread || '0');
+            const effective = ((baseRate || 0) + (spread || 0)).toFixed(2);
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    [key]: val,
+                    effectiveInterestRate: effective !== '0.00' ? effective : '',
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, effective, currentC.brokenPeriodDays, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    const handlePrincipalChange = (val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    principalAmount: val,
+                    calculatedInterest: calcInterestBI(val, currentC.effectiveInterestRate, currentC.brokenPeriodDays, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    const handleFrequencyChange = (val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    compoundingFrequency: val,
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, currentC.effectiveInterestRate, currentC.brokenPeriodDays, val)
+                }
+            };
+        });
+    };
+
+    const handleDateChange = (key: 'brokenPeriodStart' | 'brokenPeriodEnd', val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            const startStr = key === 'brokenPeriodStart' ? val : currentC.brokenPeriodStart;
+            const endStr = key === 'brokenPeriodEnd' ? val : currentC.brokenPeriodEnd;
+            let days = currentC.brokenPeriodDays;
+            if (startStr && endStr) {
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                    const diffTime = Math.abs(end.getTime() - start.getTime());
+                    days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)).toString();
+                }
+            }
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    [key]: val,
+                    brokenPeriodDays: days,
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, currentC.effectiveInterestRate, days, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    // DOB -> age and category auto-calc
+    const handleDobChange = (val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            let age = '';
+            let category = 'General';
+            let spread = '0';
+
+            if (val) {
+                const dob = new Date(val);
+                const today = new Date();
+                if (!isNaN(dob.getTime())) {
+                    let yr = today.getFullYear() - dob.getFullYear();
+                    const m = today.getMonth() - dob.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) yr--;
+                    age = String(yr);
+
+                    const ageNum = parseInt(age);
+                    if (ageNum >= 80) {
+                        category = 'Super Senior Citizen';
+                        spread = '0.75';
+                    } else if (ageNum >= 60) {
+                        category = 'Senior Citizen';
+                        spread = '0.50';
+                    }
+                }
+            }
+
+            const baseRateNum = parseFloat(currentC.claimedInterestRate || '0') || 0;
+            const spreadNum = parseFloat(spread) || 0;
+            const effective = ((baseRateNum || 0) + (spreadNum || 0)).toFixed(2);
+
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    customerDob: val,
+                    customerAge: age,
+                    customerCategory: category,
+                    additionalSpread: spread,
+                    effectiveInterestRate: effective !== '0.00' ? effective : '',
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, effective, currentC.brokenPeriodDays, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    const handleDepositorTypeChange = (val: string) => {
+        setFormData(prev => {
+            const currentC = prev.contentJson as any;
+            const isOrg = val === 'Organization';
+            const category = isOrg ? 'General' : currentC.customerCategory;
+            const spread = isOrg ? '0' : currentC.additionalSpread;
+            const dob = isOrg ? '' : currentC.customerDob;
+            const age = isOrg ? '' : currentC.customerAge;
+
+            const baseRateNum = parseFloat(currentC.claimedInterestRate || '0') || 0;
+            const spreadNum = parseFloat(spread) || 0;
+            const effective = ((baseRateNum || 0) + (spreadNum || 0)).toFixed(2);
+
+            return {
+                ...prev,
+                contentJson: {
+                    ...currentC,
+                    depositorType: val,
+                    customerDob: dob,
+                    customerAge: age,
+                    customerCategory: category,
+                    additionalSpread: spread,
+                    effectiveInterestRate: effective !== '0.00' ? effective : '',
+                    calculatedInterest: calcInterestBI(currentC.principalAmount, effective, currentC.brokenPeriodDays, currentC.compoundingFrequency || 'SIMPLE')
+                }
+            };
+        });
+    };
+
+    const freq = (c.compoundingFrequency as string) || 'SIMPLE';
+    const freqLabel: Record<string, string> = {
+        SIMPLE: 'Simple Interest (P × R × D / 365)',
+        QUARTERLY: 'Compound — Quarterly [P×(1+R/400)^(4×t)]',
+        MONTHLY: 'Compound — Monthly [P×(1+R/1200)^(12×t)]',
+        HALFYEARLY: 'Compound — Half-Yearly [P×(1+R/200)^(2×t)]',
+        ANNUALLY: 'Compound — Annually [P×(1+R/100)^t]',
+    };
+    const interestFormatted = c.calculatedInterest
+        ? `₹ ${Number(c.calculatedInterest).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+        : '';
+    const formulaHint = c.calculatedInterest && c.principalAmount ? (
+        freq === 'SIMPLE'
+            ? `= ₹${Number(c.principalAmount).toLocaleString('en-IN')} × ${c.effectiveInterestRate}% × ${c.brokenPeriodDays} days ÷ 365`
+            : `= ₹${Number(c.principalAmount).toLocaleString('en-IN')} × (1 + ${c.effectiveInterestRate}%÷${{ QUARTERLY:4, MONTHLY:12, HALFYEARLY:2, ANNUALLY:1 }[freq]})^(${{ QUARTERLY:4, MONTHLY:12, HALFYEARLY:2, ANNUALLY:1 }[freq]}×${(parseFloat(String(c.brokenPeriodDays))/365).toFixed(4)}y) − P`
+    ) : null;
+
+    return (
+        <div className="space-y-6">
+            {/* ─── Section 1: Depositor & Deposit Details ─── */}
+            <SectionCard title="1. Depositor &amp; Deposit Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Depositor Type *</label>
+                        <select className={inputCls} value={(c.depositorType as string) || 'Individual'} onChange={e => handleDepositorTypeChange(e.target.value)}>
+                            <option value="Individual">Individual</option>
+                            <option value="Organization">Organization / Non-Individual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Customer Category *</label>
+                        <select className={inputCls} value={c.customerCategory as string} onChange={e => handleCategoryChange(e.target.value)}
+                            disabled={(c.depositorType as string) === 'Organization'}>
+                            <option value="General">General / Ordinary</option>
+                            <option value="Senior Citizen">Senior Citizen (60–79 yrs)</option>
+                            <option value="Super Senior Citizen">Super Senior Citizen (80+ yrs)</option>
+                        </select>
+                        {(c.depositorType as string) === 'Organization' && (
+                            <p className="text-xs text-gray-400 mt-1">ⓘ Senior Citizen spread not applicable for organizations.</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className={labelCls}>CIF ID / Customer ID *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. CIF1234567" value={(c.cifId as string) || ''} onChange={e => setField('cifId', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>TD / FD Account Number *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. 123456789012" value={(c.tdAccountNo as string) || ''} onChange={e => setField('tdAccountNo', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Deposit Open Date *</label>
+                        <input className={inputCls} type="date" value={(c.depositOpenDate as string) || ''} onChange={e => setField('depositOpenDate', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Contract Rate (%) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="Original rate as per contract" value={(c.contractRate as string) || ''} onChange={e => setField('contractRate', e.target.value)} />
+                    </div>
+                    {(c.depositorType as string) !== 'Organization' && (
+                        <>
+                            <div>
+                                <label className={labelCls}>Date of Birth *</label>
+                                <input className={inputCls} type="date" value={(c.customerDob as string) || ''} onChange={e => handleDobChange(e.target.value)} />
+                            </div>
+                            <div>
+                                <label className={labelCls}>Age (Years)</label>
+                                <input className={`${inputCls} bg-gray-100 font-bold`} type="text" readOnly placeholder="Auto-calculated" value={(c.customerAge as string) || ''} />
+                            </div>
+                        </>
+                    )}
+                    {(c.depositorType as string) === 'Organization' && (
+                        <div className="md:col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
+                            ⓘ Date of Birth &amp; Age: <strong>N/A</strong> (Organization / Non-Individual depositor)
+                        </div>
+                    )}
+                </div>
+            </SectionCard>
+
+            {/* ─── Section 2: Rate Criteria ─── */}
+            <SectionCard title="2. Rate Criteria">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Base Interest Rate Claimed (%) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="e.g. 6.50" value={c.claimedInterestRate as string} onChange={e => handleRateSpreadChange('claimedInterestRate', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Additional Spread (%) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="e.g. 0.50" value={c.additionalSpread as string} onChange={e => handleRateSpreadChange('additionalSpread', e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Effective Interest Rate (%)</label>
+                        <input className={`${inputCls} bg-gray-100 font-bold`} type="number" step="0.01" placeholder="Auto-calculated" readOnly value={c.effectiveInterestRate as string} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* ─── Section 3: Broken Period Details ─── */}
+            <SectionCard title="3. Broken Period Details">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className={labelCls}>Period Start Date *</label>
+                        <input className={inputCls} type="date" value={c.brokenPeriodStart as string} onChange={e => handleDateChange('brokenPeriodStart', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Period End Date *</label>
+                        <input className={inputCls} type="date" value={c.brokenPeriodEnd as string} onChange={e => handleDateChange('brokenPeriodEnd', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Total Days *</label>
+                        <input className={inputCls} type="number" placeholder="Auto-calculated" value={c.brokenPeriodDays as string} onChange={e => setField('brokenPeriodDays', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* ─── Section 4: Interest Calculation ─── */}
+            <SectionCard title={`4. Interest Calculation — ${freqLabel[freq] || freq}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Compounding Frequency *</label>
+                        <select className={inputCls} value={freq} onChange={e => handleFrequencyChange(e.target.value)}>
+                            <option value="SIMPLE">Simple Interest (broken period — RBI Para 2.3)</option>
+                            <option value="QUARTERLY">Compound — Quarterly (standard FD)</option>
+                            <option value="MONTHLY">Compound — Monthly</option>
+                            <option value="HALFYEARLY">Compound — Half-Yearly</option>
+                            <option value="ANNUALLY">Compound — Annually</option>
+                        </select>
+                        {freq === 'SIMPLE' && (
+                            <p className="text-xs text-gray-400 mt-1">ⓘ RBI Para 2.3: Broken period interest paid at simple rate for actual days, year reckoned at 365 days.</p>
+                        )}
+                        {freq !== 'SIMPLE' && (
+                            <p className="text-xs text-amber-600 mt-1">⚠️ Compound mode: Interest = Maturity Value − Principal. Suitable for full-term calculations.</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className={labelCls}>Principal / Deposit Amount (₹) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="e.g. 500000" value={c.principalAmount as string} onChange={e => handlePrincipalChange(e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Broken Period Interest Amount (₹)</label>
+                        <div className={`${inputCls} bg-green-50 border-green-200 font-bold text-green-800 flex items-center`}>
+                            {interestFormatted || <span className="text-gray-400 font-normal">Auto-calculated</span>}
+                        </div>
+                        {formulaHint && <p className="text-xs text-gray-500 mt-1">{formulaHint}</p>}
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Justification / Calculation Narrative *</label>
+                        <textarea rows={3} className={inputCls} placeholder="Explain why broken period interest is being claimed..." value={c.brokenPeriodJustification as string} onChange={e => setField('brokenPeriodJustification', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
+};
+
+// ─── Reversal of Charges Form Component ─────────────────────────────────────
+const ReversalChargesForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as any;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
+
+    return (
+        <div className="space-y-6">
+            <SectionCard title="1. Account / Customer Details">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className={labelCls}>Customer Name *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. John Doe" value={c.revCustomerName || ''} onChange={e => setField('revCustomerName', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Account Number *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. 123456789012" value={c.revAccountNumber || ''} onChange={e => setField('revAccountNumber', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>CIF ID / Customer ID *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. CIF1234567" value={c.revCifId || ''} onChange={e => setField('revCifId', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="2. Original Charge Details">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className={labelCls}>Charge Type *</label>
+                        <select className={inputCls} value={c.revChargeType || 'SMS Charges'} onChange={e => setField('revChargeType', e.target.value)}>
+                            <option value="SMS Charges">SMS Charges</option>
+                            <option value="LRS (Ledger Folio)">LRS (Ledger Folio)</option>
+                            <option value="AMC Charges">AMC (Annual Maintenance)</option>
+                            <option value="Cheque Return">Cheque Return (Bounce)</option>
+                            <option value="Stop Payment">Stop Payment / Hotlisting</option>
+                            <option value="Processing Fee">Processing Fee</option>
+                            <option value="Penalty Interest">Penalty Interest</option>
+                            <option value="Other">Other Charges</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Date of Original Charge *</label>
+                        <input className={inputCls} type="date" value={c.revOriginalChargeDate || ''} onChange={e => setField('revOriginalChargeDate', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Original Amount Charged (₹) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="e.g. 177.00" value={c.revOriginalChargeAmount || ''} onChange={e => setField('revOriginalChargeAmount', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="3. Reversal Justification">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Amount to be Reversed (₹) *</label>
+                        <input className={inputCls} type="number" step="0.01" placeholder="e.g. 177.00" value={c.revReversalAmount || ''} onChange={e => setField('revReversalAmount', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Reason for Reversal *</label>
+                        <select className={inputCls} value={c.revReason || 'Bank Error'} onChange={e => setField('revReason', e.target.value)}>
+                            <option value="Bank Error">Bank Error / Staff Mistake</option>
+                            <option value="System Error">System Glitch / Technical Error</option>
+                            <option value="Customer Request (First Time)">Customer Request (First Time Waiver)</option>
+                            <option value="Customer Goodwill">Customer Relationship / Goodwill</option>
+                            <option value="Fee Waiver Approved by RO">Fee Waiver (As per RO Sanction)</option>
+                            <option value="Other">Other Justification</option>
+                        </select>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Detailed Justification / Narrative *</label>
+                        <textarea rows={4} className={inputCls} placeholder="Provide detailed background for this reversal request..." value={c.revJustification || ''} onChange={e => setField('revJustification', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
+};
+
+// ─── GL Head Activation Form Component ─────────────────────────────────────
+const GLHeadActivationForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as any;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
+
+    return (
+        <div className="space-y-6">
+            <SectionCard title="1. Ownership & User Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Ownership: Name of CO Dept/Unit with Code *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. PLANNING - 9015" value={c.glOwnershipDept || ''} onChange={e => setField('glOwnershipDept', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Operation User: Name of Dept/Unit/Branch *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. 2286 - ballagundu" value={c.glOperationUser || ''} onChange={e => setField('glOperationUser', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="2. Account Identification">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>GL Office Account No (FORACID) *</label>
+                        <input className={inputCls} type="text" placeholder="Enter Account Number" value={c.glAccountNo || ''} onChange={e => setField('glAccountNo', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Account Description *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Interest paid on Term Deposits" value={c.glAccountDesc || ''} onChange={e => setField('glAccountDesc', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="3. Operation Parameters">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className={labelCls}>Type of Operation *</label>
+                        <select className={inputCls} value={c.glOpType || 'System'} onChange={e => setField('glOpType', e.target.value)}>
+                            <option value="Manual">Manual</option>
+                            <option value="System">System</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Transaction Type *</label>
+                        <select className={inputCls} value={c.glDrCrBoth || 'Both'} onChange={e => setField('glDrCrBoth', e.target.value)}>
+                            <option value="Dr">Debit only</option>
+                            <option value="Cr">Credit only</option>
+                            <option value="Both">Dr / Cr Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Recorder of Asset/Liability *</label>
+                        <select className={inputCls} value={c.glAssetLiability || 'Liability'} onChange={e => setField('glAssetLiability', e.target.value)}>
+                            <option value="Asset">Asset</option>
+                            <option value="Liability">Liability</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Activity Type *</label>
+                        <select className={inputCls} value={c.glActivity || 'Generic'} onChange={e => setField('glActivity', e.target.value)}>
+                            <option value="Parking">Parking</option>
+                            <option value="Pooling">Pooling</option>
+                            <option value="Generic">Generic</option>
+                        </select>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="4. Technical Attributes">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className={labelCls}>Finacle Mandatory A/C? *</label>
+                        <select className={inputCls} value={c.glFinacleMandatory || 'Yes'} onChange={e => setField('glFinacleMandatory', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Pointer Facility Needed? *</label>
+                        <select className={inputCls} value={c.glPointerFacility || 'Yes'} onChange={e => setField('glPointerFacility', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>CASH Operation? *</label>
+                        <select className={inputCls} value={c.glCashOp || 'No'} onChange={e => setField('glCashOp', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="5. Control & Governance">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Monitoring CO Dept/Unit *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Planning" value={c.glMonitoringDept || ''} onChange={e => setField('glMonitoringDept', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Allowed Operation Level *</label>
+                        <select className={inputCls} value={c.glOperationBy || 'Branch only'} onChange={e => setField('glOperationBy', e.target.value)}>
+                            <option value="Branch only">Branch Only</option>
+                            <option value="Inter Branch">Inter Branch</option>
+                            <option value="CO only">CO Only</option>
+                            <option value="Inter CO Dept">Inter CO Dept</option>
+                            <option value="Branch & CO">Branch & CO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Any Limits/Restrictions? *</label>
+                        <select className={inputCls} value={c.glLimits || 'No'} onChange={e => setField('glLimits', e.target.value)}>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes (Details in Purpose)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>RO delegated power to Enable? *</label>
+                        <select className={inputCls} value={c.glRoPower || 'No'} onChange={e => setField('glRoPower', e.target.value)}>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="6. Reconciliation Mandate">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Reconciliation Mandate *</label>
+                        <select className={inputCls} value={c.glReconMandate || 'Reconciliation to zero by same day'} onChange={e => setField('glReconMandate', e.target.value)}>
+                            <option value="Reconciliation to zero by same day">Reconciliation to zero by same day</option>
+                            <option value="Recon by T+1 day">Recon by T+1 day</option>
+                            <option value="Recon by T+2 days">Recon by T+2 days</option>
+                            <option value="Recon by T+7 days">Recon by T+7 days</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Reconciled to ZERO by Day End? (EOD Check) *</label>
+                        <select className={inputCls} value={c.glReconZeroEod || 'No'} onChange={e => setField('glReconZeroEod', e.target.value)}>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="7. Purpose & Status Revocation">
+                <div className="space-y-4">
+                    <div>
+                        <label className={labelCls}>Purpose of Reopening / Enabling (Fund Flow Details) *</label>
+                        <textarea rows={4} className={inputCls} placeholder="Explain why reopening is needed and define end-to-end fund flow..." value={c.glPurpose || ''} onChange={e => setField('glPurpose', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Status to Block / Periodicity of Liveliness Details</label>
+                        <textarea rows={3} className={inputCls} placeholder="Enter details regarding Revoke of Status to Block..." value={c.glRevokeStatus || ''} onChange={e => setField('glRevokeStatus', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
 };
 
 // ─── Shared Components ──────────────────────────────────────────────────────────
@@ -829,6 +1636,32 @@ const OfficeNoteManager: React.FC = () => {
     const [summaryConfig, setSummaryConfig] = useState({ period: 'weekly', date: format(new Date(), 'yyyy-MM-dd') });
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+
+    const handleUploadScan = async (noteId: string, file: File) => {
+        const formData = new FormData();
+        formData.append('document', file);
+        try {
+            await api.post(`/office-notes/${noteId}/upload-scan`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert('Scanned signed copy uploaded successfully');
+            fetchNotes();
+        } catch (err) {
+            alert('Failed to upload scanned copy: ' + getErrorMessage(err));
+        }
+    };
+
+    const handleForwardToRO = async (noteId: string) => {
+        if (!window.confirm('Are you sure you want to forward this note to the Regional Office? The branch should have uploaded a signed scanned copy before forwarding.')) return;
+        try {
+            await api.patch(`/office-notes/${noteId}/forward`);
+            alert('Note successfully forwarded to Regional Office');
+            fetchNotes();
+        } catch (err) {
+            alert('Failed to forward note: ' + getErrorMessage(err));
+        }
+    };
+
     const fetchNotes = () => {
         setLoading(true);
         api.get('/office-notes')
@@ -1161,6 +1994,7 @@ const OfficeNoteManager: React.FC = () => {
                                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                                 >
                                     <option value="CUSTOM">Custom Office Note</option>
+                                    <option value="EXPENSE_APPROVAL">Expense Approval Note</option>
                                     <option value="HIGH_VALUE_DD">High Value DD Note</option>
                                     <option value="PROFORMA_BRANCH_CODE">Proforma for Branch Code</option>
                                     <option value="RBI_BO_PROFORMA">RBI Annex-I — BO Reporting Proforma</option>
@@ -1168,6 +2002,7 @@ const OfficeNoteManager: React.FC = () => {
                                     <option value="GL_HEAD_ACTIVATION">GL Head Activation</option>
                                     <option value="VISIT_REPORT">Executive Visit Report</option>
                                     <option value="BROKEN_INTEREST">Broken Period Interest</option>
+                                    <option value="REVERSAL_CHARGES">Reversal of Charges</option>
                                 </select>
                             </div>
                             <div className="md:col-span-1">
@@ -1508,6 +2343,14 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         ) : formData.type === 'RBI_BO_PROFORMA' ? (
                             <RBIProformaForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'EXPENSE_APPROVAL' ? (
+                            <ExpenseApprovalForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'BROKEN_INTEREST' ? (
+                            <BrokenPeriodInterestForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'REVERSAL_CHARGES' ? (
+                            <ReversalChargesForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'GL_HEAD_ACTIVATION' ? (
+                            <GLHeadActivationForm formData={formData} setFormData={setFormData} />
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-2xl border border-gray-100">
                                 <div>
@@ -1539,11 +2382,11 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         )}
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && (
+                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'EXPENSE_APPROVAL' && formData.type !== 'BROKEN_INTEREST' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION' && (
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Detailed Narrative / Proposal</label>
                                 <textarea
-                                    rows={6} required={formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD'}
+                                    rows={6} required={formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'EXPENSE_APPROVAL' && formData.type !== 'BROKEN_INTEREST' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION'}
                                     className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all leading-relaxed"
                                     placeholder="Structure your note clearly with background, facts, and recommendation..."
                                     value={formData.contentJson.details}
@@ -1552,7 +2395,7 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         )}
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && (
+                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION' && (
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Justification & Policy Reference</label>
                                 <input
@@ -1620,12 +2463,23 @@ const OfficeNoteManager: React.FC = () => {
                                                             <span>Frozen</span>
                                                         </span>
                                                     ) : (
-                                                        <span className="bg-bank-teal/10 text-bank-teal text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-bank-teal/20">
-                                                            {note.type.replace(/_/g, ' ')}
-                                                        </span>
-                                                    );
-                                                })()}
-                                            </div>
+                                                                <span className="bg-bank-teal/10 text-bank-teal text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-bank-teal/20">
+                                                                    {note.type.replace(/_/g, ' ')}
+                                                                </span>
+                                                            );
+                                                        })()}
+                                                        {note.status === 'FORWARDED_TO_RO' && (
+                                                            <span className="bg-indigo-100 text-indigo-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-indigo-200 flex items-center space-x-1">
+                                                                <Clock size={10} />
+                                                                <span>Forwarded to RO</span>
+                                                            </span>
+                                                        )}
+                                                        {note.scannedCopyUrl && (
+                                                            <span className="bg-green-100 text-green-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-green-200">
+                                                                Signed Copy Attached
+                                                            </span>
+                                                        )}
+                                                    </div>
                                             <div className="flex items-center space-x-4 text-[11px] text-gray-400 font-medium mt-1">
                                                 <span className="flex items-center space-x-1.5"><User size={12} className="text-bank-teal" /> <span>{note.preparer?.fullNameEn || 'System Admin'}</span></span>
                                                 <span className="text-gray-200">|</span>
@@ -1664,6 +2518,49 @@ const OfficeNoteManager: React.FC = () => {
                                         >
                                             <Eye size={20} />
                                         </button>
+                                        
+                                        {/* Workflow Actions */}
+                                        {note.status !== 'APPROVED' && note.status !== 'FORWARDED_TO_RO' && (
+                                            <>
+                                                <div className="h-6 w-[1px] bg-gray-100 mx-1"></div>
+                                                <div className="flex items-center space-x-1">
+                                                    <label className="p-2 text-gray-300 hover:text-bank-teal hover:bg-bank-teal/5 rounded-lg transition-all cursor-pointer tooltip" title="Upload Signed Copy">
+                                                        <Plus size={18} />
+                                                        <input 
+                                                            type="file" 
+                                                            className="hidden" 
+                                                            accept=".pdf,image/*" 
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file) handleUploadScan(note.id, file);
+                                                            }} 
+                                                        />
+                                                    </label>
+                                                    {note.scannedCopyUrl && (
+                                                        <button 
+                                                            onClick={() => handleForwardToRO(note.id)}
+                                                            className="flex items-center space-x-1 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hover:bg-indigo-100 transition-all border border-indigo-100 shadow-sm"
+                                                            title="Forward to Regional Office"
+                                                        >
+                                                            <span>Forward to RO</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {note.scannedCopyUrl && (
+                                            <a 
+                                                href={`${api.defaults.baseURL}${note.scannedCopyUrl}`} 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                                                title="View Scanned Signed Copy"
+                                            >
+                                                <FileText size={18} />
+                                            </a>
+                                        )}
+
                                         <div className="h-6 w-[1px] bg-gray-100 mx-1"></div>
                                         {(() => {
                                             const content = JSON.parse(note.contentJson || '{}');

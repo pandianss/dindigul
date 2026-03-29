@@ -9,37 +9,37 @@ datasource db {
 }
 
 model User {
-  id                   String            @id @default(uuid())
-  username             String            @unique
+  id                   String             @id @default(uuid())
+  username             String             @unique
   passwordHash         String
   fullNameEn           String
   fullNameTa           String?
   fullNameHi           String?
   grade                String?
-  designationEn        String?
-  designationTa        String?
-  designationHi        String?
-  role                 String            @default("BRANCH_USER")
-  gender               String            @default("M")
+  role                 String             @default("BRANCH_USER")
   photoId              String?
   section              String?
   branchId             String?
-  isRegionHead         Boolean           @default(false)
-  isSecondLine         Boolean           @default(false)
+  isRegionHead         Boolean            @default(false)
+  isSecondLine         Boolean            @default(false)
   departmentId         String?
   designationId        String?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-  failedLoginAttempts  Int               @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  failedLoginAttempts  Int                @default(0)
   lockedUntil          DateTime?
-  mfaEnabled           Boolean           @default(false)
+  mfaEnabled           Boolean            @default(false)
   mfaSecret            String?
+  designationEn        String?
+  designationHi        String?
+  designationTa        String?
+  gender               String             @default("M")
   lastLoginAt          DateTime?
   lastLoginIp          String?
   actionPoints         ActionPoint[]
   requests             BranchRequest[]
-  headedBranch         Branch?           @relation("BranchHead")
-  secondLineBranch     Branch?           @relation("BranchSecondLine")
+  headedBranch         Branch?            @relation("BranchHead")
+  secondLineBranch     Branch?            @relation("BranchSecondLine")
   auditLogs            ChatAuditLog[]
   chatMemberships      ChatMember[]
   createdChatGroups    ChatGroup[]
@@ -50,17 +50,17 @@ model User {
   loginAuditLogs       LoginAuditLog[]
   noticeAcks           NoticeAck[]
   notifications        Notification[]
-  approvedNotes        OfficeNote[]      @relation("NoteApprover")
-  preparedNotes        OfficeNote[]      @relation("NotePreparer")
+  approvedNotes        OfficeNote[]       @relation("NoteApprover")
+  preparedNotes        OfficeNote[]       @relation("NotePreparer")
   postingHistory       PostingHistory[]
-  sessions             Session[]
-  branch               Branch?           @relation("BranchMembers", fields: [branchId], references: [id])
-  department           Department?       @relation("UserDepartment", fields: [departmentId], references: [id])
-  designation          Designation?      @relation(fields: [designationId], references: [id])
-  photo                Photo?            @relation(fields: [photoId], references: [id])
-  managedDepartments   Department[]      @relation("DepartmentHeads")
-  departments          Department[]      @relation("UserDepartments")
   presentationDecks    PresentationDeck[]
+  sessions             Session[]
+  branch               Branch?            @relation("BranchMembers", fields: [branchId], references: [id])
+  department           Department?        @relation("UserDepartment", fields: [departmentId], references: [id])
+  designation          Designation?       @relation(fields: [designationId], references: [id])
+  photo                Photo?             @relation(fields: [photoId], references: [id])
+  managedDepartments   Department[]       @relation("DepartmentHeads")
+  departments          Department[]       @relation("UserDepartments")
 
   @@map("users")
 }
@@ -176,12 +176,12 @@ model Branch {
   latitude            Float?
   longitude           Float?
   pincode             String?
-  phone               String?
-  email               String?
   headUserId          String?              @unique
   secondLineUserId    String?              @unique
   addressHi           String?
   addressTa           String?
+  email               String?
+  phone               String?
   accountClosures     AccountClosure[]
   accountOpenings     AccountOpening[]
   atms                Atm[]
@@ -214,9 +214,9 @@ model Department {
   nameEn    String
   nameTa    String?
   nameHi    String?
-  sealPath  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  sealPath  String?
   mainUsers User[]   @relation("UserDepartment")
   heads     User[]   @relation("DepartmentHeads")
   users     User[]   @relation("UserDepartments")
@@ -265,17 +265,17 @@ model Letter {
   valueAtTime       Float?
   budgetAtTime      Float?
   period            String?
-  orgMeta           Json?
-  scannedCopyUrl    String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   previousVersionId String?
   version           Int        @default(1)
+  orgMeta           Json?
+  referenceNo       String?    @unique
+  scannedCopyUrl    String?
   branch            Branch     @relation(fields: [branchId], references: [id])
   parameter         Parameter? @relation(fields: [parameterId], references: [id])
   previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[]   @relation("LetterHistory")
-  referenceNo       String?    @unique
 
   @@map("letters")
 }
@@ -292,11 +292,12 @@ model OfficeNote {
   updatedAt         DateTime     @updatedAt
   previousVersionId String?
   version           Int          @default(1)
+  referenceNo       String?      @unique
+  scannedCopyUrl    String?
   approver          User?        @relation("NoteApprover", fields: [approverId], references: [id])
   preparer          User         @relation("NotePreparer", fields: [preparerId], references: [id])
   previousVersion   OfficeNote?  @relation("NoteHistory", fields: [previousVersionId], references: [id])
   nextVersions      OfficeNote[] @relation("NoteHistory")
-  referenceNo       String?      @unique
 
   @@map("office_notes")
 }
@@ -342,8 +343,8 @@ model Photo {
   aspectRatio String   @default("4:5")
   createdAt   DateTime @default(now())
   photoUrl    String
-  User        User[]
   notices     Notice[]
+  User        User[]
 
   @@map("photos")
 }
@@ -355,9 +356,9 @@ model Holiday {
   nameTa      String?
   nameHi      String?
   type        String
-  venue       String?
   description String?
   createdAt   DateTime @default(now())
+  venue       String?
 
   @@map("holidays")
 }
@@ -396,10 +397,8 @@ model Notice {
   id               String      @id @default(uuid())
   titleEn          String
   titleTa          String?
-  titleHi          String?
   contentEn        String
   contentTa        String?
-  contentHi        String?
   category         String
   priority         String      @default("NORMAL")
   isPinned         Boolean     @default(false)
@@ -408,10 +407,12 @@ model Notice {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   requiresAck      Boolean     @default(false)
-  acknowledgements NoticeAck[]
+  contentHi        String?
   photoId          String?
-  photo            Photo?      @relation(fields: [photoId], references: [id])
+  titleHi          String?
+  acknowledgements NoticeAck[]
   branch           Branch?     @relation(fields: [branchId], references: [id])
+  photo            Photo?      @relation(fields: [photoId], references: [id])
 
   @@map("notices")
 }
@@ -556,19 +557,19 @@ model AuditObservation {
 model SrmMessage {
   id        String   @id @default(uuid())
   name      String
-  nameTa    String?
-  nameHi    String?
   title     String
-  titleTa   String?
-  titleHi   String?
   region    String
-  regionTa  String?
-  regionHi  String?
   message   String
   highlight String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  nameHi    String?
+  nameTa    String?
+  regionHi  String?
+  regionTa  String?
+  titleHi   String?
+  titleTa   String?
 
   @@map("srm_messages")
 }
@@ -576,12 +577,12 @@ model SrmMessage {
 model DashboardTicker {
   id        String    @id @default(uuid())
   text      String
-  linkUrl   String?
   isActive  Boolean   @default(true)
-  expiresAt DateTime?
   order     Int       @default(0)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+  linkUrl   String?
 
   @@map("dashboard_tickers")
 }
@@ -599,7 +600,6 @@ model OrganizationConfig {
 
   @@map("organization_config")
 }
-
 
 model Atm {
   id          String   @id @default(uuid())
@@ -1121,26 +1121,26 @@ model InternalNote {
 }
 
 model PresentationDeck {
-  id          String        @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
   dataDate    DateTime
   period      String
   slides      Json
   createdById String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User     @relation(fields: [createdById], references: [id])
 
   @@map("presentation_decks")
 }
 
 model ReferenceSequence {
-  id          String   @id @default(uuid())
-  category    String   // e.g., "OFFICE_NOTE", "LETTER"
-  prefix      String   // e.g., "RO/PLNG/2026"
-  lastNumber  Int      @default(0)
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid())
+  category   String
+  prefix     String
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
 
   @@unique([category, prefix])
   @@map("reference_sequences")
