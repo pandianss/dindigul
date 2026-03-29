@@ -7,6 +7,15 @@ import {
     User,
     Send,
     Tag,
+    XCircle,
+    FileText,
+    Cpu,
+    Unlock,
+    Lock,
+    ShieldCheck,
+    Scale,
+    Activity,
+    BookOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
@@ -21,6 +30,7 @@ interface BranchRequest {
     branch: { nameEn: string, code: string };
     user: { fullNameEn: string };
     assignedSection?: string;
+    contentJson?: any;
     resolutionNotes?: string;
     createdAt: string;
     comments: {
@@ -36,6 +46,7 @@ const CATEGORY_ICONS: Record<string, any> = {
     'HR': User,
     'IT': AlertCircle,
     'PREMISES': MessageSquare,
+    'GL_HEAD_ACTIVATION': Tag,
     'OTHER': Clock
 };
 
@@ -44,6 +55,127 @@ const STATUS_COLORS: Record<string, string> = {
     'IN_PROGRESS': 'bg-amber-100 text-amber-700',
     'RESOLVED': 'bg-green-100 text-green-700',
     'CLOSED': 'bg-gray-100 text-gray-700'
+};
+
+// ─── GL Head Activation Form ───────────────────────────────────────────────
+const GLHeadActivationForm: React.FC<{
+    formData: any;
+    setFormData: React.Dispatch<React.SetStateAction<any>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson || {};
+    const setField = (key: string, value: any) =>
+        setFormData((prev: any) => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+
+    const inputCls = "w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-navy transition-all text-bank-navy bg-white text-sm";
+    const labelCls = "block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5";
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="card p-5 bg-blue-50/30 border-blue-100/50">
+                    <h4 className="text-xs font-bold text-bank-navy uppercase mb-4 flex items-center gap-2">
+                        <User size={14} /> Ownership Details
+                    </h4>
+                    <div className="space-y-4">
+                        <div>
+                            <label className={labelCls}>Ownership Dept with Code *</label>
+                            <input className={inputCls} type="text" placeholder="e.g. PLANNING - 9015" value={c.glOwnershipDept || ''} onChange={e => setField('glOwnershipDept', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Operation Unit/Branch *</label>
+                            <input className={inputCls} type="text" placeholder="e.g. 2286 - ballagundu" value={c.glOperationUser || ''} onChange={e => setField('glOperationUser', e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card p-5 bg-amber-50/30 border-amber-100/50">
+                    <h4 className="text-xs font-bold text-bank-navy uppercase mb-4 flex items-center gap-2">
+                        <FileText size={14} /> Account Details
+                    </h4>
+                    <div className="space-y-4">
+                        <div>
+                            <label className={labelCls}>GL A/C No (FORACID) *</label>
+                            <input className={inputCls} type="text" placeholder="Enter Account Number" value={c.glAccountNo || ''} onChange={e => setField('glAccountNo', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Account Description *</label>
+                            <input className={inputCls} type="text" placeholder="e.g. Interest paid on TD" value={c.glAccountDesc || ''} onChange={e => setField('glAccountDesc', e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="card p-6 bg-gray-50/50">
+                <h4 className="text-xs font-bold text-bank-navy uppercase mb-4 flex items-center gap-2">
+                    <Cpu size={14} /> Technical & Operation Parameters
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label className={labelCls}>Operation Type*</label>
+                        <select className={inputCls} value={c.glOpType || 'System'} onChange={e => setField('glOpType', e.target.value)}>
+                            <option value="Manual">Manual</option>
+                            <option value="System">System</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Txn Type*</label>
+                        <select className={inputCls} value={c.glDrCrBoth || 'Both'} onChange={e => setField('glDrCrBoth', e.target.value)}>
+                            <option value="Dr">Debit only</option>
+                            <option value="Cr">Credit only</option>
+                            <option value="Both">Dr/Cr Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Asset/Liability*</label>
+                        <select className={inputCls} value={c.glAssetLiability || 'Liability'} onChange={e => setField('glAssetLiability', e.target.value)}>
+                            <option value="Asset">Asset</option>
+                            <option value="Liability">Liability</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Finacle Mandatory*</label>
+                        <select className={inputCls} value={c.glFinacleMandatory || 'Yes'} onChange={e => setField('glFinacleMandatory', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div className="card p-6 bg-teal-50/30 border-teal-100/50">
+                <h4 className="text-xs font-bold text-bank-navy uppercase mb-4 flex items-center gap-2">
+                    <Activity size={14} /> Purpose & Reconciliation
+                </h4>
+                <div className="space-y-4">
+                    <div>
+                        <label className={labelCls}>Purpose of Enabling (Fund Flow Details) *</label>
+                        <textarea rows={3} className={inputCls} placeholder="Explain why reactivation is needed..." value={c.glPurpose || ''} onChange={e => setField('glPurpose', e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className={labelCls}>Recon Mandate *</label>
+                            <select className={inputCls} value={c.glReconMandate || 'Same Day'} onChange={e => setField('glReconMandate', e.target.value)}>
+                                <option value="Same Day">Reconciliation by same day</option>
+                                <option value="T+1">Recon by T+1 day</option>
+                                <option value="T+2">Recon by T+2 days</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className={labelCls}>RO delegated power? *</label>
+                            <select className={inputCls} value={c.glRoPower || 'No'} onChange={e => setField('glRoPower', e.target.value)}>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 const RequestManager: React.FC = () => {
@@ -59,7 +191,8 @@ const RequestManager: React.FC = () => {
         contentEn: '',
         category: 'IT',
         priority: 'MEDIUM',
-        assignedSection: 'IT'
+        assignedSection: 'IT',
+        contentJson: {} as any
     });
 
     const fetchRequests = () => {
@@ -176,6 +309,7 @@ const RequestManager: React.FC = () => {
                                         >
                                             <option value="IT">IT Support / Hardware</option>
                                             <option value="HR">HR / Staffing</option>
+                                            <option value="GL_HEAD_ACTIVATION">GL Head Enabling/Activation</option>
                                             <option value="STATIONERY">Stationery Requisition</option>
                                             <option value="PREMISES">Premises / Maintenance</option>
                                             <option value="OTHER">Other Requests</option>
@@ -200,21 +334,26 @@ const RequestManager: React.FC = () => {
                                     <input
                                         type="text" required
                                         className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-bank-navy"
-                                        placeholder="Brief title of your request"
+                                        placeholder={formData.category === 'GL_HEAD_ACTIVATION' ? "e.g. Activation of Inoperative GL Head XXXX" : "Brief title of your request"}
                                         value={formData.titleEn}
                                         onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Detailed Description</label>
-                                    <textarea
-                                        rows={4} required
-                                        className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-bank-navy"
-                                        placeholder="Please provide all necessary details for resolution..."
-                                        value={formData.contentEn}
-                                        onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })}
-                                    />
-                                </div>
+
+                                {formData.category === 'GL_HEAD_ACTIVATION' ? (
+                                    <GLHeadActivationForm formData={formData} setFormData={setFormData} />
+                                ) : (
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Detailed Description</label>
+                                        <textarea
+                                            rows={4} required
+                                            className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-bank-navy"
+                                            placeholder="Please provide all necessary details for resolution..."
+                                            value={formData.contentEn}
+                                            onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })}
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex justify-end pt-4">
                                     <button type="submit" className="bg-bank-teal text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all">
                                         Submit Request
@@ -289,6 +428,16 @@ const RequestManager: React.FC = () => {
                                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 text-gray-700 leading-relaxed font-medium">
                                     {selectedRequest.contentEn}
                                 </div>
+                                {selectedRequest.category === 'GL_HEAD_ACTIVATION' && selectedRequest.contentJson && (
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        {Object.entries(selectedRequest.contentJson).map(([key, val]) => (
+                                            <div key={key} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">{key.replace('gl', '').replace(/([A-Z])/g, ' $1')}</p>
+                                                <p className="text-xs font-bold text-bank-navy">{String(val)}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* RO Controls */}
@@ -355,19 +504,6 @@ const RefreshCw = ({ className }: { className?: string }) => (
     <div className={className}>
         <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
     </div>
-);
-
-const XCircle = ({ size, className }: { size?: number, className?: string }) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size || 24} height={size || 24}
-        viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round"
-        className={className}
-    >
-        <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" />
-    </svg>
 );
 
 export default RequestManager;

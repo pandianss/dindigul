@@ -1,9 +1,19 @@
 import { Router } from 'express';
-import { createInternalNote, getInternalNoteById } from '../services/internalNoteService';
+import { createInternalNote, getInternalNoteById, getAllInternalNotes } from '../services/internalNoteService';
 import { authenticateToken } from '../middleware/auth';
 import { z } from 'zod';
 
 const router = Router();
+
+router.get('/', authenticateToken, async (req, res) => {
+    try {
+        const notes = await getAllInternalNotes();
+        res.json(notes);
+    } catch (error) {
+        console.error('Error fetching internal notes:', error);
+        res.status(500).json({ error: 'Failed to fetch internal notes' });
+    }
+});
 
 const internalNoteSchema = z.object({
     refNo: z.string(),

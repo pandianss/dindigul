@@ -53,7 +53,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create a new request
 router.post('/', async (req, res) => {
-    const { titleEn, contentEn, category, priority, branchId, userId, assignedSection } = req.body;
+    const { titleEn, contentEn, category, priority, branchId, userId, assignedSection, contentJson } = req.body;
     try {
         const request = await prisma.branchRequest.create({
             data: {
@@ -64,6 +64,7 @@ router.post('/', async (req, res) => {
                 branchId,
                 userId,
                 assignedSection,
+                contentJson,
                 status: 'OPEN'
             }
         });

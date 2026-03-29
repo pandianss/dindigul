@@ -129,3 +129,9 @@ export async function getInternalNoteById(id: string) {
         where: { id }
     });
 }
+
+export async function getAllInternalNotes() {
+    return await prisma.internalNote.findMany({
+        orderBy: { createdAt: 'desc' }
+    });
+}

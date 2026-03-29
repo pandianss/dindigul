@@ -360,7 +360,7 @@ const BusinessSnapshot: React.FC = () => {
                             {snapshot && (
                                 <div className="space-y-8 pb-20">
                                     {(() => {
-                                        const plData = snapshot.panelData.find(p => p.parameter === 'Branch_PL');
+                                        const plData = (snapshot.panelData || []).find(p => p.parameter === 'Branch_PL');
                                         const plWidget = plData ? (
                                             <div className="bg-gradient-to-br from-indigo-900 to-bank-navy rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group mb-10 border border-white/10">
                                                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-white/10 transition-all duration-700" />

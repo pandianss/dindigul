@@ -124,6 +124,8 @@ export async function getRegionalOfficeData() {
 
 export interface PremiumLayoutData {
     title: string;
+    titleHi?: string;
+    titleTa?: string;
     date: string;
     refNo?: string;
     subTitle?: string;
@@ -339,7 +341,11 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
     </div>` : ''}
     
     ${!data.hideTitle ? `
-    <div class="subject">${data.title}</div>
+    <div class="subject">
+        ${data.titleHi ? `<p class="hindi" style="font-size:16px;margin-bottom:2px;">${data.titleHi}</p>` : ''}
+        ${data.titleTa ? `<p class="tamil" style="font-size:14px;margin-bottom:2px;">${data.titleTa}</p>` : ''}
+        <p>${data.title}</p>
+    </div>
     ${data.subTitle ? `<div style="text-align:center;font-weight:700;margin-top:5px;margin-bottom:20px;color:#475569;">${data.subTitle}</div>` : ''}
     ` : ''}
 

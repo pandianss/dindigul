@@ -36,7 +36,6 @@ model User {
   gender               String             @default("M")
   lastLoginAt          DateTime?
   lastLoginIp          String?
-  actionPoints         ActionPoint[]
   requests             BranchRequest[]
   headedBranch         Branch?            @relation("BranchHead")
   secondLineBranch     Branch?            @relation("BranchSecondLine")
@@ -46,7 +45,6 @@ model User {
   messageAcks          MessageAck[]
   messagesSent         ChatMessage[]
   comments             Comment[]
-  committeeMemberships CommitteeMember[]
   loginAuditLogs       LoginAuditLog[]
   noticeAcks           NoticeAck[]
   notifications        Notification[]
@@ -61,6 +59,7 @@ model User {
   photo                Photo?             @relation(fields: [photoId], references: [id])
   managedDepartments   Department[]       @relation("DepartmentHeads")
   departments          Department[]       @relation("UserDepartments")
+  assignedActionPoints ActionPoint[]
 
   @@map("users")
 }
@@ -98,63 +97,6 @@ model LoginAuditLog {
   @@map("login_audit_logs")
 }
 
-model Committee {
-  id        String            @id @default(uuid())
-  nameEn    String
-  code      String            @unique
-  frequency String            @default("MONTHLY")
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  members   CommitteeMember[]
-  meetings  Meeting[]
-
-  @@map("committees")
-}
-
-model CommitteeMember {
-  id          String    @id @default(uuid())
-  committeeId String
-  userId      String
-  role        String    @default("MEMBER")
-  joinedAt    DateTime  @default(now())
-  committee   Committee @relation(fields: [committeeId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
-
-  @@unique([committeeId, userId])
-  @@map("committee_members")
-}
-
-model Meeting {
-  id           String        @id @default(uuid())
-  committeeId  String
-  date         DateTime
-  venue        String        @default("Conference Room")
-  status       String        @default("DRAFT")
-  minutesJson  String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  actionPoints ActionPoint[]
-  committee    Committee     @relation(fields: [committeeId], references: [id])
-
-  @@map("meetings")
-}
-
-model ActionPoint {
-  id               String    @id @default(uuid())
-  meetingId        String
-  content          String
-  dueDate          DateTime?
-  status           String    @default("PENDING")
-  assignedToUserId String?
-  completionDate   DateTime?
-  remarks          String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  assignedTo       User?     @relation(fields: [assignedToUserId], references: [id])
-  meeting          Meeting   @relation(fields: [meetingId], references: [id])
-
-  @@map("action_points")
-}
 
 model Branch {
   id                  String               @id @default(uuid())
@@ -185,7 +127,6 @@ model Branch {
   accountClosures     AccountClosure[]
   accountOpenings     AccountOpening[]
   atms                Atm[]
-  auditObservations   AuditObservation[]
   history             BranchHistory[]
   requests            BranchRequest[]
   headUser            User?                @relation("BranchHead", fields: [headUserId], references: [id])
@@ -199,11 +140,14 @@ model Branch {
   noticeAcks          NoticeAck[]
   notices             Notice[]
   postingHistory      PostingHistory[]
-  recoveryActions     RecoveryAction[]
-  regionalAssets      RegionalAsset[]
   snapshots           Snapshot[]
   stationeryMovements StationeryMovement[]
   users               User[]               @relation("BranchMembers")
+  recoveryActions     RecoveryAction[]
+  auditObservations   AuditObservation[]
+  regionalAssets      RegionalAsset[]
+  campaignTargets     CampaignTarget[]
+  campaignData        CampaignDailyData[]
 
   @@map("branches")
 }
@@ -254,12 +198,14 @@ model BranchHistory {
 
 model Letter {
   id                String     @id @default(uuid())
-  type              String
+  type              String     @default("MANUAL")
   status            String     @default("DRAFT")
   titleEn           String
-  contentEn         String
   titleTa           String?
+  titleHi           String?
+  contentEn         String
   contentTa         String?
+  contentHi         String?
   branchId          String
   parameterId       String?
   valueAtTime       Float?
@@ -272,12 +218,33 @@ model Letter {
   orgMeta           Json?
   referenceNo       String?    @unique
   scannedCopyUrl    String?
+  isExternal        Boolean    @default(false)
+  recipientName     String?
+  recipientAddress  String?
+  salutation        String?
   branch            Branch     @relation(fields: [branchId], references: [id])
   parameter         Parameter? @relation(fields: [parameterId], references: [id])
   previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[]   @relation("LetterHistory")
 
   @@map("letters")
+}
+
+model LetterTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  category  String   @default("GENERAL")
+  subjectEn String
+  subjectTa String?
+  subjectHi String?
+  bodyEn    String
+  bodyTa    String?
+  bodyHi    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("letter_templates")
 }
 
 model OfficeNote {
@@ -312,6 +279,7 @@ model BranchRequest {
   branchId        String
   userId          String
   assignedSection String?
+  contentJson     Json?
   resolutionNotes String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -431,21 +399,6 @@ model NoticeAck {
   @@map("notice_acknowledgements")
 }
 
-model DispatchRecord {
-  id            String   @id @default(uuid())
-  type          String
-  subject       String
-  sender        String
-  recipient     String
-  referenceNo   String?
-  consignmentNo String?
-  status        String   @default("PENDING")
-  date          DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@map("dispatch_records")
-}
 
 model StationeryItem {
   id         String               @id @default(uuid())
@@ -506,53 +459,7 @@ model ExpenseSanction {
   @@map("expense_sanctions")
 }
 
-model LegalCase {
-  id              String    @id @default(uuid())
-  caseNo          String    @unique
-  courtName       String
-  parties         String
-  nextHearingDate DateTime?
-  advocateName    String?
-  status          String    @default("PENDING")
-  category        String    @default("CIVIL")
-  hearingHistory  String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
 
-  @@map("legal_cases")
-}
-
-model RecoveryAction {
-  id             String   @id @default(uuid())
-  accountName    String
-  amountInvolved Float
-  type           String
-  status         String   @default("NOTIFIED")
-  branchId       String
-  remarks        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  branch         Branch   @relation(fields: [branchId], references: [id])
-
-  @@map("recovery_actions")
-}
-
-model AuditObservation {
-  id                   String   @id @default(uuid())
-  auditType            String
-  observation          String
-  riskLevel            String   @default("MEDIUM")
-  status               String   @default("PENDING")
-  rectificationDetails String?
-  targetDate           DateTime
-  auditDate            DateTime @default(now())
-  branchId             String
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  branch               Branch   @relation(fields: [branchId], references: [id])
-
-  @@map("audit_observations")
-}
 
 model SrmMessage {
   id        String   @id @default(uuid())
@@ -614,38 +521,6 @@ model Atm {
   @@map("atms")
 }
 
-model RegionalAsset {
-  id                 String              @id @default(uuid())
-  assetCode          String              @unique
-  category           String
-  description        String
-  purchaseDate       DateTime
-  purchaseValue      Float
-  condition          String              @default("GOOD")
-  amcExpiry          DateTime?
-  branchId           String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  maintenanceRecords MaintenanceRecord[]
-  branch             Branch              @relation(fields: [branchId], references: [id])
-
-  @@map("regional_assets")
-}
-
-model MaintenanceRecord {
-  id              String        @id @default(uuid())
-  serviceDate     DateTime
-  serviceProvider String
-  cost            Float
-  remarks         String?
-  nextServiceDue  DateTime
-  assetId         String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  asset           RegionalAsset @relation(fields: [assetId], references: [id])
-
-  @@map("maintenance_records")
-}
 
 model PostingHistory {
   id            String       @id @default(uuid())
@@ -1144,4 +1019,177 @@ model ReferenceSequence {
 
   @@unique([category, prefix])
   @@map("reference_sequences")
+}
+
+model Committee {
+  id        String    @id @default(uuid())
+  nameEn    String
+  code      String    @unique
+  frequency String    @default("MONTHLY")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  meetings  Meeting[]
+
+  @@map("committees")
+}
+
+model Meeting {
+  id           String        @id @default(uuid())
+  committeeId  String
+  date         DateTime
+  venue        String?
+  status       String        @default("DRAFT")
+  minutesJson  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  committee    Committee     @relation(fields: [committeeId], references: [id])
+  actionPoints ActionPoint[]
+
+  @@map("meetings")
+}
+
+model ActionPoint {
+  id               String   @id @default(uuid())
+  meetingId        String
+  content          String
+  status           String   @default("PENDING")
+  dueDate          DateTime?
+  assignedToUserId String?
+  createdAt        DateTime @default(now())
+  meeting          Meeting  @relation(fields: [meetingId], references: [id])
+  assignedTo       User?    @relation(fields: [assignedToUserId], references: [id])
+
+  @@map("meeting_action_points")
+}
+
+model DispatchRecord {
+  id            String   @id @default(uuid())
+  type          String   @default("INWARD")
+  subject       String
+  sender        String
+  recipient     String
+  referenceNo   String?  @unique
+  consignmentNo String?
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+
+  @@map("dispatch_records")
+}
+
+model LegalCase {
+  id              String   @id @default(uuid())
+  caseNo          String   @unique
+  courtName       String
+  parties         String
+  nextHearingDate DateTime?
+  advocateName    String?
+  status          String   @default("PENDING")
+  category        String   @default("CIVIL")
+  createdAt       DateTime @default(now())
+
+  @@map("legal_cases")
+}
+
+model RecoveryAction {
+  id             String   @id @default(uuid())
+  accountName    String
+  amountInvolved Float
+  type           String
+  status         String   @default("PENDING")
+  branchId       String
+  remarks        String?
+  createdAt      DateTime @default(now())
+  branch         Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("recovery_actions")
+}
+
+model AuditObservation {
+  id                   String   @id @default(uuid())
+  auditType            String?
+  observation          String
+  riskLevel            String
+  status               String   @default("PENDING")
+  branchId             String
+  targetDate           DateTime
+  auditDate            DateTime?
+  rectificationDetails String?
+  createdAt            DateTime @default(now())
+  branch               Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("audit_observations")
+}
+
+model RegionalAsset {
+  id            String   @id @default(uuid())
+  assetCode     String   @unique
+  category      String
+  description   String
+  purchaseDate  DateTime?
+  purchaseValue Float?
+  condition     String   @default("GOOD")
+  amcExpiry     DateTime?
+  branchId      String
+  createdAt     DateTime @default(now())
+  branch        Branch   @relation(fields: [branchId], references: [id])
+  maintenances  MaintenanceRecord[]
+
+  @@map("regional_assets")
+}
+
+model MaintenanceRecord {
+  id              String        @id @default(uuid())
+  assetId         String
+  serviceDate     DateTime
+  serviceProvider String
+  cost            Float
+  remarks         String?
+  nextServiceDue  DateTime?
+  createdAt       DateTime      @default(now())
+  asset           RegionalAsset @relation(fields: [assetId], references: [id])
+
+  @@map("maintenance_records")
+}
+
+model Campaign {
+  id           String               @id @default(uuid())
+  title        String
+  tagline      String?
+  logoUrl      String?
+  startDate    DateTime
+  endDate      DateTime
+  type         String               // e.g. "INCREASE_COUNT", "DECREASE_OUTSTANDING"
+  metric       String               // e.g. "NPA", "DEPOSITS"
+  targetValue  Float                // Total target for the whole region
+  status       String               @default("DRAFT") // DRAFT, ACTIVE, COMPLETED
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  targets      CampaignTarget[]
+  dailyData    CampaignDailyData[]
+
+  @@map("campaigns")
+}
+
+model CampaignTarget {
+  id          String   @id @default(uuid())
+  campaignId  String
+  branchId    String
+  targetValue Float
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("campaign_targets")
+}
+
+model CampaignDailyData {
+  id          String   @id @default(uuid())
+  campaignId  String
+  branchId    String
+  date        DateTime
+  value       Float
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@unique([campaignId, branchId, date])
+  @@map("campaign_daily_data")
 }

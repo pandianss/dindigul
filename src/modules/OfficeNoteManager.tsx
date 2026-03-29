@@ -802,179 +802,6 @@ const ReversalChargesForm: React.FC<{
     );
 };
 
-// ─── GL Head Activation Form Component ─────────────────────────────────────
-const GLHeadActivationForm: React.FC<{
-    formData: typeof INITIAL_FORM;
-    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
-}> = ({ formData, setFormData }) => {
-    const c = formData.contentJson as any;
-    const setField = (key: string, value: any) =>
-        setFormData(prev => ({
-            ...prev,
-            contentJson: { ...prev.contentJson, [key]: value }
-        }));
-    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
-    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
-
-    return (
-        <div className="space-y-6">
-            <SectionCard title="1. Ownership & User Details">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelCls}>Ownership: Name of CO Dept/Unit with Code *</label>
-                        <input className={inputCls} type="text" placeholder="e.g. PLANNING - 9015" value={c.glOwnershipDept || ''} onChange={e => setField('glOwnershipDept', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className={labelCls}>Operation User: Name of Dept/Unit/Branch *</label>
-                        <input className={inputCls} type="text" placeholder="e.g. 2286 - ballagundu" value={c.glOperationUser || ''} onChange={e => setField('glOperationUser', e.target.value)} />
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="2. Account Identification">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelCls}>GL Office Account No (FORACID) *</label>
-                        <input className={inputCls} type="text" placeholder="Enter Account Number" value={c.glAccountNo || ''} onChange={e => setField('glAccountNo', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className={labelCls}>Account Description *</label>
-                        <input className={inputCls} type="text" placeholder="e.g. Interest paid on Term Deposits" value={c.glAccountDesc || ''} onChange={e => setField('glAccountDesc', e.target.value)} />
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="3. Operation Parameters">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label className={labelCls}>Type of Operation *</label>
-                        <select className={inputCls} value={c.glOpType || 'System'} onChange={e => setField('glOpType', e.target.value)}>
-                            <option value="Manual">Manual</option>
-                            <option value="System">System</option>
-                            <option value="Both">Both</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Transaction Type *</label>
-                        <select className={inputCls} value={c.glDrCrBoth || 'Both'} onChange={e => setField('glDrCrBoth', e.target.value)}>
-                            <option value="Dr">Debit only</option>
-                            <option value="Cr">Credit only</option>
-                            <option value="Both">Dr / Cr Both</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Recorder of Asset/Liability *</label>
-                        <select className={inputCls} value={c.glAssetLiability || 'Liability'} onChange={e => setField('glAssetLiability', e.target.value)}>
-                            <option value="Asset">Asset</option>
-                            <option value="Liability">Liability</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Activity Type *</label>
-                        <select className={inputCls} value={c.glActivity || 'Generic'} onChange={e => setField('glActivity', e.target.value)}>
-                            <option value="Parking">Parking</option>
-                            <option value="Pooling">Pooling</option>
-                            <option value="Generic">Generic</option>
-                        </select>
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="4. Technical Attributes">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className={labelCls}>Finacle Mandatory A/C? *</label>
-                        <select className={inputCls} value={c.glFinacleMandatory || 'Yes'} onChange={e => setField('glFinacleMandatory', e.target.value)}>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Pointer Facility Needed? *</label>
-                        <select className={inputCls} value={c.glPointerFacility || 'Yes'} onChange={e => setField('glPointerFacility', e.target.value)}>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>CASH Operation? *</label>
-                        <select className={inputCls} value={c.glCashOp || 'No'} onChange={e => setField('glCashOp', e.target.value)}>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="5. Control & Governance">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelCls}>Monitoring CO Dept/Unit *</label>
-                        <input className={inputCls} type="text" placeholder="e.g. Planning" value={c.glMonitoringDept || ''} onChange={e => setField('glMonitoringDept', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className={labelCls}>Allowed Operation Level *</label>
-                        <select className={inputCls} value={c.glOperationBy || 'Branch only'} onChange={e => setField('glOperationBy', e.target.value)}>
-                            <option value="Branch only">Branch Only</option>
-                            <option value="Inter Branch">Inter Branch</option>
-                            <option value="CO only">CO Only</option>
-                            <option value="Inter CO Dept">Inter CO Dept</option>
-                            <option value="Branch & CO">Branch & CO</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Any Limits/Restrictions? *</label>
-                        <select className={inputCls} value={c.glLimits || 'No'} onChange={e => setField('glLimits', e.target.value)}>
-                            <option value="No">No</option>
-                            <option value="Yes">Yes (Details in Purpose)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>RO delegated power to Enable? *</label>
-                        <select className={inputCls} value={c.glRoPower || 'No'} onChange={e => setField('glRoPower', e.target.value)}>
-                            <option value="No">No</option>
-                            <option value="Yes">Yes</option>
-                        </select>
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="6. Reconciliation Mandate">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={labelCls}>Reconciliation Mandate *</label>
-                        <select className={inputCls} value={c.glReconMandate || 'Reconciliation to zero by same day'} onChange={e => setField('glReconMandate', e.target.value)}>
-                            <option value="Reconciliation to zero by same day">Reconciliation to zero by same day</option>
-                            <option value="Recon by T+1 day">Recon by T+1 day</option>
-                            <option value="Recon by T+2 days">Recon by T+2 days</option>
-                            <option value="Recon by T+7 days">Recon by T+7 days</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className={labelCls}>Reconciled to ZERO by Day End? (EOD Check) *</label>
-                        <select className={inputCls} value={c.glReconZeroEod || 'No'} onChange={e => setField('glReconZeroEod', e.target.value)}>
-                            <option value="No">No</option>
-                            <option value="Yes">Yes</option>
-                        </select>
-                    </div>
-                </div>
-            </SectionCard>
-
-            <SectionCard title="7. Purpose & Status Revocation">
-                <div className="space-y-4">
-                    <div>
-                        <label className={labelCls}>Purpose of Reopening / Enabling (Fund Flow Details) *</label>
-                        <textarea rows={4} className={inputCls} placeholder="Explain why reopening is needed and define end-to-end fund flow..." value={c.glPurpose || ''} onChange={e => setField('glPurpose', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className={labelCls}>Status to Block / Periodicity of Liveliness Details</label>
-                        <textarea rows={3} className={inputCls} placeholder="Enter details regarding Revoke of Status to Block..." value={c.glRevokeStatus || ''} onChange={e => setField('glRevokeStatus', e.target.value)} />
-                    </div>
-                </div>
-            </SectionCard>
-        </div>
-    );
-};
 
 // ─── Shared Components ──────────────────────────────────────────────────────────
 const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -1999,7 +1826,6 @@ const OfficeNoteManager: React.FC = () => {
                                     <option value="PROFORMA_BRANCH_CODE">Proforma for Branch Code</option>
                                     <option value="RBI_BO_PROFORMA">RBI Annex-I — BO Reporting Proforma</option>
                                     <option value="DD_AUTHORIZATION">Demand Draft Authorization</option>
-                                    <option value="GL_HEAD_ACTIVATION">GL Head Activation</option>
                                     <option value="VISIT_REPORT">Executive Visit Report</option>
                                     <option value="BROKEN_INTEREST">Broken Period Interest</option>
                                     <option value="REVERSAL_CHARGES">Reversal of Charges</option>
@@ -2349,8 +2175,6 @@ const OfficeNoteManager: React.FC = () => {
                             <BrokenPeriodInterestForm formData={formData} setFormData={setFormData} />
                         ) : formData.type === 'REVERSAL_CHARGES' ? (
                             <ReversalChargesForm formData={formData} setFormData={setFormData} />
-                        ) : formData.type === 'GL_HEAD_ACTIVATION' ? (
-                            <GLHeadActivationForm formData={formData} setFormData={setFormData} />
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-2xl border border-gray-100">
                                 <div>

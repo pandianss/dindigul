@@ -10,6 +10,10 @@ import {
     LogOut,
     Menu,
     ChevronRight,
+    Target,
+    TrendingUp,
+    TrendingDown,
+    Filter,
     User,
     Users,
     FileText,
@@ -17,7 +21,8 @@ import {
     Scale,
     ShieldCheck,
     Package,
-    BookOpen
+    BookOpen,
+    Flag
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useAuth } from '../context/AuthContext';
@@ -86,16 +91,12 @@ const Layout: React.FC<LayoutProps> = ({
         { icon: MessageSquare, label: t('nav.requests'), key: 'requests', restricted: true },
         { icon: Calendar, label: t('nav.calendar'), key: 'calendar' },
         { icon: IndianRupee, label: t('nav.expenditure'), key: 'expenditure', restricted: true },
-        { icon: Scale, label: t('nav.legal'), key: 'legal', restricted: true },
-        { icon: ShieldCheck, label: t('nav.audit'), key: 'audit', restricted: true },
-        { icon: Package, label: t('nav.assets'), key: 'assets', restricted: true },
         // GAP 07: newly wired modules
-        { icon: FileText, label: t('nav.dispatch') || 'Dispatch', key: 'dispatch', restricted: true },
-        { icon: Users, label: t('nav.committees') || 'Committees', key: 'committees', restricted: true },
         { icon: MessageSquare, label: t('nav.letters') || 'Correspondence', key: 'correspondence', restricted: true },
         { icon: FileText, label: t('nav.internalNotes') || 'Internal Notes', key: 'internalNotes', restricted: true },
         { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
         { icon: BookOpen, label: t('nav.magazine') || 'Magazine', key: 'magazine' },
+        { icon: Flag, label: t('nav.campaigns') || 'Campaigns', key: 'campaigns', restricted: true },
     ];
 
     const visibleItems = portalMode === 'guest'

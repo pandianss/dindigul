@@ -5,13 +5,18 @@ import { parseLocalISO } from '../utils/dateUtils';
 import api from '../services/api';
 import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG, THEME_CONFIG } from '../constants/organization';
 import { useAuth } from '../context/AuthContext';
+import LetterComposer from './LetterComposer';
 
 interface Letter {
     id: string;
-    type: 'APPRECIATION' | 'EXPLANATION' | 'OP_RISK';
+    type: 'APPRECIATION' | 'EXPLANATION' | 'OP_RISK' | 'MANUAL';
     status: 'DRAFT' | 'SENT' | 'ACKNOWLEDGED';
     titleEn: string;
+    titleHi?: string | null;
+    titleTa?: string | null;
     contentEn: string;
+    contentHi?: string | null;
+    contentTa?: string | null;
     branch: {
         nameEn: string;
         type: string;
@@ -63,8 +68,9 @@ const CorrespondenceCenter: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
     const [uploadingId, setUploadingId] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'PERFORMANCE' | 'OP_RISK'>('PERFORMANCE');
+    const [activeTab, setActiveTab] = useState<'PERFORMANCE' | 'OP_RISK' | 'MANUAL'>('PERFORMANCE');
     const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+    const [showComposer, setShowComposer] = useState(false);
 
     const toTitleCase = (str: string) => {
         if (!str) return '';
@@ -210,6 +216,16 @@ const CorrespondenceCenter: React.FC = () => {
                         <TrendingUp size={16} />
                         <span>Operational Risk</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('MANUAL')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center space-x-2 ${activeTab === 'MANUAL'
+                            ? 'bg-white text-bank-navy shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        <FileText size={16} />
+                        <span>Manual Drafts</span>
+                    </button>
                 </div>
             </div>
 
@@ -217,7 +233,7 @@ const CorrespondenceCenter: React.FC = () => {
             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center space-x-4">
                     <div className="flex flex-col">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1">Target Data Date</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase mb-1">{activeTab === 'MANUAL' ? 'Date Filter' : 'Target Data Date'}</label>
                         <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                             <Calendar size={16} className="text-bank-navy" />
                             <input
@@ -230,28 +246,38 @@ const CorrespondenceCenter: React.FC = () => {
                     </div>
                 </div>
 
-                {(user?.role === 'ADMIN' || (user?.role === 'RO_USER' && user?.section === 'Planning')) && (
+                <div className="flex items-center space-x-3">
                     <button
-                        onClick={handleGenerate}
-                        disabled={generating}
-                        className="btn-primary flex items-center justify-center space-x-2 bg-bank-navy text-white px-6 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                        onClick={() => setShowComposer(true)}
+                        className="btn-outline flex items-center space-x-2 border-bank-navy text-bank-navy px-6 py-2.5 rounded-lg font-bold hover:bg-bank-navy/5 transition-all"
                     >
-                        <RefreshCw size={18} className={generating ? 'animate-spin' : ''} />
-                        <span>{generating ? 'Generating Documents...' : `Generate ${activeTab === 'PERFORMANCE' ? 'Performance' : 'OpRisk'} Drafts`}</span>
+                        <FileText size={18} />
+                        <span>Compose Manual Letter</span>
                     </button>
-                )}
+
+                    {(user?.role === 'ADMIN' || (user?.role === 'RO_USER' && user?.section === 'Planning')) && activeTab !== 'MANUAL' && (
+                        <button
+                            onClick={handleGenerate}
+                            disabled={generating}
+                            className="btn-primary flex items-center justify-center space-x-2 bg-bank-navy text-white px-6 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95 disabled:opacity-50"
+                        >
+                            <RefreshCw size={18} className={generating ? 'animate-spin' : ''} />
+                            <span>{generating ? 'Generating Documents...' : `Generate ${activeTab === 'PERFORMANCE' ? 'Performance' : 'OpRisk'} Drafts`}</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Generation Results Modal/Alert */}
             {generateResult && (
                 <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm animate-in fade-in slide-in-from-top-4">
                     <div className="flex justify-between items-start mb-2">
-                        <p className="font-bold text-green-800">{generateResult.message}</p>
+                        <p className="font-bold text-green-800">{generateResult?.message}</p>
                         <button onClick={() => setGenerateResult(null)} className="text-green-600 hover:text-green-800 p-1">
                             <X size={16} />
                         </button>
                     </div>
-                    {generateResult.details && generateResult.details.length > 0 && (
+                    {generateResult?.details && generateResult.details.length > 0 && (
                         <div className="overflow-auto max-h-48 custom-scrollbar">
                             <table className="w-full text-xs">
                                 <thead>
@@ -291,12 +317,14 @@ const CorrespondenceCenter: React.FC = () => {
                     {letters
                         .filter(l => {
                             if (activeTab === 'PERFORMANCE') return l.type === 'APPRECIATION' || l.type === 'EXPLANATION';
+                            if (activeTab === 'MANUAL') return l.type === 'MANUAL';
                             return l.type === 'OP_RISK';
                         })
                         .length > 0 ? (
                         letters
                             .filter(l => {
                                 if (activeTab === 'PERFORMANCE') return l.type === 'APPRECIATION' || l.type === 'EXPLANATION';
+                                if (activeTab === 'MANUAL') return l.type === 'MANUAL';
                                 return l.type === 'OP_RISK';
                             })
                             .map(letter => (
@@ -403,16 +431,16 @@ const CorrespondenceCenter: React.FC = () => {
                                         <div className="flex items-center space-x-5 mb-4">
                                             <img src={THEME_CONFIG.logos.emblem} alt="Bank Logo" className="h-[60px] w-[60px] object-contain" />
                                             <div className="flex flex-col justify-center gap-0.5 py-1">
-                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-hindi leading-none">{(selectedLetter.orgMeta as any)?.bankNameHi || metadata.organization?.bankNameHi || GLOBAL_CONFIG.bankNameHi}</h1>
-                                                <h1 className="font-extrabold text-[15px] text-bank-navy font-tamil leading-none">{(selectedLetter.orgMeta as any)?.bankNameTa || metadata.organization?.bankNameTa || GLOBAL_CONFIG.bankNameTa}</h1>
-                                                <h1 className="font-bold text-[16px] text-bank-navy font-arial leading-none capitalize">{((selectedLetter.orgMeta as any)?.bankNameEn || metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</h1>
+                                                <h1 className="font-extrabold text-[16px] text-bank-navy font-hindi leading-none">{(selectedLetter?.orgMeta as any)?.bankNameHi || metadata.organization?.bankNameHi || GLOBAL_CONFIG.bankNameHi}</h1>
+                                                <h1 className="font-extrabold text-[15px] text-bank-navy font-tamil leading-none">{(selectedLetter?.orgMeta as any)?.bankNameTa || metadata.organization?.bankNameTa || GLOBAL_CONFIG.bankNameTa}</h1>
+                                                <h1 className="font-bold text-[16px] text-bank-navy font-arial leading-none capitalize">{((selectedLetter?.orgMeta as any)?.bankNameEn || metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</h1>
                                             </div>
                                         </div>
-
+ 
                                         <div className="w-full grid grid-cols-3 text-bank-navy mt-2">
                                             <div className="flex flex-col items-center gap-1 pr-2">
-                                                <p className="font-hindi font-bold text-[12px] text-center leading-tight flex-shrink-0">{(selectedLetter.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
-                                                <p className="font-hindi font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
+                                                <p className="font-hindi font-bold text-[12px] text-center leading-tight flex-shrink-0">{(selectedLetter?.orgMeta as any)?.officeNameHi || metadata.organization?.officeNameHi || REGIONAL_OFFICE_DATA.nameHi}</p>
+                                                <p className="font-hindi font-medium text-[11px] leading-relaxed opacity-90 text-center">{(selectedLetter?.orgMeta as any)?.addressHi || "क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु"}</p>
                                             </div>
 
                                             <div className="flex flex-col items-center gap-1 px-2 border-l border-bank-navy/20 min-w-0">
@@ -438,7 +466,7 @@ const CorrespondenceCenter: React.FC = () => {
 
                                     <div className="mb-6 text-justify">
                                         <p className="font-bold mb-0.5">To,</p>
-                                        {selectedLetter.branch.headUser ? (
+                                        {selectedLetter?.branch?.headUser ? (
                                             <div className="flex flex-col gap-0">
                                                 <p className="font-bold">
                                                     {selectedLetter.branch.headUser.fullNameHi && <span className="font-hindi text-[12px]">{selectedLetter.branch.headUser.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}{selectedLetter.branch.headUser.fullNameHi} / </span>}
@@ -455,8 +483,8 @@ const CorrespondenceCenter: React.FC = () => {
                                             <p className="font-bold mb-0.5">The Branch Manager</p>
                                         )}
                                         <div className="mt-0.5 text-[11px]">
-                                            <p className="capitalize">{(metadata.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</p>
-                                            <p className="font-bold">{selectedLetter.branch.nameEn} Branch</p>
+                                            <p className="capitalize">{(metadata?.organization?.bankNameEn || GLOBAL_CONFIG.bankName).toLowerCase()}</p>
+                                            <p className="font-bold">{selectedLetter?.branch?.nameEn} Branch</p>
                                         </div>
                                     </div>
 
@@ -465,6 +493,16 @@ const CorrespondenceCenter: React.FC = () => {
                                     </h3>
 
                                     <div className="text-justify text-gray-800 flex-grow">
+                                        {selectedLetter.contentHi && (
+                                            <p className="font-hindi text-[13px] mb-4 leading-relaxed text-justify">
+                                                {selectedLetter.contentHi}
+                                            </p>
+                                        )}
+                                        {selectedLetter.contentTa && (
+                                            <p className="font-tamil text-[11px] mb-4 leading-relaxed text-justify">
+                                                {selectedLetter.contentTa}
+                                            </p>
+                                        )}
                                         {(() => {
                                             const isBranch = selectedLetter.branch?.type !== 'REGIONAL OFFICE';
                                         const scale = isBranch ? 100 : 1;
@@ -595,13 +633,13 @@ const CorrespondenceCenter: React.FC = () => {
                                             <div className="border-t-[1.5px] border-gray-400 mb-1 pt-1"></div>
                                             <div className="mb-0.5">
                                                 <p className="font-bold text-bank-navy text-[13px]">
-                                                    ({selectedLetter.type === 'OP_RISK' ? 'Niraj Kumar' : toTitleCase((selectedLetter.orgMeta as any)?.signatoryName || metadata.organization?.signatoryName || metadata.regionHeadName)})
+                                                    ({selectedLetter?.type === 'OP_RISK' ? 'Niraj Kumar' : toTitleCase((selectedLetter?.orgMeta as any)?.signatoryName || metadata?.organization?.signatoryName || metadata?.regionHeadName)})
                                                 </p>
                                             </div>
                                             <div className="flex flex-col gap-0.5">
-                                                <p className="font-bold text-[12px] font-hindi text-bank-navy">{selectedLetter.type === 'OP_RISK' ? 'मुख्य प्रबंधक' : ((selectedLetter.orgMeta as any)?.signingAuthHi || metadata.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi)}</p>
-                                                <p className="font-bold text-[10px] font-tamil text-bank-navy">{selectedLetter.type === 'OP_RISK' ? 'தலைமை மேலாளர்' : ((selectedLetter.orgMeta as any)?.signingAuthTa || metadata.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa)}</p>
-                                                <p className="font-bold text-[11px] text-bank-navy capitalize">{selectedLetter.type === 'OP_RISK' ? 'Chief Manager' : ((selectedLetter.orgMeta as any)?.signingAuthEn || metadata.organization?.signingAuthEn || REGIONAL_OFFICE_DATA.signingAuthEn).toLowerCase()}</p>
+                                                <p className="font-bold text-[12px] font-hindi text-bank-navy">{selectedLetter?.type === 'OP_RISK' ? 'मुख्य प्रबंधक' : ((selectedLetter?.orgMeta as any)?.signingAuthHi || metadata?.organization?.signingAuthHi || REGIONAL_OFFICE_DATA.signingAuthHi)}</p>
+                                                <p className="font-bold text-[10px] font-tamil text-bank-navy">{selectedLetter?.type === 'OP_RISK' ? 'தலைமை மேலாளர்' : ((selectedLetter?.orgMeta as any)?.signingAuthTa || metadata?.organization?.signingAuthTa || REGIONAL_OFFICE_DATA.signingAuthTa)}</p>
+                                                <p className="font-bold text-[11px] text-bank-navy capitalize">{selectedLetter?.type === 'OP_RISK' ? 'Chief Manager' : ((selectedLetter?.orgMeta as any)?.signingAuthEn || metadata?.organization?.signingAuthEn || REGIONAL_OFFICE_DATA.signingAuthEn).toLowerCase()}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -665,6 +703,16 @@ const CorrespondenceCenter: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showComposer && (
+                <LetterComposer 
+                    onClose={() => setShowComposer(false)} 
+                    onSuccess={() => {
+                        setShowComposer(false);
+                        fetchLetters();
+                    }} 
+                />
             )}
         </div>
     );

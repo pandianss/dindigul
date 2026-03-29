@@ -14,19 +14,14 @@ const OfficeNoteManager = lazy(() => import('./modules/OfficeNoteManager'));
 const SettingsManager = lazy(() => import('./modules/SettingsManager'));
 const Dashboard = lazy(() => import('./modules/Dashboard'));
 const GuestLanding = lazy(() => import('./modules/GuestLanding'));
-const AssetManager = lazy(() => import('./modules/AssetManager'));
-const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
 const PlanningAnalytics = lazy(() => import('./modules/PlanningAnalytics'));
-// GAP 07: Wire missing modules
-const AuditManager = lazy(() => import('./modules/AuditManager'));
-const CommitteeManager = lazy(() => import('./modules/CommitteeManager'));
-const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter'));
-const DispatchManager = lazy(() => import('./modules/DispatchManager'));
 const ExpenditureManager = lazy(() => import('./modules/ExpenditureManager'));
-const LegalManager = lazy(() => import('./modules/LegalManager'));
 const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
 const RequestManager = lazy(() => import('./modules/RequestManager'));
 const InternalNoteSystem = lazy(() => import('./modules/InternalNote/InternalNoteSystem'));
+const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
+const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter'));
+const Campaigns = lazy(() => import('./modules/Campaigns'));
 
 // Loading fallback component
 const ModuleLoader = () => (
@@ -104,22 +99,12 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><OfficeNoteManager /></Suspense></ErrorBoundary> : null;
             case 'settings':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><SettingsManager /></Suspense></ErrorBoundary> : null;
-            case 'assets':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AssetManager /></Suspense></ErrorBoundary> : null;
-            case 'calendar':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CalendarManager /></Suspense></ErrorBoundary>;
-            case 'audit':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AuditManager /></Suspense></ErrorBoundary> : null;
-            case 'committees':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CommitteeManager /></Suspense></ErrorBoundary> : null;
-            case 'correspondence':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CorrespondenceCenter /></Suspense></ErrorBoundary> : null;
-            case 'dispatch':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><DispatchManager /></Suspense></ErrorBoundary> : null;
             case 'expenditure':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><ExpenditureManager /></Suspense></ErrorBoundary> : null;
-            case 'legal':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><LegalManager /></Suspense></ErrorBoundary> : null;
+            case 'calendar':
+                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CalendarManager /></Suspense></ErrorBoundary>;
+            case 'correspondence':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CorrespondenceCenter /></Suspense></ErrorBoundary> : null;
             case 'magazine':
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MagazineGenerator /></Suspense></ErrorBoundary>;
             case 'requests':
@@ -128,6 +113,8 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><PlanningAnalytics /></Suspense></ErrorBoundary> : null;
             case 'internalNotes':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><InternalNoteSystem /></Suspense></ErrorBoundary> : null;
+            case 'campaigns':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Campaigns /></Suspense></ErrorBoundary> : null;
 
             default:
                 return (

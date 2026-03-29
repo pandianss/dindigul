@@ -2,6 +2,7 @@ import { prisma } from '../index';
 import { createNotification } from './notificationService';
 import { getPaginatedResponse } from '../utils/pagination';
 import { getRegionalOfficeData } from './pdfService';
+import { format } from 'date-fns';
 
 const toTitleCase = (str: string) => {
     if (!str) return '';
@@ -100,36 +101,88 @@ export const letterService = {
         return letter;
     },
 
-    async updateLetter(id: string, titleEn?: string, contentEn?: string) {
+    async createManualLetter(user: any, data: { 
+        branchId: string;
+        titleEn: string; titleHi?: string; titleTa?: string;
+        contentEn: string; contentHi?: string; contentTa?: string;
+        period?: string;
+        isExternal?: boolean;
+        recipientName?: string;
+        recipientAddress?: string;
+        salutation?: string;
+    }) {
+        const RO_DATA = await getRegionalOfficeData();
+        return await prisma.letter.create({
+            data: {
+                type: 'MANUAL',
+                status: 'DRAFT',
+                titleEn: data.titleEn,
+                titleHi: data.titleHi,
+                titleTa: data.titleTa,
+                contentEn: data.contentEn,
+                contentHi: data.contentHi,
+                contentTa: data.contentTa,
+                branchId: data.branchId,
+                period: data.period || format(new Date(), 'MMM yyyy'),
+                orgMeta: RO_DATA,
+                version: 1,
+                isExternal: data.isExternal || false,
+                recipientName: data.recipientName,
+                recipientAddress: data.recipientAddress,
+                salutation: data.salutation
+            }
+        });
+    },
+
+    async getTemplates(category?: string) {
+        return await (prisma as any).letterTemplate.findMany({
+            where: category ? { category } : {},
+            orderBy: { name: 'asc' }
+        });
+    },
+
+    async createTemplate(data: any) {
+        return await (prisma as any).letterTemplate.create({ data });
+    },
+
+    async updateLetter(id: string, updates: { 
+        titleEn?: string; titleHi?: string; titleTa?: string; 
+        contentEn?: string; contentHi?: string; contentTa?: string;
+        isExternal?: boolean; recipientName?: string; recipientAddress?: string; salutation?: string;
+    }) {
         const currentLetter = await prisma.letter.findUnique({ where: { id } });
         if (!currentLetter) throw new Error('Letter not found');
 
         if (currentLetter.status === 'DRAFT') {
             return await prisma.letter.update({
                 where: { id },
-                data: { titleEn, contentEn }
+                data: updates
             });
         } else {
-            const getCurrentOrgMeta = async () => {
-                return await getRegionalOfficeData();
-            };
-
-            const currentOrgMeta = await getCurrentOrgMeta();
+            const RO_DATA = await getRegionalOfficeData();
 
             return await prisma.letter.create({
                 data: {
                     type: currentLetter.type,
-                    titleEn: titleEn || currentLetter.titleEn,
-                    contentEn: contentEn || currentLetter.contentEn,
+                    titleEn: updates.titleEn || currentLetter.titleEn,
+                    titleHi: updates.titleHi || currentLetter.titleHi,
+                    titleTa: updates.titleTa || currentLetter.titleTa,
+                    contentEn: updates.contentEn || currentLetter.contentEn,
+                    contentHi: updates.contentHi || currentLetter.contentHi,
+                    contentTa: updates.contentTa || currentLetter.contentTa,
                     branchId: currentLetter.branchId,
                     parameterId: currentLetter.parameterId,
                     valueAtTime: currentLetter.valueAtTime,
                     budgetAtTime: currentLetter.budgetAtTime,
                     period: currentLetter.period,
-                    orgMeta: currentOrgMeta,
+                    orgMeta: RO_DATA,
                     status: 'DRAFT',
                     version: currentLetter.version + 1,
-                    previousVersionId: currentLetter.id
+                    previousVersionId: currentLetter.id,
+                    isExternal: updates.isExternal !== undefined ? updates.isExternal : currentLetter.isExternal,
+                    recipientName: updates.recipientName || currentLetter.recipientName,
+                    recipientAddress: updates.recipientAddress || currentLetter.recipientAddress,
+                    salutation: updates.salutation || currentLetter.salutation
                 }
             });
         }

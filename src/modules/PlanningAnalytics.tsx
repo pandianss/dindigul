@@ -228,6 +228,24 @@ const PlanningAnalytics: React.FC = () => {
         );
     }
 
+    if (!stats) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 card bg-gray-50 border-dashed">
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300 mb-4">
+                    <AlertCircle size={32} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-400 uppercase tracking-widest">Analytics Data Unavailable</h3>
+                <p className="text-gray-400 text-xs mt-1 uppercase font-bold">The performance statistics could not be loaded or have not been initialized.</p>
+                <button 
+                    onClick={fetchStats}
+                    className="mt-6 px-6 py-2 bg-bank-navy text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all"
+                >
+                    Retry Connection
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -350,15 +368,15 @@ const PlanningAnalytics: React.FC = () => {
                             <div className="flex items-center space-x-6">
                                 <div className="flex items-center space-x-2">
                                     <span className="text-gray-400">Month:</span>
-                                    <span className="text-bank-navy bg-white px-2 py-0.5 rounded shadow-sm">{stats?.workingDays.thisMonth} Days</span>
+                                    <span className="text-bank-navy bg-white px-2 py-0.5 rounded shadow-sm">{stats?.workingDays?.thisMonth} Days</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <span className="text-gray-400">Previous:</span>
-                                    <span className="text-bank-navy/60">{stats?.workingDays.lastMonth}</span>
+                                    <span className="text-bank-navy/60">{stats?.workingDays?.lastMonth}</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <span className="text-gray-400">FY {stats?.calendar?.fyKey}:</span>
-                                    <span className="text-bank-navy/60">{stats?.workingDays.fy}</span>
+                                    <span className="text-bank-navy/60">{stats?.workingDays?.fy}</span>
                                 </div>
                             </div>
                             <div className="flex-1 text-right">
@@ -440,14 +458,14 @@ const PlanningAnalytics: React.FC = () => {
                                     <span className="text-[10px] font-black text-bank-teal bg-bank-teal/5 px-2 py-1 rounded">SB ACCOUNTS (Above {stats?.sbThreshold})</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.sb.net)}</h4>
+                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.sb?.net)}</h4>
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
                                             <p className="text-[10px] font-bold text-bank-teal uppercase tracking-widest">Net Growth this month</p>
-                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.sb.thisMonth)} | Closures: {formatNumber(stats?.sb.closed)})</p>
+                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.sb?.thisMonth)} | Closures: {formatNumber(stats?.sb?.closed)})</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-[10px] font-black text-bank-navy">Avg {stats?.sb.avgPerBranch?.toFixed(1)}</span>
+                                            <span className="text-[10px] font-black text-bank-navy">Avg {stats?.sb?.avgPerBranch?.toFixed(1)}</span>
                                             <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">per branch</p>
                                         </div>
                                     </div>
@@ -455,28 +473,28 @@ const PlanningAnalytics: React.FC = () => {
                                 <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-y-4 gap-x-6">
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Growth Balance</p>
-                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb.thisMonthBalance)}</div>
+                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb?.thisMonthBalance)}</div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">current month</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Month Net</p>
                                         <div className="mt-1 font-black text-bank-navy opacity-50 text-lg">
-                                            {formatNumber((stats?.sb.lastMonthTotal || 0) - (stats?.sb.lastMonthClosed || 0))}
-                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb.lastMonth)})</span>
+                                            {formatNumber((stats?.sb?.lastMonthTotal || 0) - (stats?.sb?.lastMonthClosed || 0))}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb?.lastMonth)})</span>
                                         </div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Net Performance</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net growth</p>
                                         <div className="mt-1 font-black text-bank-navy tracking-tight text-lg">
-                                            {formatNumber(stats?.sb.fyNet)}
-                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb.fy)})</span>
+                                            {formatNumber(stats?.sb?.fyNet)}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.sb?.fy)})</span>
                                         </div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Total FY Net</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net Balance</p>
-                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb.fyBalance)}</div>
+                                        <div className="mt-1 font-black text-bank-teal tracking-tight text-lg">{formatCurrency(stats?.sb?.fyBalance)}</div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">FY cumulative balance</p>
                                     </div>
                                 </div>
@@ -491,14 +509,14 @@ const PlanningAnalytics: React.FC = () => {
                                     <span className="text-[10px] font-black text-bank-gold bg-bank-gold/5 px-2 py-1 rounded">CD ACCOUNTS</span>
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.cd.net)}</h4>
+                                    <h4 className="text-3xl font-black text-bank-navy tracking-tighter">{formatNumber(stats?.cd?.net)}</h4>
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
                                             <p className="text-[10px] font-bold text-bank-gold uppercase tracking-widest">Net Growth this month</p>
-                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.cd.thisMonth)} | Closures: {formatNumber(stats?.cd.closed)})</p>
+                                            <p className="text-[8px] font-medium text-gray-400 uppercase">(Qual: {formatNumber(stats?.cd?.thisMonth)} | Closures: {formatNumber(stats?.cd?.closed)})</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-[10px] font-black text-bank-navy">Avg {stats?.cd.avgPerBranch?.toFixed(1)}</span>
+                                            <span className="text-[10px] font-black text-bank-navy">Avg {stats?.cd?.avgPerBranch?.toFixed(1)}</span>
                                             <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">per branch</p>
                                         </div>
                                     </div>
@@ -506,28 +524,28 @@ const PlanningAnalytics: React.FC = () => {
                                 <div className="pt-4 border-t border-gray-50 grid grid-cols-2 gap-y-4 gap-x-6">
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Growth Balance</p>
-                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd.thisMonthBalance)}</div>
+                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd?.thisMonthBalance)}</div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">current month</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Month Net</p>
                                         <div className="mt-1 font-black text-bank-navy opacity-50 text-lg">
-                                            {formatNumber((stats?.cd.lastMonthTotal || 0) - (stats?.cd.lastMonthClosed || 0))}
-                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd.lastMonth)})</span>
+                                            {formatNumber((stats?.cd?.lastMonthTotal || 0) - (stats?.cd?.lastMonthClosed || 0))}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd?.lastMonth)})</span>
                                         </div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Net Performance</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net growth</p>
                                         <div className="mt-1 font-black text-bank-navy tracking-tight text-lg">
-                                            {formatNumber(stats?.cd.fyNet)}
-                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd.fy)})</span>
+                                            {formatNumber(stats?.cd?.fyNet)}
+                                            <span className="text-[8px] ml-1 font-bold text-gray-400">(Q: {formatNumber(stats?.cd?.fy)})</span>
                                         </div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">Total FY Net</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FY Net Balance</p>
-                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd.fyBalance)}</div>
+                                        <div className="mt-1 font-black text-bank-gold tracking-tight text-lg">{formatCurrency(stats?.cd?.fyBalance)}</div>
                                         <p className="text-[8px] font-bold text-gray-400 uppercase leading-none">FY cumulative balance</p>
                                     </div>
                                 </div>

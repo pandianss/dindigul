@@ -131,11 +131,39 @@ router.patch('/:id/status', authenticateToken, validate(updateStatusSchema), asy
   }
 });
 
+router.get('/templates', authenticateToken, async (req: any, res) => {
+  try {
+    const { category } = req.query;
+    const templates = await letterService.getTemplates(category as string);
+    res.json(templates);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch templates' });
+  }
+});
+
+router.post('/templates', authenticateToken, async (req: any, res) => {
+  if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+  try {
+    const template = await letterService.createTemplate(req.body);
+    res.json(template);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create template' });
+  }
+});
+
+router.post('/', authenticateToken, async (req: any, res) => {
+  try {
+    const letter = await letterService.createManualLetter(req.user, req.body);
+    res.json(letter);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create manual letter' });
+  }
+});
+
 router.put('/:id', authenticateToken, async (req: any, res) => {
   const { id } = req.params;
-  const { titleEn, contentEn } = req.body;
   try {
-    const letterOrUpdated = await letterService.updateLetter(id, titleEn, contentEn);
+    const letterOrUpdated = await letterService.updateLetter(id, req.body);
     res.json(letterOrUpdated);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update letter' });
@@ -197,6 +225,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
 
     const html = buildPremiumLayout({
       title: letter.titleEn,
+      titleHi: letter.titleHi || undefined,
+      titleTa: letter.titleTa || undefined,
       refNo: letter.referenceNo || `RO/ADMIN/${new Date(letter.createdAt).getFullYear()}/${letter.id.slice(-4).toUpperCase()}`,
       date: new Date(letter.createdAt).toLocaleDateString('en-IN', {
         day: '2-digit', month: '2-digit', year: 'numeric'
@@ -224,6 +254,37 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
 });
 
 function buildLetterBodyHtml(letter: any, RO_DATA: any): string {
+  if (letter.isExternal) {
+    const contentEn = letter.contentEn || '';
+    const paragraphs = contentEn.split('\n\n');
+    let body = `
+      <div style="margin-bottom: 25px;">
+        <p style="font-weight:700;">To,</p>
+        <p style="font-weight:700;">${letter.recipientName || ''}</p>
+        <div style="white-space: pre-wrap; font-weight:700; line-height: 1.5;">${letter.recipientAddress || ''}</div>
+      </div>
+      <div style="margin-top: 15px; text-align: justify;">
+        <p style="font-weight:700; margin-bottom: 15px;">${letter.salutation || 'Sir/Madam,'}</p>
+    `;
+
+    if (letter.contentHi || letter.contentTa) {
+        body += `
+          <div style="margin-top: 15px; margin-bottom: 20px;">
+            ${letter.contentHi ? `<p class="hindi" style="margin-bottom:10px;text-align:justify;font-size:12px;">${letter.contentHi.replace(/\n/g, '<br/>')}</p>` : ''}
+            ${letter.contentTa ? `<p class="tamil" style="margin-bottom:10px;text-align:justify;font-size:10px;">${letter.contentTa.replace(/\n/g, '<br/>')}</p>` : ''}
+          </div>
+        `;
+    }
+
+    for (const para of paragraphs) {
+        if (!para.trim()) continue;
+        body += `<p style="margin-bottom: 12px;">${para.replace(/\n/g, '<br/>')}</p>`;
+    }
+
+    body += `</div>`;
+    return body;
+  }
+
   const org = letter.orgMeta || {};
   const pd = org.performanceData;
   const branch = letter.branch;
@@ -252,9 +313,21 @@ function buildLetterBodyHtml(letter: any, RO_DATA: any): string {
     </div>
   `;
 
-  const paragraphs = letter.contentEn.split('\n\n');
-    for (const para of paragraphs) {
+  if (letter.contentHi || letter.contentTa) {
+    bodyHtml += `
+      <div style="margin-top: 15px;">
+        ${letter.contentHi ? `<p class="hindi" style="margin-bottom:10px;text-align:justify;font-size:12px;">${letter.contentHi.replace(/\n/g, '<br/>')}</p>` : ''}
+        ${letter.contentTa ? `<p class="tamil" style="margin-bottom:10px;text-align:justify;font-size:10px;">${letter.contentTa.replace(/\n/g, '<br/>')}</p>` : ''}
+      </div>
+    `;
+  }
+
+  const paragraphs = (letter.contentEn || '').split('\n\n');
+  for (const para of paragraphs) {
+    if (!para.trim()) continue;
+    
     if (para.trim() === '[PERFORMANCE_TABLE]' && pd) {
+      // ... (rest of the performance table logic remains the same)
       const fyGrowth = pd.latest - pd.march31st;
       const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
       
