@@ -46,9 +46,9 @@ export default function ChatPanel({ open, onClose }: Props) {
     const handleSlashCommand = async (cmd: string) => {
         setIsLoadingCmd(true);
 
-        const storedUserRaw = localStorage.getItem('user');
+        const storedUserRaw = sessionStorage.getItem('user');
         const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
-        const token = localStorage.getItem('token') || storedUser?.token;
+        const token = sessionStorage.getItem('token') || storedUser?.token;
         const authHeaders = token
             ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
             : { 'Content-Type': 'application/json' };
@@ -141,9 +141,9 @@ export default function ChatPanel({ open, onClose }: Props) {
         if (!responseText || !responseText.trim()) return;
 
         try {
-            const storedUserRaw = localStorage.getItem('user');
+            const storedUserRaw = sessionStorage.getItem('user');
             const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
-            const token = localStorage.getItem('token') || storedUser?.token;
+            const token = sessionStorage.getItem('token') || storedUser?.token;
 
             await fetch('/api/chat/respond', {
                 method: 'POST',
@@ -232,7 +232,7 @@ export default function ChatPanel({ open, onClose }: Props) {
                 <>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                         {messages.map((m: ChatMessage, i: number) => {
-                            const storedUserRaw = localStorage.getItem('user');
+                            const storedUserRaw = sessionStorage.getItem('user');
                             const storedUser = storedUserRaw ? JSON.parse(storedUserRaw) : null;
                             const currentDisplayName = getDisplayName(
                                 storedUser || user || null

@@ -72,7 +72,7 @@ interface MisSnapshot {
 
 const BusinessSnapshot: React.FC = () => {
     const { user } = useAuth();
-    const token = localStorage.getItem('token') || (user as any)?.token;
+    const token = sessionStorage.getItem('token') || (user as any)?.token;
     const [branchCode, setBranchCode] = useState((user as any)?.branch?.code || '');
     const [date, setDate] = useState(formatLocalISO(new Date()));
     const [snapshot, setSnapshot] = useState<MisSnapshot | null>(null);

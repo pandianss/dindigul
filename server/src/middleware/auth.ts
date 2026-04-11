@@ -30,8 +30,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
             }
             return res.status(403).json({ error: 'Invalid token' });
         }
-
-        // GAP: Explicit session check
+        // Explicit session check
         const session = await prisma.session.findUnique({
             where: { token, isActive: true }
         });

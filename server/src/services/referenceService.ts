@@ -126,13 +126,26 @@ export async function generateReference(category: ReferenceCategory, deptName: s
 
     // Update sequence tracking for legacy systems (optional)
     try {
-        await (prisma as any).$executeRaw`
-            INSERT INTO reference_sequences (id, category, prefix, "lastNumber", "updatedAt")
-            VALUES (gen_random_uuid(), ${category}, ${prefix}, ${nextNum}, NOW())
-            ON CONFLICT (category, prefix)
-            DO UPDATE SET "lastNumber" = GREATEST(reference_sequences."lastNumber", ${nextNum}), "updatedAt" = NOW()
-        `;
-    } catch (e) {}
+        await prisma.referenceSequence.upsert({
+            where: {
+                category_prefix: {
+                    category,
+                    prefix
+                }
+            },
+            update: {
+                lastNumber: nextNum, // Logic above already ensures nextNum is the latest/gap-filled
+                updatedAt: new Date()
+            },
+            create: {
+                category,
+                prefix,
+                lastNumber: nextNum
+            }
+        });
+    } catch (e) {
+        console.error('Failed to update reference sequence:', e);
+    }
 
     return finalRef;
 }

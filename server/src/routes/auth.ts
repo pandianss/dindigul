@@ -8,11 +8,12 @@ import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { z } from 'zod';
 import { validate } from '../lib/validate';
 import os from 'os';
+import { logger } from '../utils/logger';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
-    console.error('[FATAL] JWT_SECRET environment variable is not set. Refusing to start.');
+    logger.error('[FATAL] JWT_SECRET environment variable is not set. Refusing to start.');
     process.exit(1);
 }
 const MAX_FAILED_ATTEMPTS = 5;
@@ -38,7 +39,7 @@ async function recordAudit(event: AuditEvent, username: string, userId: string |
             },
         });
     } catch (err) {
-        console.error('[Auth] Failed to write audit log:', err);
+        logger.error('[Auth] Failed to write audit log:', err);
     }
 }
 
@@ -155,7 +156,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         });
 
         pruneExpiredSessions();
-        // Derive section from departments if null (GAP 19)
+        // Derive section from departments if null 
         if (!(user as any).section) {
             const hasPlanning = (user as any).departments?.some((d: any) => d.code === 'PLNG' || d.nameEn?.toLowerCase().includes('planning'));
             if (hasPlanning) (user as any).section = 'Planning';
@@ -175,7 +176,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
 
         res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
-        console.error('Login error:', error);
+        logger.error('Login error:', error);
         res.status(500).json({ error: 'An error occurred during login' });
     }
 });
@@ -255,7 +256,7 @@ router.get('/auto-login', async (req, res) => {
         });
         if (!user) return res.status(404).json({ error: `System user '${sysUser}' is not registered as staff.`, sysUser, requiresManual: true });
 
-        // Derive section from departments if null (GAP 19)
+        // Derive section from departments if null 
         if (!(user as any).section) {
             const hasPlanning = (user as any).departments?.some((d: any) => d.code === 'PLNG' || d.nameEn?.toLowerCase().includes('planning'));
             if (hasPlanning) (user as any).section = 'Planning';
@@ -270,7 +271,7 @@ router.get('/auto-login', async (req, res) => {
 
         res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
     } catch (error) {
-        console.error('Auto-login error:', error);
+        logger.error('Auto-login error:', error);
         res.status(500).json({ error: 'Auto-login failed' });
     }
 });
@@ -333,7 +334,7 @@ router.get('/audit-log', authenticateToken, async (req: any, res) => {
         ]);
         res.json({ logs, total, page: parseInt(page as string), limit: take });
     } catch (err) {
-        console.error('[Auth] audit-log error:', err);
+        logger.error('[Auth] audit-log error:', err);
         res.status(500).json({ error: 'Failed to fetch audit log' });
     }
 });

@@ -58,7 +58,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = sessionStorage.getItem('user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch { return null; }
   });
@@ -76,8 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userWithToken: User = { ...data.user, token: data.token };
         setUser(userWithToken);
         sessionStorage.removeItem('manualLogout');
-        localStorage.setItem('user', JSON.stringify(userWithToken));
-        localStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(userWithToken));
+        sessionStorage.setItem('token', data.token);
       } else {
         setAutoLoginError({ message: data.error, sysUser: data.sysUser });
         throw new Error(data.error);
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Run once on mount only — attempt silent login using the system OS user
   useEffect(() => {
-    // If user already loaded from localStorage, skip
+    // If user already loaded from sessionStorage, skip
     if (user) { setIsLoading(false); return; }
     // If user previously manually logged out, don't auto-login
     if (sessionStorage.getItem('manualLogout') === 'true') { setIsLoading(false); return; }
@@ -118,8 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userWithToken: User = { ...data.user, token: data.token };
     setUser(userWithToken);
     sessionStorage.removeItem('manualLogout');
-    localStorage.setItem('user', JSON.stringify(userWithToken));
-    localStorage.setItem('token', data.token);
+    sessionStorage.setItem('user', JSON.stringify(userWithToken));
+    sessionStorage.setItem('token', data.token);
   };
 
   const submitMfa = async (code: string) => {
@@ -136,15 +136,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setMfaPending(null);
     setUser(userWithToken);
     sessionStorage.removeItem('manualLogout');
-    localStorage.setItem('user', JSON.stringify(userWithToken));
-    localStorage.setItem('token', data.token);
+    sessionStorage.setItem('user', JSON.stringify(userWithToken));
+    sessionStorage.setItem('token', data.token);
   };
 
   const cancelMfa = () => setMfaPending(null);
 
   const logout = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (token) {
         await fetch('/api/auth/logout', {
           method: 'POST',
@@ -158,8 +158,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setMfaPending(null);
       setAutoLoginError(null);
       sessionStorage.setItem('manualLogout', 'true');
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('token');
     }
   };
 

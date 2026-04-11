@@ -2,40 +2,13 @@ import { Router } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { parseCSV } from '../utils/csv';
-import multer from 'multer';
+import { departmentUpload as upload } from '../middleware/upload';
 import path from 'path';
 import fs from 'fs';
 
 const router = Router();
 
-// Multer config for departmental seals
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(process.cwd(), '..', 'public', 'assets');
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, `seal-${uniqueSuffix}${path.extname(file.originalname)}`);
-    }
-});
-
-const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-    fileFilter: (_req, file, cb) => {
-        const allowed = ['.jpg', '.jpeg', '.png', '.svg'];
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (allowed.includes(ext)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only images (JPG, PNG, SVG) are allowed'));
-        }
-    }
-});
+// upload configuration moved to centralized middleware
 
 // Get all departments
 router.get('/', authenticateToken, async (req: any, res) => {

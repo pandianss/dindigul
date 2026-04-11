@@ -204,7 +204,7 @@ export default function Dashboard({ onNav }) {
   const [anniversaries, setAnniversaries] = useState([]);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
+    const userStr = sessionStorage.getItem('user');
     const token = userStr ? JSON.parse(userStr).token : null;
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -731,7 +731,7 @@ export default function Dashboard({ onNav }) {
           </div>
 
           {/* Dept Manuals Quick Access for RO Users */}
-          {(localStorage.getItem('user') && JSON.parse(localStorage.getItem('user'))?.role !== 'BRANCH_USER') && (
+          {(sessionStorage.getItem('user') && JSON.parse(sessionStorage.getItem('user'))?.role !== 'BRANCH_USER') && (
             <button 
               onClick={() => onNav('manuals')}
               style={{ 

@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
+
+// Apply auth to all routes in this file
+router.use(authenticateToken);
 
 // Get stock levels
 router.get('/stock', async (req, res) => {

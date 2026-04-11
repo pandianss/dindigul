@@ -6,6 +6,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 const execAsync = promisify(exec);
 import { generatePDF, getBrowser, renderTemplate, buildLetterBodyHtml } from '../services/pdfService';
+import archiver from 'archiver';
 
 import { parse } from 'csv-parse/sync';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,16 +15,14 @@ import { MisStatus, MisParameter } from '../types/mis';
 import { RuleEngine } from '../services/RuleEngine';
 import { MISIngestionService } from '../services/MISIngestionService';
 import { authenticateToken } from '../middleware/auth';
-import multer from 'multer';
+import { misUpload as upload } from '../middleware/upload';
 import path from 'path';
+import { logger } from '../utils/logger';
 import fs from 'fs';
 import { z } from 'zod';
 import { validate } from '../lib/validate';
 
-const upload = multer({
-    dest: 'uploads/',
-    limits: { fileSize: 25 * 1024 * 1024 }
-});
+// upload configuration moved to centralized middleware
 
 const router = Router();
 
@@ -35,7 +34,7 @@ interface MISRecord {
 }
 
 // Get latest snapshots for dashboard
-router.get('/snapshots', async (req, res) => {
+router.get('/snapshots', authenticateToken, async (req, res) => {
     try {
         const snapshots = await prisma.snapshot.findMany({
             orderBy: { date: 'desc' },
@@ -47,13 +46,13 @@ router.get('/snapshots', async (req, res) => {
         });
         res.json(snapshots);
     } catch (error) {
-        console.error('Error fetching snapshots:', error);
+        logger.error('Error fetching snapshots:', error);
         res.status(500).json({ error: 'Failed to fetch snapshots' });
     }
 });
 
 // Get specific branch snapshot for chat command
-router.get('/snapshot', async (req, res) => {
+router.get('/snapshot', authenticateToken, async (req, res) => {
     const { branchCode } = req.query;
 
     if (!branchCode) {
@@ -101,7 +100,7 @@ router.get('/snapshot', async (req, res) => {
             rows
         });
     } catch (error) {
-        console.error('Error fetching branch snapshot:', error);
+        logger.error('Error fetching branch snapshot:', error);
         res.status(500).json({ error: 'Failed to fetch snapshot' });
     }
 });
@@ -205,7 +204,7 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
             branches: enriched,
         });
     } catch (error: any) {
-        console.error('[regional-panel] Error:', error);
+        logger.error('[regional-panel] Error:', error);
         res.status(500).json({ error: 'Failed to fetch regional panel data' });
     }
 });
@@ -229,7 +228,7 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
 
         res.json(result);
     } catch (error: any) {
-        console.error('Excel processing error:', error);
+        logger.error('Excel processing error:', error);
         res.status(500).json({ error: error.message || 'Failed to process Excel file' });
     }
 });
@@ -281,7 +280,7 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
             });
 
             if (!branch) {
-                console.warn(`Branch not found: ${BranchCode}`);
+                logger.warn(`Branch not found: ${BranchCode}`);
                 continue;
             }
 
@@ -291,7 +290,7 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
             });
 
             if (!parameter) {
-                console.warn(`Parameter not found: ${ParameterCode}`);
+                logger.warn(`Parameter not found: ${ParameterCode}`);
                 continue;
             }
 
@@ -460,7 +459,7 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
 
         res.json({ message: `Successfully processed ${records.length} records.` });
     } catch (error) {
-        console.error('Error processing MIS upload:', error);
+        logger.error('Error processing MIS upload:', error);
         res.status(500).json({ error: 'Failed to process MIS upload' });
     }
 });
@@ -476,12 +475,13 @@ router.post('/generate-from-staging', authenticateToken, async (req, res) => {
         const result = await BusinessSnapshotService.generateFromStaging(date);
         res.json(result);
     } catch (error: any) {
-        console.error('Error generating from staging:', error);
+        logger.error('Error generating from staging:', error);
         res.status(500).json({ error: error.message || 'Failed to generate snapshots' });
     }
 });
 
 // Get business snapshot
+// NOTE: This endpoint is intentionally public (no authenticateToken) as it feeds the public display portal.
 router.get('/business-snapshot/:branchCode', async (req, res) => {
     const { branchCode } = req.params;
     const { date } = req.query;
@@ -495,7 +495,7 @@ router.get('/business-snapshot/:branchCode', async (req, res) => {
         }
         res.json(snapshot);
     } catch (error: any) {
-        console.error('Error getting business snapshot:', error);
+        logger.error('Error getting business snapshot:', error);
         res.status(500).json({ error: 'Internal server error while fetching snapshot' });
     }
 });
@@ -508,7 +508,7 @@ router.post('/freeze/:snapshotId', authenticateToken, async (req, res) => {
         const frozen = await BusinessSnapshotService.freezeSnapshot(String(snapshotId));
         res.json({ message: 'Snapshot frozen and evaluated', frozen });
     } catch (error: any) {
-        console.error('Error freezing snapshot:', error);
+        logger.error('Error freezing snapshot:', error);
         res.status(500).json({ error: 'Failed to freeze snapshot' });
     }
 });
@@ -523,7 +523,7 @@ router.get('/exceptions', authenticateToken, async (req, res) => {
         });
         res.json(exceptions);
     } catch (error) {
-        console.error('Error fetching exceptions:', error);
+        logger.error('Error fetching exceptions:', error);
         res.status(500).json({ error: 'Failed to fetch exceptions' });
     }
 });
@@ -537,7 +537,7 @@ router.get('/import-logs', authenticateToken, async (req, res) => {
         });
         res.json(logs);
     } catch (error) {
-        console.error('Error fetching import logs:', error);
+        logger.error('Error fetching import logs:', error);
         res.status(500).json({ error: 'Failed to fetch import logs' });
     }
 });
@@ -554,7 +554,7 @@ router.delete('/import-logs/:id', authenticateToken, async (req: any, res) => {
         await MISIngestionService.deleteImport(id);
         res.json({ message: 'Import deleted successfully' });
     } catch (error: any) {
-        console.error('Error deleting import:', error);
+        logger.error('Error deleting import:', error);
         res.status(500).json({ error: error.message || 'Failed to delete import' });
     }
 });
@@ -568,7 +568,7 @@ router.get('/exception-summary', authenticateToken, async (req: any, res) => {
         const summary = await BusinessSnapshotService.getExceptionSummary(String(date));
         res.json(summary);
     } catch (error: any) {
-        console.error('Error fetching exception summary:', error);
+        logger.error('Error fetching exception summary:', error);
         res.status(500).json({ error: 'Failed to fetch exception summary' });
     }
 });
@@ -584,7 +584,7 @@ router.post('/finalize-all', authenticateToken, async (req: any, res) => {
         const result = await BusinessSnapshotService.finalizeAllSnapshots(String(date));
         res.json(result);
     } catch (error: any) {
-        console.error('Error finalizing all snapshots:', error);
+        logger.error('Error finalizing all snapshots:', error);
         res.status(500).json({ error: 'Failed to finalize snapshots' });
     }
 });
@@ -610,7 +610,7 @@ router.post('/evaluate-all', authenticateToken, async (req: any, res) => {
 
         res.json({ success: true, count: snapshots.length });
     } catch (error: any) {
-        console.error('Error triggering evaluations:', error);
+        logger.error('Error triggering evaluations:', error);
         res.status(500).json({ error: 'Failed to trigger evaluations' });
     }
 });
@@ -683,7 +683,7 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
 
                     fs.writeFileSync(path.join(baseDir, fileName), buffer);
                 } catch (pdfErr) {
-                    console.error(`Failed to generate PDF for letter ${letter.id}:`, pdfErr);
+                    logger.error(`Failed to generate PDF for letter ${letter.id}:`, pdfErr);
                 }
             }));
         }
@@ -692,8 +692,17 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
 
         const zipPath = path.join(process.cwd(), 'temp_zips', `${tempDirId}.zip`);
         
-        // Use native PowerShell Compress-Archive for the environment
-        await execAsync(`powershell.exe -Command "Compress-Archive -Path '${baseDir}\\*' -DestinationPath '${zipPath}' -Force"`);
+        // Use archiver for cross-platform (Linux/Windows) compatibility
+        const output = fs.createWriteStream(zipPath);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+
+        await new Promise((resolve, reject) => {
+            output.on('close', resolve);
+            archive.on('error', reject);
+            archive.pipe(output);
+            archive.directory(baseDir, false);
+            archive.finalize();
+        });
 
         res.download(zipPath, `Dindigul_Letters_${period.replace(/ /g, '_')}.zip`, (err) => {
             // Cleanup after download finishes or errors
@@ -701,12 +710,12 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
                 if (fs.existsSync(baseDir)) fs.rmSync(baseDir, { recursive: true, force: true });
                 if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
             } catch (cleanErr) {
-                console.warn('Cleanup failed after bulk download:', cleanErr);
+                logger.warn('Cleanup failed after bulk download:', cleanErr);
             }
         });
 
     } catch (error: any) {
-        console.error('[bulk-zip] Global error:', error);
+        logger.error('[bulk-zip] Global error:', error);
         res.status(500).json({ error: 'Failed to generate bulk ZIP archive' });
     }
 });

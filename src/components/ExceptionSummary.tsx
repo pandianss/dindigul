@@ -42,7 +42,7 @@ const ExceptionSummary: React.FC<ExceptionSummaryProps> = ({ selectedDate, onSel
     const fetchSummary = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const res = await axios.get(`${API_URL}/mis/exception-summary?date=${selectedDate}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -63,7 +63,7 @@ const ExceptionSummary: React.FC<ExceptionSummaryProps> = ({ selectedDate, onSel
 
         setIsFinalizing(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await axios.post(`${API_URL}/mis/finalize-all`, { date: selectedDate }, {
                 headers: { Authorization: `Bearer ${token}` }
             });

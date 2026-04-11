@@ -7,8 +7,9 @@ import { authenticateToken } from '../middleware/auth';
 import { createNotification, notifyAdmins } from '../services/notificationService';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../utils/logger';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
-import multer from 'multer';
+import { officeNoteUpload as upload } from '../middleware/upload';
 
 const router = Router();
 
@@ -40,35 +41,8 @@ async function getAccessibleOfficeNote(noteId: string, user: any) {
     return null;
 }
 
-// Configure multer for scanned office note uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(process.cwd(), 'uploads', 'office-notes');
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'OFFICE_NOTE_SIGNED_' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only PDF and Image files are allowed'));
-        }
-    }
-});
-
-
-// GAP 15: Submit note for review (DRAFT → SUBMITTED)
+// upload configuration moved to centralized middleware
+    // Submit note for review (DRAFT → SUBMITTED)
 router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
@@ -91,8 +65,7 @@ router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
         res.status(500).json({ error: 'Failed to submit note' });
     }
 });
-
-// GAP 15: Checker approval (SUBMITTED → CHECKED)
+    // Checker approval (SUBMITTED → CHECKED)
 router.patch('/:id/check', authenticateToken, async (req: any, res) => {
     if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
@@ -111,8 +84,7 @@ router.patch('/:id/check', authenticateToken, async (req: any, res) => {
         res.status(500).json({ error: 'Failed to check note' });
     }
 });
-
-// GAP 15: Final approver approval (CHECKED → APPROVED)
+    // Final approver approval (CHECKED → APPROVED)
 router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
     if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
@@ -132,7 +104,7 @@ router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
     }
 });
 
-// GAP 15: Freeze note (Snap current signatories and lock)
+// Freeze note (Snap current signatories and lock)
 router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
@@ -238,12 +210,12 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
 
         res.json(updated);
     } catch (err) {
-        console.error('Freeze error:', err);
+        logger.error('Freeze error:', err);
         res.status(500).json({ error: 'Failed to freeze note' });
     }
 });
 
-// GAP 15: Reject note
+// Reject note
 router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
     if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
         return res.status(403).json({ error: 'Forbidden' });
@@ -288,7 +260,7 @@ router.get('/initiators', authenticateToken, async (req: any, res) => {
         });
         res.json(initiators);
     } catch (err) {
-        console.error('Fetch initiators error:', err);
+        logger.error('Fetch initiators error:', err);
         res.status(500).json({ error: 'Failed to fetch initiators' });
     }
 });
@@ -302,7 +274,7 @@ router.get('/suggest-reference', authenticateToken, async (req: any, res) => {
         const ref = await generateReference('OFFICE_NOTE', deptName, date as string);
         res.json({ referenceNo: ref });
     } catch (err) {
-        console.error('Reference suggestion error:', err);
+        logger.error('Reference suggestion error:', err);
         res.status(500).json({ error: 'Failed to suggest reference' });
     }
 });
@@ -335,7 +307,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
         ]);
         res.json(getPaginatedResponse(notes, total, page, limit));
     } catch (error) {
-        console.error('Error fetching office notes:', error);
+        logger.error('Error fetching office notes:', error);
         res.status(500).json({ error: 'Failed to fetch office notes' });
     }
 });
@@ -368,7 +340,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
             }
         });
 
-        console.log(`[Office Note] Created new draft with initiator: ${effectivePreparerId}`);
+        logger.info(`[Office Note] Created new draft with initiator: ${effectivePreparerId}`);
 
         // Update referenceNo using raw SQL to bypass Prisma Client sync issues
         await (prisma as any).$executeRaw`
@@ -378,7 +350,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
         res.json(note);
     } catch (error) {
-        console.error('Error creating office note:', error);
+        logger.error('Error creating office note:', error);
         res.status(500).json({ error: 'Failed to create office note' });
     }
 });
@@ -409,7 +381,7 @@ router.post('/:id/upload-scan', authenticateToken, upload.single('document'), as
 
         res.json({ message: 'Scanned document uploaded successfully', note });
     } catch (err) {
-        console.error('Upload scan error:', err);
+        logger.error('Upload scan error:', err);
         res.status(500).json({ error: 'Failed to upload document' });
     }
 });
@@ -431,13 +403,13 @@ router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
 
         res.json(note);
     } catch (err) {
-        console.error('Forward error:', err);
+        logger.error('Forward error:', err);
         res.status(500).json({ error: 'Failed to forward note' });
     }
 });
 
 
-// GAP 19: Update office note with versioning
+// Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     const { type, titleEn, contentJson, deptName, referenceNo, preparerId } = req.body;
@@ -471,7 +443,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                 }
             });
 
-            console.log(`[Office Note] Updated draft ${id} with initiator: ${effectivePreparerId}`);
+            logger.info(`[Office Note] Updated draft ${id} with initiator: ${effectivePreparerId}`);
 
             if (referenceNo) {
                 await (prisma as any).$executeRaw`
@@ -497,7 +469,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                 }
             });
 
-            console.log(`[Office Note] Created new version from ${currentNote.id}. New version: ${newVersion.id}, initiator: ${effectivePreparerId}`);
+            logger.info(`[Office Note] Created new version from ${currentNote.id}. New version: ${newVersion.id}, initiator: ${effectivePreparerId}`);
 
             if (referenceNo) {
                 await (prisma as any).$executeRaw`
@@ -509,12 +481,12 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
             res.json({ message: 'New version created', note: newVersion });
         }
     } catch (err) {
-        console.error('Update error:', err);
+        logger.error('Update error:', err);
         res.status(500).json({ error: 'Failed to update note' });
     }
 });
 
-// GAP 15: Delete office note
+// Delete office note
 router.delete('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
@@ -533,7 +505,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
         await prisma.officeNote.delete({ where: { id } });
         res.json({ message: 'Note deleted successfully' });
     } catch (err) {
-        console.error('Delete error:', err);
+        logger.error('Delete error:', err);
         res.status(500).json({ error: 'Failed to delete note' });
     }
 });
@@ -1651,7 +1623,7 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         res.setHeader('Content-Disposition', `attachment; filename="OfficeNote_${note.id.slice(-4)}.pdf"`);
         res.send(pdfBuffer);
     } catch (error) {
-        console.error('Error generating PDF:', error);
+        logger.error('Error generating PDF:', error);
         res.status(500).json({ error: 'Failed to generate PDF' });
     }
 });
@@ -1712,7 +1684,7 @@ router.get('/high-value-dd/summary', authenticateToken, async (req: any, res) =>
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(csv);
     } catch (err) {
-        console.error('Summary generation error:', err);
+        logger.error('Summary generation error:', err);
         res.status(500).json({ error: 'Failed to generate summary' });
     }
 });

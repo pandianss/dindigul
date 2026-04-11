@@ -13,7 +13,7 @@ const api = axios.create({
 
 // Add interceptors for tokens
 api.interceptors.request.use((config) => {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (user) {
         const { token } = JSON.parse(user);
         if (token) {
@@ -28,8 +28,8 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('token');
             window.location.href = '/';
         }
         return Promise.reject(error);

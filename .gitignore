@@ -36,3 +36,24 @@ server/prisma/*.db-journal
 
 # Upload artifacts
 server/uploads/
+server/archive/
+server/temp_zips/
+server/tmp/
+authfiles/
+mis_files/
+tmp/
+
+# Documentation and temporary exports
+*.pdf
+*.docx
+*.doc
+*.html
+!index.html
+*.log
+*.txt
+!README.txt
+!LICENSE.txt
+
+# OS metadata
+.DS_Store
+Thumbs.db

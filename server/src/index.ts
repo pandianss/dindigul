@@ -1,15 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
 import jwt from 'jsonwebtoken';
+import { logger } from './utils/logger';
 
 process.on('uncaughtException', (err) => {
-    console.error('[uncaughtException] Shutting down:', err);
+    logger.error('[uncaughtException] Shutting down:', err);
     process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
-    console.error('[unhandledRejection]', reason);
+    logger.error('[unhandledRejection]', reason);
 });
 
 import express from 'express';
@@ -86,7 +86,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Serve static uploads (GAP 06)
+// Serve static uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use('/api/auth', authRoutes);
@@ -121,7 +121,7 @@ app.use('/api/visits', visitRoutes);
 
 // Global error handler — must be defined after all routes
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('[UnhandledError]', err?.stack ?? err);
+    logger.error('[UnhandledError]', err?.stack ?? err);
     if (res.headersSent) return next(err);
     res.status(err?.status ?? 500).json({
         error: process.env.NODE_ENV === 'production'
@@ -158,24 +158,24 @@ io.use((socket: any, next: any) => {
 });
 
 io.on('connection', (socket: any) => {
-    console.log(`Socket connected: ${socket.id}`);
+    logger.info(`Socket connected: ${socket.id}`);
 
     // Register handlers from separate file
     registerChatHandlers(io, socket);
 
     socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        logger.info(`Socket disconnected: ${socket.id}`);
     });
 });
 
 httpServer.listen(Number(PORT), '0.0.0.0', async () => {
     try {
         await userService.ensureAdminUser();
-        console.log('[System] Admin user verification complete.');
+        logger.info('[System] Admin user verification complete.');
     } catch (err) {
-        console.error('[System] Failed to verify/create admin user:', err);
+        logger.error('[System] Failed to verify/create admin user:', err);
     }
-    console.log(`Secured Server running on port ${PORT}`);
+    logger.info(`Secured Server running on port ${PORT}`);
 });
 
 export { io, prisma };

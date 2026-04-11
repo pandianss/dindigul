@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import handlebars from 'handlebars';
 import fs from 'fs/promises';
 import { readFileSync, existsSync } from 'fs';
@@ -61,6 +61,8 @@ function sanitizeHtmlForPrint(html: string): string {
 }
 
 import prisma from '../lib/prisma';
+
+let _browser: Browser | null = null;
 
 // ── Asset Caching (Performance Optimization for Bulk Downloads) ──────────────
 const assetCache: Record<string, string> = {};
@@ -522,7 +524,12 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
 }
 
 export async function getBrowser() {
-    return await puppeteer.launch({
+    if (_browser && _browser.connected) {
+        return _browser;
+    }
+    
+    // Launch a new singleton instance
+    _browser = await puppeteer.launch({
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
         args: [
             '--no-sandbox',
@@ -532,6 +539,13 @@ export async function getBrowser() {
             '--font-render-hinting=none'
         ]
     });
+
+    // Cleanup singleton on disconnect
+    _browser.on('disconnected', () => {
+        _browser = null;
+    });
+
+    return _browser;
 }
 
 export async function generatePDF(html: string, existingBrowser?: any, refNo?: string): Promise<Buffer> {
@@ -566,7 +580,7 @@ export async function generatePDF(html: string, existingBrowser?: any, refNo?: s
         return Buffer.from(pdf);
     } finally {
         if (page) await page.close();
-        if (!existingBrowser) await browser.close();
+        // NEVER close the singleton browser automatically
     }
 }
 

@@ -7,7 +7,7 @@ export const socket = io(SOCKET_URL, {
     transports: ['websocket'],
     autoConnect: false, // Connect when SocketProvider mounts
     auth: (cb) => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         cb({ token });
     },
     withCredentials: true,

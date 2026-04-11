@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { BudgetService } from '../services/budgetService';
 import prisma from '../lib/prisma';
-import multer from 'multer';
+import { memoryUpload as upload } from '../middleware/upload';
 import { authenticateToken } from '../middleware/auth';
 import { budgetLetterService } from '../services/budgetLetterService';
 import * as XLSX from 'xlsx';
@@ -9,7 +9,7 @@ import fs from 'fs';
 
 const router = Router();
 
-const upload = multer({ storage: multer.memoryStorage() });
+// upload configuration moved to centralized middleware
 
 /**
  * POST /api/budget/upload

@@ -13,6 +13,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import DocumentPreview from '../components/DocumentPreview';
 import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG } from '../constants/organization';
+import { useAuth } from '../context/AuthContext';
 
 const quillModules = {
     toolbar: [
@@ -1803,6 +1804,7 @@ const RBIProformaForm: React.FC<{
 };
 
 const OfficeNoteManager: React.FC = () => {
+    const { user: authUser } = useAuth();
     const [notes, setNotes] = useState<OfficeNote[]>([]);
     const [departments, setDepartments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -1891,7 +1893,7 @@ const OfficeNoteManager: React.FC = () => {
         fetchNotes();
         fetchDepartments();
         fetchInitiators();
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = authUser || {} as any;
         if (user.department?.nameEn) {
             setSelectedDept(user.department.nameEn);
         }
@@ -2005,7 +2007,7 @@ const OfficeNoteManager: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const user = authUser || {} as any;
             // Ensure final deptName is synced if the suggest call hadn't finished or something
             const finalFormData = { ...formData, deptName: selectedDept || formData.deptName };
 
@@ -3020,7 +3022,7 @@ const OfficeNoteManager: React.FC = () => {
                         </div>
                         {(() => {
                             const content = typeof previewNote.contentJson === 'string' ? JSON.parse(previewNote.contentJson) : previewNote.contentJson;
-                            const user = JSON.parse(localStorage.getItem('user') || '{}');
+                            const user = authUser || {} as any;
                             const org = user.organization || {
                                 bankNameEn: GLOBAL_CONFIG.bankName,
                                 bankNameHi: GLOBAL_CONFIG.bankNameHi,

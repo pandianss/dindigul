@@ -132,7 +132,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
     }
 });
 
-// GAP 13: Acknowledge a notice
+// Acknowledge a notice
 router.post('/:id/ack', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
@@ -161,7 +161,7 @@ router.post('/:id/ack', authenticateToken, async (req: any, res) => {
     }
 });
 
-// GAP 13: Get acknowledgement status (Admin/RO only)
+// Get acknowledgement status (Admin/RO only)
 router.get('/:id/ack-status', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     if (!['ADMIN', 'RO_USER'].includes(req.user.role)) {

@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
+// Apply auth to all routes in this file
+router.use(authenticateToken);
 
 // Get all holidays
 router.get('/holidays', async (req, res) => {
@@ -16,8 +19,11 @@ router.get('/holidays', async (req, res) => {
     }
 });
 
-// Create or Update holiday
-router.post('/', async (req, res) => {
+// Create or Update holiday - Restricted to ADMIN or RO_USER
+router.post('/', async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden: Admin or Regional Office access required' });
+    }
     try {
         const { date, nameEn, type, id, venue } = req.body;
 
@@ -51,8 +57,11 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Delete holiday
-router.delete('/:id', async (req, res) => {
+// Delete holiday - Restricted to ADMIN or RO_USER
+router.delete('/:id', async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden: Admin or Regional Office access required' });
+    }
     try {
         const { id } = req.params;
         await prisma.holiday.delete({

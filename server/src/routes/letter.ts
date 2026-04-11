@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middleware/auth';
-import multer from 'multer';
+import { letterUpload as upload } from '../middleware/upload';
 import path from 'path';
+import { logger } from '../utils/logger';
 import fs from 'fs';
 import { parsePagination } from '../utils/pagination';
 import { z } from 'zod';
@@ -14,36 +15,7 @@ import archiver from 'archiver';
 
 const router = Router();
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    const dir = path.join(process.cwd(), 'uploads', 'letters');
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `signed-letter-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
-
-const upload = multer({
-  storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-    files: 1,
-  },
-  fileFilter: (_req, file, cb) => {
-    const allowed = ['.pdf', '.jpg', '.jpeg', '.png'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error(`Unsupported file type: ${ext}. Allowed: PDF, JPG, PNG`));
-    }
-  },
-});
+// upload configuration moved to centralized middleware
 
 router.get('/criteria', authenticateToken, async (req: any, res) => {
   const isPlanning = req.user.section?.toLowerCase() === 'planning';
@@ -95,7 +67,7 @@ router.post('/:id/upload-scan', authenticateToken, upload.single('document'), as
 router.get('/', authenticateToken, async (req: any, res) => {
   try {
     const { branchId, type } = req.query;
-    const { skip, take, page, limit } = parsePagination(req, 2000);
+    const { skip, take, page, limit } = parsePagination(req, 250);
     const response = await letterService.getLetters(req.user, branchId, type, skip, take, page, limit);
     res.json(response);
   } catch {
@@ -176,7 +148,7 @@ router.patch('/:id', authenticateToken, async (req: any, res) => {
     });
     res.json(updated);
   } catch (err) {
-    console.error('[LetterPatch] Error:', err);
+    logger.error('[LetterPatch] Error:', err);
     res.status(500).json({ error: 'Failed to patch letter' });
   }
 });
@@ -192,7 +164,7 @@ router.post('/generate', authenticateToken, async (req: any, res) => {
     const result = await generateLettersForPeriod(period, { date, type, signatoryId });
     res.json({ message: `Generated ${result.created} letter(s).`, ...result });
   } catch (error: any) {
-    console.error('[LetterGen] Error generating letters:', error);
+    logger.error('[LetterGen] Error generating letters:', error);
     res.status(500).json({ error: error.message || 'Failed to generate letters' });
   }
 });
@@ -211,7 +183,7 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"`);
     res.send(pdfBuffer);
   } catch (err) {
-    console.error('[PDF] Generation failed:', err);
+    logger.error('[PDF] Generation failed:', err);
     res.status(500).json({ error: 'PDF generation failed' });
   }
 });
@@ -232,7 +204,7 @@ router.post('/bulk-status', authenticateToken, async (req: any, res) => {
     });
     res.json({ message: `Successfully updated ${ids.length} letters to ${status}` });
   } catch (error) {
-    console.error('[BulkStatus] Failed:', error);
+    logger.error('[BulkStatus] Failed:', error);
     res.status(500).json({ error: 'Failed to update statuses' });
   }
 });
@@ -282,7 +254,7 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
             const { pdfBuffer, safeFileName } = await letterService.generateLetterPdfBuffer(letter, browser);
             archive.append(pdfBuffer, { name: safeFileName });
           } catch (pdfErr: any) {
-            console.error(`[BulkPDF] Individual generation failed for letter ${letter.id}:`, pdfErr);
+            logger.error(`[BulkPDF] Individual generation failed for letter ${letter.id}:`, pdfErr);
             failures.push(`${letter.id} | ${letter.referenceNo || 'NO_REF'} | ${letter.titleEn} | ${pdfErr?.message || 'Unknown error'}`);
           }
         }));
@@ -300,7 +272,7 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
 
     await archive.finalize();
   } catch (err: any) {
-    console.error('[BulkPDF] Generation failed:', err);
+    logger.error('[BulkPDF] Generation failed:', err);
     if (!res.headersSent) {
       res.status(500).json({ error: 'Bulk PDF generation failed' });
     }
