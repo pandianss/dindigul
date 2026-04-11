@@ -82,7 +82,7 @@ export async function createInternalNote(data: {
     console.log('[InternalNoteService] HTML Rendered');
 
     // 3. Generate PDF
-    const pdfBuffer = await generatePDF(html);
+    const pdfBuffer = await generatePDF(html, undefined, data.refNo);
 
     // 4. Save to database
     const { date, creatorBranchId, ...dbData } = data; // Don't save manual date or branchId to DB if not in schema

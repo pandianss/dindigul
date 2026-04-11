@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../index';
+import prisma from '../lib/prisma';
 import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 import { generatePDF } from '../services/pdfService';
 import { generateReference } from '../services/referenceService';
@@ -11,6 +11,34 @@ import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-f
 import multer from 'multer';
 
 const router = Router();
+
+const canManageOfficeNotes = (user: any) =>
+    ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role) || user?.section === 'Planning';
+
+const canEditOfficeNote = (user: any, note: { preparerId: string; approverId?: string | null }) =>
+    canManageOfficeNotes(user) || note.preparerId === user.id || note.approverId === user.id;
+
+async function getAccessibleOfficeNote(noteId: string, user: any) {
+    const note = await prisma.officeNote.findUnique({
+        where: { id: noteId },
+        include: {
+            preparer: {
+                include: {
+                    department: true,
+                    branch: true,
+                    designation: true
+                }
+            },
+            approver: {
+                include: { designation: true }
+            }
+        }
+    });
+
+    if (!note) return null;
+    if (canManageOfficeNotes(user) || note.preparerId === user.id || note.approverId === user.id) return note;
+    return null;
+}
 
 // Configure multer for scanned office note uploads
 const storage = multer.diskStorage({
@@ -44,6 +72,13 @@ const upload = multer({
 router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     try {
+        const currentNote = await prisma.officeNote.findUnique({
+            where: { id },
+            select: { id: true, preparerId: true, approverId: true }
+        });
+        if (!currentNote) return res.status(404).json({ error: 'Note not found' });
+        if (!canEditOfficeNote(req.user, currentNote)) return res.status(403).json({ error: 'Forbidden' });
+
         const note = await prisma.officeNote.update({
             where: { id },
             data: { status: 'SUBMITTED' }
@@ -110,6 +145,7 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
         });
 
         if (!note) return res.status(404).json({ error: 'Note not found' });
+        if (!canEditOfficeNote(req.user, note)) return res.status(403).json({ error: 'Forbidden' });
         
         const { getRegionalOfficeData } = require('../services/pdfService');
         const RO_DATA = await getRegionalOfficeData();
@@ -228,6 +264,35 @@ router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
 });
 
 
+// Get valid initiators (RO staff, excluding RM and Chief Managers)
+router.get('/initiators', authenticateToken, async (req: any, res) => {
+    try {
+        const initiators = await prisma.user.findMany({
+            where: {
+                OR: [
+                    { role: { in: ['RO_USER', 'RO_MANAGER', 'ADMIN'] } },
+                    { branch: { code: '3933' } }
+                ],
+                isRegionHead: false,
+                NOT: {
+                    designationEn: { contains: 'Chief Manager', mode: 'insensitive' }
+                }
+            },
+            select: {
+                id: true,
+                fullNameEn: true,
+                designationEn: true,
+                username: true
+            },
+            orderBy: { fullNameEn: 'asc' }
+        });
+        res.json(initiators);
+    } catch (err) {
+        console.error('Fetch initiators error:', err);
+        res.status(500).json({ error: 'Failed to fetch initiators' });
+    }
+});
+
 // Suggest a reference number based on department
 router.get('/suggest-reference', authenticateToken, async (req: any, res) => {
     const { deptName, date } = req.query;
@@ -243,12 +308,16 @@ router.get('/suggest-reference', authenticateToken, async (req: any, res) => {
 });
 
 // Get all office notes
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, async (req: any, res) => {
     try {
         const { preparerId } = req.query;
         const { skip, take, page, limit } = parsePagination(req);
         const whereClause = {
-            ...(preparerId ? { preparerId: String(preparerId) } : {}),
+            ...(
+                canManageOfficeNotes(req.user)
+                    ? (preparerId ? { preparerId: String(preparerId) } : {})
+                    : { preparerId: req.user.id }
+            ),
         };
         const [notes, total] = await Promise.all([
             prisma.officeNote.findMany({
@@ -272,13 +341,16 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new office note
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req: any, res) => {
     const { type, titleEn, titleTa, titleHi, contentJson, preparerId, referenceNo: manualReferenceNo, deptName: selectedDeptName } = req.body;
     try {
+        const effectivePreparerId = canManageOfficeNotes(req.user) && preparerId ? preparerId : req.user.id;
         const preparer = await prisma.user.findUnique({
-            where: { id: preparerId },
+            where: { id: effectivePreparerId },
             include: { department: true }
         });
+
+        if (!preparer) return res.status(404).json({ error: 'Preparer not found' });
 
         const deptName = selectedDeptName || preparer?.department?.nameEn || 'ADMIN';
         const noteDate = (contentJson && typeof contentJson === 'object') ? contentJson.noteDate : (contentJson ? JSON.parse(contentJson).noteDate : null);
@@ -291,10 +363,12 @@ router.post('/', async (req, res) => {
                 contentJson: typeof contentJson === 'string'
                     ? JSON.stringify({ ...JSON.parse(contentJson), titleTa, titleHi, deptName })
                     : JSON.stringify({ ...contentJson, titleTa, titleHi, deptName }),
-                preparerId,
+                preparerId: effectivePreparerId,
                 status: 'DRAFT'
             }
         });
+
+        console.log(`[Office Note] Created new draft with initiator: ${effectivePreparerId}`);
 
         // Update referenceNo using raw SQL to bypass Prisma Client sync issues
         await (prisma as any).$executeRaw`
@@ -315,13 +389,20 @@ router.post('/:id/upload-scan', authenticateToken, upload.single('document'), as
     if (!req.file) return res.status(400).json({ error: 'No document file uploaded' });
 
     try {
+        const currentNote = await prisma.officeNote.findUnique({
+            where: { id },
+            select: { id: true, preparerId: true, approverId: true }
+        });
+        if (!currentNote) return res.status(404).json({ error: 'Note not found' });
+        if (!canEditOfficeNote(req.user, currentNote)) return res.status(403).json({ error: 'Forbidden' });
+
         const scannedCopyUrl = `/uploads/office-notes/${req.file.filename}`;
         const note = await prisma.officeNote.update({
             where: { id },
             data: { 
                 scannedCopyUrl,
                 status: 'SIGNED' // Update status to reflect signed copy is attached
-            }
+            } as any
         });
 
         await createNotification(note.preparerId, 'Signed Copy Uploaded', `Signed copy for note "${note.titleEn}" has been uploaded successfully.`, 'SUCCESS', `/office-notes/${id}`);
@@ -339,6 +420,7 @@ router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
     try {
         const currentNote = await prisma.officeNote.findUnique({ where: { id } });
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
+        if (!canEditOfficeNote(req.user, currentNote)) return res.status(403).json({ error: 'Forbidden' });
 
         const note = await prisma.officeNote.update({
             where: { id },
@@ -358,15 +440,23 @@ router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
 // GAP 19: Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    const { type, titleEn, contentJson, deptName, referenceNo } = req.body;
+    const { type, titleEn, contentJson, deptName, referenceNo, preparerId } = req.body;
     try {
-        const currentNote = await prisma.officeNote.findUnique({ where: { id } });
+        const currentNote = await getAccessibleOfficeNote(id, req.user);
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
 
         const currentContent = typeof currentNote.contentJson === 'string' ? JSON.parse(currentNote.contentJson) : (currentNote.contentJson as any);
         if (currentContent?.isFrozen) {
             return res.status(403).json({ error: 'Document is frozen and cannot be edited.' });
         }
+
+        if (!canEditOfficeNote(req.user, currentNote)) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const effectivePreparerId = canManageOfficeNotes(req.user) && preparerId
+            ? preparerId
+            : currentNote.preparerId;
 
         if (currentNote.status === 'DRAFT') {
             const updated = await prisma.officeNote.update({
@@ -376,9 +466,12 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     titleEn,
                     contentJson: typeof contentJson === 'string' 
                         ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName })
-                        : JSON.stringify({ ...contentJson, titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName })
+                        : JSON.stringify({ ...contentJson, titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName }),
+                    preparerId: effectivePreparerId
                 }
             });
+
+            console.log(`[Office Note] Updated draft ${id} with initiator: ${effectivePreparerId}`);
 
             if (referenceNo) {
                 await (prisma as any).$executeRaw`
@@ -395,14 +488,16 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     type: type || currentNote.type,
                     titleEn: titleEn || currentNote.titleEn,
                     status: 'DRAFT',
-                    preparerId: req.user.id,
-                    version: currentNote.version + 1,
+                    preparerId: effectivePreparerId,
+                    version: (currentNote.version || 1) + 1,
                     previousVersionId: currentNote.id,
                     contentJson: typeof contentJson === 'string' 
                         ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName })
                         : JSON.stringify({ ...(contentJson || {}), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName }),
                 }
             });
+
+            console.log(`[Office Note] Created new version from ${currentNote.id}. New version: ${newVersion.id}, initiator: ${effectivePreparerId}`);
 
             if (referenceNo) {
                 await (prisma as any).$executeRaw`
@@ -431,7 +526,7 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
         }
 
         // Only preparer or ADMIN can delete
-        if (note.preparerId !== req.user.id && req.user.role !== 'ADMIN') {
+        if (!canEditOfficeNote(req.user, note)) {
             return res.status(403).json({ error: 'Forbidden' });
         }
 
@@ -444,29 +539,12 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 });
 
 // Generate PDF for office note
-router.get('/:id/pdf', async (req: any, res) => {
+router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     const { manualDate } = req.query; // Support passing a manual date
 
     try {
-        const note = await prisma.officeNote.findUnique({
-            where: { id },
-            include: { 
-                preparer: {
-                    include: { 
-                        department: true,
-                        branch: true,
-                        designation: true
-                    }
-                },
-                approver: {
-                    include: {
-                        designation: true
-                    }
-                } 
-            }
-        });
-
+        const note = await getAccessibleOfficeNote(id, req.user);
         if (!note) return res.status(404).json({ error: 'Note not found' });
 
         const content = (typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson) as any;
@@ -494,12 +572,12 @@ router.get('/:id/pdf', async (req: any, res) => {
         if (note.type === 'PROFORMA_BRANCH_CODE') {
             bodyHtml = `
                 <style>
-                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-                    .proforma-table td { padding: 6px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
-                    .proforma-table .label { font-weight: bold; width: 40%; background-color: #f8fafc; color: #475569; }
-                    .proforma-table .value { width: 60%; color: #1e293b; }
-                    .remarks-section { margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
-                    .section-title { font-weight: bold; color: #1e3a5f; border-left: 4px solid #1e3a5f; padding-left: 12px; margin-bottom: 8px; font-size: 13px; }
+                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
+                    .proforma-table td { padding: 4px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+                    .proforma-table .label { font-weight: bold; width: 38%; background-color: #f8fafc; color: #475569; }
+                    .proforma-table .value { width: 62%; color: #1e293b; }
+                    .remarks-section { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+                    .section-title { font-weight: bold; color: #1e3a5f; border-left: 4px solid #1e3a5f; padding-left: 10px; margin-bottom: 6px; font-size: 12px; }
                 </style>
 
                 <table class="proforma-table">
@@ -524,20 +602,117 @@ router.get('/:id/pdf', async (req: any, res) => {
                     <p style="line-height: 1.4; text-align: justify; font-size: 12px;">${content.details || 'Submitted for obtaining branch code for the newly opened unit.'}</p>
                 </div>
             `;
+        } else if (note.type === 'MICR_CODE_REQUEST') {
+            bodyHtml = `
+                <style>
+                    .micr-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+                    .micr-table th, .micr-table td { border: 1px solid #000; padding: 8px 10px; text-align: left; vertical-align: top; }
+                    .micr-table .num { width: 5%; text-align: center; }
+                    .micr-table .label { width: 45%; font-weight: bold; background-color: #f3f4f6; }
+                    .micr-table .value { width: 50%; text-transform: uppercase; }
+                    .sub-row { padding-left: 20px; }
+                </style>
+
+                <table class="micr-table">
+                    <tbody>
+                        <tr>
+                            <td class="num">1</td>
+                            <td class="label">Date of Opening</td>
+                            <td class="value">${content.dateOfOpening ? new Date(content.dateOfOpening).toLocaleDateString('en-GB') : '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">2</td>
+                            <td class="label">Name of the Branch / Office</td>
+                            <td class="value">${content.branchName || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">3</td>
+                            <td class="label">Permission Letter / License Details (Attached)</td>
+                            <td class="value">${content.permissionDetails || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">4</td>
+                            <td class="label">Population Category (Metro / Urban / Semi Urban / Rural)</td>
+                            <td class="value">${content.populationCategory || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">5</td>
+                            <td class="label">Taluk / Tehsil:</td>
+                            <td class="value">${content.talukTehsil || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">6</td>
+                            <td class="label">District / State:</td>
+                            <td class="value">${content.districtState || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num" rowspan="3">7</td>
+                            <td class="label">Working Hours:</td>
+                            <td class="value"></td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-left: 20px;">7.1. Week Days</td>
+                            <td class="value">${content.workingHoursWeekdays || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="padding-left: 20px;">7.2. Saturdays (1st, 3rd, 5th)<br/>7.3 Holiday</td>
+                            <td class="value">
+                                ${content.workingHoursSaturdays || '-'} (Sat)<br/>
+                                ${content.workingHoursHoliday || '-'} (Hol)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="num">8</td>
+                            <td class="label">Complete Postal address with Pincode:</td>
+                            <td class="value">${content.postalAddressWithPin || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">9</td>
+                            <td class="label">Whether Branch is under CBS</td>
+                            <td class="value">${content.isUnderCBS || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">10</td>
+                            <td class="label">Mail ID</td>
+                            <td class="value" style="text-transform: none;">${content.mailId || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">11</td>
+                            <td class="label">Landline Number</td>
+                            <td class="value">${content.landlineNumber || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">12</td>
+                            <td class="label">Branch Head Name and Contact No.</td>
+                            <td class="value">${content.branchHeadDetails || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td class="num">13</td>
+                            <td class="label">Controlling Office Contact Details</td>
+                            <td class="value">${content.controllingOfficeDetails || '-'}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 30px; font-size: 13px; line-height: 1.6;">
+                    <p>The above details are submitted for onward transmission to RBI for allotment of MICR Code.</p>
+                </div>
+            `;
         } else if (note.type === 'HIGH_VALUE_DD') {
             bodyHtml = `
                 <style>
-                    .dd-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                    .dd-table th, .dd-table td { padding: 6px 10px; border: 1px solid #cbd5e1; vertical-align: top; text-align: left; }
+                    .dd-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11.5px; }
+                    .dd-table th, .dd-table td { padding: 4px 8px; border: 1px solid #cbd5e1; vertical-align: top; text-align: left; }
                     .dd-table th { background-color: #f8fafc; font-weight: bold; text-transform: uppercase; color: #1e3a5f; }
-                    .dd-table .label { width: 40%; font-weight: bold; background-color: #f8fafc; }
-                    .dd-table .value { width: 60%; }
-                    .amount-cell { font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; }
+                    .dd-table .label { width: 38%; font-weight: bold; background-color: #f8fafc; }
+                    .dd-table .value { width: 62%; }
+                    .amount-cell { font-family: 'Courier New', monospace; font-weight: bold; font-size: 13px; }
                 </style>
-                <div class="subject-section" style="margin-bottom: 12px; font-weight: bold; font-family: 'NotoTamil', 'NotoHindi', sans-serif; text-align: center;">
-                    <div style="font-size: 14px;">${(note.titleEn || '-').replace(/^High Value Demand Draft - /i, '')}</div>
-                    <div style="width: 100%; border-bottom: 1.5px solid #000; margin-top: 4px;"></div>
+                <div class="subject-section" style="margin-bottom: 6px; font-weight: bold; font-family: 'NotoTamil', 'NotoHindi', sans-serif; text-align: center;">
+                    <div style="font-size: 13px;">${(note.titleEn || '-').replace(/^High Value Demand Draft - /i, '')}</div>
+                    <div style="width: 100%; border-bottom: 1px solid #000; margin-top: 1px;"></div>
                 </div>
+
 
                 <div class="dd-info">
                     <table class="dd-table">
@@ -555,14 +730,14 @@ router.get('/:id/pdf', async (req: any, res) => {
                             <tr><td class="label">Amount of Draft to be issued</td><td class="value amount-cell">₹ ${Number(content.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}/-</td></tr>
                             <tr><td class="label">Issuing Branch</td><td class="value font-bold">${content.issuingBranch || '-'}</td></tr>
                             <tr><td class="label">DD Drawn on</td><td class="value">${content.ddDrawnOn || '-'}</td></tr>
-                            <tr><td class="label">Purpose of transaction</td><td class="value" style="text-align: justify;">${content.purpose || '-'}</td></tr>
+                            <tr><td class="label">Purpose of transaction</td><td class="value">${content.purpose || '-'}</td></tr>
                             <tr><td class="label">Transaction ID</td><td class="value">${content.transactionId || '-'}</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="policy-section" style="margin-top: 10px;">
-                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; color: #1e3a5f; text-transform: uppercase;">Policy Reference</div>
+                <div class="policy-section" style="margin-top: 6px;">
+                    <div style="font-weight: bold; font-size: 11.5px; margin-bottom: 4px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; color: #1e3a5f; text-transform: uppercase;">Policy Reference</div>
                     <table class="dd-table" style="font-size: 10.5px; margin-top: 5px;">
                         <thead>
                             <tr><th style="width: 40%">Issuing Department</th><th style="width: 20%">Date</th><th style="width: 40%">Circular Ref No</th></tr>
@@ -579,40 +754,44 @@ router.get('/:id/pdf', async (req: any, res) => {
                     </table>
                 </div>
 
-                <div class="recommendation-section" style="margin-top: 15px;">
-                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; color: #1e3a5f; text-transform: uppercase;">Department Recommendation</div>
-                    <p style="line-height: 1.5; text-align: justify; font-size: 12.5px; color: #1e293b; font-weight: 500;">
+                <div class="recommendation-section" style="margin-top: 10px;">
+                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 3px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; color: #1e3a5f; text-transform: uppercase;">Department Recommendation</div>
+                    <p style="line-height: 1.4; text-align: justify; font-size: 12px; color: #1e293b; font-weight: 500;">
                         Since the branch request satisfies extant guidelines in the referred circulars, we may approve the entry in Finacle using HHVDD menu.
                     </p>
                 </div>
+
             `;
         } else if (note.type === 'EXPENSE_APPROVAL') {
             bodyHtml = `
                 <style>
-                    .exp-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12.5px; }
-                    .exp-table th, .exp-table td { padding: 8px 12px; border: 1px solid #cbd5e1; text-align: left; }
-                    .exp-table th { background-color: #f1f5f9; font-weight: bold; color: #1e3a5f; text-transform: uppercase; font-size: 11px; }
-                    .exp-table .label { font-weight: bold; background-color: #f8fafc; width: 40%; color: #334155; }
-                    .exp-table .value { width: 60%; color: #0f172a; }
-                    .amount { font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; text-align: right; }
-                    .section-hdr { font-weight: bold; font-size: 13px; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; margin-bottom: 8px; margin-top: 20px; padding-bottom: 3px; display: inline-block; text-transform: uppercase; }
+                    .exp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
+                    .exp-table th, .exp-table td { padding: 5px 10px; border: 1px solid #cbd5e1; text-align: left; }
+                    .exp-table th { background-color: #f1f5f9; font-weight: bold; color: #1e3a5f; text-transform: uppercase; font-size: 10px; }
+                    .exp-table .label { font-weight: bold; background-color: #f8fafc; width: 38%; color: #334155; }
+                    .exp-table .value { width: 62%; color: #0f172a; }
+                    .amount { font-family: 'Courier New', monospace; font-weight: bold; font-size: 13px; text-align: right; }
+                    .section-hdr { font-weight: bold; font-size: 12px; color: #1e3a5f; border-bottom: 1.5px solid #1e3a5f; margin-bottom: 6px; margin-top: 14px; padding-bottom: 2px; display: inline-block; text-transform: uppercase; }
                 </style>
-                <div style="margin-bottom: 12px; font-weight: bold; font-family: 'NotoTamil', 'NotoHindi', sans-serif; text-align: center;">
-                    <div style="font-size: 16px;">${note.titleEn || 'Note for Administrative Approval and Expenditure Sanction'}</div>
-                    <div style="width: 100%; border-bottom: 1.5px solid #000; margin-top: 6px;"></div>
+                <div style="margin-bottom: 8px; font-weight: bold; font-family: 'NotoTamil', 'NotoHindi', sans-serif; text-align: center;">
+                    <div style="width: 100%; border-bottom: 1.2px solid #000; margin-top: 4px;"></div>
                 </div>
 
+
                 <div class="section-hdr">1. Background & Justification</div>
-                <p style="text-align: justify; line-height: 1.5; font-size: 13px; color: #1e293b; white-space: pre-wrap;">${content.expensePurpose || '-'}</p>
+                <div style="text-align: justify; line-height: 1.4; font-size: 12.5px; color: #1e293b;">${content.expensePurpose || '-'}</div>
 
                 <div class="section-hdr">2. Financial Details</div>
                 <table class="exp-table">
                     <tbody>
                         <tr><td class="label">Expense Category</td><td class="value">${content.expenseCategory || '-'} Expenditure</td></tr>
-                        <tr><td class="label">General Ledger (GL) Budget Head</td><td class="value">${content.budgetHead || '-'}</td></tr>
+                        <tr><td class="label">GL Budget Head</td><td class="value">${content.budgetHead || '-'}</td></tr>
+                        ${(content.budgetHead === 'Other Expenditure' || content.budgetHead === 'Other Expenditure (Sundries)') ? `
                         <tr><td class="label">Budget Allocated for FY</td><td class="value amount">₹ ${Number(content.budgetAllocated || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
-                        <tr><td class="label">Budget Utilised till Date</td><td class="value amount">₹ ${Number(content.budgetUtilized || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
-                        <tr><td class="label" style="background-color: #e2e8f0; color: #000; font-size: 13px;">Proposed Expenditure Amount</td><td class="value amount" style="font-size: 15px; color: #000; font-weight: 900;">₹ ${Number(content.proposedAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr><td class="label">Budget Utilized so far</td><td class="value amount" style="color: #64748b;">₹ ${Number(content.budgetUtilized || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        <tr><td class="label">Remaining Balance</td><td class="value amount" style="color: ${ (Number(content.budgetAllocated || 0) - Number(content.budgetUtilized || 0) - Number(content.proposedAmount || 0)) < 0 ? '#ef4444' : '#059669' };">₹ ${(Number(content.budgetAllocated || 0) - Number(content.budgetUtilized || 0) - Number(content.proposedAmount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
+                        ` : ''}
+                        <tr><td class="label" style="background-color: #e2e8f0; font-size: 12px;">Proposed Expenditure Amount</td><td class="value amount" style="font-size: 14px; font-weight: 800;">₹ ${Number(content.proposedAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr>
                     </tbody>
                 </table>
 
@@ -620,17 +799,15 @@ router.get('/:id/pdf', async (req: any, res) => {
                 <table class="exp-table">
                     <tbody>
                         <tr><td class="label">Selected Vendor / Beneficiary</td><td class="value" style="font-weight: bold">${content.vendorName || '-'}</td></tr>
-                        <tr><td class="label">Vendor PAN</td><td class="value">${content.vendorPan || '-'}</td></tr>
-                        <tr><td class="label">Vendor GSTIN</td><td class="value">${content.vendorGst || '-'}</td></tr>
+                        <tr><td class="label">Vendor PAN / GSTIN</td><td class="value">${content.vendorPan || '-'}${content.vendorGst ? ` / ${content.vendorGst}` : ''}</td></tr>
                         <tr><td class="label">Quotation Basis</td><td class="value">${content.quotationBasis || '-'}</td></tr>
-                        ${content.quotationBasis === 'L1' ? `<tr><td class="label">Quotation Breakdown</td><td class="value" style="white-space: pre-wrap;">${content.quotationDetails || '-'}</td></tr>` : ''}
-                        <tr><td class="label">TDS Applicability</td><td class="value font-bold">${content.tdsApplicable || '-'}</td></tr>
-                        <tr><td class="label">GST Applicability</td><td class="value font-bold">${content.gstApplicable || '-'}</td></tr>
+                        <tr><td class="label">TDS/GST Applicability</td><td class="value font-bold">${content.tdsApplicable || '-'}${content.gstApplicable ? ` / ${content.gstApplicable}` : ''}</td></tr>
                     </tbody>
                 </table>
 
-                <div class="section-hdr" style="margin-top: 25px;">4. Recommendation & Sanction</div>
-                <p style="text-align: justify; line-height: 1.5; font-size: 13.5px; color: #000; font-weight: 500; white-space: pre-wrap; margin-bottom: 40px;">${content.recommendation || '-'}</p>
+                <div class="section-hdr" style="margin-top: 15px;">4. Recommendation & Sanction</div>
+                <div style="text-align: justify; line-height: 1.4; font-size: 13px; color: #000; font-weight: 500; margin-bottom: 20px;">${content.recommendation || '-'}</div>
+
             `;
         } else if (note.type === 'BROKEN_INTEREST') {
             const fmt = (d: string) => d ? new Date(d).toLocaleDateString('en-GB') : '-';
@@ -680,17 +857,17 @@ router.get('/:id/pdf', async (req: any, res) => {
 
             bodyHtml = `
                 <style>
-                    .bi-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13.5px; }
-                    .bi-table th, .bi-table td { border: 1px solid #dee2e6; padding: 9px 13px; text-align: left; }
-                    .bi-table th { background-color: #f8f9fa; font-weight: bold; width: 45%; color: #343a40; }
+                    .bi-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                    .bi-table th, .bi-table td { border: 1px solid #dee2e6; padding: 6px 10px; text-align: left; }
+                    .bi-table th { background-color: #f8f9fa; font-weight: bold; width: 42%; color: #343a40; }
                     .bi-table .val { color: #212529; font-family: "Courier New", Courier, monospace; font-weight: 600; }
                     .bi-table .val-plain { color: #212529; font-weight: 600; }
-                    .bi-table .val-hl { color: #166534; font-family: "Courier New", Courier, monospace; font-weight: 700; font-size: 15px; }
+                    .bi-table .val-hl { color: #166534; font-family: "Courier New", Courier, monospace; font-weight: 700; font-size: 14px; }
                     .bi-table .val-rate { color: #dc2626; font-family: "Courier New", Courier, monospace; font-weight: 700; }
                     .bi-table .val-cat { color: #7c3aed; font-weight: 700; }
-                    .bi-section { margin-top: 28px; font-size: 15px; font-weight: bold; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 12px; }
-                    .bi-text { text-align: justify; line-height: 1.6; font-size: 13.5px; color: #333; white-space: pre-wrap; }
-                    .bi-formula { font-family: "Courier New", Courier, monospace; font-size: 12px; color: #333; margin-top: 6px; padding: 8px 12px; background: #f0f4f8; border-left: 3px solid #1e3a8a; }
+                    .bi-section { margin-top: 18px; font-size: 14px; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px; }
+                    .bi-text { text-align: justify; line-height: 1.5; font-size: 12.5px; color: #333; }
+                    .bi-formula { font-family: "Courier New", Courier, monospace; font-size: 11px; color: #333; margin-top: 4px; padding: 6px 10px; background: #f0f4f8; border-left: 3px solid #1e3a8a; }
                 </style>
 
                 <div class="bi-section">1. Depositor &amp; Deposit Details</div>
@@ -754,14 +931,14 @@ router.get('/:id/pdf', async (req: any, res) => {
 
             bodyHtml = `
                 <style>
-                    .rev-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13.5px; }
-                    .rev-table th, .rev-table td { border: 1px solid #dee2e6; padding: 10px 14px; text-align: left; }
-                    .rev-table th { background-color: #f8f9fa; font-weight: bold; width: 45%; color: #343a40; }
+                    .rev-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11.5px; }
+                    .rev-table th, .rev-table td { border: 1px solid #dee2e6; padding: 5px 10px; text-align: left; }
+                    .rev-table th { background-color: #f8f9fa; font-weight: bold; width: 42%; color: #343a40; }
                     .rev-table .val { color: #212529; font-weight: 600; font-family: "Courier New", Courier, monospace; }
                     .rev-table .val-amt { color: #dc2626; font-weight: 700; font-family: "Courier New", Courier, monospace; }
-                    .rev-table .val-rev { color: #166534; font-weight: 700; font-family: "Courier New", Courier, monospace; font-size: 15px; }
-                    .rev-section { margin-top: 25px; font-size: 15px; font-weight: bold; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
-                    .rev-text { text-align: justify; line-height: 1.6; font-size: 13.5px; color: #333; white-space: pre-wrap; margin-top: 10px; }
+                    .rev-table .val-rev { color: #166534; font-weight: 700; font-family: "Courier New", Courier, monospace; font-size: 13px; }
+                    .rev-section { margin-top: 10px; font-size: 13px; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 2px; margin-bottom: 6px; }
+                    .rev-text { text-align: justify; line-height: 1.35; font-size: 12px; color: #333; margin-top: 4px; }
                     .rev-reason { font-weight: bold; color: #1e3a8a; }
                 </style>
 
@@ -792,13 +969,14 @@ router.get('/:id/pdf', async (req: any, res) => {
                 </table>
 
                 <div class="rev-text">
-                    <p><strong>Detailed Justification:</strong></p>
-                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">${content.revJustification || 'No justification provided.'}</div>
+                    <p style="margin-bottom: 5px;"><strong>Detailed Justification:</strong></p>
+                    <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; font-size: 12px;">${content.revJustification || 'No justification provided.'}</div>
                 </div>
 
-                <div style="margin-top: 40px; font-size: 12px; color: #6c757d; font-style: italic; border-top: 1px dashed #ccc; padding-top: 10px;">
-                    Note: Waiver of legitimate bank charges is subject to internal audit guidelines. First-time waivers or system errors must be clearly documented and approved as per the delegation of powers.
+                <div style="margin-top: 20px; font-size: 11px; color: #6c757d; font-style: italic; border-top: 1px dashed #ccc; padding-top: 8px;">
+                    Note: Waiver of legitimate bank charges is subject to internal audit guidelines. System errors must be clearly documented and approved as per the delegation of powers.
                 </div>
+
             `;
         } else if (note.type === 'GL_HEAD_ACTIVATION') {
             bodyHtml = `
@@ -827,7 +1005,7 @@ router.get('/:id/pdf', async (req: any, res) => {
                             <th>Purpose of Reopening/ Enabling</th>
                             <td class="gl-val">
                                 <div><strong>Justification/Fund Flow:</strong></div>
-                                <div style="white-space: pre-wrap; margin-top: 5px;">${content.glPurpose || '-'}</div>
+                                <div style="margin-top: 5px;">${content.glPurpose || '-'}</div>
                             </td>
                         </tr>
                         <tr><th>Type of Operation</th><td class="gl-val">${content.glOpType || '-'} / ${content.glDrCrBoth || '-'}</td></tr>
@@ -1338,29 +1516,8 @@ router.get('/:id/pdf', async (req: any, res) => {
              `;
         } else {
             bodyHtml = `
-                <style>
-                    .section-title { font-weight: bold; color: #1e3a5f; margin: 25px 0 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-                    .main-para { margin-bottom: 15px; line-height: 1.7; text-align: justify; }
-                    .data-row { display: flex; margin-bottom: 8px; font-size: 13px; }
-                    .data-label { font-weight: bold; width: 180px; color: #475569; }
-                    .data-value { flex: 1; color: #1e293b; }
-                </style>
                 <div class="main-content">
-                    ${content.details ? content.details.split('\n').map((p: string) => p.trim() ? `<p class="main-para">${p}</p>` : '').join('') : ''}
-                    
-                    ${content.amount ? `
-                        <div class="section-title">FINANCIAL IMPLICATIONS</div>
-                        <div class="data-row"><div class="data-label">Proposed Amount:</div><div class="data-value">₹ ${Number(content.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div></div>
-                    ` : ''}
-
-                    ${content.branch ? `
-                        <div class="section-title">AFFECTED UNIT</div>
-                        <div class="data-row"><div class="data-label">Unit/Branch:</div><div class="data-value">${content.branch}</div></div>
-                    ` : ''}
-                    ${content.justification ? `
-                        <div class="section-title">JUSTIFICATION & REMARKS</div>
-                        <p class="main-para">${content.justification}</p>
-                    ` : ''}
+                    ${content.details || ''}
                 </div>
             `;
         }
@@ -1374,6 +1531,8 @@ router.get('/:id/pdf', async (req: any, res) => {
         const isProforma = ['PROFORMA_BRANCH_CODE', 'RBI_BO_PROFORMA'].includes(note.type);
         
         let pdfTitle = note.titleEn;
+        let pdfTitleHi = content.titleHi;
+        let pdfTitleTa = content.titleTa;
         let pdfSubTitle = undefined;
 
         if (note.type === 'PROFORMA_BRANCH_CODE') {
@@ -1417,33 +1576,16 @@ router.get('/:id/pdf', async (req: any, res) => {
         const deptSealPath = (issuingDept as any)?.sealPath || (note.preparer?.department as any)?.sealPath;
         const deptSealSrc = deptSealPath ? imageToBase64(deptSealPath) : undefined;
 
-        let initiator = content.isFrozen ? content.signatorySnapshot.preparer : {
+        const initiator = (note.type === 'MICR_CODE_REQUEST') ? undefined : (content.isFrozen ? content.signatorySnapshot.preparer : {
             name: note.preparer.fullNameEn,
             nameTa: note.preparer.fullNameTa || undefined,
             nameHi: note.preparer.fullNameHi || undefined,
             titleEn: note.preparer.designationEn || (note.preparer.role === 'ADMIN' ? 'Administrator' : 'Preparer'),
             titleTa: note.preparer.designationTa || undefined,
             titleHi: note.preparer.designationHi || undefined
-        };
+        });
 
-        if (!content.isFrozen && (note.preparer.username === 'admin' || note.preparer.fullNameEn === 'System Administrator')) {
-            const satish = await prisma.user.findUnique({
-                where: { username: '63039' },
-                include: { designation: true }
-            });
-            if (satish) {
-                initiator = {
-                    name: satish.fullNameEn,
-                    nameTa: satish.fullNameTa || undefined,
-                    nameHi: satish.fullNameHi || undefined,
-                    titleEn: satish.designationEn || satish.designation?.nameEn || 'Preparer',
-                    titleTa: satish.designationTa || satish.designation?.nameTa || undefined,
-                    titleHi: satish.designationHi || satish.designation?.nameHi || undefined
-                };
-            }
-        }
-
-        const roChiefManagers = content.isFrozen ? [] : await prisma.user.findMany({
+        const roChiefManagers = (note.type === 'MICR_CODE_REQUEST' || content.isFrozen) ? [] : await prisma.user.findMany({
             where: {
                 role: { in: ['RO_USER', 'RO_MANAGER'] },
                 OR: [
@@ -1457,14 +1599,14 @@ router.get('/:id/pdf', async (req: any, res) => {
             include: { designation: true }
         });
 
-        const reviewers = content.isFrozen ? content.signatorySnapshot.reviewers : roChiefManagers.map(u => ({
+        const reviewers = (note.type === 'MICR_CODE_REQUEST') ? [] : (content.isFrozen ? content.signatorySnapshot.reviewers : roChiefManagers.map((u: any) => ({
             name: u.fullNameEn,
             nameTa: u.fullNameTa || undefined,
             nameHi: u.fullNameHi || undefined,
             titleEn: u.designationEn || 'Chief Manager',
             titleTa: u.designationTa || undefined,
             titleHi: u.designationHi || undefined
-        }));
+        })));
 
         const approver = content.isFrozen ? content.signatorySnapshot.approver : {
             name: note.approver?.fullNameEn || RO_DATA.signatoryName || 'System Admin',
@@ -1477,6 +1619,8 @@ router.get('/:id/pdf', async (req: any, res) => {
 
         const html = buildPremiumLayout({
             title: pdfTitle,
+            titleHi: pdfTitleHi,
+            titleTa: pdfTitleTa,
             subTitle: pdfSubTitle,
             refNo,
             date: noteDate,
@@ -1491,12 +1635,17 @@ router.get('/:id/pdf', async (req: any, res) => {
             organization: RO_DATA,
             isAdvisory: false,
             deptSealSrc,
-            hideHeader: note.type === 'RBI_BO_PROFORMA',
-            hideMeta: note.type === 'RBI_BO_PROFORMA',
-            hideTitle: note.type === 'RBI_BO_PROFORMA'
+            orgMeta: {
+                sealX: content.sealX,
+                sealY: content.sealY
+            },
+            hideHeader: ['RBI_BO_PROFORMA'].includes(note.type),
+            hideMeta: ['RBI_BO_PROFORMA'].includes(note.type),
+            hideTitle: ['RBI_BO_PROFORMA'].includes(note.type),
+            hideApprovedStatus: note.type === 'MICR_CODE_REQUEST'
         });
 
-        const pdfBuffer = await generatePDF(html);
+        const pdfBuffer = await generatePDF(html, undefined, refNo);
 
         res.contentType('application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="OfficeNote_${note.id.slice(-4)}.pdf"`);

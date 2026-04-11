@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
-import { getFYMetrics } from '../utils/fyUtils';
+import { getFYMetrics, getFYRange } from '../utils/fyUtils';
+
 
 export const dashboardService = {
     async getConfig() {
@@ -32,11 +33,10 @@ export const dashboardService = {
 
         const latestSnapshots = await prisma.snapshot.findMany({
             orderBy: { date: 'desc' },
-            take: 500,
+            take: 2000,
             include: { parameter: true, branch: true }
         });
 
-        const paramMap: Record<string, { values: number[], budgets: number[], param: any }> = {};
         const dateGroups = new Map<string, any[]>();
         for (const s of latestSnapshots) {
             const dk = s.date.toISOString();
@@ -45,24 +45,53 @@ export const dashboardService = {
         }
         const sortedDates = Array.from(dateGroups.keys()).sort((a, b) => b.localeCompare(a));
         const latestDate = sortedDates[0];
-        const recentSnaps = latestDate ? dateGroups.get(latestDate)! : [];
+        const recentSnaps = latestDate ? dateGroups.get(latestDate)!.filter(s => s.branch?.type !== 'REGIONAL OFFICE') : [];
 
+
+        // Fetch Previous FY End (March 31st) snapshots for baseline
+        const { start: fyStart } = getFYRange(latestDate ? new Date(latestDate) : new Date());
+        const baselineSnaps = await prisma.snapshot.findMany({
+            where: {
+                date: {
+                    gte: new Date(fyStart.getTime() - 86400000), 
+                    lte: fyStart 
+                }
+            }
+        });
+
+        const baselineMap: Record<string, number> = {}; 
+        baselineSnaps.forEach(s => {
+            if (s.branchId && s.parameterId) {
+                baselineMap[`${s.branchId}:${s.parameterId}`] = Number(s.value || 0);
+            }
+        });
+
+        const paramMap: Record<string, { values: number[], budgets: number[], baselines: number[], param: any }> = {};
         for (const s of recentSnaps) {
             const code = s.parameter?.code || 'UNKNOWN';
-            if (!paramMap[code]) paramMap[code] = { values: [], budgets: [], param: s.parameter };
-            paramMap[code].values.push(s.value);
-            if (s.budget) paramMap[code].budgets.push(s.budget);
+            if (!paramMap[code]) paramMap[code] = { values: [], budgets: [], baselines: [], param: s.parameter };
+            paramMap[code].values.push(Number(s.value || 0));
+            if (s.budget) paramMap[code].budgets.push(Number(s.budget));
+            
+            const bKey = `${s.branchId}:${s.parameterId}`;
+            if (baselineMap[bKey] !== undefined) {
+                paramMap[code].baselines.push(Number(baselineMap[bKey] || 0));
+            }
         }
 
-        const kpis = Object.entries(paramMap).map(([code, { values, budgets, param }]) => {
+        const kpis = Object.entries(paramMap).map(([code, { values, budgets, baselines, param }]) => {
             const actual = values.reduce((a, b) => a + b, 0);
             const budget = budgets.length > 0 ? budgets.reduce((a, b) => a + b, 0) : 0;
-            const pace = budget > 0 ? ((actual - budget) / budget) * 100 : 0;
+            const baseline = baselines.length > 0 ? baselines.reduce((a, b) => a + b, 0) : 0;
+            const fyGrowth = actual - baseline;
+            const pace = baseline !== 0 ? (fyGrowth / Math.abs(baseline)) * 100 : 0;
             const unit = param?.unit || '';
+            
+            // New logic: Surpassed > budget, Positive > base, Negative < base
             let status = 'LAGGING';
-            if (Math.abs(pace) < 1) status = 'POSITIVE';
-            else if (pace > 0) status = 'SURPASSED';
-            else if (pace < -10) status = 'NEGATIVE';
+            if (actual > budget && budget > 0) status = 'SURPASSED';
+            else if (actual > baseline) status = 'POSITIVE';
+            else if (actual < baseline) status = 'NEGATIVE';
 
             const formatVal = (v: number) => {
                 if (unit === 'Cr' || unit === 'Lakhs') return `₹${v.toFixed(1)} Cr`;
@@ -70,23 +99,48 @@ export const dashboardService = {
                 return v.toLocaleString('en-IN');
             };
 
+            const prefix = fyGrowth > 0 ? '+' : '';
+            const growthDisplay =
+                unit === 'Cr' || unit === 'Lakhs'
+                    ? `${prefix}â‚¹${fyGrowth.toFixed(1)} Cr`
+                    : unit === '%'
+                        ? `${prefix}${fyGrowth.toFixed(2)}%`
+                        : `${prefix}${fyGrowth.toLocaleString('en-IN')}`;
+
             return {
                 code,
                 label: param?.nameEn || code,
                 val: formatVal(actual),
                 budget: formatVal(budget),
-                pace: parseFloat(pace.toFixed(1)),
+                growth: fyGrowth,
+                growthDisplay,
+                pace: Number.isFinite(pace) ? parseFloat(pace.toFixed(1)) : 0,
                 status,
                 unit
             };
         });
 
         const branchPulse = {
-            SURPASSED: recentSnaps.filter((s: any) => s.status === 'SURPASSED').length,
-            POSITIVE: recentSnaps.filter((s: any) => s.status === 'POSITIVE').length,
-            LAGGING: recentSnaps.filter((s: any) => s.status === 'LAGGING').length,
-            NEGATIVE: recentSnaps.filter((s: any) => s.status === 'NEGATIVE').length,
+            SURPASSED: 0,
+            POSITIVE: 0,
+            LAGGING: 0,
+            NEGATIVE: 0,
         };
+
+        recentSnaps
+            .filter((s: any) => s.parameter?.code === 'TOTAL_BUSINESS')
+            .forEach((s: any) => {
+
+            const bKey = `${s.branchId}:${s.parameterId}`;
+            const baseline = baselineMap[bKey] ?? 0;
+            const actual = s.value;
+            const budget = s.budget ?? 0;
+
+            if (actual > budget && budget > 0) branchPulse.SURPASSED++;
+            else if (actual > baseline) branchPulse.POSITIVE++;
+            else if (actual < baseline) branchPulse.NEGATIVE++;
+            else branchPulse.LAGGING++;
+        });
 
         const pendingLetters = await prisma.letter.findMany({
             where: { status: { in: ['DRAFT', 'SENT'] } },
@@ -205,6 +259,7 @@ export const dashboardService = {
             fyMetrics
         };
     },
+
 
     async updateSrmMessage(data: any) {
         const newMessage = await prisma.srmMessage.create({

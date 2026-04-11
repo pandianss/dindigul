@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { io, prisma } from '../index';
+import { getFYMetrics, getFYRange } from '../utils/fyUtils';
+import { io } from '../index';
+import prisma from '../lib/prisma';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+const execAsync = promisify(exec);
+import { generatePDF, getBrowser, renderTemplate, buildLetterBodyHtml } from '../services/pdfService';
+
 import { parse } from 'csv-parse/sync';
 import { v4 as uuidv4 } from 'uuid';
 import { BusinessSnapshotService } from '../services/BusinessSnapshotService';
@@ -250,6 +257,20 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
         });
 
         const uploadDate = new Date(date);
+        const { start: fyStart } = getFYRange(uploadDate);
+        const baselineDate = new Date(fyStart.getTime() - 86400000);
+
+        // Pre-fetch baselines for this FY end
+        const baselines = await prisma.snapshot.findMany({
+            where: { date: baselineDate }
+        });
+        const baselineMap: Record<string, number> = {};
+        baselines.forEach(b => {
+            if (b.branchId && b.parameterId) {
+                baselineMap[`${b.branchId}:${b.parameterId}`] = Number(b.value);
+            }
+        });
+
 
         for (const record of records) {
             const { BranchCode, ParameterCode, Value, Budget } = record;
@@ -274,19 +295,45 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
                 continue;
             }
 
-            const isNegative = Budget ? (parseFloat(Value) < parseFloat(Budget)) : false;
+            const val = parseFloat(Value);
+            const budVal = Budget ? parseFloat(Budget) : null;
+            const baselineVal = baselineMap[`${branch.id}:${parameter.id}`] ?? 0;
+
+            let status = 'NEUTRAL';
+            if (budVal !== null && val > budVal) status = 'SURPASSED';
+            else if (val > baselineVal) status = 'POSITIVE';
+            else if (val < baselineVal) status = 'NEGATIVE';
+
+            const isNegative = status === 'NEGATIVE' || (budVal !== null && val < budVal);
 
             // Upsert snapshot
-            await prisma.snapshot.create({
-                data: {
+            const existing = await prisma.snapshot.findFirst({
+                where: {
                     date: uploadDate,
-                    value: parseFloat(Value),
-                    budget: Budget ? parseFloat(Budget) : null,
-                    parameterId: parameter.id,
                     branchId: branch.id,
-                    status: isNegative ? 'NEGATIVE' : 'POSITIVE'
+                    parameterId: parameter.id
                 }
             });
+
+            if (existing) {
+                await prisma.snapshot.update({
+                    where: { id: existing.id },
+                    data: { value: val, budget: budVal, status }
+                });
+            } else {
+                await prisma.snapshot.create({
+                    data: {
+                        date: uploadDate,
+                        value: val,
+                        budget: budVal,
+                        parameterId: parameter.id,
+                        branchId: branch.id,
+                        status
+                    }
+                });
+            }
+
+
 
             // If negative, emit mis_alert to management and branch rooms
             if (isNegative) {
@@ -334,6 +381,63 @@ router.post('/upload', authenticateToken, validate(misUploadSchema), async (req:
                 });
             }
         }
+        
+        // Post-process: Calculate TOTAL_BUSINESS for affected branches
+        const allParams = await prisma.parameter.findMany({
+            where: { code: { in: ['TOTAL_DEPOSITS', 'TOTAL_ADVANCES', 'TOTAL_BUSINESS'] } }
+        });
+        const pMap = Object.fromEntries(allParams.map(p => [p.code, p.id]));
+        const depId = pMap['TOTAL_DEPOSITS'];
+        const advId = pMap['TOTAL_ADVANCES'];
+        const busId = pMap['TOTAL_BUSINESS'];
+
+        if (depId && advId && busId) {
+            const affectedBranches = [...new Set(records.map(r => r.BranchCode))];
+            for (const bCode of affectedBranches) {
+                const branch = await prisma.branch.findUnique({ where: { code: bCode } });
+                if (!branch) continue;
+
+                const depSnap = await prisma.snapshot.findFirst({
+                    where: { branchId: branch.id, parameterId: depId, date: uploadDate }
+                });
+                const advSnap = await prisma.snapshot.findFirst({
+                    where: { branchId: branch.id, parameterId: advId, date: uploadDate }
+                });
+
+                if (depSnap && advSnap) {
+                    const totalBus = Number(depSnap.value) + Number(advSnap.value);
+                    const budBus = Number(depSnap.budget || 0) + Number(advSnap.budget || 0);
+                    
+                    // Status calculation for Total Business
+                    const baselineDate = new Date(fyStart.getTime() - 86400000);
+                    const bDep = await prisma.snapshot.findFirst({ where: { branchId: branch.id, parameterId: depId, date: baselineDate } });
+                    const bAdv = await prisma.snapshot.findFirst({ where: { branchId: branch.id, parameterId: advId, date: baselineDate } });
+                    const baselineVal = Number(bDep?.value || 0) + Number(bAdv?.value || 0);
+
+                    let status = 'NEUTRAL';
+                    if (budBus > 0 && totalBus > budBus) status = 'SURPASSED';
+                    else if (totalBus > baselineVal) status = 'POSITIVE';
+                    else if (totalBus < baselineVal) status = 'NEGATIVE';
+
+                    const existingBusSnap = await prisma.snapshot.findFirst({
+                        where: { branchId: branch.id, parameterId: busId, date: uploadDate }
+                    });
+
+                    if (existingBusSnap) {
+                        await prisma.snapshot.update({
+                            where: { id: existingBusSnap.id },
+                            data: { value: totalBus, budget: budBus > 0 ? budBus : null, status }
+                        });
+                    } else {
+                        await prisma.snapshot.create({
+                            data: { branchId: branch.id, parameterId: busId, date: uploadDate, value: totalBus, budget: budBus > 0 ? budBus : null, status }
+                        });
+                    }
+
+                }
+            }
+        }
+
 
         // Emit Summary Card to Management
         const summaryMessage = {
@@ -508,6 +612,102 @@ router.post('/evaluate-all', authenticateToken, async (req: any, res) => {
     } catch (error: any) {
         console.error('Error triggering evaluations:', error);
         res.status(500).json({ error: 'Failed to trigger evaluations' });
+    }
+});
+
+// Bulk download draft letters as ZIP
+router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
+    const { period, type = 'ALL' } = req.query;
+    if (!period) return res.status(400).json({ error: 'period query parameter required' });
+
+    try {
+        const letters = await prisma.letter.findMany({
+            where: { 
+                period: String(period),
+                status: 'DRAFT',
+                type: type === 'ALL' ? { in: ['APPRECIATION', 'EXPLANATION', 'OP_RISK'] } : String(type)
+            },
+            include: { branch: true, parameter: true }
+        });
+
+        if (letters.length === 0) {
+            return res.status(404).json({ error: 'No draft letters found to bundle' });
+        }
+
+        const tempDirId = uuidv4();
+        const baseDir = path.join(process.cwd(), 'temp_zips', tempDirId);
+        const cacheDir = path.join(process.cwd(), 'uploads', 'letter_cache');
+        
+        if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
+        if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+
+        // Optimization: Use a single browser instance for the entire batch
+        const browser = await getBrowser();
+        const concurrencyLimit = 5;
+
+        // Process in parallel batches of 5 to avoid memory crashes
+        for (let i = 0; i < letters.length; i += concurrencyLimit) {
+            const batch = letters.slice(i, i + concurrencyLimit);
+            await Promise.all(batch.map(async (letter) => {
+                try {
+                    const safeBranchName = letter.branch.nameEn.replace(/[^a-z0-9]/gi, '_');
+                    const safeParamName = (letter.parameter?.nameEn || 'OP_RISK').replace(/[^a-z0-9]/gi, '_');
+                    const fileName = `${letter.type}_${letter.branch.code}_${safeBranchName}_${safeParamName}.pdf`;
+                    const cacheFileName = `${letter.id}_${new Date(letter.updatedAt).getTime()}.pdf`;
+                    const cachePath = path.join(cacheDir, cacheFileName);
+
+                    let buffer: Buffer;
+                    if (fs.existsSync(cachePath)) {
+                        buffer = fs.readFileSync(cachePath);
+                    } else {
+                        const html = await renderTemplate('letter', {
+                            ...(letter.orgMeta as any || {}),
+                            title: letter.titleEn,
+                            titleHi: letter.titleHi,
+                            titleTa: letter.titleTa,
+                            date: letter.period,
+                            refNo: letter.referenceNo,
+                            bodyHtml: buildLetterBodyHtml(letter.contentEn || '', letter.orgMeta as any || {}, letter),
+                            signatoryName: (letter.orgMeta as any)?.signatoryName,
+                            signatoryTitleEn: (letter.orgMeta as any)?.signingAuthEn,
+                            signatoryTitleHi: (letter.orgMeta as any)?.signingAuthHi,
+                            signatoryTitleTa: (letter.orgMeta as any)?.signingAuthTa,
+                        });
+                        buffer = await generatePDF(html, browser);
+                        fs.writeFileSync(cachePath, buffer);
+
+                        // Cleanup old versions of this letter from cache
+                        const oldFiles = fs.readdirSync(cacheDir).filter(f => f.startsWith(letter.id) && f !== cacheFileName);
+                        oldFiles.forEach(f => fs.unlinkSync(path.join(cacheDir, f)));
+                    }
+
+                    fs.writeFileSync(path.join(baseDir, fileName), buffer);
+                } catch (pdfErr) {
+                    console.error(`Failed to generate PDF for letter ${letter.id}:`, pdfErr);
+                }
+            }));
+        }
+
+        await browser.close();
+
+        const zipPath = path.join(process.cwd(), 'temp_zips', `${tempDirId}.zip`);
+        
+        // Use native PowerShell Compress-Archive for the environment
+        await execAsync(`powershell.exe -Command "Compress-Archive -Path '${baseDir}\\*' -DestinationPath '${zipPath}' -Force"`);
+
+        res.download(zipPath, `Dindigul_Letters_${period.replace(/ /g, '_')}.zip`, (err) => {
+            // Cleanup after download finishes or errors
+            try {
+                if (fs.existsSync(baseDir)) fs.rmSync(baseDir, { recursive: true, force: true });
+                if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
+            } catch (cleanErr) {
+                console.warn('Cleanup failed after bulk download:', cleanErr);
+            }
+        });
+
+    } catch (error: any) {
+        console.error('[bulk-zip] Global error:', error);
+        res.status(500).json({ error: 'Failed to generate bulk ZIP archive' });
     }
 });
 

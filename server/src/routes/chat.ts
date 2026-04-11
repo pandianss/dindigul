@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { io, prisma } from '../index';
+import { io } from '../index';
+import prisma from '../lib/prisma';
 import { v4 as uuidv4 } from 'uuid';
 import { authenticateToken } from '../middleware/auth';
 

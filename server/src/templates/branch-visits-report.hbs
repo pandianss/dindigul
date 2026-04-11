@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @font-face { font-family:'Inter'; font-weight:400; src:url('data:font/truetype;base64,{{interRegular}}') format('truetype'); }
+        @font-face { font-family:'Inter'; font-weight:700; src:url('data:font/truetype;base64,{{interBold}}') format('truetype'); }
+        @font-face { font-family:'NotoHindi'; font-weight:400; src:url('data:font/truetype;base64,{{notoHindi400}}') format('truetype'); }
+        @font-face { font-family:'NotoHindi'; font-weight:700; src:url('data:font/truetype;base64,{{notoHindi700}}') format('truetype'); }
+        @font-face { font-family:'NotoTamil'; font-weight:400; src:url('data:font/truetype;base64,{{notoTamil400}}') format('truetype'); }
+        @font-face { font-family:'NotoTamil'; font-weight:700; src:url('data:font/truetype;base64,{{notoTamil700}}') format('truetype'); }
+
+        @page {
+            size: A4;
+            margin: 15.5mm 12.7mm 12.7mm 12.7mm;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 11px;
+            color: #1e293b;
+            line-height: 1.4;
+            background: #fff;
+        }
+        .hindi { font-family: 'NotoHindi', sans-serif; line-height: 1.6; }
+        .tamil { font-family: 'NotoTamil', sans-serif; font-size: 9px !important; line-height: 1.4; }
+
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.1;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .watermark img { width: 400px; }
+
+        /* OFFICIAL PREMIUM HEADER */
+        .header {
+            width: 100%;
+            border-bottom: 0.2pt solid #254aa0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .header-top img { height: 50px; width: 50px; }
+        .bank-names h1 { color: #254aa0; line-height: 1.4; font-weight: 700; font-size: 16px; margin: 0; }
+        
+        .col-grid { display: flex; width: 100%; color: #800000; margin-top: 8px; border-top: 0.5px solid rgba(128,0,0,0.1); padding-top: 5px; }
+        .col { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 5px; }
+        .col + .col { border-left: 0.5px solid rgba(128,0,0,0.15); }
+        .col-name { font-weight: 700; font-size: 10px; }
+        .col-addr { font-size: 9px; line-height: 1.3; opacity: 0.9; margin-top: 2px; }
+
+        .contact-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #800000;
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(128,0,0,0.05);
+        }
+
+        .meta-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 11px;
+            color: #254aa0;
+        }
+
+        .report-title {
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: underline;
+            margin: 5px 0 10px 0;
+            color: #000;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        th, td { border: 1px solid #000; padding: 4px 3px; font-size: 10.5px; }
+        th { background: #f1f5f9; font-weight: 800; text-align: center; white-space: nowrap; }
+        
+        .stats-table td { text-align: center; }
+        .stats-table td:first-child { text-align: left; font-weight: 700; padding-left: 8px; }
+
+        .visit-table td { text-align: left; vertical-align: top; }
+        .text-center { text-align: center !important; }
+        .text-right { text-align: right !important; }
+        
+        /* NOTES SECTION */
+        .notes-container {
+            margin-top: 5px;
+            border: 0.5px solid #000;
+            padding: 6px 10px;
+            font-size: 9.5px;
+            line-height: 1.3;
+        }
+        .notes-title { font-weight: 800; text-decoration: underline; margin-bottom: 5px; }
+        .note-item { display: flex; gap: 8px; margin-bottom: 3px; }
+        .note-num { font-weight: 700; min-width: 15px; }
+
+        /* SUMMARY TABLE */
+        .summary-table { margin-bottom: 10px; border: 0.5px solid #000; }
+        .summary-table td { border: 0.5px solid #000; padding: 3px 8px; font-size: 10.5px; }
+        .summary-table .label { font-weight: 700; }
+        .summary-table .indent { padding-left: 25px; }
+
+        /* DEFICIENCY BLOCK */
+        .deficiency-block { margin-top: 5px; margin-bottom: 10px; }
+        .deficiency-title { font-size: 10px; font-weight: 800; margin-bottom: 3px; line-height: 1.2; }
+        .deficiency-box { border: 0.5px solid #000; min-height: 40px; padding: 4px; font-size: 9.5px; color: #94a3b8; font-style: italic; }
+
+        /* SIGNATURES */
+        .signatures-container {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+        .sig-block { width: 220px; text-align: center; }
+        .sig-line { border-top: 1px solid #000; margin-top: 45px; margin-bottom: 5px; }
+        .sig-name-block { margin-bottom: 4px; }
+        .sig-name-block p { margin: 0; font-weight: 800; font-size: 11px; line-height: 1.2; }
+        .sig-titles p { margin: 0; font-size: 9px; line-height: 1.2; font-weight: 500; }
+
+        .page-break { page-break-before: always; }
+    </style>
+</head>
+<body>
+    <div class="watermark">
+        <img src="{{{emblemSrc}}}" alt=""/>
+    </div>
+
+    <!-- OFFICIAL HEADER -->
+    <div class="header">
+        <div class="header-top">
+            <img src="{{{emblemSrc}}}" alt="Logo"/>
+            <div class="bank-names">
+                <h1 class="hindi">{{organization.bankNameHi}}</h1>
+                <h1 class="tamil">{{organization.bankNameTa}}</h1>
+                <h1>{{organization.bankNameEn}}</h1>
+            </div>
+        </div>
+        <div class="col-grid">
+            <div class="col">
+                <p class="col-name hindi">{{organization.officeNameHi}}</p>
+                <p class="col-addr hindi">{{organization.addressHi}}</p>
+            </div>
+            <div class="col">
+                <p class="col-name tamil">{{organization.officeNameTa}}</p>
+                <p class="col-addr tamil">{{organization.addressTa}}</p>
+            </div>
+            <div class="col">
+                <p class="col-name">{{organization.officeNameEn}}</p>
+                <p class="col-addr">{{organization.addressEn}}</p>
+            </div>
+        </div>
+        <div class="contact-row">
+            <span>Phone: {{organization.phone}}</span>
+            <span>Email: {{organization.email}}</span>
+        </div>
+    </div>
+
+    <div class="meta-line">
+        <div>Ref: {{refNo}}</div>
+        <div class="text-right">
+            <span class="hindi" style="font-size:11px;">दिनांक</span> / <span class="tamil" style="font-size:8px !important;">தேதி</span> / Date: {{date}}
+        </div>
+    </div>
+
+    <h1 class="report-title">Monthly Consolidated Branch Visits Report - {{monthName}}</h1>
+
+    <!-- SUMMARY IDENTIFICATION TABLE -->
+    <table class="summary-table">
+        <tr>
+            <td width="30">1.</td>
+            <td width="250" class="label">Name of the Region:</td>
+            <td class="label">{{organization.officeNameEn}}</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td class="label">Visit Period: (for the month)</td>
+            <td>{{monthName}}</td>
+        </tr>
+        <tr>
+            <td>3.</td>
+            <td class="label" colspan="2">Names of the visiting officials:</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="indent">a. GM/CRM/SRM</td>
+            <td>{{signatory.name}}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td class="indent">b. II line in Regional Office<br/>(AGM/CM/Authorized CM by RM)</td>
+            <td>{{preparer.name}}</td>
+        </tr>
+    </table>
+
+    <!-- 3-COLUMN STATS TABLE -->
+    <table class="stats-table">
+        <thead>
+            <tr>
+                <th rowspan="2">Performance Parameter</th>
+                <th colspan="3">Category Wise Breakdown</th>
+            </tr>
+            <tr>
+                <th width="120">Rural/Semi Urban</th>
+                <th width="120">Urban/Metro</th>
+                <th width="120">Region Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1. Total No. of Branches in the Region</td>
+                <td>{{stats.rural.total}}</td>
+                <td>{{stats.urban.total}}</td>
+                <td>{{totals.total}}</td>
+            </tr>
+            <tr>
+                <td>2. Monthly Visit Target (as per Norms)</td>
+                <td>{{stats.rural.target}}</td>
+                <td>{{stats.urban.target}}</td>
+                <td>{{totals.target}}</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="background:#f8fafc; text-align:left; font-weight:700; padding:4px 8px;">3. Performance Achievement:</td>
+            </tr>
+            <tr>
+                <td style="padding-left:20px;">a. Visits by First Line of Authority (GM/CRM/SRM)</td>
+                <td>{{stats.rural.actual1}}</td>
+                <td>{{stats.urban.actual1}}</td>
+                <td>{{totals.actual1}}</td>
+            </tr>
+            <tr>
+                <td style="padding-left:20px;">b. Visits by Second Line of Authority (AGM/CM)</td>
+                <td>{{stats.rural.actual2}}</td>
+                <td>{{stats.urban.actual2}}</td>
+                <td>{{totals.actual2}}</td>
+            </tr>
+            <tr>
+                <td style="padding-left:20px;">c. Total Consolidated Branch Visits Undertaken</td>
+                <td>{{stats.rural.actualTotal}}</td>
+                <td>{{stats.urban.actualTotal}}</td>
+                <td>{{totals.actualTotal}}</td>
+            </tr>
+            <tr>
+                <td style="padding-left:20px;">d. Percentage of Achievement against Target</td>
+                <td style="font-weight:800;">{{calculatePercent stats.rural.actualTotal stats.rural.target}}%</td>
+                <td style="font-weight:800;">{{calculatePercent stats.urban.actualTotal stats.urban.target}}%</td>
+                <td style="background:#f1f5f9; font-weight:900;">{{totals.percent}}%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 4. REASONS FOR DEFICIENCY -->
+    <div class="deficiency-block">
+        <div class="deficiency-title">4. Reasons for not covering the required number of branches in the month and action taken for rectification of the deficiency:</div>
+        <div class="deficiency-box">
+            {{#if deficiencyReasons}}{{deficiencyReasons}}{{else}}No deficiencies were noted during this reporting period. All targets for Rural/Semi-Urban and Urban/Metro visits were met as per norms.{{/if}}
+        </div>
+    </div>
+
+    <!-- DUAL SIGNATURES (MOVED BEFORE NOTES) -->
+    <div class="signatures-container">
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-name-block">
+                {{#if preparer.nameHi}}<p class="hindi">({{preparer.nameHi}})</p>{{/if}}
+                {{#if preparer.nameTa}}<p class="tamil">({{preparer.nameTa}})</p>{{/if}}
+                <p>({{preparer.name}})</p>
+            </div>
+            <div class="sig-titles">
+                <p class="hindi">{{preparer.titleHi}}</p>
+                <p class="tamil">{{preparer.titleTa}}</p>
+                <p>{{preparer.titleEn}}</p>
+            </div>
+        </div>
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-name-block">
+                {{#if signatory.nameHi}}<p class="hindi">({{signatory.nameHi}})</p>{{/if}}
+                {{#if signatory.nameTa}}<p class="tamil">({{signatory.nameTa}})</p>{{/if}}
+                <p>({{signatory.name}})</p>
+            </div>
+            <div class="sig-titles">
+                <p class="hindi">{{signatory.titleHi}}</p>
+                <p class="tamil">{{signatory.titleTa}}</p>
+                <p>{{signatory.titleEn}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="notes-container">
+        <div class="notes-title">Note:</div>
+        <div class="note-item">
+            <div class="note-num">1)</div>
+            <div>The branch visits should be undertaken by the First and Second line in the Regional Office.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">2)</div>
+            <div>Rural and Semi Urban branches should be visited once in a quarter.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">3)</div>
+            <div>Urban and Metro branches should be visited once in six months.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">4)</div>
+            <div>Minimum No. of Branches to be visited per month in Rural/Semi-urban will be Total No. of Branches (Rural/Semi-urban) / 3.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">5)</div>
+            <div>Minimum No. of Branches to be visited per month in Urban/Metro will be Total No. of Branches (Urban/Metro) / 6.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">6)</div>
+            <div>Branch Visits may be evenly phased between two visits and evenly spread in all months. In other words, bunching of Branch Visits in any particular month(s) should be avoided.</div>
+        </div>
+        <div class="note-item">
+            <div class="note-num">7)</div>
+            <div>Branches should be listed out according to month wise visits only.</div>
+        </div>
+    </div>
+
+    <!-- DETAILED VISIT LOG (PAGE 2) -->
+    <div class="page-break">
+        <p style="margin-top:20px; font-weight:800; font-size:11px;">5. Detailed List of Branches Visited during {{monthName}}:</p>
+        <table class="visit-table">
+            <thead>
+                <tr>
+                    <th width="40">Sl.No</th>
+                    <th>Branch Name & Sample Code</th>
+                    <th width="65">Category</th>
+                    <th width="85">Visit Date</th>
+                    <th>Visiting Official</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each visitDetails}}
+                <tr>
+                    <td class="text-center">{{this.sl}}</td>
+                    <td><strong>{{this.branchName}}</strong></td>
+                    <td class="text-center">{{this.category}}</td>
+                    <td class="text-center">{{this.date}}</td>
+                    <td>{{this.official}}</td>
+                </tr>
+                {{/each}}
+                {{#unless visitDetails}}
+                <tr>
+                    <td colspan="5" class="text-center" style="padding:20px 0; color:#64748b;">No visit logs recorded for this category in {{monthName}}.</td>
+                </tr>
+                {{/unless}}
+            </tbody>
+        </table>
+        <p style="margin-top:25px; font-size:11px;">Note: &nbsp;&nbsp;&nbsp;Branches should be listed out according to month wise visits only.</p>
+    </div>
+
+</body>
+</html>

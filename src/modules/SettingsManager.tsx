@@ -9,6 +9,7 @@ import NoticeManager from './admin/NoticeManager';
 import CommandCenter from './admin/CommandCenter';
 import OrganizationSettings from './admin/OrganizationSettings';
 import { getErrorMessage } from '../utils/handleError';
+import { cn } from '../utils/cn';
 import {
     Settings,
     Building2,
@@ -23,7 +24,13 @@ import {
     Upload,
     ArrowRightLeft,
     Megaphone,
-    Award
+    Award,
+    ShieldCheck,
+    Calculator,
+    Filter,
+    IndianRupee,
+    Command as CommandCenterIcon,
+    LogOut
 } from 'lucide-react';
 
 type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog' | 'command' | 'organization';
@@ -75,6 +82,7 @@ interface MasterItem {
     atmId?: string;
     lastTxnTime?: string;
     balance?: number;
+    size?: string;
 }
 
 
@@ -92,6 +100,48 @@ const SettingsManager: React.FC = () => {
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [transferData, setTransferData] = useState({ branchId: '', designationId: '', remarks: '' });
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const tabGroups = [
+        {
+            name: 'Organizational Masters',
+            icon: Building2,
+            tabs: [
+                { id: 'departments', label: 'Departments', icon: Hash },
+                { id: 'units', label: 'Units', icon: Building2 },
+                { id: 'designations', label: 'Designations', icon: Briefcase },
+                { id: 'staff', label: 'Staff', icon: Users },
+                { id: 'atms', label: 'ATMs', icon: Calculator }
+            ]
+        },
+        {
+            name: 'Data & Logistics',
+            icon: Upload,
+            tabs: [
+                { id: 'misUpload', label: 'MIS File Drops', icon: Upload },
+                { id: 'budgets', label: 'Budget', icon: IndianRupee },
+                { id: 'registry', label: 'In/Out Registry', icon: Hash },
+                { id: 'bulletins', label: 'Bulletins', icon: Megaphone }
+            ]
+        },
+        {
+            name: 'System & Security',
+            icon: Settings,
+            tabs: [
+                { id: 'organization', label: 'Organization', icon: Building2 },
+                { id: 'command', label: 'Command Center', icon: CommandCenterIcon },
+                { id: 'auditLog', label: 'Auth Audit Log', icon: ShieldCheck }
+            ]
+        }
+    ];
+
+    const filteredGroups = tabGroups.map(group => ({
+        ...group,
+        tabs: group.tabs.filter(tab => 
+            tab.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            tab.id.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    })).filter(group => group.tabs.length > 0);
 
     // Form States
     const [formData, setFormData] = useState<MasterItem>({});
@@ -527,10 +577,19 @@ const SettingsManager: React.FC = () => {
                             <input
                                 className="w-full p-2 border rounded font-bold"
                                 value={formData.code || ''}
-                                onChange={e => setFormData({ ...formData, code: e.target.value })}
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    const nextData = { ...formData, code: val };
+                                    // Auto-sync sorting ID if it hasn't been manually set differently
+                                    if (!formData.officeId || formData.officeId === 9999 || formData.officeId === 0) {
+                                        nextData.officeId = parseInt(val) || 0;
+                                    }
+                                    setFormData(nextData);
+                                }}
                                 required
                             />
                         </div>
+
                         <div>
                             <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Office ID (Sorting)</label>
                             <input
@@ -546,13 +605,11 @@ const SettingsManager: React.FC = () => {
                             <input
                                 type="date"
                                 className="w-full p-2 border rounded"
-                                value={(() => {
-                                    const d = parseLocalISO(formData.openDate);
-                                    return formatLocalISO(d);
-                                })()}
+                                value={formData.openDate || ''}
                                 onChange={e => setFormData({ ...formData, openDate: e.target.value })}
                             />
                         </div>
+
                         <div className="col-span-2">
                             <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Name (English)</label>
                             <input
@@ -574,6 +631,21 @@ const SettingsManager: React.FC = () => {
                                 <option value="RO">Regional Office</option>
                                 <option value="LPC">Loan Processing Centre</option>
                                 <option value="BRANCH">Branch</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Branch Size (Budgeting)</label>
+                            <select
+                                className="w-full p-2 border rounded font-bold text-indigo-700 bg-indigo-50/30"
+                                value={formData.size || ''}
+                                onChange={e => setFormData({ ...formData, size: e.target.value })}
+                            >
+                                <option value="">Not Categorized</option>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                                <option value="Very Large">Very Large</option>
+                                <option value="Extra Large">Extra Large</option>
                             </select>
                         </div>
                         {!isRO && (
@@ -633,14 +705,12 @@ const SettingsManager: React.FC = () => {
                                         <input
                                             type="date"
                                             className="w-full p-2 border rounded"
-                                            value={(() => {
-                                                const d = parseLocalISO(formData.riskEffectiveDate);
-                                                return formatLocalISO(d);
-                                            })()}
+                                            value={formData.riskEffectiveDate?.toString().split('T')[0] || ''}
                                             onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value || undefined })}
                                         />
                                     </div>
                                 </div>
+
                             </>
                         )}
 
@@ -988,213 +1058,353 @@ const SettingsManager: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 pt-6 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-bank-navy flex items-center space-x-2">
-                        <Settings size={28} />
-                        <span>System Settings & Master Data</span>
-                    </h2>
-                    <p className="text-gray-500">Manage trilingual masters and organizational structure</p>
-                </div>
-                {!showForm && activeTab !== 'misUpload' && activeTab !== 'command' && (
-                    <div className="flex gap-2">
-
-                        {activeTab === 'units' && (
-                            <button
-                                onClick={handlePurgeUnits}
-                                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-100 transition-colors uppercase tracking-widest text-[10px]"
-                                title="Danger: Delete all isolated branches"
-                            >
-                                <Trash2 size={16} />
-                                Purge Units
-                            </button>
-                        )}
+        <div className="flex h-[calc(100vh-12rem)] bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 animate-in fade-in duration-700">
+            {/* Inner Settings Sidebar */}
+            <aside className="w-80 bg-gray-50/50 border-r border-gray-100 flex flex-col shrink-0">
+                <div className="p-6 h-full flex flex-col overflow-hidden">
+                    <div className="space-y-6 flex flex-col h-full">
+                    <div className="relative">
+                        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
-                            type="file"
-                            id="csv-upload"
-                            className="hidden"
-                            accept=".csv"
-                            onChange={handleBulkUpload}
+                            type="text"
+                            placeholder="Search settings..."
+                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-bank-navy/10 outline-none transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <button
-                            onClick={() => document.getElementById('csv-upload')?.click()}
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                        >
-                            <Upload size={18} />
-                            Upload CSV
-                        </button>
-                        <button
-                            onClick={() => {
-                                setFormData({});
-                                setEditingItem(null);
-                                setShowForm(true);
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 bg-bank-teal text-white rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
-                        >
-                            <Plus size={18} />
-                            Add New Entry
-                        </button>
                     </div>
-                )}
-            </div>
 
-            {error && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex items-start justify-between">
+                    <nav className="mt-6 flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-0">
+                        {filteredGroups.map(group => (
+                            <div key={group.name} className="space-y-3">
+                                <h3 className="px-4 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] opacity-70">
+                                    {group.name}
+                                </h3>
+                                <div className="space-y-1">
+                                    {group.tabs.map(tab => {
+                                        const Icon = tab.icon;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => setActiveTab(tab.id as Tab)}
+                                                className={cn(
+                                                    "w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-bold transition-all border border-transparent",
+                                                    activeTab === tab.id 
+                                                        ? "bg-white text-bank-navy shadow-sm border-gray-100 ring-1 ring-black/5" 
+                                                        : "text-gray-500 hover:bg-gray-100 hover:text-bank-navy"
+                                                )}
+                                            >
+                                                <Icon size={18} className={cn(activeTab === tab.id ? "text-bank-navy" : "text-gray-400")} />
+                                                <span>{tab.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+            {/* Content Area */}
+            <main className="flex-1 flex flex-col min-w-0 bg-white">
+                <header className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
                     <div>
-                        <h4 className="font-bold flex items-center gap-2">
-                            <span className="bg-red-200 p-1 rounded-full"><X size={14} className="text-red-700" /></span>
-                            Action Failed
-                        </h4>
-                        <p className="text-sm mt-1 opacity-90">{error}</p>
+                        <h2 className="text-2xl font-black text-bank-navy uppercase tracking-tight flex items-center gap-3">
+                            {(() => {
+                                const allTabs = tabGroups.flatMap(g => g.tabs);
+                                const current = allTabs.find(t => t.id === activeTab);
+                                const Icon = current?.icon || Settings;
+                                return (
+                                    <>
+                                        <div className="p-2 bg-bank-navy/5 rounded-xl text-bank-navy">
+                                            <Icon size={24} />
+                                        </div>
+                                        <span>{current?.label || 'Settings'}</span>
+                                    </>
+                                );
+                            })()}
+                        </h2>
+                        <p className="text-sm text-gray-400 font-medium mt-1">
+                            {activeTab === 'staff' ? 'Manage personnel and hierarchies' : 
+                             activeTab === 'units' ? 'Configure branches and offices' :
+                             'System administration and master data management'}
+                        </p>
                     </div>
-                    <button onClick={() => setError(null)} className="text-red-400 hover:text-red-800 transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-            )}
 
-            <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl w-fit overflow-x-auto">
-                {(['departments', 'units', 'designations', 'staff', 'atms', 'bulletins', 'command', 'organization', 'misUpload', 'budgets', 'registry', 'auditLog'] as Tab[]).map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all ${activeTab === tab
-                            ? 'bg-white text-bank-navy shadow-sm'
-                            : 'text-gray-500 hover:text-bank-navy'
-                            }`}
-                    >
-                        {tab === 'departments' ? 'Departments' :
-                            tab === 'units' ? 'Units' :
-                                tab === 'designations' ? 'Designations' :
-                                    tab === 'staff' ? 'Staff' :
-                                        tab === 'atms' ? 'ATMs' :
-                                            tab === 'misUpload' ? 'MIS File Drops' :
-                                                tab === 'budgets' ? 'Budget' :
-                                                    tab === 'registry' ? 'In/Out Registry' :
-                                                        tab === 'bulletins' ? 'Bulletins' :
-                                                            tab === 'command' ? 'Command Center' :
-                                                                tab === 'organization' ? 'Organization' :
-                                                                    tab === 'auditLog' ? 'Auth Audit Log' : ''}
-                    </button>
-                ))}
-            </div>
-
-            {activeTab === 'bulletins' && (
-                <div className="mt-4">
-                    <NoticeManager />
-                </div>
-            )}
-
-            {activeTab === 'command' && (
-                <div className="mt-4">
-                    <CommandCenter />
-                </div>
-            )}
-
-            {activeTab === 'misUpload' && (
-                <div className="mt-4">
-                    <MISUpload />
-                </div>
-            )}
-
-            {activeTab === 'budgets' && (
-                <div className="mt-4">
-                    <BudgetUpload />
-                </div>
-            )}
-
-            {activeTab === 'registry' && (
-                <div className="mt-4">
-                    <ParameterManager />
-                </div>
-            )}
-
-            {activeTab === 'auditLog' && (
-                <div className="mt-4 space-y-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <select
-                            className="p-2 border rounded font-bold text-bank-navy shadow-sm"
-                            value={auditEventFilter}
-                            onChange={(e) => {
-                                setAuditEventFilter(e.target.value);
-                                // A quick refetch instead of waiting for tab toggle
-                                api.get(`/auth/audit-log${e.target.value ? `?event=${e.target.value}` : ''}`)
-                                    .then(res => {
-                                        setAuditLogs(res.data.logs || []);
-                                        setAuditLogsTotal(res.data.total || 0);
-                                    })
-                                    .catch(console.error);
-                            }}
-                        >
-                            <option value="">All Events</option>
-                            <option value="LOGIN_SUCCESS">Login Success</option>
-                            <option value="LOGIN_FAILED">Login Failed</option>
-                            <option value="LOGOUT">Logout</option>
-                            <option value="LOCKOUT">Account Lockout</option>
-                            <option value="MFA_CHALLENGE">MFA Challenge</option>
-                            <option value="MFA_SUCCESS">MFA Success</option>
-                            <option value="MFA_FAILED">MFA Failed</option>
-                        </select>
-                        <div className="text-sm font-bold text-gray-500 uppercase">
-                            Total Records: {auditLogsTotal}
+                    {!showForm && !['misUpload', 'command', 'auditLog', 'organization'].includes(activeTab) && (
+                        <div className="flex gap-3">
+                            {activeTab === 'units' && (
+                                <button
+                                    onClick={handlePurgeUnits}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 hover:bg-red-100 transition-all text-[11px] uppercase tracking-widest"
+                                >
+                                    <Trash2 size={16} />
+                                    Purge Units
+                                </button>
+                            )}
+                            <input type="file" id="csv-upload" className="hidden" accept=".csv" onChange={handleBulkUpload} />
+                            <button
+                                onClick={() => document.getElementById('csv-upload')?.click()}
+                                className="flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all text-[11px]"
+                            >
+                                <Upload size={18} />
+                                Bulk Import (CSV)
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const defaults: MasterItem = {};
+                                    if (activeTab === 'units') {
+                                        defaults.type = 'BRANCH';
+                                        defaults.populationGroup = 'URBAN';
+                                        defaults.riskCategory = 'MEDIUM';
+                                    } else if (activeTab === 'staff') {
+                                        defaults.gender = 'M';
+                                    }
+                                    setFormData(defaults);
+                                    setEditingItem(null);
+                                    setShowForm(true);
+                                }}
+                                className="flex items-center gap-2 px-5 py-1.5 bg-bank-navy text-white rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-md text-[11px]"
+                            >
+                                <Plus size={18} />
+                                Add {getSingularLabel(activeTab)}
+                            </button>
                         </div>
-                    </div>
+                    )}
+                </header>
 
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-bank-navy text-white text-xs uppercase tracking-wider">
-                                    <th className="p-4 font-bold">Timestamp</th>
-                                    <th className="p-4 font-bold">User</th>
-                                    <th className="p-4 font-bold">Event Type</th>
-                                    <th className="p-4 font-bold">IP Address</th>
-                                    <th className="p-4 font-bold">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {auditLogs.map((log) => (
-                                    <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-sm">
-                                        <td className="p-4 whitespace-nowrap text-gray-500 font-mono">
-                                            {new Date(log.createdAt).toLocaleString()}
-                                        </td>
-                                        <td className="p-4 font-bold text-bank-navy">
-                                            {log.username}
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${log.event.includes('SUCCESS') ? 'bg-green-100 text-green-800' :
-                                                log.event.includes('FAILED') || log.event.includes('LOCKOUT') ? 'bg-red-100 text-red-800' :
-                                                    'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                {log.event.replace('_', ' ')}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-gray-500 font-mono text-xs">
-                                            {log.ipAddress || 'Unknown'}
-                                        </td>
-                                        <td className="p-4 text-xs text-gray-500 max-w-xs truncate">
-                                            {log.metadata ? JSON.parse(log.metadata).reason || log.metadata : '-'}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {auditLogs.length === 0 && (
-                                    <tr>
-                                        <td colSpan={5} className="p-8 text-center text-gray-500 font-bold uppercase tracking-wider">
-                                            No audit logs found
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    <div className="animate-in fade-in duration-500">
+                        {activeTab === 'bulletins' && <NoticeManager />}
+                        {activeTab === 'command' && <CommandCenter />}
+                        {activeTab === 'misUpload' && <MISUpload />}
+                        {activeTab === 'budgets' && <BudgetUpload />}
+                        {activeTab === 'registry' && <ParameterManager />}
+                        {activeTab === 'organization' && <OrganizationSettings />}
+                        
+                        {activeTab === 'auditLog' && (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <select
+                                        className="px-4 py-2 border border-gray-200 rounded-xl font-bold text-bank-navy shadow-sm outline-none focus:ring-2 focus:ring-bank-navy/10 transition-all text-sm"
+                                        value={auditEventFilter}
+                                        onChange={(e) => {
+                                            setAuditEventFilter(e.target.value);
+                                            api.get(`/auth/audit-log${e.target.value ? `?event=${e.target.value}` : ''}`)
+                                                .then(res => {
+                                                    setAuditLogs(res.data.logs || []);
+                                                    setAuditLogsTotal(res.data.total || 0);
+                                                })
+                                                .catch(console.error);
+                                        }}
+                                    >
+                                        <option value="">All Security Events</option>
+                                        <option value="LOGIN_SUCCESS">Login Success</option>
+                                        <option value="LOGIN_FAILED">Login Failed</option>
+                                        <option value="LOGOUT">Logout</option>
+                                        <option value="LOCKOUT">Account Lockout</option>
+                                    </select>
+                                    <div className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                                        Found {auditLogsTotal} Security Logs
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto custom-scrollbar">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-gray-50/50 text-[11px] uppercase font-black text-gray-400 tracking-widest border-b border-gray-100">
+                                                <th className="px-4 py-3">Timestamp</th>
+                                                <th className="px-4 py-3">User Identity</th>
+                                                <th className="px-4 py-3">Event Type</th>
+                                                <th className="px-4 py-3">IP Address</th>
+                                                <th className="px-4 py-3">Security Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-50">
+                                            {auditLogs.map((log) => (
+                                                <tr key={log.id} className="hover:bg-gray-50 transition-colors text-sm">
+                                                    <td className="p-4 whitespace-nowrap text-gray-500 font-mono text-xs">
+                                                        {new Date(log.createdAt).toLocaleString()}
+                                                    </td>
+                                                    <td className="p-4 font-bold text-bank-navy">
+                                                        {log.username}
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <span className={cn(
+                                                            "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
+                                                            log.event.includes('SUCCESS') ? 'bg-green-100 text-green-700' :
+                                                            log.event.includes('FAILED') || log.event.includes('LOCKOUT') ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        )}>
+                                                            {log.event.replace('_', ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-gray-400 font-mono text-xs">
+                                                        {log.ipAddress || '---'}
+                                                    </td>
+                                                    <td className="p-4 text-xs text-gray-400 max-w-xs truncate italic">
+                                                        {log.metadata ? JSON.parse(log.metadata).reason || log.metadata : 'No metadata'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {(['departments', 'units', 'designations', 'staff', 'atms'] as Tab[]).includes(activeTab) && (
+                            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-x-auto custom-scrollbar">
+                                <table className="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr className="bg-gray-50/50 border-b border-gray-100">
+                                            <th className="px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-widest">Identified Entity</th>
+                                            {activeTab === 'units' && <th className="px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-widest">Global Classification</th>}
+                                            <th className="px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-widest">Regional Nomenclature</th>
+                                            <th className="px-6 py-3 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Administrative Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {loading ? (
+                                            <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-300 font-medium italic">Synchronizing with server...</td></tr>
+                                        ) : data.length === 0 ? (
+                                            <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-300 font-medium italic">No data entries available in this category.</td></tr>
+                                        ) : (() => {
+                                            if (activeTab === 'staff') {
+                                                const grouped: { [key: string]: MasterItem[] } = {};
+                                                data.forEach(item => {
+                                                    const branchName = item.branch?.nameEn || 'Unassigned / RO';
+                                                    if (!grouped[branchName]) grouped[branchName] = [];
+                                                    grouped[branchName].push(item);
+                                                });
+                                                const sortedBranches = Object.keys(grouped).sort();
+
+                                                return sortedBranches.flatMap(branchName => {
+                                                    const sortedStaff = grouped[branchName].sort((a, b) => {
+                                                        const gradeCompare = (a.grade || '').localeCompare(b.grade || '');
+                                                        if (gradeCompare !== 0) return gradeCompare;
+                                                        return (a.fullNameEn || '').localeCompare(b.fullNameEn || '');
+                                                    });
+
+                                                    return [
+                                                        <tr key={`header-${branchName}`} className="bg-gray-50/30">
+                                                            <td colSpan={6} className="px-6 py-2.5 text-[11px] font-black text-bank-navy/60 uppercase tracking-[0.2em] border-y border-gray-50">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Building2 size={12} className="text-bank-teal" />
+                                                                    <span>{branchName}</span>
+                                                                    <span className="ml-auto font-medium lowercase tracking-normal bg-white px-2 py-0.5 rounded-full border border-gray-100 shadow-sm">{sortedStaff.length} personnel</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>,
+                                                        ...sortedStaff.map(item => {
+                                                            const activeSession = sessions.find(s => s.userId === item.id);
+                                                            return (
+                                                                <tr key={item.id} className={cn("hover:bg-bank-navy/[0.02] transition-colors group", activeSession && "bg-green-50/30")}>
+                                                                    <td className="px-6 py-4">
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <div className="relative shrink-0">
+                                                                                {item.photo?.data ? (
+                                                                                    <img src={item.photo.data as string} alt="" className="w-11 h-11 rounded-2xl object-cover ring-2 ring-white shadow-md" />
+                                                                                ) : (
+                                                                                    <div className="w-11 h-11 bg-bank-navy/5 text-bank-navy rounded-2xl flex items-center justify-center shadow-inner">
+                                                                                        <Users size={20} />
+                                                                                    </div>
+                                                                                )}
+                                                                                {activeSession && <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white shadow-sm animate-pulse" />}
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="font-black text-bank-navy tracking-tight">{item.username}</span>
+                                                                                    {item.branch?.headUserId === item.id && (
+                                                                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-bank-gold text-bank-navy shadow-sm uppercase tracking-tighter">Chief</span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">
+                                                                                    {item.designation?.nameEn || 'N/A'} • {item.grade || '---'}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4">
+                                                                        <span className="text-sm font-bold text-gray-700">{item.fullNameEn}</span>
+                                                                        <div className="flex gap-4 mt-1 opacity-60">
+                                                                            <span className="text-xs font-tamil">{item.fullNameTa || '-'}</span>
+                                                                            <span className="text-xs font-hindi">{item.fullNameHi || '-'}</span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 text-right">
+                                                                        <div className="flex items-center justify-end gap-1">
+                                                                            {activeSession && (
+                                                                                <button onClick={() => handleRevokeSession(activeSession.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Terminate Session"><LogOut size={16} /></button>
+                                                                            )}
+                                                                            <button onClick={() => startEdit(item)} className="p-2 text-bank-teal hover:bg-bank-teal/5 rounded-xl transition-all"><Edit2 size={16} /></button>
+                                                                            <button onClick={() => { setTransferItem(item); setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' }); setShowTransferModal(true); }} className="p-2 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"><ArrowRightLeft size={16} /></button>
+                                                                            <button onClick={() => handleDelete(item.id || '')} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={16} /></button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })
+                                                    ];
+                                                });
+                                            }
+
+                                            return data.map((item) => (
+                                                <tr key={item.id} className="hover:bg-bank-navy/[0.02] transition-colors group">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className="p-2.5 bg-gray-50 text-bank-navy rounded-2xl shadow-inner group-hover:bg-white group-hover:shadow-md transition-all">
+                                                                {activeTab === 'departments' && <Hash size={18} />}
+                                                                {activeTab === 'units' && <Building2 size={18} />}
+                                                                {activeTab === 'designations' && <Briefcase size={18} />}
+                                                                {activeTab === 'atms' && <Calculator size={18} />}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-black text-bank-navy tracking-tight uppercase leading-none">{item.code || item.atmId}</p>
+                                                                {activeTab === 'units' && <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 block">{item.type}</span>}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    {activeTab === 'units' && (
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex flex-wrap gap-1.5">
+                                                                <span className="px-2 py-0.5 text-[9px] font-black bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">{item.populationGroup?.replace('_', ' ')}</span>
+                                                                {item.size && (
+                                                                    <span className="px-2 py-0.5 text-[9px] font-black bg-indigo-50 text-indigo-700 rounded border border-indigo-100 uppercase tracking-wider">{item.size}</span>
+                                                                )}
+                                                                <span className={cn("px-2 py-0.5 text-[9px] font-black rounded border uppercase tracking-wider", 
+                                                                    item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' :
+                                                                    item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+                                                                    'bg-green-50 text-green-700 border-green-100'
+                                                                )}>{item.riskCategory} Risk</span>
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                    <td className="px-6 py-4">
+                                                        <p className="text-sm font-bold text-gray-700">{item.nameEn}</p>
+                                                        <div className="flex gap-4 mt-1 opacity-60">
+                                                            <span className="text-xs font-tamil italic">{item.nameTa || '-'}</span>
+                                                            <span className="text-xs font-hindi italic">{item.nameHi || '-'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <button onClick={() => startEdit(item)} className="p-2 text-bank-teal hover:bg-bank-teal/5 rounded-xl transition-all"><Edit2 size={16} /></button>
+                                                            <button onClick={() => handleDelete(item.id || '')} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={16} /></button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ));
+                                        })()}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
-
-            {activeTab === 'organization' && (
-                <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <OrganizationSettings />
-                </div>
-            )}
+            </main>
 
             {showForm && activeTab !== 'misUpload' && createPortal(
                 <div
@@ -1315,258 +1525,6 @@ const SettingsManager: React.FC = () => {
                     </div>
                 </div>,
                 document.body
-            )}
-
-
-
-            {(['departments', 'units', 'designations', 'staff', 'atms'] as Tab[]).includes(activeTab) && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Identity / Details</th>
-                                {activeTab === 'units' && <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Classification</th>}
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">English Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tamil Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Hindi Name</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {loading ? (
-                                <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">Loading master data...</td></tr>
-                            ) : data.length === 0 ? (
-                                <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">No entries found for this category.</td></tr>
-                            ) : (() => {
-                                if (activeTab === 'staff') {
-                                    // Grouping and sorting for staff
-                                    const grouped: { [key: string]: MasterItem[] } = {};
-                                    data.forEach(item => {
-                                        const branchName = item.branch?.nameEn || 'Unassigned / RO';
-                                        if (!grouped[branchName]) grouped[branchName] = [];
-                                        grouped[branchName].push(item);
-                                    });
-
-                                    // Sort group keys (branches)
-                                    const sortedBranches = Object.keys(grouped).sort();
-
-                                    return sortedBranches.flatMap(branchName => {
-                                        // Sort staff within group by grade, then name
-                                        const sortedStaff = grouped[branchName].sort((a, b) => {
-                                            const gradeCompare = (a.grade || '').localeCompare(b.grade || '');
-                                            if (gradeCompare !== 0) return gradeCompare;
-                                            return (a.fullNameEn || '').localeCompare(b.fullNameEn || '');
-                                        });
-
-                                        const isRegionHead = branchName === 'Unassigned / RO';
-
-                                        return [
-                                            // Unit Header Row
-                                            <tr key={`header-${branchName}`} className="bg-slate-50/50">
-                                                <td colSpan={6} className="px-6 py-2 text-[10px] font-black text-bank-navy uppercase tracking-widest border-y border-gray-100">
-                                                    <div className="flex items-center gap-2">
-                                                        <Building2 size={12} className="text-bank-teal" />
-                                                        <span>UNIT: {branchName}</span>
-                                                        <span className="ml-auto text-gray-400 font-normal lowercase tracking-normal">({sortedStaff.length} staff)</span>
-                                                    </div>
-                                                </td>
-                                            </tr>,
-                                            // Staff Rows
-                                            ...sortedStaff.map(item => {
-                                                // Find active session for this staff member
-                                                const activeSession = sessions.find(s => s.userId === item.id);
-
-                                                return (
-                                                    <tr key={item.id} className={`hover:bg-gray-50 transition-colors group ${activeSession ? 'bg-green-50/20' : ''}`}>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className="flex-shrink-0 relative">
-                                                                    {item.photo?.data ? (
-                                                                        <img
-                                                                            src={item.photo.data as string}
-                                                                            alt={item.username}
-                                                                            className="w-10 h-10 rounded-full object-cover border-2 border-bank-navy/10 shadow-sm"
-                                                                        />
-                                                                    ) : (
-                                                                        <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
-                                                                            <Users size={18} />
-                                                                        </div>
-                                                                    )}
-                                                                    {activeSession && (
-                                                                        <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-green-500 border border-white inline-block animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]" title="Active Session"></span>
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <p className="font-bold text-bank-navy tracking-wide">{item.username}</p>
-                                                                        {item.branch?.headUserId === item.id && (
-                                                                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border shadow-sm ${
-                                                                                item.branch?.type === 'REGIONAL OFFICE' ? 'bg-bank-navy text-bank-gold border-bank-gold/30' : 'bg-bank-teal text-white border-bank-teal/30'
-                                                                            }`}>
-                                                                                <Award size={10} />
-                                                                                {item.branch?.type === 'REGIONAL OFFICE' ? 'REGION HEAD' : 'BRANCH HEAD'}
-                                                                            </span>
-                                                                        )}
-                                                                        {item.isSecondLine && (
-                                                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border shadow-sm bg-orange-50 text-orange-600 border-orange-200 uppercase">
-                                                                                2nd Line
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                    {activeSession ? (
-                                                                        <p className="text-[10px] text-green-600 font-bold tracking-tighter uppercase">
-                                                                            Active ({formatDuration(activeSession.createdAt)}) • {activeSession.osUsername} • {activeSession.ipAddress}
-                                                                        </p>
-                                                                    ) : (
-                                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                                            {item.designation?.nameEn || 'No Designation'} 
-                                                                            {item.designationTa && <span className="font-tamil ml-1.5 border-l border-gray-200 pl-1.5">{item.designationTa}</span>}
-                                                                            {item.designationHi && <span className="font-hindi ml-1.5 border-l border-gray-200 pl-1.5">{item.designationHi}</span>}
-                                                                            <span className="mx-1.5 opacity-50">•</span> {item.grade || 'No Grade'}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.fullNameEn}</td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.fullNameTa || '-'}</td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.fullNameHi || '-'}</td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
-                                                                {activeSession && (
-                                                                    <button
-                                                                        onClick={() => handleRevokeSession(activeSession.id)}
-                                                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-all text-[10px] font-bold border border-red-200 uppercase tracking-widest mr-2"
-                                                                        title="Revoke Session"
-                                                                    >
-                                                                        Revoke
-                                                                    </button>
-                                                                )}
-                                                                <button
-                                                                    onClick={() => startEdit(item)}
-                                                                    className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
-                                                                    title="Edit Details"
-                                                                >
-
-                                                                    <Edit2 size={16} />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setTransferItem(item);
-                                                                        setTransferData({ branchId: '', designationId: item.designationId || '', remarks: '' });
-                                                                        setShowTransferModal(true);
-                                                                    }}
-                                                                    className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
-                                                                    title="Transfer User"
-                                                                >
-                                                                    <ArrowRightLeft size={16} />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(item.id || '')}
-                                                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
-                                                                    title="Delete Entry"
-                                                                >
-                                                                    <Trash2 size={16} />
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        ];
-                                    });
-                                }
-
-                                // Default rendering for other tabs
-                                return data.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="flex-shrink-0">
-                                                    <div className="p-2 bg-bank-navy/5 text-bank-navy rounded-lg">
-                                                        {activeTab === 'departments' && <Hash size={18} />}
-                                                        {activeTab === 'units' && <Building2 size={18} />}
-                                                        {activeTab === 'designations' && <Briefcase size={18} />}
-                                                        {activeTab === 'atms' && <span className="text-sm">🏧</span>}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-bank-navy tracking-wide">{item.code || item.atmId}</p>
-                                                    {activeTab === 'atms' && (
-                                                        <p className="text-[10px] text-gray-400 font-bold tracking-tighter uppercase">
-                                                            Branch: {item.branch?.nameEn || 'N/A'} • Last Sync: {item.lastTxnTime || 'Never'}
-                                                        </p>
-                                                    )}
-                                                    {activeTab === 'units' && (
-                                                        <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
-                                                            {item.type} • {item.populationGroup}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        {activeTab === 'units' && (
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col items-start gap-1">
-                                                    {item.populationGroup && (
-                                                        <span className="inline-flex px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">
-                                                            {item.populationGroup.replace('_', ' ')}
-                                                        </span>
-                                                    )}
-                                                    {item.riskCategory && (
-                                                        <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded border uppercase tracking-wider ${item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' :
-                                                            item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                                                'bg-green-50 text-green-700 border-green-100'
-                                                            }`}>
-                                                            {item.riskCategory} Risk
-                                                        </span>
-                                                    )}
-                                                    {(() => {
-                                                        try {
-                                                            const statuses = typeof item.specialStatus === 'string' ? JSON.parse(item.specialStatus) : (item.specialStatus || []);
-                                                            if (Array.isArray(statuses) && statuses.length > 0) {
-                                                                return (
-                                                                    <div className="flex flex-wrap gap-1 mt-1">
-                                                                        {statuses.map((s: string) => (
-                                                                            <span key={s} className="px-1.5 py-0.5 text-[9px] font-semibold border border-gray-200 text-gray-600 bg-gray-50 rounded">
-                                                                                {s}
-                                                                            </span>
-                                                                        ))}
-                                                                    </div>
-                                                                );
-                                                            }
-                                                        } catch { return null; }
-                                                    })()}
-                                                </div>
-                                            </td>
-                                        )}
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-700">{item.nameEn}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 font-tamil">{item.nameTa || '-'}</td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 font-hindi">{item.nameHi || '-'}</td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end space-x-1 group-hover:opacity-100 opacity-70 transition-opacity">
-                                                <button
-                                                    onClick={() => startEdit(item)}
-                                                    className="p-2 text-bank-teal hover:bg-bank-teal/10 rounded-lg transition-all"
-                                                    title="Edit Details"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item.id || '')}
-                                                    className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
-                                                    title="Delete Entry"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ));
-                            })()}
-                        </tbody>
-                    </table>
-                </div>
             )}
         </div>
     );

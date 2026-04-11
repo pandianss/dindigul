@@ -3,6 +3,9 @@ import { BudgetService } from '../services/budgetService';
 import prisma from '../lib/prisma';
 import multer from 'multer';
 import { authenticateToken } from '../middleware/auth';
+import { budgetLetterService } from '../services/budgetLetterService';
+import * as XLSX from 'xlsx';
+import fs from 'fs';
 
 const router = Router();
 
@@ -181,6 +184,57 @@ router.get('/parameters', authenticateToken, async (req, res) => {
         res.json(parameters.map(p => p.parameterName));
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch parameters' });
+    }
+});
+
+
+/**
+ * POST /api/budget/generate-letters
+ * Batch generates budget allotment letters using various strategies.
+ */
+router.post('/generate-letters', authenticateToken, upload.single('file'), async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
+    try {
+        const { budgetType, strategy, financialYear, emailDate, amountsJson, customIntro, customOutro, specificDirective } = req.body;
+        const amounts = JSON.parse(amountsJson || '{}');
+        let customAllotments: Record<string, number> = {};
+
+        if (strategy === 'UPLOAD_BASED' && req.file) {
+            const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const data: any[] = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            
+            data.forEach(row => {
+                let codeRaw = row['Branch Code'] || row['code'] || row['SOL ID'] || row['SOL'] || row['BranchCode'] || '';
+                let code = String(codeRaw).trim();
+                let amountRaw = row['Amount'] || row['amount'] || row['Value'] || '';
+                let amount = parseFloat(String(amountRaw).replace(/,/g, ''));
+                
+                if (code && !isNaN(amount)) {
+                    if (code.length < 4 && /^\d+$/.test(code)) code = code.padStart(4, '0');
+                    customAllotments[code] = amount;
+                }
+            });
+        }
+
+        const result = await budgetLetterService.generateBudgetAllotments({
+            budgetType,
+            strategy,
+            financialYear,
+            emailDate,
+            amounts,
+            customIntro,
+            customOutro,
+            specificDirective,
+            customAllotments: Object.keys(customAllotments).length > 0 ? customAllotments : undefined
+        });
+
+        res.json(result);
+    } catch (err: any) {
+        console.error('Budget generation error:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 

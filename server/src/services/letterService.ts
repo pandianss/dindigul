@@ -1,14 +1,37 @@
-import { prisma } from '../index';
+import prisma from '../lib/prisma';
 import { createNotification } from './notificationService';
 import { getPaginatedResponse } from '../utils/pagination';
-import { getRegionalOfficeData } from './pdfService';
+import { buildLetterBodyHtml, buildPremiumLayout, generatePDF, getRegionalOfficeData, imageToBase64 } from './pdfService';
 import { format } from 'date-fns';
+import { generateReference } from './referenceService';
 
 const toTitleCase = (str: string) => {
     if (!str) return '';
     return str.toLowerCase().split(' ').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+};
+
+const resolveLetterDate = (letter: any, org: any) => {
+    const explicitDate = org?.letterDate || org?.businessDate;
+    if (typeof explicitDate === 'string' && explicitDate.trim()) {
+        const trimmed = explicitDate.trim();
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(trimmed)) return trimmed;
+        const parsed = new Date(trimmed);
+        if (!Number.isNaN(parsed.getTime())) {
+            return parsed.toLocaleDateString('en-IN', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            }).replace(/\//g, '.');
+        }
+    }
+
+    if (letter.type === 'OP_RISK' && typeof letter.period === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(letter.period.trim())) {
+        return letter.period.trim();
+    }
+
+    return new Date(letter.createdAt).toLocaleDateString('en-IN', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
 };
 
 export const letterService = {
@@ -35,7 +58,13 @@ export const letterService = {
                             }
                         }
                     },
-                    parameter: true
+                    parameter: true,
+                    signatory: {
+                        include: { designation: true }
+                    },
+                    author: {
+                        include: { designation: true }
+                    }
                 },
                 skip,
                 take
@@ -85,6 +114,14 @@ export const letterService = {
     },
 
     async updateStatus(id: string, status: string) {
+        const existing = await prisma.letter.findUnique({ where: { id } });
+        if (!existing) throw new Error('Letter not found');
+
+        // Block transition from SENT to DRAFT if status is being updated to DRAFT
+        if (existing.status === 'SENT' && status === 'DRAFT') {
+            throw new Error('Cannot reopen a frozen letter. Immutability is enforced.');
+        }
+
         const letter = await prisma.letter.update({
             where: { id },
             data: { status }
@@ -102,7 +139,7 @@ export const letterService = {
     },
 
     async createManualLetter(user: any, data: { 
-        branchId: string;
+        branchId?: string;
         titleEn: string; titleHi?: string; titleTa?: string;
         contentEn: string; contentHi?: string; contentTa?: string;
         period?: string;
@@ -112,6 +149,21 @@ export const letterService = {
         salutation?: string;
     }) {
         const RO_DATA = await getRegionalOfficeData();
+        
+        let targetBranchId = data.branchId;
+        if (!targetBranchId) {
+            const roBranch = await prisma.branch.findFirst({ where: { code: '3933' } });
+            targetBranchId = roBranch?.id;
+            if (!targetBranchId) {
+                const firstBranch = await prisma.branch.findFirst();
+                targetBranchId = firstBranch?.id;
+            }
+        }
+        
+        if (!targetBranchId) throw new Error('No valid branch found to associate with letter');
+
+        const referenceNo = await generateReference('LETTER', 'Planning Department');
+
         return await prisma.letter.create({
             data: {
                 type: 'MANUAL',
@@ -122,14 +174,17 @@ export const letterService = {
                 contentEn: data.contentEn,
                 contentHi: data.contentHi,
                 contentTa: data.contentTa,
-                branchId: data.branchId,
+                branchId: targetBranchId,
                 period: data.period || format(new Date(), 'MMM yyyy'),
                 orgMeta: RO_DATA,
+                referenceNo,
                 version: 1,
                 isExternal: data.isExternal || false,
                 recipientName: data.recipientName,
                 recipientAddress: data.recipientAddress,
-                salutation: data.salutation
+                salutation: data.salutation,
+                authorId: user.id,
+                signatoryId: (data as any).signatoryId
             }
         });
     },
@@ -149,8 +204,9 @@ export const letterService = {
         titleEn?: string; titleHi?: string; titleTa?: string; 
         contentEn?: string; contentHi?: string; contentTa?: string;
         isExternal?: boolean; recipientName?: string; recipientAddress?: string; salutation?: string;
+        signatoryId?: string;
     }) {
-        const currentLetter = await prisma.letter.findUnique({ where: { id } });
+        const currentLetter: any = await prisma.letter.findUnique({ where: { id } });
         if (!currentLetter) throw new Error('Letter not found');
 
         if (currentLetter.status === 'DRAFT') {
@@ -182,10 +238,145 @@ export const letterService = {
                     isExternal: updates.isExternal !== undefined ? updates.isExternal : currentLetter.isExternal,
                     recipientName: updates.recipientName || currentLetter.recipientName,
                     recipientAddress: updates.recipientAddress || currentLetter.recipientAddress,
-                    salutation: updates.salutation || currentLetter.salutation
+                    salutation: updates.salutation || currentLetter.salutation,
+                    signatoryId: updates.signatoryId || currentLetter.signatoryId,
+                    authorId: currentLetter.authorId
                 }
             });
         }
+    },
+
+    async getLetterById(id: string) {
+        return prisma.letter.findUnique({
+            where: { id },
+            include: {
+                branch: {
+                    include: {
+                        headUser: {
+                            include: { designation: true }
+                        }
+                    }
+                },
+                parameter: true,
+                signatory: {
+                    include: { designation: true }
+                },
+                author: {
+                    include: { designation: true }
+                }
+            }
+        });
+    },
+
+    async buildLetterPdfPayload(letterInput: any) {
+        const letter = letterInput?.branch ? letterInput : await this.getLetterById(letterInput.id);
+        if (!letter) throw new Error('Letter not found');
+
+        const RO_DATA = await getRegionalOfficeData();
+        const org = (letter.orgMeta as any) || {};
+        const isOpRisk = letter.type === 'OP_RISK';
+        const isBudget = letter.type === 'BUDGET_ALLOTMENT';
+
+        const deptCode = org.deptCode;
+        const issuingDept = await prisma.department.findFirst({
+            where: deptCode
+                ? { code: deptCode }
+                : { OR: [{ nameEn: 'Planning Department' }, { code: 'PLNG' }] }
+        });
+
+        const deptSealSrc = issuingDept?.sealPath
+            ? imageToBase64(issuingDept.sealPath)
+            : imageToBase64('assets/dept_seal.png');
+
+        const selectedSignatory = letter.signatory;
+        const signatoryName = selectedSignatory?.fullNameEn || org.signatoryName || (isOpRisk ? 'ANNAMALAI SM' : (RO_DATA.signatoryName || 'Regional Manager'));
+        const signatoryNameHi = selectedSignatory?.fullNameHi || org.signatoryNameHi || (isOpRisk ? 'अन्नामलाई एस एम' : RO_DATA.signatoryNameHi);
+        const signatoryNameTa = selectedSignatory?.fullNameTa || org.signatoryNameTa || (isOpRisk ? 'அண்ணாமலை எஸ் எம்' : RO_DATA.signatoryNameTa);
+
+        const signatoryTitleEn = selectedSignatory?.designationEn || selectedSignatory?.designation?.nameEn || org.signingAuthEn || (isOpRisk ? 'RO Chief Manager' : (RO_DATA.signingAuthEn || 'Regional Manager'));
+        const signatoryTitleHi = selectedSignatory?.designationHi || selectedSignatory?.designation?.nameHi || org.signingAuthHi || (isOpRisk ? 'मुख्य प्रबंधक (क्षे.का.)' : (RO_DATA.signingAuthHi || 'क्षेत्रीय प्रबंधक'));
+        const signatoryTitleTa = selectedSignatory?.designationTa || selectedSignatory?.designation?.nameTa || org.signingAuthTa || (isOpRisk ? 'தலைமை மேலாளர் (ம.அ.)' : (RO_DATA.signingAuthTa || 'மண்டல மேலாளர்'));
+
+        const head = letter.branch?.headUser;
+        const recipient = letter.isExternal
+            ? {
+                name: letter.recipientName || undefined,
+                designation: undefined,
+                bankName: undefined,
+                branchName: undefined,
+                branchCode: undefined,
+            }
+            : {
+                name: head ? `${head.gender === 'F' ? 'Smt. ' : 'Shri. '}${toTitleCase(head.fullNameEn)}` : undefined,
+                nameHi: head?.fullNameHi ? `${head.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}${head.fullNameHi}` : undefined,
+                nameTa: head?.fullNameTa ? `${head.gender === 'F' ? 'திருமதி. ' : 'திரு. '}${head.fullNameTa}` : undefined,
+                designation: head?.designation?.nameEn ? toTitleCase(head.designation.nameEn) : (letter.branch ? 'The Branch Manager' : undefined),
+                designationHi: head?.designation?.nameHi || undefined,
+                designationTa: head?.designation?.nameTa || undefined,
+                bankName: RO_DATA.bankNameEn,
+                branchName: letter.branch ? toTitleCase(letter.branch.nameEn) : undefined,
+                branchCode: letter.branch?.code
+            };
+
+        const externalRecipientHtml = letter.isExternal && (letter.recipientName || letter.recipientAddress)
+            ? `
+                <div style="margin-bottom: 12px; font-weight: 700; line-height: 1.55;">
+                    <div>To,</div>
+                    ${letter.recipientName ? `<div>${letter.recipientName}</div>` : ''}
+                    ${letter.recipientAddress ? `<div style="white-space: pre-line;">${letter.recipientAddress}</div>` : ''}
+                </div>
+            `
+            : '';
+
+        const bodyHtml = `${externalRecipientHtml}${buildLetterBodyHtml(letter.contentEn || '', org, letter)}`;
+        const refNo = letter.referenceNo || `RO/ADMIN/${new Date(letter.createdAt).getFullYear()}/${letter.id.slice(-4).toUpperCase()}`;
+        const letterDate = resolveLetterDate(letter, org);
+        const html = buildPremiumLayout({
+            title: `${letter.titleEn}${isOpRisk ? ` - ${letter.branch?.code || ''}` : ''}`,
+            titleHi: letter.titleHi || undefined,
+            titleTa: letter.titleTa || undefined,
+            refNo,
+            date: letterDate,
+            bodyHtml,
+            signatoryName,
+            signatoryNameHi,
+            signatoryNameTa,
+            signatoryTitleEn,
+            signatoryTitleHi,
+            signatoryTitleTa,
+            organization: RO_DATA,
+            deptSealSrc,
+            orgMeta: org,
+            isAdvisory: isOpRisk,
+            isBudget,
+            hideApprovedStatus: isOpRisk,
+            recipient,
+            salutation: letter.salutation || 'Dear Sir/Madam,'
+        });
+
+        const baseName = letter.isExternal
+            ? (letter.recipientName || letter.titleEn || 'Letter')
+            : `${letter.branch?.code || '0000'}_${letter.branch?.nameEn || letter.titleEn || 'Letter'}`;
+        const safeFileName = baseName
+            .replace(/\s+/g, '_')
+            .replace(/[^a-zA-Z0-9_\-.]/g, '')
+            .replace(/_+/g, '_') || `letter_${letter.id}`;
+
+        return {
+            letter,
+            html,
+            refNo,
+            safeFileName: `${safeFileName}.pdf`,
+        };
+    },
+
+    async generateLetterPdfBuffer(letterInput: any, browser?: any) {
+        const payload = await this.buildLetterPdfPayload(letterInput);
+        const pdfBuffer = await generatePDF(payload.html, browser, payload.refNo);
+        return {
+            ...payload,
+            pdfBuffer,
+        };
     },
 
     async generateDrafts(period: string) {

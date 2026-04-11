@@ -18,10 +18,12 @@ const PlanningAnalytics = lazy(() => import('./modules/PlanningAnalytics'));
 const ExpenditureManager = lazy(() => import('./modules/ExpenditureManager'));
 const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
 const RequestManager = lazy(() => import('./modules/RequestManager'));
-const InternalNoteSystem = lazy(() => import('./modules/InternalNote/InternalNoteSystem'));
 const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
 const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter'));
 const Campaigns = lazy(() => import('./modules/Campaigns'));
+const DepartmentManuals = lazy(() => import('./modules/DepartmentManuals'));
+const ReturnsManager = lazy(() => import('./modules/ReturnsManager'));
+
 
 // Loading fallback component
 const ModuleLoader = () => (
@@ -90,7 +92,7 @@ function App() {
 
         switch (activeView) {
             case 'dashboard':
-                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Dashboard /></Suspense></ErrorBoundary>;
+                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Dashboard onNav={setActiveView} /></Suspense></ErrorBoundary>;
             case 'noticeBoard':
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><NoticeBoard /></Suspense></ErrorBoundary>;
             case 'mis':
@@ -101,6 +103,8 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><SettingsManager /></Suspense></ErrorBoundary> : null;
             case 'expenditure':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><ExpenditureManager /></Suspense></ErrorBoundary> : null;
+            case 'manuals':
+                return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><DepartmentManuals /></Suspense></ErrorBoundary>;
             case 'calendar':
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><CalendarManager /></Suspense></ErrorBoundary>;
             case 'correspondence':
@@ -111,10 +115,10 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><RequestManager /></Suspense></ErrorBoundary> : null;
             case 'planning':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><PlanningAnalytics /></Suspense></ErrorBoundary> : null;
-            case 'internalNotes':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><InternalNoteSystem /></Suspense></ErrorBoundary> : null;
             case 'campaigns':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Campaigns /></Suspense></ErrorBoundary> : null;
+            case 'returns':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><ReturnsManager /></Suspense></ErrorBoundary> : null;
 
             default:
                 return (

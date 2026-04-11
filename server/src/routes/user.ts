@@ -77,6 +77,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
     const isPlanningRole = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
     const canView = req.user?.role === 'ADMIN' ||
         req.user?.role === 'RO_USER' ||
+        req.user?.role === 'BRANCH_USER' ||
         isPlanningRole ||
         req.user?.role === 'RO_MANAGER'; // Temporary backward compatibility
 
@@ -85,7 +86,8 @@ router.get('/', authenticateToken, async (req: any, res) => {
     }
     try {
         const { skip, take, page, limit } = parsePagination(req);
-        const paginatedResponse = await userService.getUsers(skip, take, page, limit);
+        const { role } = req.query;
+        const paginatedResponse = await userService.getUsers(skip, take, page, limit, role as string | string[]);
         res.json(paginatedResponse);
     } catch (error) {
         console.error("Fetch users error:", error);

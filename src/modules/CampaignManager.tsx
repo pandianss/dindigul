@@ -7,7 +7,9 @@ interface Branch {
     id: string;
     nameEn: string;
     code: string;
+    type: string;
 }
+
 
 interface CampaignManagerProps {
     editId?: string;
@@ -34,6 +36,8 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ editId, onClose, onSu
     });
 
     const [branchTargets, setBranchTargets] = useState<Record<string, number>>({});
+    const [typeWeights, setTypeWeights] = useState<Record<string, number>>({});
+
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -80,6 +84,38 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ editId, onClose, onSu
         });
         setBranchTargets(newTargets);
     };
+
+    const handleDistributeByWeight = () => {
+        if (formData.targetValue <= 0) return;
+
+        // Calculate total weight across all branches based on their type
+        const branchWeights = branches.map(b => ({
+            id: b.id,
+            weight: typeWeights[b.type] || 1
+        }));
+        const totalWeight = branchWeights.reduce((sum, bw) => sum + bw.weight, 0);
+
+        if (totalWeight <= 0) return;
+
+        const newTargets: Record<string, number> = {};
+        let allocatedSoFar = 0;
+
+        branchWeights.forEach((bw, index) => {
+            // Allocate proportionally
+            let share = Math.floor((bw.weight / totalWeight) * formData.targetValue);
+            
+            // Adjust the last branch to ensure total matches exactly
+            if (index === branchWeights.length - 1) {
+                share = formData.targetValue - allocatedSoFar;
+            }
+            
+            newTargets[bw.id] = share;
+            allocatedSoFar += share;
+        });
+
+        setBranchTargets(newTargets);
+    };
+
 
     const handleSubmit = async () => {
         if (!formData.title || formData.targetValue <= 0) {
@@ -300,14 +336,46 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ editId, onClose, onSu
                                             {Object.values(branchTargets).reduce((a, b) => a + b, 0)} / {formData.targetValue}
                                         </p>
                                     </div>
-                                    <button 
-                                        onClick={handleDistributeEqually}
-                                        className="bg-bank-navy text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-bank-navy/10 hover:scale-[1.02] transition-all"
-                                    >
-                                        Distribute Equally
-                                    </button>
+                                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                                        <button 
+                                            onClick={handleDistributeEqually}
+                                            className="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-white hover:shadow-sm transition-all text-bank-navy"
+                                        >
+                                            Equal
+                                        </button>
+                                        <button 
+                                            onClick={handleDistributeByWeight}
+                                            className="bg-bank-navy text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-bank-navy/10 hover:scale-[1.02] transition-all"
+                                        >
+                                            By Weight
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Weight Configuration */}
+                            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Branch Type Weights (Urban, Rural, etc.)</p>
+                                    <div className="h-px flex-grow mx-4 bg-gray-50" />
+                                </div>
+                                <div className="flex flex-wrap gap-6">
+                                    {[...new Set(branches.map(b => b.type))].sort().map(type => (
+                                        <div key={type} className="flex items-center space-x-3">
+                                            <span className="text-[10px] font-black text-bank-navy uppercase whitespace-nowrap">{type.replace(/_/g, ' ')}</span>
+                                            <input 
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={typeWeights[type] ?? 1}
+                                                onChange={(e) => setTypeWeights({ ...typeWeights, [type]: parseFloat(e.target.value) || 0 })}
+                                                className="w-16 bg-gray-50 border border-gray-100 rounded-lg py-1 px-3 text-center font-black text-bank-teal text-xs outline-none focus:bg-white focus:border-bank-teal transition-all"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
 
                             <div className="flex-grow overflow-y-auto pr-4 space-y-3 custom-scrollbar">
                                 <div className="grid grid-cols-2 gap-4">
@@ -319,8 +387,9 @@ const CampaignManager: React.FC<CampaignManagerProps> = ({ editId, onClose, onSu
                                                 </div>
                                                 <div>
                                                     <p className="font-black text-bank-navy text-sm uppercase leading-none mb-1">{b.nameEn}</p>
-                                                    <p className="text-[10px] font-bold text-gray-400 tracking-widest">BRANCH ENTITY</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 tracking-widest">{b.type.replace(/_/g, ' ')} BRANCH</p>
                                                 </div>
+
                                             </div>
                                             <div className="relative">
                                                 <input 

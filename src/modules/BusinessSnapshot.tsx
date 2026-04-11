@@ -16,7 +16,6 @@ import {
     PanelRightOpen,
     ShieldAlert,
     LayoutDashboard,
-    ArrowRight,
     Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -68,6 +67,7 @@ interface MisSnapshot {
     status: string;
     panelData: SnapshotPanelData[];
     exceptions: MisException[];
+    compareDates?: { yesterday: string; dby: string };
 }
 
 const BusinessSnapshot: React.FC = () => {
@@ -137,7 +137,32 @@ const BusinessSnapshot: React.FC = () => {
             const response = await axios.get(`${API_BASE}/mis/business-snapshot/${branchCode}?date=${date}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setSnapshot(response.data);
+            const data = response.data;
+            if (data?.panelData) {
+                const tdRow = data.panelData.find((p: any) => p.parameter === 'TD');
+                const bulkRow = data.panelData.find((p: any) => p.parameter === 'Bulk_Dep');
+                const retTdRow = data.panelData.find((p: any) => p.parameter === 'Ret_TD');
+
+                if (tdRow && bulkRow && retTdRow) {
+                    const keys: Array<keyof SnapshotPanelData> = [
+                        'val_prev_fy_start', 'val_prev_fy_end', 'val_fy_start', 
+                        'val_prev_m_end', 'val_dby', 'val_y_eod'
+                    ];
+
+                    keys.forEach(key => {
+                        // If Ret_TD is 0 but TD exists, calculate it
+                        if ((Number(retTdRow[key]) || 0) === 0 && (Number(tdRow[key]) || 0) !== 0) {
+                            (retTdRow as any)[key] = Number(tdRow[key]) - Number(bulkRow[key] || 0);
+                        }
+                    });
+
+                    // Recalculate FY growth if needed
+                    if ((Number(retTdRow.growth_fy) || 0) === 0 && (Number(retTdRow.val_fy_start) || 0) !== 0) {
+                        retTdRow.growth_fy = Number(retTdRow.val_current) - Number(retTdRow.val_fy_start);
+                    }
+                }
+            }
+            setSnapshot(data);
             fetchIntelligence();
         } catch (err: any) {
             setSnapshot(null);
@@ -233,15 +258,16 @@ const BusinessSnapshot: React.FC = () => {
         const prevFyStart = new Date(Date.UTC(fyYear - 1, 2, 31));
         const prevFyEnd = new Date(Date.UTC(fyYear, 2, 31));
 
-        const fmt = (date: Date) => {
-            const day = date.getUTCDate().toString().padStart(2, '0');
-            const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-            const year = date.getUTCFullYear().toString().slice(-2);
+        const fmt = (date: Date | string) => {
+            const dt = typeof date === 'string' ? new Date(date) : date;
+            const day = dt.getUTCDate().toString().padStart(2, '0');
+            const month = (dt.getUTCMonth() + 1).toString().padStart(2, '0');
+            const year = dt.getUTCFullYear().toString().slice(-2);
             return `${day}.${month}.${year}`;
         };
 
         return {
-            yesterday: fmt(yesterday),
+            yesterday: fmt(snapshot.compareDates?.yesterday || yesterday),
             monthEnd: fmt(prevMonthEnd),
             fyStart: fmt(fyStart),
             prevFyStart: fmt(prevFyStart),
@@ -259,6 +285,7 @@ const BusinessSnapshot: React.FC = () => {
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen text-[14px]">
+            {/* Top Navigation & Controls */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
@@ -333,6 +360,7 @@ const BusinessSnapshot: React.FC = () => {
                 </div>
             </div>
 
+            {/* Main Content Area */}
             {showManagementView ? (
                 <ExceptionSummary
                     selectedDate={date}
@@ -361,44 +389,145 @@ const BusinessSnapshot: React.FC = () => {
                                 <div className="space-y-8 pb-20">
                                     {(() => {
                                         const plData = (snapshot.panelData || []).find(p => p.parameter === 'Branch_PL');
-                                        const plWidget = plData ? (
-                                            <div className="bg-gradient-to-br from-indigo-900 to-bank-navy rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden group mb-10 border border-white/10">
-                                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-white/10 transition-all duration-700" />
-                                                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                                    <div className="flex items-center gap-5">
-                                                        <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl">
-                                                            <TrendingUp className="w-8 h-8 text-indigo-200" />
-                                                        </div>
-                                                        <div>
-                                                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-200/50 mb-1.5 font-mono">Real-Time Performance</h2>
-                                                            <p className="text-3xl font-black tracking-tight flex items-center gap-3">
-                                                                {plData.metadata.displayName}
-                                                                <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-500/30 uppercase tracking-widest font-black">Latest</span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-10">
-                                                        <div className="text-right">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-2">Status</p>
-                                                            <span className={`px-4 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest border shadow-lg ${getStatusStyle(plData.status)}`}>
-                                                                {plData.status}
-                                                            </span>
-                                                        </div>
-                                                        <div className="h-12 w-px bg-white/10 hidden md:block" />
-                                                        <div className="text-right">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-1">Target Gap</p>
-                                                            <div className="text-2xl font-black tracking-tighter flex items-center justify-end gap-2">
-                                                                {formatValue(plData.gap_month)}
-                                                                <GrowthIndicator val={plData.growth_day} isPercent={false} />
+                                        const recData = (snapshot.panelData || []).find(p => p.parameter === 'Recovery');
+
+                                        const plWidget = (plData || recData) ? (
+                                            <div className="bg-gradient-to-br from-indigo-900 via-bank-navy to-[#1a237e] rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group mb-10 border border-white/10 ring-1 ring-white/5">
+                                                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full -mr-48 -mt-48 blur-3xl group-hover:bg-indigo-400/20 transition-all duration-1000" />
+                                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full -ml-32 -mb-32 blur-3xl pointer-events-none" />
+
+                                                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+                                                    {/* Branch P&L Section */}
+                                                    {plData && (
+                                                        <div className="flex flex-col gap-6 lg:pr-10">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                                                                        <TrendingUp className="w-7 h-7 text-indigo-300" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-200/50 mb-1 font-mono">Performance Stream</h2>
+                                                                        <p className="text-2xl font-black tracking-tight flex items-center gap-3">
+                                                                            {plData.metadata.displayName}
+                                                                            <span className={`text-[9px] px-2 py-0.5 rounded-lg border uppercase tracking-widest font-black ${getStatusStyle(plData.status)} border-white/20 shadow-sm`}>{plData.status}</span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <div className="bg-white/5 rounded-2xl p-5 border border-white/5 backdrop-blur-sm shadow-inner group-hover/row:bg-white/10 transition-all">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200/60 mb-1.5 underline decoration-indigo-500/30 underline-offset-4">Actual P&L</p>
+                                                                    <p className="text-3xl font-black tracking-tighter text-white">
+                                                                        {formatValue(plData.val_current)}
+                                                                    </p>
+                                                                    <div className="mt-4 flex items-center justify-between text-[11px] font-bold text-indigo-200/40">
+                                                                        <span>Budget: {formatValue(plData.budget_month)}</span>
+                                                                        <span className={plData.gap_month >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                                                                            Gap: {formatValue(plData.gap_month)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="flex flex-col justify-end gap-1">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200/40 text-right mb-1">P&L Trajectory</p>
+                                                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                                                                        <div className="flex justify-between items-center">
+                                                                            <span className="text-[11px] font-bold text-indigo-200/60 uppercase tracking-tighter">Daily Var</span>
+                                                                            <GrowthIndicator val={plData.growth_day} isPercent={false} />
+                                                                        </div>
+                                                                        <div className="flex justify-between items-center mt-2">
+                                                                            <span className="text-[11px] font-bold text-indigo-200/60 uppercase tracking-tighter">FY Target Gap</span>
+                                                                            <p className={`text-sm font-black ${plData.gap_quarter >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                                                {formatValue(plData.gap_quarter)}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="bg-white/10 rounded-3xl p-6 border border-white/5 backdrop-blur-sm shadow-inner min-w-[200px]">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200/50 mb-1">Current P&L</p>
-                                                            <p className="text-4xl font-black tracking-tighter text-white">
-                                                                {formatValue(plData.val_current)}
-                                                            </p>
-                                                        </div>
-                                                    </div>
+                                                    )}
+
+                                                    {/* Recovery Section */}
+                                                    {recData && (() => {
+                                                        const q1 = (snapshot.panelData || []).find(p => p.parameter === 'Rec_Q1')?.val_current || 0;
+                                                        const q2 = (snapshot.panelData || []).find(p => p.parameter === 'Rec_Q2')?.val_current || 0;
+                                                        const q3 = (snapshot.panelData || []).find(p => p.parameter === 'Rec_Q3')?.val_current || 0;
+                                                        const q4 = (snapshot.panelData || []).find(p => p.parameter === 'Rec_Q4')?.val_current || 0;
+
+                                                        return (
+                                                            <div className="flex flex-col gap-6 lg:pl-10 pt-10 lg:pt-0">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-4">
+                                                                        <div className="p-3.5 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                                                                            <RefreshCw className="w-7 h-7 text-emerald-300" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-200/50 mb-1 font-mono">Asset Recovery</h2>
+                                                                            <p className="text-2xl font-black tracking-tight flex items-center gap-3">
+                                                                                {recData.metadata.displayName}
+                                                                                <span className={`text-[9px] px-2 py-0.5 rounded-lg border uppercase tracking-widest font-black ${getStatusStyle(recData.status)} border-white/20 shadow-sm`}>{recData.status}</span>
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/5 backdrop-blur-sm shadow-inner group-hover/row:bg-white/10 transition-all">
+                                                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200/60 mb-1.5 underline decoration-emerald-500/30 underline-offset-4">Actual Recovery</p>
+                                                                        <p className="text-3xl font-black tracking-tighter text-white">
+                                                                            {formatValue(recData.val_current)}
+                                                                        </p>
+                                                                        <div className="mt-4 flex items-center justify-between text-[11px] font-bold text-emerald-200/40">
+                                                                            <span>Budget: {formatValue(recData.budget_month)}</span>
+                                                                            <span className={recData.gap_month >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                                                                                Gap: {formatValue(recData.gap_month)}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="flex flex-col justify-end gap-1">
+                                                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200/40 text-right mb-1">Recovery Trajectory</p>
+                                                                        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                                                                            <div className="flex justify-between items-center">
+                                                                                <span className="text-[11px] font-bold text-emerald-200/60 uppercase tracking-tighter">Daily Var</span>
+                                                                                <GrowthIndicator val={recData.growth_day} isPercent={false} />
+                                                                            </div>
+                                                                            <div className="flex justify-between items-center mt-2">
+                                                                                <span className="text-[11px] font-bold text-emerald-200/60 uppercase tracking-tighter">FY Target Gap</span>
+                                                                                <p className={`text-sm font-black ${recData.gap_quarter >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                                                    {formatValue(recData.gap_quarter)}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Quarterly Performance Breakdown */}
+                                                                <div className="mt-4 bg-white/5 rounded-2xl p-4 border border-white/10 ring-1 ring-white/5 shadow-lg group-hover:bg-white/10 transition-all">
+                                                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200/50 mb-4 font-mono flex items-center gap-2">
+                                                                        <RefreshCw className="w-3 h-3" />
+                                                                        Quarterly Performance Breakdown
+                                                                    </p>
+                                                                    <div className="grid grid-cols-4 gap-3 text-center">
+                                                                        {[
+                                                                            { label: 'Q1', val: q1 },
+                                                                            { label: 'Q2', val: q2 },
+                                                                            { label: 'Q3', val: q3 },
+                                                                            { label: 'Q4', val: q4 }
+                                                                        ].map((q) => (
+                                                                            <div key={q.label} className={`rounded-xl p-3 border border-white/5 backdrop-blur-sm ${q.val > 0 ? 'bg-emerald-500/10' : 'bg-white/5'}`}>
+                                                                                <p className="text-[9px] font-black text-emerald-200/40 uppercase mb-1">{q.label}</p>
+                                                                                <p className={`text-md font-black tracking-tight ${q.val > 0 ? 'text-emerald-300' : 'text-slate-500'}`}>
+                                                                                    {formatValue(q.val)}
+                                                                                </p>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         ) : null;
@@ -434,7 +563,7 @@ const BusinessSnapshot: React.FC = () => {
                                                     if (items.length === 0) return null;
 
                                                     return (
-                                                        <div key={cat} className="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                                        <div key={cat} className="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 mb-8 last:mb-0">
                                                             <div className="px-8 py-5 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center group">
                                                                 <div className="flex items-center gap-4">
                                                                     <div className="p-2.5 bg-bank-navy text-white rounded-2xl shadow-lg shadow-bank-navy/10 group-hover:scale-110 transition-transform duration-300">
@@ -502,7 +631,6 @@ const BusinessSnapshot: React.FC = () => {
 
                                                                                 const getDepth = (paramName: string, currentDepth: number = 0): number => {
                                                                                     const parent = findParent(paramName);
-                                                                                    // depth only if parent is in the same visual block
                                                                                     if (!parent || (parent.metadata?.category || 'Uncategorized') !== cat) return currentDepth;
                                                                                     return getDepth(parent.parameter, currentDepth + 1);
                                                                                 };
@@ -705,6 +833,7 @@ const BusinessSnapshot: React.FC = () => {
                                         );
                                     })()}
 
+                                    {/* Exception Matrix Toggle */}
                                     <button
                                         onClick={() => setShowExceptions(true)}
                                         className="fixed bottom-8 right-8 bg-bank-navy text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-40 flex items-center gap-2 group"
@@ -717,6 +846,7 @@ const BusinessSnapshot: React.FC = () => {
                                         )}
                                     </button>
 
+                                    {/* Exceptions Panel */}
                                     {showExceptions && (
                                         <>
                                             <div
@@ -768,6 +898,7 @@ const BusinessSnapshot: React.FC = () => {
                                     )}
                                 </div>
                             )}
+
                             {!snapshot && !loading && !error && branchCode && (
                                 <div className="bg-white rounded-[2rem] shadow-xl p-20 text-center border border-slate-100 mt-8">
                                     <Activity className="w-16 h-16 text-slate-200 mx-auto mb-4" />

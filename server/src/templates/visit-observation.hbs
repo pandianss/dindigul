@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
+        }
+        body {
+            font-family: 'Inter', Arial, 'Latha', sans-serif;
+            font-size: 12px;
+            color: #1e293b;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #254aa0;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .bank-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #254aa0;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .office-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        .reference-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .letter-content {
+            margin-bottom: 40px;
+        }
+        .recipient {
+            margin-bottom: 25px;
+        }
+        .subject {
+            text-align: center;
+            font-weight: 800;
+            text-decoration: underline;
+            margin-bottom: 25px;
+            padding: 0 40px;
+            text-transform: uppercase;
+        }
+        .salutation {
+            margin-bottom: 15px;
+        }
+        .body-text {
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+        .observations-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .observation-title {
+            font-weight: 800;
+            color: #254aa0;
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+        .signature-section {
+            margin-top: 50px;
+            text-align: right;
+        }
+        .sig-block {
+            display: inline-block;
+            text-align: center;
+            min-width: 200px;
+        }
+        .sig-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            margin-bottom: 5px;
+        }
+        .trilingual-header {
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="trilingual-header">
+            {{organization.bankNameTa}} | {{organization.bankNameHi}}
+        </div>
+        <p class="bank-name">{{organization.bankNameEn}}</p>
+        <p class="office-name">{{organization.officeNameEn}}</p>
+        <div class="trilingual-header" style="margin-top: 5px;">
+            {{organization.officeNameTa}} | {{organization.officeNameHi}}
+        </div>
+    </div>
+
+    <div class="reference-section">
+        <div>Ref: RO/VISIT/OBS/{{refNo}}</div>
+        <div>Date: {{currentDate}}</div>
+    </div>
+
+    <div class="recipient">
+        <p>The Branch Manager,</p>
+        <p><strong>{{branchName}} ({{branchCode}})</strong></p>
+    </div>
+
+    <div class="subject">
+        Subject: Observations made during Management Visit on {{visitDate}} - Reg.
+    </div>
+
+    <div class="letter-content">
+        <p class="salutation">Sir / Madam,</p>
+
+        <p class="body-text">
+            During the management visit undertaken at your branch on <strong>{{visitDate}}</strong> by <strong>{{visitorName}}</strong> ({{visitorRole}}), the following key observations/non-compliances were noted. You are advised to take immediate corrective action and submit your point-wise reply/compliance status to this office for our records.
+        </p>
+
+        <div class="observations-box">
+            <div class="observation-title">KEY OBSERVATIONS / POINTS FOR RECTIFICATION</div>
+            <div style="white-space: pre-wrap; min-height: 100px;">{{observations}}</div>
+        </div>
+
+        <p class="body-text">
+            Kindly ensure that all the above-mentioned points are addressed within <strong>7 working days</strong> from the date of this letter. Any persistent non-compliance will be viewed seriously by the Regional Management.
+        </p>
+    </div>
+
+    <p>Yours faithfully,</p>
+
+    <div class="signature-section">
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <p><strong>{{visitorName}}</strong></p>
+            <p>{{visitorDesignation}}</p>
+            <p>{{organization.officeNameEn}}</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 10px; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+        This is an electronically generated letter from the Regional Performance Portal and does not require a physical signature.
+    </div>
+
+</body>
+</html>

@@ -1,11 +1,11 @@
 generator client {
   provider      = "prisma-client-js"
+  output        = "../src/generated/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -30,12 +30,12 @@ model User {
   lockedUntil          DateTime?
   mfaEnabled           Boolean            @default(false)
   mfaSecret            String?
+  lastLoginAt          DateTime?
+  lastLoginIp          String?
+  gender               String             @default("M")
   designationEn        String?
   designationHi        String?
   designationTa        String?
-  gender               String             @default("M")
-  lastLoginAt          DateTime?
-  lastLoginIp          String?
   requests             BranchRequest[]
   headedBranch         Branch?            @relation("BranchHead")
   secondLineBranch     Branch?            @relation("BranchSecondLine")
@@ -46,6 +46,7 @@ model User {
   messagesSent         ChatMessage[]
   comments             Comment[]
   loginAuditLogs       LoginAuditLog[]
+  assignedActionPoints ActionPoint[]
   noticeAcks           NoticeAck[]
   notifications        Notification[]
   approvedNotes        OfficeNote[]       @relation("NoteApprover")
@@ -59,7 +60,9 @@ model User {
   photo                Photo?             @relation(fields: [photoId], references: [id])
   managedDepartments   Department[]       @relation("DepartmentHeads")
   departments          Department[]       @relation("UserDepartments")
-  assignedActionPoints ActionPoint[]
+  signatoryLetters     Letter[]           @relation("LetterSignatory")
+  authoredLetters      Letter[]           @relation("LetterAuthor")
+  branchVisits         BranchVisit[]
 
   @@map("users")
 }
@@ -97,7 +100,6 @@ model LoginAuditLog {
   @@map("login_audit_logs")
 }
 
-
 model Branch {
   id                  String               @id @default(uuid())
   sNo                 Int?
@@ -124,14 +126,18 @@ model Branch {
   addressTa           String?
   email               String?
   phone               String?
+  size                String?
   accountClosures     AccountClosure[]
   accountOpenings     AccountOpening[]
   atms                Atm[]
+  auditObservations   AuditObservation[]
   history             BranchHistory[]
   requests            BranchRequest[]
   headUser            User?                @relation("BranchHead", fields: [headUserId], references: [id])
   secondLineUser      User?                @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
   budgets             BudgetMaster[]
+  campaignData        CampaignDailyData[]
+  campaignTargets     CampaignTarget[]
   ingestionLogs       IngestionLog[]
   letters             Letter[]
   misExceptions       MisException[]
@@ -140,14 +146,12 @@ model Branch {
   noticeAcks          NoticeAck[]
   notices             Notice[]
   postingHistory      PostingHistory[]
+  recoveryActions     RecoveryAction[]
+  regionalAssets      RegionalAsset[]
   snapshots           Snapshot[]
   stationeryMovements StationeryMovement[]
   users               User[]               @relation("BranchMembers")
-  recoveryActions     RecoveryAction[]
-  auditObservations   AuditObservation[]
-  regionalAssets      RegionalAsset[]
-  campaignTargets     CampaignTarget[]
-  campaignData        CampaignDailyData[]
+  visits              BranchVisit[]
 
   @@map("branches")
 }
@@ -164,6 +168,7 @@ model Department {
   mainUsers User[]   @relation("UserDepartment")
   heads     User[]   @relation("DepartmentHeads")
   users     User[]   @relation("UserDepartments")
+  manuals   DepartmentManual[]
 
   @@map("departments")
 }
@@ -201,31 +206,35 @@ model Letter {
   type              String     @default("MANUAL")
   status            String     @default("DRAFT")
   titleEn           String
-  titleTa           String?
-  titleHi           String?
   contentEn         String
+  titleTa           String?
   contentTa         String?
-  contentHi         String?
   branchId          String
   parameterId       String?
-  valueAtTime       Float?
-  budgetAtTime      Float?
+  valueAtTime       Decimal?   @db.Decimal(18, 4)
+  budgetAtTime      Decimal?   @db.Decimal(18, 4)
   period            String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   previousVersionId String?
   version           Int        @default(1)
   orgMeta           Json?
-  referenceNo       String?    @unique
   scannedCopyUrl    String?
+  referenceNo       String?    @unique
+  titleHi           String?
+  contentHi         String?
   isExternal        Boolean    @default(false)
   recipientName     String?
   recipientAddress  String?
   salutation        String?
+  signatoryId       String?
+  authorId          String?
   branch            Branch     @relation(fields: [branchId], references: [id])
   parameter         Parameter? @relation(fields: [parameterId], references: [id])
   previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[]   @relation("LetterHistory")
+  signatory         User?      @relation("LetterSignatory", fields: [signatoryId], references: [id])
+  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
 
   @@map("letters")
 }
@@ -279,13 +288,13 @@ model BranchRequest {
   branchId        String
   userId          String
   assignedSection String?
-  contentJson     Json?
   resolutionNotes String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   dueAt           DateTime?
   resolvedAt      DateTime?
   slaBreached     Boolean   @default(false)
+  contentJson     Json?
   branch          Branch    @relation(fields: [branchId], references: [id])
   user            User      @relation(fields: [userId], references: [id])
   comments        Comment[]
@@ -350,8 +359,8 @@ model Snapshot {
   date        DateTime
   parameterId String
   branchId    String?
-  value       Float
-  budget      Float?
+  value       Decimal   @db.Decimal(18, 4)
+  budget      Decimal?  @db.Decimal(18, 4)
   status      String?
   createdAt   DateTime  @default(now())
   branch      Branch?   @relation(fields: [branchId], references: [id])
@@ -375,8 +384,8 @@ model Notice {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   requiresAck      Boolean     @default(false)
-  contentHi        String?
   photoId          String?
+  contentHi        String?
   titleHi          String?
   acknowledgements NoticeAck[]
   branch           Branch?     @relation(fields: [branchId], references: [id])
@@ -398,7 +407,6 @@ model NoticeAck {
   @@unique([noticeId, userId])
   @@map("notice_acknowledgements")
 }
-
 
 model StationeryItem {
   id         String               @id @default(uuid())
@@ -459,8 +467,6 @@ model ExpenseSanction {
   @@map("expense_sanctions")
 }
 
-
-
 model SrmMessage {
   id        String   @id @default(uuid())
   name      String
@@ -513,14 +519,13 @@ model Atm {
   atmId       String   @unique
   branchId    String
   lastTxnTime String
-  balance     Float
+  balance     Decimal  @db.Decimal(18, 4)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   branch      Branch   @relation(fields: [branchId], references: [id])
 
   @@map("atms")
 }
-
 
 model PostingHistory {
   id            String       @id @default(uuid())
@@ -664,10 +669,10 @@ model StgUnitFinancialsDaily {
   id           String   @id @default(uuid())
   unitCode     String
   businessDate DateTime
-  sbBalance    Decimal? @db.Decimal(18, 2)
-  cdBalance    Decimal? @db.Decimal(18, 2)
-  tdBalance    Decimal? @db.Decimal(18, 2)
-  advBalance   Decimal? @db.Decimal(18, 2)
+  sbBalance    Decimal? @db.Decimal(18, 4)
+  cdBalance    Decimal? @db.Decimal(18, 4)
+  tdBalance    Decimal? @db.Decimal(18, 4)
+  advBalance   Decimal? @db.Decimal(18, 4)
   createdAt    DateTime @default(now())
 
   @@map("stg_unit_financials_daily")
@@ -678,13 +683,13 @@ model StgAccountDaily {
   unitCode     String
   accountNo    String
   businessDate DateTime
-  balance      Decimal? @db.Decimal(18, 2)
-  sbBalance    Decimal? @db.Decimal(18, 2)
-  cdBalance    Decimal? @db.Decimal(18, 2)
-  tdBalance    Decimal? @db.Decimal(18, 2)
-  advBalance   Decimal? @db.Decimal(18, 2)
-  busBalance   Decimal? @db.Decimal(18, 2)
-  casaBalance  Decimal? @db.Decimal(18, 2)
+  balance      Decimal? @db.Decimal(18, 4)
+  sbBalance    Decimal? @db.Decimal(18, 4)
+  cdBalance    Decimal? @db.Decimal(18, 4)
+  tdBalance    Decimal? @db.Decimal(18, 4)
+  advBalance   Decimal? @db.Decimal(18, 4)
+  busBalance   Decimal? @db.Decimal(18, 4)
+  casaBalance  Decimal? @db.Decimal(18, 4)
   createdAt    DateTime @default(now())
 
   @@map("stg_account_daily")
@@ -694,7 +699,7 @@ model StgUserVerticalDaily {
   id           String   @id @default(uuid())
   unitCode     String
   vertical     String
-  outstanding  Decimal? @db.Decimal(18, 2)
+  outstanding  Decimal? @db.Decimal(18, 4)
   smaType      String?
   businessDate DateTime
   createdAt    DateTime @default(now())
@@ -707,7 +712,7 @@ model Fact {
   unitId      String
   date        DateTime
   metric      String
-  value       Decimal       @db.Decimal(18, 2)
+  value       Decimal       @db.Decimal(18, 4)
   ingestionId String?
   createdAt   DateTime      @default(now())
   ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id], onDelete: Cascade)
@@ -737,23 +742,23 @@ model MisInformationPanel {
   id                String      @id @default(uuid())
   snapshotId        String
   parameter         String
-  val_fy_start      Decimal     @default(0) @db.Decimal(18, 2)
-  val_fy_end        Decimal     @default(0) @db.Decimal(18, 2)
-  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 2)
-  val_dby           Decimal     @default(0) @db.Decimal(18, 2)
-  val_y_eod         Decimal     @default(0) @db.Decimal(18, 2)
-  val_current       Decimal     @default(0) @db.Decimal(18, 2)
-  growth_day        Decimal     @default(0) @db.Decimal(18, 2)
-  growth_month      Decimal     @default(0) @db.Decimal(18, 2)
-  growth_fy         Decimal     @default(0) @db.Decimal(18, 2)
-  budget_month      Decimal     @default(0) @db.Decimal(18, 2)
-  gap_month         Decimal     @default(0) @db.Decimal(18, 2)
-  budget_quarter    Decimal     @default(0) @db.Decimal(18, 2)
-  gap_quarter       Decimal     @default(0) @db.Decimal(18, 2)
-  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 2)
+  val_fy_start      Decimal     @default(0) @db.Decimal(18, 4)
+  val_fy_end        Decimal     @default(0) @db.Decimal(18, 4)
+  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 4)
+  val_dby           Decimal     @default(0) @db.Decimal(18, 4)
+  val_y_eod         Decimal     @default(0) @db.Decimal(18, 4)
+  val_current       Decimal     @default(0) @db.Decimal(18, 4)
+  growth_day        Decimal     @default(0) @db.Decimal(18, 4)
+  growth_month      Decimal     @default(0) @db.Decimal(18, 4)
+  growth_fy         Decimal     @default(0) @db.Decimal(18, 4)
+  budget_month      Decimal     @default(0) @db.Decimal(18, 4)
+  gap_month         Decimal     @default(0) @db.Decimal(18, 4)
+  budget_quarter    Decimal     @default(0) @db.Decimal(18, 4)
+  gap_quarter       Decimal     @default(0) @db.Decimal(18, 4)
+  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 4)
   status            String      @default("Neutral")
-  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 2)
-  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 2)
+  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 4)
+  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 4)
   snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
 
   @@map("mis_information_panels")
@@ -788,8 +793,8 @@ model AccountOpening {
   schmType           String
   schmCode           String
   acctOpnDate        DateTime
-  clrBalAmt          Decimal  @db.Decimal(18, 2)
-  averageBalance     Decimal  @db.Decimal(18, 2)
+  clrBalAmt          Decimal  @db.Decimal(18, 4)
+  averageBalance     Decimal  @db.Decimal(18, 4)
   businessDate       DateTime
   createdAt          DateTime @default(now())
   accountClass       String?
@@ -817,7 +822,7 @@ model AccountClosure {
   accountClass    String?
   acctOpnDate     DateTime
   acctClsDate     DateTime
-  balanceAtCls    Decimal  @db.Decimal(18, 2)
+  balanceAtCls    Decimal  @db.Decimal(18, 4)
   businessDate    DateTime
   dataQualityFlag String   @default("VALID")
   createdAt       DateTime @default(now())
@@ -907,7 +912,7 @@ model BudgetMaster {
   parameterName String
   solId         String
   periodKey     String
-  targetValue   Decimal   @db.Decimal(18, 2)
+  targetValue   Decimal   @db.Decimal(18, 4)
   versionNo     Int       @default(1)
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
@@ -925,7 +930,7 @@ model BudgetHistory {
   parameterName String
   solId         String
   periodKey     String
-  targetValue   Decimal   @db.Decimal(18, 2)
+  targetValue   Decimal   @db.Decimal(18, 4)
   versionNo     Int
   sourceBatchId String
   changeType    String
@@ -1042,22 +1047,22 @@ model Meeting {
   minutesJson  String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  committee    Committee     @relation(fields: [committeeId], references: [id])
   actionPoints ActionPoint[]
+  committee    Committee     @relation(fields: [committeeId], references: [id])
 
   @@map("meetings")
 }
 
 model ActionPoint {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   meetingId        String
   content          String
-  status           String   @default("PENDING")
+  status           String    @default("PENDING")
   dueDate          DateTime?
   assignedToUserId String?
-  createdAt        DateTime @default(now())
-  meeting          Meeting  @relation(fields: [meetingId], references: [id])
-  assignedTo       User?    @relation(fields: [assignedToUserId], references: [id])
+  createdAt        DateTime  @default(now())
+  assignedTo       User?     @relation(fields: [assignedToUserId], references: [id])
+  meeting          Meeting   @relation(fields: [meetingId], references: [id])
 
   @@map("meeting_action_points")
 }
@@ -1077,15 +1082,15 @@ model DispatchRecord {
 }
 
 model LegalCase {
-  id              String   @id @default(uuid())
-  caseNo          String   @unique
+  id              String    @id @default(uuid())
+  caseNo          String    @unique
   courtName       String
   parties         String
   nextHearingDate DateTime?
   advocateName    String?
-  status          String   @default("PENDING")
-  category        String   @default("CIVIL")
-  createdAt       DateTime @default(now())
+  status          String    @default("PENDING")
+  category        String    @default("CIVIL")
+  createdAt       DateTime  @default(now())
 
   @@map("legal_cases")
 }
@@ -1105,46 +1110,46 @@ model RecoveryAction {
 }
 
 model AuditObservation {
-  id                   String   @id @default(uuid())
+  id                   String    @id @default(uuid())
   auditType            String?
   observation          String
   riskLevel            String
-  status               String   @default("PENDING")
-  branchId             String
+  status               String    @default("PENDING")
+  rectificationDetails String?
   targetDate           DateTime
   auditDate            DateTime?
-  rectificationDetails String?
-  createdAt            DateTime @default(now())
-  branch               Branch   @relation(fields: [branchId], references: [id])
+  branchId             String
+  createdAt            DateTime  @default(now())
+  branch               Branch    @relation(fields: [branchId], references: [id])
 
   @@map("audit_observations")
 }
 
 model RegionalAsset {
-  id            String   @id @default(uuid())
-  assetCode     String   @unique
+  id            String              @id @default(uuid())
+  assetCode     String              @unique
   category      String
   description   String
   purchaseDate  DateTime?
   purchaseValue Float?
-  condition     String   @default("GOOD")
+  condition     String              @default("GOOD")
   amcExpiry     DateTime?
   branchId      String
-  createdAt     DateTime @default(now())
-  branch        Branch   @relation(fields: [branchId], references: [id])
+  createdAt     DateTime            @default(now())
   maintenances  MaintenanceRecord[]
+  branch        Branch              @relation(fields: [branchId], references: [id])
 
   @@map("regional_assets")
 }
 
 model MaintenanceRecord {
   id              String        @id @default(uuid())
-  assetId         String
   serviceDate     DateTime
   serviceProvider String
   cost            Float
   remarks         String?
   nextServiceDue  DateTime?
+  assetId         String
   createdAt       DateTime      @default(now())
   asset           RegionalAsset @relation(fields: [assetId], references: [id])
 
@@ -1152,20 +1157,20 @@ model MaintenanceRecord {
 }
 
 model Campaign {
-  id           String               @id @default(uuid())
-  title        String
-  tagline      String?
-  logoUrl      String?
-  startDate    DateTime
-  endDate      DateTime
-  type         String               // e.g. "INCREASE_COUNT", "DECREASE_OUTSTANDING"
-  metric       String               // e.g. "NPA", "DEPOSITS"
-  targetValue  Float                // Total target for the whole region
-  status       String               @default("DRAFT") // DRAFT, ACTIVE, COMPLETED
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  targets      CampaignTarget[]
-  dailyData    CampaignDailyData[]
+  id          String              @id @default(uuid())
+  title       String
+  tagline     String?
+  logoUrl     String?
+  startDate   DateTime
+  endDate     DateTime
+  type        String
+  metric      String
+  targetValue Decimal             @db.Decimal(18, 4)
+  status      String              @default("DRAFT")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  dailyData   CampaignDailyData[]
+  targets     CampaignTarget[]
 
   @@map("campaigns")
 }
@@ -1174,22 +1179,71 @@ model CampaignTarget {
   id          String   @id @default(uuid())
   campaignId  String
   branchId    String
-  targetValue Float
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  targetValue Decimal  @db.Decimal(18, 4)
   branch      Branch   @relation(fields: [branchId], references: [id])
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@map("campaign_targets")
 }
 
 model CampaignDailyData {
-  id          String   @id @default(uuid())
-  campaignId  String
-  branchId    String
-  date        DateTime
-  value       Float
-  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  branch      Branch   @relation(fields: [branchId], references: [id])
+  id         String   @id @default(uuid())
+  campaignId String
+  branchId   String
+  date       DateTime
+  value      Decimal  @db.Decimal(18, 4)
+  branch     Branch   @relation(fields: [branchId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, branchId, date])
   @@map("campaign_daily_data")
+}
+
+model DepartmentManual {
+  id           String               @id @default(uuid())
+  titleEn      String
+  titleTa      String?
+  titleHi      String?
+  description  String?
+  departmentId String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  activities   DepartmentActivity[]
+  department   Department           @relation(fields: [departmentId], references: [id])
+
+  @@map("department_manuals")
+}
+
+model DepartmentActivity {
+  id          String           @id @default(uuid())
+  manualId    String
+  titleEn     String
+  titleTa     String?
+  titleHi     String?
+  description String?
+  frequency   String           @default("MONTHLY")
+  dueDate     String?
+  status      String           @default("ACTIVE")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  manual      DepartmentManual @relation(fields: [manualId], references: [id], onDelete: Cascade)
+
+  @@map("department_activities")
+}
+
+model BranchVisit {
+  id              String   @id @default(uuid())
+  branchId        String
+  visitorId       String
+  visitDate       DateTime
+  purpose         String?
+  observations    String?  @db.Text
+  letterIssued    Boolean  @default(false)
+  visitorCategory String   @default("SECOND_LINE") // FIRST_LINE or SECOND_LINE
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  visitor         User     @relation(fields: [visitorId], references: [id])
+
+  @@map("branch_visits")
 }

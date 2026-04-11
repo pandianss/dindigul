@@ -1,0 +1,1249 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String             @id @default(uuid())
+  username             String             @unique
+  passwordHash         String
+  fullNameEn           String
+  fullNameTa           String?
+  fullNameHi           String?
+  grade                String?
+  role                 String             @default("BRANCH_USER")
+  photoId              String?
+  section              String?
+  branchId             String?
+  isRegionHead         Boolean            @default(false)
+  isSecondLine         Boolean            @default(false)
+  departmentId         String?
+  designationId        String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  failedLoginAttempts  Int                @default(0)
+  lockedUntil          DateTime?
+  mfaEnabled           Boolean            @default(false)
+  mfaSecret            String?
+  lastLoginAt          DateTime?
+  lastLoginIp          String?
+  gender               String             @default("M")
+  designationEn        String?
+  designationHi        String?
+  designationTa        String?
+  requests             BranchRequest[]
+  headedBranch         Branch?            @relation("BranchHead")
+  secondLineBranch     Branch?            @relation("BranchSecondLine")
+  auditLogs            ChatAuditLog[]
+  chatMemberships      ChatMember[]
+  createdChatGroups    ChatGroup[]
+  messageAcks          MessageAck[]
+  messagesSent         ChatMessage[]
+  comments             Comment[]
+  loginAuditLogs       LoginAuditLog[]
+  assignedActionPoints ActionPoint[]
+  noticeAcks           NoticeAck[]
+  notifications        Notification[]
+  approvedNotes        OfficeNote[]       @relation("NoteApprover")
+  preparedNotes        OfficeNote[]       @relation("NotePreparer")
+  postingHistory       PostingHistory[]
+  presentationDecks    PresentationDeck[]
+  sessions             Session[]
+  branch               Branch?            @relation("BranchMembers", fields: [branchId], references: [id])
+  department           Department?        @relation("UserDepartment", fields: [departmentId], references: [id])
+  designation          Designation?       @relation(fields: [designationId], references: [id])
+  photo                Photo?             @relation(fields: [photoId], references: [id])
+  managedDepartments   Department[]       @relation("DepartmentHeads")
+  departments          Department[]       @relation("UserDepartments")
+  signatoryLetters     Letter[]           @relation("LetterSignatory")
+  authoredLetters      Letter[]           @relation("LetterAuthor")
+  branchVisits         BranchVisit[]
+
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(uuid())
+  userId     String
+  token      String   @unique
+  expiresAt  DateTime
+  osUsername String?
+  ipAddress  String?
+  userAgent  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model LoginAuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  username  String
+  event     String
+  ipAddress String?
+  userAgent String?
+  metadata  String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("login_audit_logs")
+}
+
+model Branch {
+  id                  String               @id @default(uuid())
+  sNo                 Int?
+  code                String               @unique
+  officeId            Int?
+  nameEn              String
+  nameTa              String?
+  nameHi              String?
+  type                String
+  openDate            String?
+  district            String?
+  populationGroup     String?
+  riskCategory        String?
+  riskEffectiveDate   DateTime?
+  specialStatus       String?
+  ifsc                String?
+  address             String?
+  latitude            Float?
+  longitude           Float?
+  pincode             String?
+  headUserId          String?              @unique
+  secondLineUserId    String?              @unique
+  addressHi           String?
+  addressTa           String?
+  email               String?
+  phone               String?
+  size                String?
+  accountClosures     AccountClosure[]
+  accountOpenings     AccountOpening[]
+  atms                Atm[]
+  auditObservations   AuditObservation[]
+  history             BranchHistory[]
+  requests            BranchRequest[]
+  headUser            User?                @relation("BranchHead", fields: [headUserId], references: [id])
+  secondLineUser      User?                @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
+  budgets             BudgetMaster[]
+  campaignData        CampaignDailyData[]
+  campaignTargets     CampaignTarget[]
+  ingestionLogs       IngestionLog[]
+  letters             Letter[]
+  misExceptions       MisException[]
+  facts               Fact[]
+  misSnapshots        MisSnapshot[]
+  noticeAcks          NoticeAck[]
+  notices             Notice[]
+  postingHistory      PostingHistory[]
+  recoveryActions     RecoveryAction[]
+  regionalAssets      RegionalAsset[]
+  snapshots           Snapshot[]
+  stationeryMovements StationeryMovement[]
+  users               User[]               @relation("BranchMembers")
+  visits              BranchVisit[]
+
+  @@map("branches")
+}
+
+model Department {
+  id        String             @id @default(uuid())
+  code      String             @unique
+  nameEn    String
+  nameTa    String?
+  nameHi    String?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  sealPath  String?
+  mainUsers User[]             @relation("UserDepartment")
+  heads     User[]             @relation("DepartmentHeads")
+  users     User[]             @relation("UserDepartments")
+  manuals   DepartmentManual[]
+
+  @@map("departments")
+}
+
+model Designation {
+  id             String           @id @default(uuid())
+  code           String           @unique
+  nameEn         String
+  nameTa         String?
+  nameHi         String?
+  workId         Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  postingHistory PostingHistory[]
+  users          User[]
+
+  @@map("designations")
+}
+
+model BranchHistory {
+  id           String   @id @default(uuid())
+  branchId     String
+  fieldChanged String
+  oldValue     String?
+  newValue     String?
+  changedBy    String
+  changedAt    DateTime @default(now())
+  branch       Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("branch_history")
+}
+
+model Letter {
+  id                String     @id @default(uuid())
+  type              String     @default("MANUAL")
+  status            String     @default("DRAFT")
+  titleEn           String
+  contentEn         String
+  titleTa           String?
+  contentTa         String?
+  branchId          String
+  parameterId       String?
+  valueAtTime       Decimal?   @db.Decimal(18, 4)
+  budgetAtTime      Decimal?   @db.Decimal(18, 4)
+  period            String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  previousVersionId String?
+  version           Int        @default(1)
+  orgMeta           Json?
+  scannedCopyUrl    String?
+  referenceNo       String?    @unique
+  titleHi           String?
+  contentHi         String?
+  isExternal        Boolean    @default(false)
+  recipientName     String?
+  recipientAddress  String?
+  salutation        String?
+  signatoryId       String?
+  authorId          String?
+  branch            Branch     @relation(fields: [branchId], references: [id])
+  parameter         Parameter? @relation(fields: [parameterId], references: [id])
+  previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
+  nextVersions      Letter[]   @relation("LetterHistory")
+  signatory         User?      @relation("LetterSignatory", fields: [signatoryId], references: [id])
+  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
+
+  @@map("letters")
+}
+
+model LetterTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  category  String   @default("GENERAL")
+  subjectEn String
+  subjectTa String?
+  subjectHi String?
+  bodyEn    String
+  bodyTa    String?
+  bodyHi    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("letter_templates")
+}
+
+model OfficeNote {
+  id                String       @id @default(uuid())
+  type              String
+  status            String       @default("DRAFT")
+  titleEn           String
+  contentJson       String
+  preparerId        String
+  approverId        String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  previousVersionId String?
+  version           Int          @default(1)
+  referenceNo       String?      @unique
+  scannedCopyUrl    String?
+  approver          User?        @relation("NoteApprover", fields: [approverId], references: [id])
+  preparer          User         @relation("NotePreparer", fields: [preparerId], references: [id])
+  previousVersion   OfficeNote?  @relation("NoteHistory", fields: [previousVersionId], references: [id])
+  nextVersions      OfficeNote[] @relation("NoteHistory")
+
+  @@map("office_notes")
+}
+
+model BranchRequest {
+  id              String    @id @default(uuid())
+  titleEn         String
+  contentEn       String
+  category        String
+  status          String    @default("OPEN")
+  priority        String    @default("MEDIUM")
+  branchId        String
+  userId          String
+  assignedSection String?
+  resolutionNotes String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  dueAt           DateTime?
+  resolvedAt      DateTime?
+  slaBreached     Boolean   @default(false)
+  contentJson     Json?
+  branch          Branch    @relation(fields: [branchId], references: [id])
+  user            User      @relation(fields: [userId], references: [id])
+  comments        Comment[]
+
+  @@map("branch_requests")
+}
+
+model Comment {
+  id        String        @id @default(uuid())
+  content   String
+  userId    String
+  requestId String
+  createdAt DateTime      @default(now())
+  request   BranchRequest @relation(fields: [requestId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Photo {
+  id          String   @id @default(uuid())
+  checksum    String?
+  aspectRatio String   @default("4:5")
+  createdAt   DateTime @default(now())
+  photoUrl    String
+  notices     Notice[]
+  User        User[]
+
+  @@map("photos")
+}
+
+model Holiday {
+  id          String   @id @default(uuid())
+  date        DateTime
+  nameEn      String
+  nameTa      String?
+  nameHi      String?
+  type        String
+  description String?
+  createdAt   DateTime @default(now())
+  venue       String?
+
+  @@map("holidays")
+}
+
+model Parameter {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  nameEn    String
+  nameTa    String?
+  nameHi    String?
+  category  String
+  unit      String     @default("Cr")
+  letters   Letter[]
+  snapshots Snapshot[]
+
+  @@map("parameters")
+}
+
+model Snapshot {
+  id          String    @id @default(uuid())
+  date        DateTime
+  parameterId String
+  branchId    String?
+  value       Decimal   @db.Decimal(18, 4)
+  budget      Decimal?  @db.Decimal(18, 4)
+  status      String?
+  createdAt   DateTime  @default(now())
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+  parameter   Parameter @relation(fields: [parameterId], references: [id])
+
+  @@index([date])
+  @@map("snapshots")
+}
+
+model Notice {
+  id               String      @id @default(uuid())
+  titleEn          String
+  titleTa          String?
+  contentEn        String
+  contentTa        String?
+  category         String
+  priority         String      @default("NORMAL")
+  isPinned         Boolean     @default(false)
+  branchId         String?
+  targetRole       String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  requiresAck      Boolean     @default(false)
+  photoId          String?
+  contentHi        String?
+  titleHi          String?
+  acknowledgements NoticeAck[]
+  branch           Branch?     @relation(fields: [branchId], references: [id])
+  photo            Photo?      @relation(fields: [photoId], references: [id])
+
+  @@map("notices")
+}
+
+model NoticeAck {
+  id        String   @id @default(uuid())
+  noticeId  String
+  userId    String
+  branchId  String
+  createdAt DateTime @default(now())
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  notice    Notice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([noticeId, userId])
+  @@map("notice_acknowledgements")
+}
+
+model StationeryItem {
+  id         String               @id @default(uuid())
+  nameEn     String               @unique
+  stockLevel Int                  @default(0)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  movements  StationeryMovement[]
+
+  @@map("stationery_items")
+}
+
+model StationeryMovement {
+  id        String         @id @default(uuid())
+  itemId    String
+  branchId  String?
+  quantity  Int
+  type      String
+  date      DateTime       @default(now())
+  remarks   String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  branch    Branch?        @relation(fields: [branchId], references: [id])
+  item      StationeryItem @relation(fields: [itemId], references: [id])
+
+  @@map("stationery_movements")
+}
+
+model Budget {
+  id               String            @id @default(uuid())
+  section          String
+  financialYear    String
+  allocationAmount Float
+  spentAmount      Float             @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  sanctions        ExpenseSanction[]
+
+  @@unique([section, financialYear])
+  @@map("budgets")
+}
+
+model ExpenseSanction {
+  id           String   @id @default(uuid())
+  title        String
+  sanctionDate DateTime @default(now())
+  amount       Float
+  section      String
+  vendorName   String?
+  billNo       String?
+  status       String   @default("APPROVED")
+  type         String   @default("REVENUE")
+  budgetId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  budget       Budget   @relation(fields: [budgetId], references: [id])
+
+  @@map("expense_sanctions")
+}
+
+model SrmMessage {
+  id        String   @id @default(uuid())
+  name      String
+  title     String
+  region    String
+  message   String
+  highlight String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  nameHi    String?
+  nameTa    String?
+  regionHi  String?
+  regionTa  String?
+  titleHi   String?
+  titleTa   String?
+
+  @@map("srm_messages")
+}
+
+model DashboardTicker {
+  id        String    @id @default(uuid())
+  text      String
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+  linkUrl   String?
+
+  @@map("dashboard_tickers")
+}
+
+model OrganizationConfig {
+  id            String   @id @default("singleton")
+  bankNameEn    String
+  bankNameTa    String?
+  bankNameHi    String?
+  signingAuthEn String
+  signingAuthTa String?
+  signingAuthHi String?
+  signatoryName String?
+  updatedAt     DateTime @updatedAt
+
+  @@map("organization_config")
+}
+
+model Atm {
+  id          String   @id @default(uuid())
+  atmId       String   @unique
+  branchId    String
+  lastTxnTime String
+  balance     Decimal  @db.Decimal(18, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("atms")
+}
+
+model PostingHistory {
+  id            String       @id @default(uuid())
+  userId        String
+  branchId      String
+  designationId String?
+  startDate     DateTime     @default(now())
+  endDate       DateTime?
+  isCurrent     Boolean      @default(true)
+  remarks       String?
+  createdAt     DateTime     @default(now())
+  branch        Branch       @relation(fields: [branchId], references: [id])
+  designation   Designation? @relation(fields: [designationId], references: [id])
+  user          User         @relation(fields: [userId], references: [id])
+
+  @@map("posting_history")
+}
+
+model ChatGroup {
+  id               String        @id @default(uuid())
+  name             String
+  type             String        @default("CUSTOM")
+  announcementMode Boolean       @default(false)
+  createdBy        String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  members          ChatMember[]
+  creator          User?         @relation(fields: [createdBy], references: [id])
+  messages         ChatMessage[]
+
+  @@map("chat_groups")
+}
+
+model ChatMember {
+  id          String    @id @default(uuid())
+  groupId     String
+  userId      String
+  roleInGroup String    @default("MEMBER")
+  isMuted     Boolean   @default(false)
+  isSuspended Boolean   @default(false)
+  suspendedBy String?
+  updatedAt   DateTime  @updatedAt
+  group       ChatGroup @relation(fields: [groupId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId])
+  @@map("chat_group_members")
+}
+
+model ChatMessage {
+  id         String       @id @default(uuid())
+  type       String       @default("text")
+  room       String       @default("global")
+  user       String
+  role       String       @default("BRANCH")
+  branchCode String?
+  text       String
+  payload    String?
+  timestamp  DateTime     @default(now())
+  readBy     String?
+  groupId    String?
+  senderId   String?
+  acks       MessageAck[]
+  group      ChatGroup?   @relation(fields: [groupId], references: [id])
+  sender     User?        @relation(fields: [senderId], references: [id])
+
+  @@map("chat_messages")
+}
+
+model BranchQuery {
+  id             String    @id @default(uuid())
+  branchCode     String
+  queryText      String
+  askedBy        String
+  askedAt        DateTime  @default(now())
+  deadline       DateTime?
+  paramCodes     String?
+  status         String    @default("PENDING")
+  response       String?
+  respondedBy    String?
+  respondedAt    DateTime?
+  relatedMisDate DateTime?
+
+  @@map("branch_queries")
+}
+
+model MessageAck {
+  id             String      @id @default(uuid())
+  messageId      String
+  userId         String
+  acknowledgedAt DateTime    @default(now())
+  correlationId  String?
+  message        ChatMessage @relation(fields: [messageId], references: [id])
+  user           User        @relation(fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+  @@map("chat_message_acks")
+}
+
+model ChatAuditLog {
+  id            String   @id @default(uuid())
+  actorId       String
+  action        String
+  targetId      String?
+  details       String?
+  correlationId String?
+  timestamp     DateTime @default(now())
+  actor         User     @relation(fields: [actorId], references: [id])
+
+  @@map("chat_audit_logs")
+}
+
+model IngestionLog {
+  id          String        @id @default(uuid())
+  unitId      String
+  status      String
+  filename    String
+  meta        Json?
+  createdAt   DateTime      @default(now())
+  importLogId String?
+  importLog   MisImportLog? @relation(fields: [importLogId], references: [id], onDelete: Cascade)
+  branch      Branch        @relation(fields: [unitId], references: [id])
+  facts       Fact[]
+
+  @@map("ingestion_logs")
+}
+
+model IngestionVerticalStatus {
+  id              String   @id @default(uuid())
+  businessDate    DateTime
+  vertical        String
+  status          String
+  isFreezeBlocker Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+
+  @@unique([businessDate, vertical])
+  @@map("ingestion_vertical_status")
+}
+
+model StgUnitFinancialsDaily {
+  id           String   @id @default(uuid())
+  unitCode     String
+  businessDate DateTime
+  sbBalance    Decimal? @db.Decimal(18, 4)
+  cdBalance    Decimal? @db.Decimal(18, 4)
+  tdBalance    Decimal? @db.Decimal(18, 4)
+  advBalance   Decimal? @db.Decimal(18, 4)
+  createdAt    DateTime @default(now())
+
+  @@map("stg_unit_financials_daily")
+}
+
+model StgAccountDaily {
+  id           String   @id @default(uuid())
+  unitCode     String
+  accountNo    String
+  businessDate DateTime
+  balance      Decimal? @db.Decimal(18, 4)
+  sbBalance    Decimal? @db.Decimal(18, 4)
+  cdBalance    Decimal? @db.Decimal(18, 4)
+  tdBalance    Decimal? @db.Decimal(18, 4)
+  advBalance   Decimal? @db.Decimal(18, 4)
+  busBalance   Decimal? @db.Decimal(18, 4)
+  casaBalance  Decimal? @db.Decimal(18, 4)
+  createdAt    DateTime @default(now())
+
+  @@map("stg_account_daily")
+}
+
+model StgUserVerticalDaily {
+  id           String   @id @default(uuid())
+  unitCode     String
+  vertical     String
+  outstanding  Decimal? @db.Decimal(18, 4)
+  smaType      String?
+  businessDate DateTime
+  createdAt    DateTime @default(now())
+
+  @@map("stg_user_vertical_daily")
+}
+
+model Fact {
+  id          String        @id @default(uuid())
+  unitId      String
+  date        DateTime
+  metric      String
+  value       Decimal       @db.Decimal(18, 4)
+  ingestionId String?
+  createdAt   DateTime      @default(now())
+  ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id], onDelete: Cascade)
+  branch      Branch        @relation(fields: [unitId], references: [id])
+
+  @@index([date, unitId, metric])
+  @@map("mis_facts")
+}
+
+model MisSnapshot {
+  id           String                @id @default(uuid())
+  unitId       String
+  businessDate DateTime
+  status       String
+  version      Int                   @default(1)
+  frozenAt     DateTime?
+  createdAt    DateTime              @default(now())
+  exceptions   MisException[]
+  panelData    MisInformationPanel[]
+  branch       Branch                @relation(fields: [unitId], references: [id])
+
+  @@unique([unitId, businessDate, version])
+  @@map("mis_snapshots")
+}
+
+model MisInformationPanel {
+  id                String      @id @default(uuid())
+  snapshotId        String
+  parameter         String
+  val_fy_start      Decimal     @default(0) @db.Decimal(18, 4)
+  val_fy_end        Decimal     @default(0) @db.Decimal(18, 4)
+  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 4)
+  val_dby           Decimal     @default(0) @db.Decimal(18, 4)
+  val_y_eod         Decimal     @default(0) @db.Decimal(18, 4)
+  val_current       Decimal     @default(0) @db.Decimal(18, 4)
+  growth_day        Decimal     @default(0) @db.Decimal(18, 4)
+  growth_month      Decimal     @default(0) @db.Decimal(18, 4)
+  growth_fy         Decimal     @default(0) @db.Decimal(18, 4)
+  budget_month      Decimal     @default(0) @db.Decimal(18, 4)
+  gap_month         Decimal     @default(0) @db.Decimal(18, 4)
+  budget_quarter    Decimal     @default(0) @db.Decimal(18, 4)
+  gap_quarter       Decimal     @default(0) @db.Decimal(18, 4)
+  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 4)
+  status            String      @default("Neutral")
+  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 4)
+  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 4)
+  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@map("mis_information_panels")
+}
+
+model MisException {
+  id           String      @id @default(uuid())
+  snapshotId   String
+  unitId       String
+  businessDate DateTime
+  type         String
+  severity     String
+  parameter    String
+  message      String
+  triggerValue String?
+  ruleId       String?
+  status       String      @default("OPEN")
+  taskId       String?
+  createdAt    DateTime    @default(now())
+  snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  branch       Branch      @relation(fields: [unitId], references: [id])
+
+  @@map("mis_exceptions")
+}
+
+model AccountOpening {
+  id                 String   @id @default(uuid())
+  solId              String
+  cifId              String
+  foracid            String   @unique
+  acctName           String
+  schmType           String
+  schmCode           String
+  acctOpnDate        DateTime
+  clrBalAmt          Decimal  @db.Decimal(18, 4)
+  averageBalance     Decimal  @db.Decimal(18, 4)
+  businessDate       DateTime
+  createdAt          DateTime @default(now())
+  accountClass       String?
+  customerValueScore Float?
+  dataQualityFlag    String   @default("VALID")
+  isQualified        Boolean  @default(false)
+  rejectionReason    String?
+  valueBucket        String?
+  valueRank          Int?
+  branch             Branch   @relation(fields: [solId], references: [code])
+
+  @@index([businessDate])
+  @@index([solId])
+  @@map("account_openings")
+}
+
+model AccountClosure {
+  id              String   @id @default(uuid())
+  solId           String
+  cifId           String
+  foracid         String   @unique
+  acctName        String
+  schmType        String
+  schmCode        String
+  accountClass    String?
+  acctOpnDate     DateTime
+  acctClsDate     DateTime
+  balanceAtCls    Decimal  @db.Decimal(18, 4)
+  businessDate    DateTime
+  dataQualityFlag String   @default("VALID")
+  createdAt       DateTime @default(now())
+  branch          Branch   @relation(fields: [solId], references: [code])
+
+  @@index([businessDate])
+  @@index([solId])
+  @@map("account_closures")
+}
+
+model CalendarMaster {
+  calDate         DateTime @id
+  isWorkingDay    Boolean  @default(true)
+  holidayFlag     Boolean  @default(false)
+  monthKey        String
+  financialPeriod String?
+
+  @@map("calendar_master")
+}
+
+model FactSbDailyBranch {
+  id              String   @id @default(uuid())
+  solId           String
+  openDay         DateTime
+  netSbOpened     Int
+  workingDayFlag  Boolean
+  qualifiedCount  Int
+  dataQualityFlag String
+  createdAt       DateTime @default(now())
+  sbClosed        Int      @default(0)
+
+  @@unique([solId, openDay])
+  @@map("fact_sb_daily_branch")
+}
+
+model FactCdMonthlyBranch {
+  id              String   @id @default(uuid())
+  solId           String
+  monthKey        String
+  netCdOpened     Int
+  qualifiedCount  Int
+  dataQualityFlag String
+  createdAt       DateTime @default(now())
+  cdClosed        Int      @default(0)
+
+  @@unique([solId, monthKey])
+  @@map("fact_cd_monthly_branch")
+}
+
+model ProductAdoptionScheme {
+  id       String  @id @default(uuid())
+  code     String  @unique
+  name     String
+  type     String
+  isActive Boolean @default(true)
+
+  @@map("product_adoption_schemes")
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  dataType  String   @default("STRING")
+  group     String   @default("GENERAL")
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   @default("INFO")
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model BudgetMaster {
+  id            String    @id @default(uuid())
+  parameterName String
+  solId         String
+  periodKey     String
+  targetValue   Decimal   @db.Decimal(18, 4)
+  versionNo     Int       @default(1)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sourceBatchId String
+  effectiveDate DateTime?
+  branch        Branch    @relation(fields: [solId], references: [code])
+
+  @@unique([parameterName, solId, periodKey])
+  @@map("budget_master")
+}
+
+model BudgetHistory {
+  id            String    @id @default(uuid())
+  parameterName String
+  solId         String
+  periodKey     String
+  targetValue   Decimal   @db.Decimal(18, 4)
+  versionNo     Int
+  sourceBatchId String
+  changeType    String
+  changedAt     DateTime  @default(now())
+  effectiveDate DateTime?
+
+  @@map("budget_history")
+}
+
+model MisParameterRegistry {
+  parameterName         String                 @id
+  displayName           String
+  category              String?
+  isEnabled             Boolean                @default(true)
+  createdFromBudgetFlag Boolean                @default(true)
+  description           String?
+  fullForm              String?
+  orderIndex            Int                    @default(0)
+  parentParameterName   String?
+  parentParameter       MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
+  childParameters       MisParameterRegistry[] @relation("ParameterHierarchy")
+
+  @@map("mis_parameter_registry")
+}
+
+model BudgetImportLog {
+  id         String   @id @default(uuid())
+  filename   String
+  checksum   String
+  uploaderId String?
+  totalRows  Int
+  validRows  Int
+  errorRows  Int
+  createdAt  DateTime @default(now())
+  status     String   @default("PROCESSING")
+
+  @@map("budget_import_logs")
+}
+
+model MisImportLog {
+  id             String         @id @default(uuid())
+  filename       String
+  status         String         @default("SUCCESS")
+  processedUnits Int
+  failedUnits    Int
+  uniqueDates    String[]
+  createdAt      DateTime       @default(now())
+  ingestionLogs  IngestionLog[]
+
+  @@map("mis_import_logs")
+}
+
+model InternalNote {
+  id             String   @id @default(uuid())
+  refNo          String
+  department     String
+  subject        String
+  classification String
+  createdBy      String
+  bodyHtml       String
+  fileUrl        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  departmentHi   String?
+  departmentTa   String?
+
+  @@map("internal_notes")
+}
+
+model PresentationDeck {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  dataDate    DateTime
+  period      String
+  slides      Json
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  @@map("presentation_decks")
+}
+
+model ReferenceSequence {
+  id         String   @id @default(uuid())
+  category   String
+  prefix     String
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([category, prefix])
+  @@map("reference_sequences")
+}
+
+model Committee {
+  id        String    @id @default(uuid())
+  nameEn    String
+  code      String    @unique
+  frequency String    @default("MONTHLY")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  meetings  Meeting[]
+
+  @@map("committees")
+}
+
+model Meeting {
+  id           String        @id @default(uuid())
+  committeeId  String
+  date         DateTime
+  venue        String?
+  status       String        @default("DRAFT")
+  minutesJson  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  actionPoints ActionPoint[]
+  committee    Committee     @relation(fields: [committeeId], references: [id])
+
+  @@map("meetings")
+}
+
+model ActionPoint {
+  id               String    @id @default(uuid())
+  meetingId        String
+  content          String
+  status           String    @default("PENDING")
+  dueDate          DateTime?
+  assignedToUserId String?
+  createdAt        DateTime  @default(now())
+  assignedTo       User?     @relation(fields: [assignedToUserId], references: [id])
+  meeting          Meeting   @relation(fields: [meetingId], references: [id])
+
+  @@map("meeting_action_points")
+}
+
+model DispatchRecord {
+  id            String   @id @default(uuid())
+  type          String   @default("INWARD")
+  subject       String
+  sender        String
+  recipient     String
+  referenceNo   String?  @unique
+  consignmentNo String?
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+
+  @@map("dispatch_records")
+}
+
+model LegalCase {
+  id              String    @id @default(uuid())
+  caseNo          String    @unique
+  courtName       String
+  parties         String
+  nextHearingDate DateTime?
+  advocateName    String?
+  status          String    @default("PENDING")
+  category        String    @default("CIVIL")
+  createdAt       DateTime  @default(now())
+
+  @@map("legal_cases")
+}
+
+model RecoveryAction {
+  id             String   @id @default(uuid())
+  accountName    String
+  amountInvolved Float
+  type           String
+  status         String   @default("PENDING")
+  branchId       String
+  remarks        String?
+  createdAt      DateTime @default(now())
+  branch         Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("recovery_actions")
+}
+
+model AuditObservation {
+  id                   String    @id @default(uuid())
+  auditType            String?
+  observation          String
+  riskLevel            String
+  status               String    @default("PENDING")
+  rectificationDetails String?
+  targetDate           DateTime
+  auditDate            DateTime?
+  branchId             String
+  createdAt            DateTime  @default(now())
+  branch               Branch    @relation(fields: [branchId], references: [id])
+
+  @@map("audit_observations")
+}
+
+model RegionalAsset {
+  id            String              @id @default(uuid())
+  assetCode     String              @unique
+  category      String
+  description   String
+  purchaseDate  DateTime?
+  purchaseValue Float?
+  condition     String              @default("GOOD")
+  amcExpiry     DateTime?
+  branchId      String
+  createdAt     DateTime            @default(now())
+  maintenances  MaintenanceRecord[]
+  branch        Branch              @relation(fields: [branchId], references: [id])
+
+  @@map("regional_assets")
+}
+
+model MaintenanceRecord {
+  id              String        @id @default(uuid())
+  serviceDate     DateTime
+  serviceProvider String
+  cost            Float
+  remarks         String?
+  nextServiceDue  DateTime?
+  assetId         String
+  createdAt       DateTime      @default(now())
+  asset           RegionalAsset @relation(fields: [assetId], references: [id])
+
+  @@map("maintenance_records")
+}
+
+model Campaign {
+  id          String              @id @default(uuid())
+  title       String
+  tagline     String?
+  logoUrl     String?
+  startDate   DateTime
+  endDate     DateTime
+  type        String
+  metric      String
+  targetValue Decimal             @db.Decimal(18, 4)
+  status      String              @default("DRAFT")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  dailyData   CampaignDailyData[]
+  targets     CampaignTarget[]
+
+  @@map("campaigns")
+}
+
+model CampaignTarget {
+  id          String   @id @default(uuid())
+  campaignId  String
+  branchId    String
+  targetValue Decimal  @db.Decimal(18, 4)
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("campaign_targets")
+}
+
+model CampaignDailyData {
+  id         String   @id @default(uuid())
+  campaignId String
+  branchId   String
+  date       DateTime
+  value      Decimal  @db.Decimal(18, 4)
+  branch     Branch   @relation(fields: [branchId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, branchId, date])
+  @@map("campaign_daily_data")
+}
+
+model DepartmentManual {
+  id           String               @id @default(uuid())
+  titleEn      String
+  titleTa      String?
+  titleHi      String?
+  description  String?
+  departmentId String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  activities   DepartmentActivity[]
+  department   Department           @relation(fields: [departmentId], references: [id])
+
+  @@map("department_manuals")
+}
+
+model DepartmentActivity {
+  id          String           @id @default(uuid())
+  manualId    String
+  titleEn     String
+  titleTa     String?
+  titleHi     String?
+  description String?
+  frequency   String           @default("MONTHLY")
+  dueDate     String?
+  status      String           @default("ACTIVE")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  manual      DepartmentManual @relation(fields: [manualId], references: [id], onDelete: Cascade)
+
+  @@map("department_activities")
+}
+
+model BranchVisit {
+  id              String   @id @default(uuid())
+  branchId        String
+  visitorId       String
+  visitDate       DateTime
+  purpose         String?
+  observations    String?  @db.Text
+  letterIssued    Boolean  @default(false)
+  visitorCategory String   @default("SECOND_LINE") // FIRST_LINE or SECOND_LINE
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  visitor         User     @relation(fields: [visitorId], references: [id])
+
+  @@map("branch_visits")
+}

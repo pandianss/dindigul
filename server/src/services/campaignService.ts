@@ -139,14 +139,14 @@ export async function getCampaignRankings(campaignId: string, date?: Date) {
         const target = targetsMap.get(d.branchId) || 0;
         
         const previousTotal = stats.total;
-        stats.total += d.value;
+        stats.total += Number(d.value);
         
         if (filterDate && d.date.getTime() === filterDate) {
-            stats.daily = d.value;
+            stats.daily = Number(d.value);
         }
 
         // Mark qualification date if target reached for the first time
-        if (target > 0 && previousTotal < target && stats.total >= target) {
+        if (Number(target) > 0 && previousTotal < Number(target) && stats.total >= Number(target)) {
             stats.arrivalDate = d.date;
         }
 
@@ -169,8 +169,8 @@ export async function getCampaignRankings(campaignId: string, date?: Date) {
             branchName: branch?.nameEn,
             totalAchievement: p.total,
             dailyAchievement: p.daily,
-            target: target,
-            percentage: target > 0 ? (p.total / target) * 100 : 0,
+            target: Number(target),
+            percentage: Number(target) > 0 ? (p.total / Number(target)) * 100 : 0,
             arrivalDate: p.arrivalDate,
             isQualified
         };

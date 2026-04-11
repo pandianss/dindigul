@@ -30,11 +30,6 @@ router.get('/code/:code', authenticateToken, async (req: any, res) => {
 
 // Get all units (branches, RO, LPC)
 router.get('/', authenticateToken, async (req: any, res) => {
-    const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
-    const canView = req.user?.role === 'ADMIN' || req.user?.role === 'RO_USER' || isPlanning;
-    if (!canView) {
-        return res.status(403).json({ error: 'Forbidden' });
-    }
     try {
         const units = await prisma.branch.findMany({
             orderBy: { code: 'asc' }
@@ -48,17 +43,22 @@ router.get('/', authenticateToken, async (req: any, res) => {
 
 // Create new unit
 router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, openDate } = req.body;
+    const { 
+        code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, 
+        phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, 
+        openDate, sNo, district, size 
+    } = req.body;
+
     try {
         const unit = await prisma.branch.create({
             data: {
                 code,
-                officeId: parseInt(officeId) || 9999,
+                officeId: officeId ? parseInt(officeId) : 9999,
                 nameEn,
                 nameTa,
                 nameHi,
-                type,
-                populationGroup,
+                type: type || 'BRANCH',
+                populationGroup: populationGroup || 'URBAN',
                 specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
                 riskCategory,
                 riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
@@ -68,20 +68,32 @@ router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res
                 addressHi,
                 phone,
                 email,
-                openDate
+                openDate,
+                sNo: sNo ? parseInt(sNo) : undefined,
+                district,
+                size
             }
         });
         res.json(unit);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Create unit error:", error);
-        res.status(400).json({ error: 'Failed to create unit' });
+        res.status(400).json({ 
+            error: 'Failed to create unit',
+            detail: error.message,
+            code: error.code
+        });
     }
 });
+
 
 // Update unit
 router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
-    const { code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, openDate } = req.body;
+    const { 
+        code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, 
+        phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, 
+        openDate, sNo, district, size 
+    } = req.body;
 
     try {
         const oldUnit = await prisma.branch.findUnique({ where: { id } });
@@ -90,7 +102,7 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
             where: { id },
             data: {
                 code,
-                officeId: parseInt(officeId) || 9999,
+                officeId: officeId ? parseInt(officeId) : undefined,
                 nameEn,
                 nameTa,
                 nameHi,
@@ -105,9 +117,13 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
                 addressHi,
                 phone,
                 email,
-                openDate
+                openDate,
+                sNo: sNo ? parseInt(sNo) : undefined,
+                district,
+                size
             }
         });
+
 
         // History Tracking
         const historyData = [];
@@ -192,8 +208,16 @@ router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any
     }
 
     try {
+        // Pre-delete Cleanup: Remove transient dependencies that block branch deletion
+        // (Draft Letters, Branch History, Campaign Targets, etc.)
+        await prisma.letter.deleteMany({ where: { branchId: id, status: 'DRAFT' } });
+        await prisma.branchHistory.deleteMany({ where: { branchId: id } });
+        await prisma.campaignDailyData.deleteMany({ where: { branchId: id } });
+        await prisma.campaignTarget.deleteMany({ where: { branchId: id } });
+        
+        // Final Deletion
         await prisma.branch.delete({ where: { id } });
-        res.json({ message: 'Deleted' });
+        res.json({ message: 'Unit and its associated draft records deleted successfully' });
     } catch (error: any) {
         console.error(`Delete unit ${id} error:`, error);
 
@@ -222,7 +246,7 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
         }
 
         const results = await Promise.all(items.map(async (item: any) => {
-            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi, openDate, district, sNo } = item;
+            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi, openDate, district, sNo, size } = item;
             if (!code || !nameEn) return null;
 
             return prisma.branch.upsert({
@@ -234,7 +258,8 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
                     ifsc, address, addressTa, addressHi, openDate, district,
-                    sNo: sNo ? parseInt(sNo) : undefined
+                    sNo: sNo ? parseInt(sNo) : undefined,
+                    size
                 },
                 create: {
                     code,
@@ -244,7 +269,8 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                     riskCategory,
                     riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
                     ifsc, address, addressTa, addressHi, openDate, district,
-                    sNo: sNo ? parseInt(sNo) : undefined
+                    sNo: sNo ? parseInt(sNo) : undefined,
+                    size
                 }
             });
         }));

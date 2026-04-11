@@ -43,6 +43,10 @@ import campaignRoutes from './routes/campaign';
 import publicRoutes from './routes/public';
 import organizationRoutes from './routes/organization';
 import presentationRoutes from './routes/presentations';
+import manualsRoutes from './routes/manuals';
+import signatoryRoutes from './routes/signatory';
+import returnsRoutes from './routes/returns';
+import visitRoutes from './routes/visits';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -109,6 +113,11 @@ app.use('/api/campaigns', campaignRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/organization', organizationRoutes);
 app.use('/api/presentations', presentationRoutes);
+app.use('/api/manuals', manualsRoutes);
+app.use('/api/signatories', signatoryRoutes);
+app.use('/api/returns', returnsRoutes);
+app.use('/api/visits', visitRoutes);
+
 
 // Global error handler — must be defined after all routes
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

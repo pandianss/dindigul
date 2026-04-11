@@ -3,13 +3,28 @@ import { BusinessSnapshotService } from './BusinessSnapshotService';
 import { MisStatus } from '../types/mis';
 import { RuleEngine } from './RuleEngine';
 import prisma from '../lib/prisma';
+import { getFYRange } from '../utils/fyUtils';
+
+
 
 const CRITERIA_PARAM_MAP: Record<string, string> = {
     'Total Dep': 'TOTAL_DEPOSITS',
     'Adv': 'TOTAL_ADVANCES',
+    'Business': 'TOTAL_BUSINESS',
+    'Recovery': 'TOTAL_RECOVERY',
     'CASA': 'CASA',
-    'NPA': 'GROSS_NPA'
+    'NPA': 'GROSS_NPA',
+    'SB': 'SB_DEPOSITS',
+    'CD': 'CD_DEPOSITS',
+    'TD': 'TD_DEPOSITS',
+    'Core Ret': 'CORE_RETAIL',
+    'Mudra': 'MUDRA',
+    'MSME': 'MSME',
+    'Core Agri': 'CORE_AGRI',
+    'Ret_TD': 'RET_TD'
 };
+
+
 
 const MAPPING: Record<string, string> = {
     // Advance sub-portfolios
@@ -57,8 +72,16 @@ const MAPPING: Record<string, string> = {
 
     // Other
     'Bulk Dep': 'Bulk_Dep',        // NEW — Bulk Deposits
+    'Ret TD': 'Ret_TD',           // Retail Term Deposits
+    'RTDs': 'Ret_TD',              // Alternative header
+    'RTD': 'Ret_TD',
     'PL': 'Branch_PL',            // Profit and Loss
+    'Rec Q1': 'Rec_Q1',
+    'Rec Q2': 'Rec_Q2',
+    'Rec Q3': 'Rec_Q3',
+    'Rec Q4': 'Rec_Q4'
 };
+
 
 export class MISIngestionService {
     static async processExcel(filePath: string, originalFilename: string) {
@@ -144,12 +167,20 @@ export class MISIngestionService {
                     // 2. Parse Metric Data
                     let coreRetSum = 0;
                     const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PersonalLoan'];
-                    let sb = 0, cd = 0, td = 0, adv = 0, npaVal = 0;
+                    let sb = 0, cd = 0, td = 0, adv = 0, npaVal = 0, bulkDep = 0, retTd = 0;
+
+                    const recQ1 = Number(row['Rec Q1'] || 0);
+                    const recQ2 = Number(row['Rec Q2'] || 0);
+                    const recQ3 = Number(row['Rec Q3'] || 0);
+                    const recQ4 = Number(row['Rec Q4'] || 0);
+                    const rawTotalRec = recQ1 + recQ2 + recQ3 + recQ4;
+
+                    const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
+                    const scaledTotalRec = isRegional ? rawTotalRec : rawTotalRec / 100;
 
                     for (const [rawHeader, rawValue] of Object.entries(row)) {
                         const paramName = MAPPING[rawHeader.trim()];
                         if (paramName) {
-                            const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
                             let val = Number(rawValue || 0);
                             if (!isRegional) {
                                 val /= 100;
@@ -167,9 +198,16 @@ export class MISIngestionService {
                             if (paramName === 'SB') sb = val;
                             if (paramName === 'CD') cd = val;
                             if (paramName === 'TD') td = val;
+                            if (paramName === 'Ret_TD') retTd = val;
+                            if (paramName === 'Bulk_Dep') bulkDep = val;
                             if (paramName === 'Adv') adv = val;
                             if (paramName === 'NPA') npaVal = val;
                         }
+                    }
+
+                    // Calculate Ret TD if not provided explicitly but we have TD and Bulk
+                    if (retTd === 0 && td > 0 && bulkDep > 0) {
+                        retTd = td - bulkDep;
                     }
 
                     const casa = sb + cd;
@@ -180,10 +218,25 @@ export class MISIngestionService {
                         { unitId: branch.id, date: businessDate, metric: 'Core Ret', value: coreRetSum, ingestionId: log.id },
                         { unitId: branch.id, date: businessDate, metric: 'CASA', value: casa, ingestionId: log.id },
                         { unitId: branch.id, date: businessDate, metric: 'Total Dep', value: totalDep, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'Ret_TD', value: retTd, ingestionId: log.id },
                         { unitId: branch.id, date: businessDate, metric: 'CASA%', value: casaPct, ingestionId: log.id },
                         { unitId: branch.id, date: businessDate, metric: 'CD_Ratio', value: totalDep > 0 ? (adv / totalDep) * 100 : 0, ingestionId: log.id },
-                        { unitId: branch.id, date: businessDate, metric: 'Bus', value: totalDep + adv, ingestionId: log.id }
+                        { unitId: branch.id, date: businessDate, metric: 'Bus', value: totalDep + adv, ingestionId: log.id },
+                        { unitId: branch.id, date: businessDate, metric: 'Recovery', value: scaledTotalRec, ingestionId: log.id }
                     );
+
+                    // Auto-register Recovery parameter if first time seeing it
+                    await tx.misParameterRegistry.upsert({
+                        where: { parameterName: 'Recovery' },
+                        update: {},
+                        create: {
+                            parameterName: 'Recovery',
+                            displayName: 'Recovery',
+                            category: 'ASSET_QUALITY',
+                            isEnabled: true,
+                            orderIndex: 200 // Position it appropriately
+                        }
+                    });
 
                     // 3. Modern Snapshot Header
                     const snap = await tx.misSnapshot.upsert({
@@ -193,26 +246,51 @@ export class MISIngestionService {
                     });
                     snapshotsToPopulate.push({ id: snap.id, unitId: branch.id });
 
-                    // 4. Legacy Snapshots (for letter criteria)
-                    const subFacts = {
-                        'Total Dep': totalDep,
-                        'Adv': adv,
-                        'CASA': casa,
-                        'NPA': npaVal
-                    };
+                    // 4. Legacy Snapshots (for letter criteria) 
+                    // Automatically generate legacy snapshots for ALL metrics that have a defined Parameter
+                    // If Parameter is missing, we auto-create it to ensure letter generation coverage
+                    for (const [metricName, val] of Object.entries(factsToCreate.reduce((acc, f) => ({ ...acc, [f.metric]: f.value }), {}))) {
+                        // FILTER: Only generate snapshots for primary performance letters
+                        // We skip quarterly recovery figures and cash management components
+                        if (['Rec_Q1', 'Rec_Q2', 'Rec_Q3', 'Rec_Q4', 'Cash_Hand', 'Cash_ATM', 'Cash_BC', 'Cash_BNA', 'Cash_Total', 'Cash_CRL', 'Cash_Excess', 'Branch_PL'].includes(metricName as string)) {
+                            continue;
+                        }
 
-                    for (const [factMetric, val] of Object.entries(subFacts)) {
-                        const paramCode = CRITERIA_PARAM_MAP[factMetric];
-                        const param = parameterMap[paramCode || ''];
-                        if (!param) continue;
+                        const paramCode = CRITERIA_PARAM_MAP[metricName as string] || (metricName as string).toUpperCase().replace(/ /g, '_').replace(/%/g, '_PCT').replace(/-/g, '_');
+                        
+                        let param = parameterMap[paramCode];
+                        if (!param) {
+                            param = await tx.parameter.upsert({
+                                where: { code: paramCode },
+                                update: {},
+                                create: {
+                                    code: paramCode,
+                                    nameEn: (metricName as string).replace(/_/g, ' '),
+                                    category: (metricName as string).includes('Rec') ? 'RECOVERY' : 
+                                              (['SB', 'CD', 'TD', 'Total Dep', 'CASA', 'Ret_TD', 'RET_TD', 'Bulk_Dep', 'RTD'].includes(metricName as string) ? 'DEPOSITS' : 'ADVANCES'),
+                                    unit: (metricName as string).includes('%') || (metricName as string).includes('Ratio') ? '%' : 'Cr'
+                                }
+                            });
+                            parameterMap[paramCode] = param; // Cache it
+                        }
 
                         const budget = await tx.budgetMaster.findFirst({
-                            where: { solId: branch.code, parameterName: factMetric, periodKey, isActive: true }
+                            where: { solId: branch.code, parameterName: metricName as string, periodKey, isActive: true }
                         });
                         const budVal = budget ? Number(budget.targetValue) : null;
-                        const status = budVal ? (factMetric === 'NPA' ? (val <= budVal ? 'POSITIVE' : 'NEGATIVE') : (val >= budVal ? 'POSITIVE' : 'NEGATIVE')) : 'NEUTRAL';
 
-                        // Use findFirst + update/create since schema doesn't have the explicit unique constraint for shorthand upsert
+                        const { start: fyStart } = getFYRange(businessDate);
+                        const baselineDate = new Date(fyStart.getTime() - 86400000);
+                        const baseline = await tx.snapshot.findFirst({
+                            where: { branchId: branch.id, parameterId: param.id, date: baselineDate }
+                        });
+                        const baselineVal = baseline ? baseline.value : 0;
+
+                        let status = 'NEUTRAL';
+                        if (budVal !== null && (val as number) > budVal) status = 'SURPASSED';
+                        else if ((val as number) > Number(baselineVal)) status = 'POSITIVE';
+                        else if ((val as number) < Number(baselineVal)) status = 'NEGATIVE';
+
                         const existingSnap = await tx.snapshot.findFirst({
                             where: { branchId: branch.id, parameterId: param.id, date: businessDate }
                         });
@@ -220,11 +298,11 @@ export class MISIngestionService {
                         if (existingSnap) {
                             await tx.snapshot.update({
                                 where: { id: existingSnap.id },
-                                data: { value: val, budget: budVal, status }
+                                data: { value: val as number, budget: budVal, status }
                             });
                         } else {
                             await tx.snapshot.create({
-                                data: { branchId: branch.id, parameterId: param.id, date: businessDate, value: val, budget: budVal, status }
+                                data: { branchId: branch.id, parameterId: param.id, date: businessDate, value: val as number, budget: budVal, status }
                             });
                         }
                     }

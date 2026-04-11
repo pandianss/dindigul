@@ -1,9 +1,27 @@
 import { Router } from 'express';
-import { prisma } from '../index';
+import prisma from '../lib/prisma';
 import { parsePagination, getPaginatedResponse } from '../utils/pagination';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
+
+const isElevatedRequestUser = (user: any) =>
+    ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role) || user?.section === 'Planning';
+
+async function getScopedRequest(requestId: string, user: any) {
+    const request = await prisma.branchRequest.findUnique({
+        where: { id: requestId },
+        select: { id: true, userId: true, branchId: true }
+    });
+
+    if (!request) return null;
+
+    if (isElevatedRequestUser(user)) return request;
+
+    const isOwner = request.userId === user.id;
+    const isSameBranch = !!user.branchId && request.branchId === user.branchId;
+    return isOwner || isSameBranch ? request : null;
+}
 
 // Get all requests — BRANCH_USER sees only their branch (GAP 03)
 router.get('/', authenticateToken, async (req: any, res) => {
@@ -52,8 +70,14 @@ router.get('/', authenticateToken, async (req: any, res) => {
 });
 
 // Create a new request
-router.post('/', async (req, res) => {
-    const { titleEn, contentEn, category, priority, branchId, userId, assignedSection, contentJson } = req.body;
+router.post('/', authenticateToken, async (req: any, res) => {
+    const { titleEn, contentEn, category, priority, branchId, assignedSection, contentJson } = req.body;
+    const effectiveBranchId = req.user?.branchId || branchId;
+
+    if (!effectiveBranchId) {
+        return res.status(400).json({ error: 'branchId is required' });
+    }
+
     try {
         const request = await prisma.branchRequest.create({
             data: {
@@ -61,8 +85,8 @@ router.post('/', async (req, res) => {
                 contentEn,
                 category,
                 priority: priority || 'MEDIUM',
-                branchId,
-                userId,
+                branchId: effectiveBranchId,
+                userId: req.user.id,
                 assignedSection,
                 contentJson,
                 status: 'OPEN'
@@ -76,10 +100,18 @@ router.post('/', async (req, res) => {
 });
 
 // Update request status or assignment
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
     const { status, priority, assignedSection, resolutionNotes } = req.body;
     try {
+        const scopedRequest = await getScopedRequest(id, req.user);
+        if (!scopedRequest) return res.status(404).json({ error: 'Request not found' });
+
+        const canModerate = isElevatedRequestUser(req.user);
+        if (!canModerate && (assignedSection !== undefined || resolutionNotes !== undefined || status !== undefined)) {
+            return res.status(403).json({ error: 'Only regional or planning users can update request workflow fields' });
+        }
+
         const request = await prisma.branchRequest.update({
             where: { id },
             data: {
@@ -97,14 +129,17 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Add a comment to a request
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', authenticateToken, async (req: any, res) => {
     const { id: requestId } = req.params;
-    const { content, userId } = req.body;
+    const { content } = req.body;
     try {
+        const scopedRequest = await getScopedRequest(requestId, req.user);
+        if (!scopedRequest) return res.status(404).json({ error: 'Request not found' });
+
         const comment = await prisma.comment.create({
             data: {
                 content,
-                userId,
+                userId: req.user.id,
                 requestId
             },
             include: {

@@ -23,7 +23,8 @@ export const MisParameter = {
     CORE_AGRI: 'Core_Agri',
     MSME: 'MSME',
     RETAIL_TD: 'Ret_TD',
-    BULK_DEPOSIT: 'Bulk_Dep'
+    BULK_DEPOSIT: 'Bulk_Dep',
+    RECOVERY: 'Recovery'
 };
 
 export const MisStatus = {

@@ -1,10 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Clock, User, Download, Eye, Building2, IndianRupee, LayoutDashboard, Pencil, Trash2, Hash, AlertCircle, FileSpreadsheet, X, Calendar, Lock, Unlock } from 'lucide-react';
+import { 
+    Plus, FileText, Download, Pencil, Trash2, Clock, CheckCircle, X, 
+    LayoutDashboard, User, Calendar, IndianRupee, Building2, Layers, 
+    Hash, Lock, Unlock, Copy, AlertTriangle, FileSpreadsheet, Eye, Save, Award
+} from 'lucide-react';
 import { format, subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { CustomDatePicker } from '../components/CustomDatePicker';
 import api from '../services/api';
 import { getErrorMessage } from '../utils/handleError';
 import { formatLocalISO, parseLocalISO } from '../utils/dateUtils';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import DocumentPreview from '../components/DocumentPreview';
+import { REGIONAL_OFFICE_DATA, GLOBAL_CONFIG } from '../constants/organization';
+
+const quillModules = {
+    toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'color': [] }, { 'background': [] }],
+        ['link', 'table'],
+        ['clean']
+    ],
+};
+
+const quillStyle = `
+  .quill { 
+    background: white;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 2px solid #f3f4f6 !important;
+  }
+  .ql-toolbar { 
+    border: none !important; 
+    border-bottom: 2px solid #f3f4f6 !important; 
+    background: #f9fafb;
+  }
+  .ql-container { 
+    border: none !important;
+    min-height: 150px;
+    font-family: inherit;
+  }
+  .ql-editor { 
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #1e293b;
+  }
+  .ql-editor.ql-blank::before {
+    color: #9ca3af;
+    font-style: normal;
+  }
+`;
 
 
 interface OfficeNote {
@@ -27,6 +74,7 @@ const INITIAL_FORM = {
     titleHi: '',
     deptName: '',
     referenceNo: '',
+    preparerId: '',
     contentJson: {
         details: '',
         amount: '',
@@ -42,11 +90,35 @@ const INITIAL_FORM = {
         talukTehsil: '',
         districtState: '',
         workingHours: '',
+        branchCode: '',
         postalAddress: '',
         currencyChest: '',
         authorisedDealer: '',
         underCBS: 'Yes',
         micrCode: '',
+        ifscCode: '',
+        cbsCode: '',
+        addressLine1: '',
+        addressLine2: '',
+        postOfficeName: '',
+        pinCode: '',
+        longitude: '',
+        latitude: '',
+        telNo: '',
+        mobileNo: '',
+        faxNo: '',
+        emailAddress: '',
+        revenueCentre: '',
+        // MICR specific fields (some overlapping)
+        workingHoursWeekdays: '',
+        workingHoursSaturdays: '',
+        workingHoursHoliday: '',
+        postalAddressWithPin: '',
+        isUnderCBS: 'Yes',
+        mailId: '',
+        landlineNumber: '',
+        branchHeadDetails: '',
+        controllingOfficeDetails: '',
         // ─── HIGH_VALUE_DD specific fields ─────────────────────────────────
         applicantName: '',
         applicantAccount: '',
@@ -65,6 +137,21 @@ const INITIAL_FORM = {
         branchHeadGrade: '', // Grade of Branch head (Auto-populated)
         issuingBranch: '', // Auto-populated Issuing Branch
         policyCirculars: [{ dept: 'Central Office, Dept. of GAD', date: '', ref: '' }] as {dept: string, date: string, ref: string}[],
+        // ─── GL_HEAD_ACTIVATION specific fields ─────────────────────────────
+        glAccountNo: '',
+        glAccountDesc: '',
+        glOwnershipDept: '',
+        glOperationUser: '',
+        glPurpose: '',
+        glOpType: 'Both',
+        glDrCrBoth: 'Both',
+        glAssetLiability: 'Liability',
+        glActivity: 'Generic',
+        glLimits: 'No',
+        glMonitoringDept: 'RO Accounts',
+        glOperationBy: 'Branch only',
+        glCashOp: 'No',
+        glReconMandate: 'Reconciliation to zero by same day',
         // ─── RBI_BO_PROFORMA fields ────────────────────────────────────────
         rbi_action: 'ADDITION' as string,
         rbi_updatePartICode: '',
@@ -213,27 +300,174 @@ const INITIAL_FORM = {
         revReversalAmount: '',
         revReason: 'Bank Error' as string,
         revJustification: '',
-        // ─── GL_HEAD_ACTIVATION fields ───────────────────────────────────────
-        glOwnershipDept: '',
-        glOperationUser: '',
-        glAccountNo: '',
-        glAccountDesc: '',
-        glPurpose: '',
-        glOpType: 'System' as string,
-        glDrCrBoth: 'Both' as string,
-        glAssetLiability: 'Liability' as string,
-        glActivity: 'Generic' as string,
-        glLimits: 'No' as string,
-        glMonitoringDept: '',
-        glOperationBy: 'Branch only' as string,
-        glCashOp: 'No' as string,
+        // ─── GL_HEAD_ACTIVATION fields (Moved up) ───────────────────────────
         glFinacleMandatory: 'Yes' as string,
         glPointerFacility: 'Yes' as string,
         glRevokeStatus: '',
         glRoPower: 'No' as string,
-        glReconMandate: 'Reconciliation to zero by same day' as string,
         glReconZeroEod: 'No' as string,
+        scope: 'BRANCH' as string,
+        regionName: 'Dindigul Region' as string,
     }
+};
+
+// ─── MICR Code Request Form Component ─────────────────────────────────────
+const MICRRequestForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as any;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-2 ml-1 tracking-wider";
+
+    return (
+        <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+            <SectionCard title="1. Basic Branch Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className={labelCls}>1. Date of Opening</label>
+                        <CustomDatePicker
+                            selected={parseLocalISO(c.dateOfOpening)}
+                            onChange={(d: Date | null) => setField('dateOfOpening', formatLocalISO(d))}
+                            className={inputCls}
+                        />
+                    </div>
+                    <div>
+                        <label className={labelCls}>2. Name of the Branch / Office</label>
+                        <input className={inputCls} type="text"
+                            value={c.branchName || ''}
+                            placeholder="e.g. Karuppayurani, Madurai"
+                            onChange={e => setField('branchName', e.target.value)} />
+                    </div>
+                </div>
+                <div className="mt-6">
+                    <label className={labelCls}>3. Permission Letter / License Details (Attached)</label>
+                    <input className={inputCls} type="text"
+                        placeholder="e.g. PLG/103/T1-6/87/2024-25 dated 04.09.2024"
+                        value={c.permissionDetails || ''}
+                        onChange={e => setField('permissionDetails', e.target.value)} />
+                </div>
+            </SectionCard>
+
+            <SectionCard title="2. Location & Infrastructure">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className={labelCls}>4. Population Category</label>
+                        <select className={inputCls} value={c.populationCategory || 'RURAL'}
+                            onChange={e => setField('populationCategory', e.target.value)}>
+                            <option value="METRO">Metro</option>
+                            <option value="URBAN">Urban</option>
+                            <option value="SEMI-URBAN">Semi Urban</option>
+                            <option value="RURAL">Rural</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>5. Taluk / Tehsil</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. Madurai North"
+                            value={c.talukTehsil || ''}
+                            onChange={e => setField('talukTehsil', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>6. District / State</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. Madurai / Tamil Nadu"
+                            value={c.districtState || ''}
+                            onChange={e => setField('districtState', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>9. Whether Branch is under CBS</label>
+                        <select className={inputCls} value={c.isUnderCBS || 'Yes'}
+                            onChange={e => setField('isUnderCBS', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="mt-6">
+                    <label className={labelCls}>8. Complete Postal address with Pincode</label>
+                    <textarea className={`${inputCls} h-24 resize-none`}
+                        placeholder="Enter full address including pincode"
+                        value={c.postalAddressWithPin || ''}
+                        onChange={e => setField('postalAddressWithPin', e.target.value)} />
+                </div>
+            </SectionCard>
+
+            <SectionCard title="3. Working Hours">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label className={labelCls}>7.1. Week Days</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. 10:00 AM - 4:00 PM"
+                            value={c.workingHoursWeekdays || ''}
+                            onChange={e => setField('workingHoursWeekdays', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>7.2. Saturdays (1st, 3rd, 5th)</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. 10:00 AM - 4:00 PM"
+                            value={c.workingHoursSaturdays || ''}
+                            onChange={e => setField('workingHoursSaturdays', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>7.3 Holiday</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. Sunday & 2nd, 4th Saturday"
+                            value={c.workingHoursHoliday || ''}
+                            onChange={e => setField('workingHoursHoliday', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="4. Contact Information">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className={labelCls}>10. Mail ID</label>
+                        <input className={inputCls} type="email"
+                            placeholder="e.g. branch@iob.in"
+                            value={c.mailId || ''}
+                            onChange={e => setField('mailId', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>11. Landline Number</label>
+                        <input className={inputCls} type="text"
+                            placeholder="e.g. 0452-1234567"
+                            value={c.landlineNumber || ''}
+                            onChange={e => setField('landlineNumber', e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Purpose of Request</label>
+                        <ReactQuill
+                            theme="snow"
+                            value={c.purpose}
+                            onChange={(val) => setField('purpose', val)}
+                            modules={quillModules}
+                            placeholder="State the purpose clearly..."
+                        />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>12. Branch Head Name and Contact No.</label>
+                        <input className={inputCls} type="text"
+                            placeholder="Name - Mobile Number"
+                            value={c.branchHeadDetails || ''}
+                            onChange={e => setField('branchHeadDetails', e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>13. Controlling Office Contact Details</label>
+                        <textarea className={`${inputCls} h-20 resize-none`}
+                            placeholder="Controlling Office Name & Contact Info"
+                            value={c.controllingOfficeDetails || ''}
+                            onChange={e => setField('controllingOfficeDetails', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
 };
 
 // ─── Expense Approval Form Component ─────────────────────────────────────
@@ -270,26 +504,30 @@ const ExpenseApprovalForm: React.FC<{
                             <option value="Advertisement and Publicity">Advertisement and Publicity</option>
                             <option value="Travelling Expenses">Travelling Expenses</option>
                             <option value="Legal Charges">Legal Charges</option>
-                            <option value="Other Expenditure">Other Expenditure</option>
+                            <option value="Other Expenditure (Sundries)">Other Expenditure (Sundries)</option>
                         </select>
                         <input type="text" className={`mt-2 ${inputCls}`} placeholder="Or type custom budget head..." value={c.budgetHead as string} onChange={e => setField('budgetHead', e.target.value)} />
                     </div>
-                    <div>
-                        <label className={labelCls}>FY Allocated Budget (₹)</label>
-                        <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetAllocated as string} onChange={e => setField('budgetAllocated', e.target.value)} />
-                    </div>
-                    <div>
-                        <label className={labelCls}>Utilised Budget till Date (₹)</label>
-                        <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetUtilized as string} onChange={e => setField('budgetUtilized', e.target.value)} />
-                    </div>
+                    {c.budgetHead === 'Other Expenditure (Sundries)' && (
+                        <>
+                            <div>
+                                <label className={labelCls}>FY Allocated Budget (₹)</label>
+                                <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetAllocated as string} onChange={e => setField('budgetAllocated', e.target.value)} />
+                            </div>
+                            <div>
+                                <label className={labelCls}>Utilised Budget till Date (₹)</label>
+                                <input className={inputCls} type="number" placeholder="Enter Amount" value={c.budgetUtilized as string} onChange={e => setField('budgetUtilized', e.target.value)} />
+                            </div>
+                        </>
+                    )}
                 </div>
             </SectionCard>
             
             <SectionCard title="2. Proposal & Vendor Details">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                        <label className={labelCls}>Purpose of Expense / Justification *</label>
-                        <textarea rows={3} className={inputCls} placeholder="Detailed reason for the expenditure..." value={c.expensePurpose as string} onChange={e => setField('expensePurpose', e.target.value)} />
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Purpose & Details of Expense</label>
+                        <ReactQuill theme="snow" value={c.expensePurpose as string} onChange={(val) => setField('expensePurpose', val)} modules={quillModules} placeholder="Explain why this expense is necessary..." />
                     </div>
                     <div>
                         <label className={labelCls}>Proposed Expenditure Amount (₹) *</label>
@@ -345,8 +583,8 @@ const ExpenseApprovalForm: React.FC<{
                         </select>
                     </div>
                     <div className="md:col-span-2">
-                        <label className={labelCls}>Specific Recommendation / Sanction Request *</label>
-                        <textarea rows={3} className={inputCls} placeholder="e.g. Submitted for according administrative approval and financial sanction of ₹..." value={c.recommendation as string} onChange={e => setField('recommendation', e.target.value)} />
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Specific Recommendation</label>
+                        <ReactQuill theme="snow" value={c.recommendation as string} onChange={(val) => setField('recommendation', val)} modules={quillModules} placeholder="Summarize your final recommendation..." />
                     </div>
                 </div>
             </SectionCard>
@@ -707,8 +945,8 @@ const BrokenPeriodInterestForm: React.FC<{
                         {formulaHint && <p className="text-xs text-gray-500 mt-1">{formulaHint}</p>}
                     </div>
                     <div className="md:col-span-2">
-                        <label className={labelCls}>Justification / Calculation Narrative *</label>
-                        <textarea rows={3} className={inputCls} placeholder="Explain why broken period interest is being claimed..." value={c.brokenPeriodJustification as string} onChange={e => setField('brokenPeriodJustification', e.target.value)} />
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Justification for Broken Period</label>
+                        <ReactQuill theme="snow" value={c.brokenPeriodJustification as string} onChange={(val) => setField('brokenPeriodJustification', val)} modules={quillModules} placeholder="Provide technical or business justification..." />
                     </div>
                 </div>
             </SectionCard>
@@ -794,7 +1032,7 @@ const ReversalChargesForm: React.FC<{
                     </div>
                     <div className="md:col-span-2">
                         <label className={labelCls}>Detailed Justification / Narrative *</label>
-                        <textarea rows={4} className={inputCls} placeholder="Provide detailed background for this reversal request..." value={c.revJustification || ''} onChange={e => setField('revJustification', e.target.value)} />
+                        <ReactQuill theme="snow" value={c.revJustification} onChange={(val) => setField('revJustification', val)} modules={quillModules} placeholder="Provide detailed background for this reversal request..." />
                     </div>
                 </div>
             </SectionCard>
@@ -802,6 +1040,119 @@ const ReversalChargesForm: React.FC<{
     );
 };
 
+
+// ─── GL Head Activation Form Component ─────────────────────────────────────
+const GLHeadActivationForm: React.FC<{
+    formData: typeof INITIAL_FORM;
+    setFormData: React.Dispatch<React.SetStateAction<typeof INITIAL_FORM>>;
+}> = ({ formData, setFormData }) => {
+    const c = formData.contentJson as any;
+    const setField = (key: string, value: any) =>
+        setFormData(prev => ({
+            ...prev,
+            contentJson: { ...prev.contentJson, [key]: value }
+        }));
+    const inputCls = "w-full px-4 py-2 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy bg-white";
+    const labelCls = "block text-xs font-bold text-gray-500 uppercase mb-1";
+
+    return (
+        <div className="space-y-6">
+            <SectionCard title="1. Account / GL Identifiers">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Proposed GL Account Number</label>
+                        <input className={inputCls} type="text" placeholder="e.g. 1000000000" value={c.glAccountNo || ''} onChange={e => setField('glAccountNo', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>GL Head Description / Name *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Current Account - General" value={c.glAccountDesc || ''} onChange={e => setField('glAccountDesc', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Ownership Department *</label>
+                        <input className={inputCls} type="text" placeholder="e.g. GAD / Accounts" value={c.glOwnershipDept || ''} onChange={e => setField('glOwnershipDept', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Operation End User</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Branch Staff / HO User" value={c.glOperationUser || ''} onChange={e => setField('glOperationUser', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="2. Purpose & Technical Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Detailed Purpose for Activation *</label>
+                        <ReactQuill theme="snow" value={c.glPurpose} onChange={(val) => setField('glPurpose', val)} modules={quillModules} placeholder="Describe why this GL Head is required..." />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Operation Type *</label>
+                        <select className={inputCls} value={c.glOpType || 'System'} onChange={e => setField('glOpType', e.target.value)}>
+                            <option value="System">System / Automatic</option>
+                            <option value="Manual">Manual</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Debit / Credit / Both *</label>
+                        <select className={inputCls} value={c.glDrCrBoth || 'Both'} onChange={e => setField('glDrCrBoth', e.target.value)}>
+                            <option value="Debit">Debit Only</option>
+                            <option value="Credit">Credit Only</option>
+                            <option value="Both">Both Dr/Cr Allowed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Asset / Liability Class *</label>
+                        <select className={inputCls} value={c.glAssetLiability || 'Liability'} onChange={e => setField('glAssetLiability', e.target.value)}>
+                            <option value="Liability">Liability</option>
+                            <option value="Asset">Asset</option>
+                            <option value="Income">Income</option>
+                            <option value="Expense">Expense</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Activity Type</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Generic / Special" value={c.glActivity || 'Generic'} onChange={e => setField('glActivity', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            <SectionCard title="3. Controls & Mandates">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelCls}>Limits Applicable?</label>
+                        <select className={inputCls} value={c.glLimits || 'No'} onChange={e => setField('glLimits', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Monitoring Department</label>
+                        <input className={inputCls} type="text" placeholder="e.g. Inspecting / Audit" value={c.glMonitoringDept || ''} onChange={e => setField('glMonitoringDept', e.target.value)} />
+                    </div>
+                    <div>
+                        <label className={labelCls}>Operation By *</label>
+                        <select className={inputCls} value={c.glOperationBy || 'Branch only'} onChange={e => setField('glOperationBy', e.target.value)}>
+                            <option value="Branch only">Branch only</option>
+                            <option value="RO only">RO only</option>
+                            <option value="Both">Both Branch & RO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Cash Operation Allowed?</label>
+                        <select className={inputCls} value={c.glCashOp || 'No'} onChange={e => setField('glCashOp', e.target.value)}>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label className={labelCls}>Reconciliation Mandate</label>
+                        <textarea className={inputCls} rows={2} value={c.glReconMandate || 'Reconciliation to zero by same day'} onChange={e => setField('glReconMandate', e.target.value)} />
+                    </div>
+                </div>
+            </SectionCard>
+        </div>
+    );
+};
 
 // ─── Shared Components ──────────────────────────────────────────────────────────
 const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -1459,9 +1810,12 @@ const OfficeNoteManager: React.FC = () => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState(INITIAL_FORM);
     const [selectedDept, setSelectedDept] = useState<string>('');
+    const [initiators, setInitiators] = useState<any[]>([]);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summaryConfig, setSummaryConfig] = useState({ period: 'weekly', date: format(new Date(), 'yyyy-MM-dd') });
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [previewNote, setPreviewNote] = useState<any>(null);
+    const [showPreviewModal, setShowPreviewModal] = useState(false);
 
 
     const handleUploadScan = async (noteId: string, file: File) => {
@@ -1508,6 +1862,12 @@ const OfficeNoteManager: React.FC = () => {
             .catch(err => console.error('Error fetching departments'));
     };
 
+    const fetchInitiators = () => {
+        api.get('/office-notes/initiators')
+            .then((res: any) => setInitiators(res.data))
+            .catch(err => console.error('Error fetching initiators'));
+    };
+
     const handleGenerateSummary = async () => {
         try {
             const response = await api.get('/office-notes/high-value-dd/summary', {
@@ -1530,9 +1890,15 @@ const OfficeNoteManager: React.FC = () => {
     useEffect(() => {
         fetchNotes();
         fetchDepartments();
+        fetchInitiators();
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (user.department?.nameEn) {
             setSelectedDept(user.department.nameEn);
+        }
+        
+        // Also set default preparer to current user if it's a new form
+        if (!editingId && !formData.preparerId) {
+            setFormData(prev => ({ ...prev, preparerId: user.id }));
         }
     }, []);
 
@@ -1643,15 +2009,18 @@ const OfficeNoteManager: React.FC = () => {
             // Ensure final deptName is synced if the suggest call hadn't finished or something
             const finalFormData = { ...formData, deptName: selectedDept || formData.deptName };
 
+            // Use the selected preparerId from form, fallback to current user
+            const effectivePreparerId = formData.preparerId || user.id || 'admin';
+
             if (editingId) {
                 await api.put(`/office-notes/${editingId}`, {
                     ...finalFormData,
-                    preparerId: user.id
+                    preparerId: effectivePreparerId
                 });
             } else {
                 await api.post('/office-notes', {
                     ...finalFormData,
-                    preparerId: user.id || 'admin'
+                    preparerId: effectivePreparerId
                 });
             }
             setShowForm(false);
@@ -1678,7 +2047,35 @@ const OfficeNoteManager: React.FC = () => {
             titleHi: content.titleHi || '',
             deptName: initialDept, // Update to something meaningful
             referenceNo: note.referenceNo || '',
-            contentJson: content
+            contentJson: content,
+            preparerId: note.preparerId
+        });
+        setShowForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDuplicate = (note: any) => {
+        const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
+        
+        // Use the department from the preparer as initial selectedDept for the dropdown
+        const initialDept = note.preparer?.department?.nameEn || selectedDept;
+        setSelectedDept(initialDept);
+
+        setEditingId(null); // New note
+        setFormData({
+            type: note.type,
+            titleEn: `${note.titleEn} (Duplicate)`,
+            titleTa: content.titleTa || note.titleTa || '',
+            titleHi: content.titleHi || note.titleHi || '',
+            deptName: initialDept,
+            referenceNo: '', // Clear reference for new note
+            contentJson: {
+                ...content,
+                noteDate: formatLocalISO(new Date()), // Set today as default
+                isFrozen: false, // New note is not frozen
+                transactionId: note.type === 'HIGH_VALUE_DD' ? '' : (content.transactionId || ''), // Clear txn ID for DD
+            },
+            preparerId: note.preparerId
         });
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1722,6 +2119,28 @@ const OfficeNoteManager: React.FC = () => {
             window.open(url, '_blank');
         } catch (error) {
             alert(getErrorMessage(error));
+        }
+    };
+
+    const handleSaveSealPos = async (noteId: string, pos: { x: number, y: number }) => {
+        try {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+            const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
+            
+            await api.put(`/office-notes/${noteId}`, {
+                ...note,
+                contentJson: {
+                    ...content,
+                    sealX: pos.x,
+                    sealY: pos.y
+                }
+            });
+            
+            fetchNotes();
+            // Optional: Show a small toast
+        } catch (err) {
+            alert('Failed to save seal position: ' + getErrorMessage(err));
         }
     };
 
@@ -1818,17 +2237,43 @@ const OfficeNoteManager: React.FC = () => {
                                 <select
                                     className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy font-bold bg-gray-50/50"
                                     value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                    onChange={(e) => {
+                                        const newType = e.target.value;
+                                        let updates: any = { type: newType };
+                                        if (newType === 'MICR_CODE_REQUEST') {
+                                            updates.titleEn = 'MICR CODE REQUEST';
+                                        }
+                                        setFormData({ ...formData, ...updates });
+                                    }}
                                 >
                                     <option value="CUSTOM">Custom Office Note</option>
                                     <option value="EXPENSE_APPROVAL">Expense Approval Note</option>
                                     <option value="HIGH_VALUE_DD">High Value DD Note</option>
-                                    <option value="PROFORMA_BRANCH_CODE">Proforma for Branch Code</option>
-                                    <option value="RBI_BO_PROFORMA">RBI Annex-I — BO Reporting Proforma</option>
+                                    <optgroup label="Branch Network Management">
+                                        <option value="PROFORMA_BRANCH_CODE">Proforma for Branch Code</option>
+                                        <option value="RBI_BO_PROFORMA">RBI Annex-I — BO Reporting Proforma</option>
+                                        <option value="MICR_CODE_REQUEST">MICR Code Request</option>
+                                    </optgroup>
                                     <option value="DD_AUTHORIZATION">Demand Draft Authorization</option>
                                     <option value="VISIT_REPORT">Executive Visit Report</option>
                                     <option value="BROKEN_INTEREST">Broken Period Interest</option>
                                     <option value="REVERSAL_CHARGES">Reversal of Charges</option>
+                                    <option value="GL_HEAD_ACTIVATION">GL Head Activation Request</option>
+                                </select>
+                            </div>
+                            <div className="md:col-span-1">
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Note Initiator</label>
+                                <select
+                                    className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy font-bold bg-bank-teal/5"
+                                    value={formData.preparerId}
+                                    onChange={(e) => setFormData({ ...formData, preparerId: e.target.value })}
+                                >
+                                    <option value="">Select Initiator</option>
+                                    {initiators.map(u => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.fullNameEn} ({u.designationEn || 'Staff'})
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="md:col-span-1">
@@ -1839,6 +2284,7 @@ const OfficeNoteManager: React.FC = () => {
                                     className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all text-bank-navy font-bold bg-gray-50/50"
                                 />
                             </div>
+
                             <div className="md:col-span-1">
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Department</label>
                                 <select
@@ -1866,43 +2312,45 @@ const OfficeNoteManager: React.FC = () => {
                                 />
                                 <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-tighter italic">Recommended: RO/DEPT/YYYY/MM/XX</p>
                             </div>
-                            <div className="md:col-span-4 space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Subject (English)</label>
-                                    <input
-                                        type="text" required={formData.type !== 'RBI_BO_PROFORMA'}
-                                        className={`w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                                        placeholder="Clear, concise subject heading"
-                                        value={formData.titleEn}
-                                        onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
-                                        readOnly={formData.type === 'HIGH_VALUE_DD'}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                            {formData.type !== 'MICR_CODE_REQUEST' && (
+                                <div className="md:col-span-4 space-y-4 animate-in fade-in duration-300">
                                     <div>
-                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-tamil">பொருள் (Tamil)</label>
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Subject (English)</label>
                                         <input
-                                            type="text"
-                                            className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-tamil text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                                            placeholder="அதிக மதிப்புள்ள கோரிக்கை வரைவோலை"
-                                            value={formData.titleTa}
-                                            onChange={(e) => setFormData({ ...formData, titleTa: e.target.value })}
+                                            type="text" required={formData.type !== 'RBI_BO_PROFORMA'}
+                                            className={`w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                            placeholder="Clear, concise subject heading"
+                                            value={formData.titleEn}
+                                            onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
                                             readOnly={formData.type === 'HIGH_VALUE_DD'}
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-hindi">विषय (Hindi)</label>
-                                        <input
-                                            type="text"
-                                            className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-hindi text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                                            placeholder="उच्च मूल्य का डिमांड ड्राफ्ट"
-                                            value={formData.titleHi}
-                                            onChange={(e) => setFormData({ ...formData, titleHi: e.target.value })}
-                                            readOnly={formData.type === 'HIGH_VALUE_DD'}
-                                        />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-tamil">பொருள் (Tamil)</label>
+                                            <input
+                                                type="text"
+                                                className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-tamil text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                                placeholder="அதிக மதிப்புள்ள கோரிக்கை வரைவோலை"
+                                                value={formData.titleTa}
+                                                onChange={(e) => setFormData({ ...formData, titleTa: e.target.value })}
+                                                readOnly={formData.type === 'HIGH_VALUE_DD'}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 font-hindi">विषय (Hindi)</label>
+                                            <input
+                                                type="text"
+                                                className={`w-full px-4 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all font-hindi text-sm ${formData.type === 'HIGH_VALUE_DD' ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                                                placeholder="उच्च मूल्य का डिमांड ड्राफ्ट"
+                                                value={formData.titleHi}
+                                                onChange={(e) => setFormData({ ...formData, titleHi: e.target.value })}
+                                                readOnly={formData.type === 'HIGH_VALUE_DD'}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         {formData.type === 'PROFORMA_BRANCH_CODE' ? (
@@ -2081,8 +2529,7 @@ const OfficeNoteManager: React.FC = () => {
                                 </div>
                                 <div className="md:col-span-3">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Purpose of transaction</label>
-                                    <textarea rows={2} className="w-full px-4 py-2 border rounded-lg outline-none focus:border-red-400" 
-                                        value={formData.contentJson.purpose} onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, purpose: e.target.value } })} />
+                                    <ReactQuill theme="snow" value={formData.contentJson.purpose} onChange={(val) => setFormData({ ...formData, contentJson: { ...formData.contentJson, purpose: val } })} modules={quillModules} placeholder="State the purpose clearly..." />
                                 </div>
 
                                 {/* Policy Circular References */}
@@ -2169,68 +2616,108 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         ) : formData.type === 'RBI_BO_PROFORMA' ? (
                             <RBIProformaForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'MICR_CODE_REQUEST' ? (
+                            <MICRRequestForm formData={formData} setFormData={setFormData} />
                         ) : formData.type === 'EXPENSE_APPROVAL' ? (
                             <ExpenseApprovalForm formData={formData} setFormData={setFormData} />
                         ) : formData.type === 'BROKEN_INTEREST' ? (
                             <BrokenPeriodInterestForm formData={formData} setFormData={setFormData} />
                         ) : formData.type === 'REVERSAL_CHARGES' ? (
                             <ReversalChargesForm formData={formData} setFormData={setFormData} />
+                        ) : formData.type === 'GL_HEAD_ACTIVATION' ? (
+                            <GLHeadActivationForm formData={formData} setFormData={setFormData} />
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-2xl border border-gray-100">
-                                <div>
-                                    <label className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                                        <IndianRupee size={14} className="text-bank-teal" />
-                                        <span>Financial Amount (₹)</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm"
-                                        placeholder="Enter amount if applicable"
-                                        value={formData.contentJson.amount}
-                                        onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, amount: e.target.value } })}
-                                    />
+                            <div className="space-y-6">
+                                <div className="flex items-center space-x-4 p-1 bg-gray-100/50 rounded-xl w-fit">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, contentJson: { ...formData.contentJson, scope: 'BRANCH' } })}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${formData.contentJson.scope !== 'REGION' ? 'bg-white shadow-sm text-bank-teal' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        Branch Scope
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, contentJson: { ...formData.contentJson, scope: 'REGION' } })}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${formData.contentJson.scope === 'REGION' ? 'bg-white shadow-sm text-bank-teal' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        Regional Scope
+                                    </button>
                                 </div>
-                                <div>
-                                    <label className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                                        <Building2 size={14} className="text-bank-teal" />
-                                        <span>Unit / Branch Name</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm"
-                                        placeholder="Target Branch/Office"
-                                        value={formData.contentJson.branch}
-                                        onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, branch: e.target.value } })}
-                                    />
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-2xl border border-gray-100">
+                                    <div>
+                                        <label className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                                            <IndianRupee size={14} className="text-bank-teal" />
+                                            <span>Financial Amount (₹) <span className="text-[10px] lowercase font-normal opacity-70">(if any)</span></span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            className="w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm"
+                                            placeholder="Enter amount if applicable"
+                                            value={formData.contentJson.amount}
+                                            onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, amount: e.target.value } })}
+                                        />
+                                    </div>
+                                    <div>
+                                        {formData.contentJson.scope === 'REGION' ? (
+                                            <>
+                                                <label className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                                                    <Layers size={14} className="text-bank-teal" />
+                                                    <span>Target Region</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm"
+                                                    placeholder="e.g. Dindigul Region"
+                                                    value={formData.contentJson.regionName || 'Dindigul Region'}
+                                                    onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, regionName: e.target.value } })}
+                                                />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <label className="flex items-center space-x-2 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                                                    <Building2 size={14} className="text-bank-teal" />
+                                                    <span>Unit / Branch Name</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-5 py-3 border-2 border-white rounded-xl outline-none focus:border-bank-teal transition-all shadow-sm"
+                                                    placeholder="Target Branch/Office"
+                                                    value={formData.contentJson.branch}
+                                                    onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, branch: e.target.value } })}
+                                                />
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'EXPENSE_APPROVAL' && formData.type !== 'BROKEN_INTEREST' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION' && (
+                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'MICR_CODE_REQUEST' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'EXPENSE_APPROVAL' && formData.type !== 'BROKEN_INTEREST' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION' && (
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Detailed Narrative / Proposal</label>
-                                <textarea
-                                    rows={6} required={formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'EXPENSE_APPROVAL' && formData.type !== 'BROKEN_INTEREST' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION'}
-                                    className="w-full px-5 py-4 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all leading-relaxed"
-                                    placeholder="Structure your note clearly with background, facts, and recommendation..."
+                                <ReactQuill
+                                    theme="snow"
                                     value={formData.contentJson.details}
-                                    onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, details: e.target.value } })}
+                                    onChange={(val) => setFormData({ ...formData, contentJson: { ...formData.contentJson, details: val } })}
+                                    modules={quillModules}
+                                    placeholder="Structure your note clearly with background, facts, and recommendation..."
                                 />
                             </div>
                         )}
+                        <style>{quillStyle}</style>
 
-                        {formData.type !== 'RBI_BO_PROFORMA' && formData.type !== 'HIGH_VALUE_DD' && formData.type !== 'REVERSAL_CHARGES' && formData.type !== 'GL_HEAD_ACTIVATION' && (
-                            <div>
+                            <div className="md:col-span-1">
                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Justification & Policy Reference</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-5 py-3 border-2 border-gray-100 rounded-xl outline-none focus:border-bank-teal transition-all"
-                                    placeholder="Circular reference or specific policy quote"
-                                    value={formData.contentJson.justification}
-                                    onChange={(e) => setFormData({ ...formData, contentJson: { ...formData.contentJson, justification: e.target.value } })}
+                                <ReactQuill 
+                                    theme="snow" 
+                                    value={formData.contentJson.justification} 
+                                    onChange={(val) => setFormData({ ...formData, contentJson: { ...formData.contentJson, justification: val } })} 
+                                    modules={quillModules} 
+                                    placeholder="Circular reference or specific policy quote..." 
                                 />
                             </div>
-                        )}
 
                         <div className="flex justify-end pt-6 border-t">
                             <button
@@ -2335,12 +2822,26 @@ const OfficeNoteManager: React.FC = () => {
                                         </button>
                                         <button 
                                             onClick={() => {
+                                                setPreviewNote(note);
+                                                setShowPreviewModal(true);
+                                            }}
+                                            className="p-2 text-bank-teal hover:bg-bank-teal/5 rounded-lg transition-all tooltip bg-bank-teal/5"
+                                            title="Interactive Preview & Seal Adjustment"
+                                        >
+                                            <div className="flex items-center space-x-1">
+                                                <Eye size={20} />
+                                                <Award size={14} className="animate-bounce" />
+                                            </div>
+                                        </button>
+                                        <button 
+                                            onClick={() => {
                                                 const content = JSON.parse(note.contentJson || '{}');
                                                 handlePreviewPDF(note.id, content.noteDate);
                                             }}
                                             className="p-2 text-gray-300 hover:text-bank-navy hover:bg-gray-100 rounded-lg transition-all tooltip"
+                                            title="View Native PDF"
                                         >
-                                            <Eye size={20} />
+                                            <FileText size={20} />
                                         </button>
                                         
                                         {/* Workflow Actions */}
@@ -2405,6 +2906,13 @@ const OfficeNoteManager: React.FC = () => {
                                                             <Lock size={18} />
                                                         </div>
                                                     )}
+                                                    <button 
+                                                        onClick={() => handleDuplicate(note)}
+                                                        className="p-2 text-gray-300 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all tooltip"
+                                                        title="Duplicate Document"
+                                                    >
+                                                        <Copy size={18} />
+                                                    </button>
                                                     <button 
                                                         onClick={() => handleEdit(note)}
                                                         disabled={isFrozen}
@@ -2495,6 +3003,97 @@ const OfficeNoteManager: React.FC = () => {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {showPreviewModal && previewNote && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-bank-navy/80 backdrop-blur-md p-8 overflow-y-auto">
+                    <div className="w-full max-w-5xl h-full flex flex-col">
+                        <div className="flex justify-end mb-4">
+                            <button 
+                                onClick={() => setShowPreviewModal(false)}
+                                className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-all shadow-xl"
+                            >
+                                <X size={32} />
+                            </button>
+                        </div>
+                        {(() => {
+                            const content = typeof previewNote.contentJson === 'string' ? JSON.parse(previewNote.contentJson) : previewNote.contentJson;
+                            const user = JSON.parse(localStorage.getItem('user') || '{}');
+                            const org = user.organization || {
+                                bankNameEn: GLOBAL_CONFIG.bankName,
+                                bankNameHi: GLOBAL_CONFIG.bankNameHi,
+                                bankNameTa: GLOBAL_CONFIG.bankNameTa,
+                                officeNameEn: REGIONAL_OFFICE_DATA.name.toUpperCase(),
+                                officeNameHi: REGIONAL_OFFICE_DATA.nameHi,
+                                officeNameTa: REGIONAL_OFFICE_DATA.nameTa,
+                                addressEn: REGIONAL_OFFICE_DATA.address,
+                                deptSealUrl: '/assets/dept_seal.png',
+                                signingAuthEn: REGIONAL_OFFICE_DATA.signingAuthEn,
+                                signingAuthHi: REGIONAL_OFFICE_DATA.signingAuthHi,
+                                signingAuthTa: REGIONAL_OFFICE_DATA.signingAuthTa
+                            };
+
+                            const signatories = (content.signatories || []).map((sig: any) => ({
+                                name: sig.label,
+                                titleEn: sig.title || sig.role || 'Staff',
+                                nameHi: sig.nameHi,
+                                nameTa: sig.nameTa,
+                                titleHi: sig.titleHi,
+                                titleTa: sig.titleTa
+                            }));
+                            
+                            // RESOLVE DEPARTMENT SEAL
+                            let sealPath = org.deptSealUrl || '/assets/dept_seal.png';
+                            if (previewNote.preparer?.department?.sealPath) {
+                                const sp = previewNote.preparer.department.sealPath;
+                                sealPath = sp.startsWith('assets') ? `/${sp}` : sp;
+                            } else if ((user as any).department?.sealPath) {
+                                const sp = (user as any).department.sealPath;
+                                sealPath = sp.startsWith('assets') ? `/${sp}` : sp;
+                            }
+
+                            const initiator = previewNote.preparer ? {
+                                name: previewNote.preparer.fullNameEn,
+                                nameTa: previewNote.preparer.fullNameTa,
+                                nameHi: previewNote.preparer.fullNameHi,
+                                titleEn: previewNote.preparer.designationEn || 'Initiator',
+                                titleHi: previewNote.preparer.designationHi,
+                                titleTa: previewNote.preparer.designationTa
+                            } : {
+                                name: user.fullNameEn || 'System User',
+                                titleEn: 'Initiator'
+                            };
+
+                            const reviewers = signatories.length > 0 ? signatories.slice(0, -1) : [];
+                            const finalApprover = signatories.length > 0 ? signatories[signatories.length - 1] : {
+                                name: org.signatoryName || 'Regional Manager',
+                                titleEn: org.signingAuthEn || 'Approving Authority',
+                                nameTa: org.signatoryNameTa,
+                                nameHi: org.signatoryNameHi,
+                                titleHi: org.signingAuthHi,
+                                titleTa: org.signingAuthTa
+                            };
+
+                            return (
+                                <DocumentPreview
+                                    title={previewNote.titleEn}
+                                    titleHi={previewNote.titleHi || content.titleHi}
+                                    titleTa={previewNote.titleTa || content.titleTa}
+                                    refNo={previewNote.referenceNo}
+                                    date={content.noteDate}
+                                    bodyHtml={content.details || content.purpose || ''}
+                                    initiator={initiator}
+                                    reviewers={reviewers}
+                                    approver={finalApprover}
+                                    organization={org}
+                                    deptSealSrc={sealPath}
+                                    initialSealPos={content.sealX !== undefined ? { x: content.sealX, y: content.sealY } : undefined}
+                                    onSaveSealPos={(pos) => handleSaveSealPos(previewNote.id, pos)}
+                                />
+                            );
+                        })()}
                     </div>
                 </div>
             )}

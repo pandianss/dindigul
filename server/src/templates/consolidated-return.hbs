@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 12.7mm;
+        }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 11px;
+            color: #1e293b;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #254aa0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .bank-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #254aa0;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .office-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 2px 0;
+        }
+        .report-title {
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: underline;
+            margin: 15px 0;
+            color: #000;
+        }
+        .meta-table {
+            width: 100%;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .return-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .return-table th, .return-table td {
+            border: 1px solid #94a3b8;
+            padding: 6px 4px;
+            text-align: right;
+        }
+        .return-table th {
+            background-color: #f1f5f9;
+            color: #254aa0;
+            font-weight: 800;
+            text-align: center;
+            font-size: 10px;
+        }
+        .return-table td.param-name {
+            text-align: left;
+            font-weight: 700;
+            width: 25%;
+        }
+        .category-row {
+            background-color: #e2e8f0;
+            font-weight: 800;
+            text-align: left !important;
+            padding-left: 8px !important;
+            text-transform: uppercase;
+            font-size: 10px;
+            color: #475569;
+        }
+        .summary-box {
+            margin-top: 40px;
+            page-break-inside: avoid;
+        }
+        .signature-container {
+            margin-top: 50px;
+            display: flex;
+            justify-content: flex-end;
+            text-align: right;
+        }
+        .signature-block {
+            width: 250px;
+        }
+        .sig-line {
+            border-top: 1px solid #000;
+            margin-bottom: 5px;
+        }
+        .sig-name {
+            font-weight: 800;
+            font-size: 12px;
+        }
+        .sig-title {
+            font-size: 11px;
+            font-style: italic;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 9px;
+            color: #64748b;
+            text-align: center;
+            border-top: 0.5px solid #cbd5e1;
+            padding-top: 5px;
+        }
+        .text-center { text-align: center !important; }
+        .text-left { text-align: left !important; }
+        .hindi { font-family: 'NotoHindi', sans-serif; font-size: 12px; }
+        .tamil { font-family: 'NotoTamil', sans-serif; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <p class="bank-name">{{organization.bankNameEn}}</p>
+        <p class="office-name">{{organization.officeNameEn}}</p>
+        <p class="office-name hindi">{{organization.officeNameHi}}</p>
+        <h1 class="report-title">{{title}}</h1>
+    </div>
+
+    <table class="meta-table">
+        <tr>
+            <td class="text-left">Reporting Date: {{date}}</td>
+            <td style="text-align: right;">Period: {{period}}</td>
+        </tr>
+    </table>
+
+    <table class="return-table">
+        <thead>
+            <tr>
+                <th rowspan="2">Business Parameter</th>
+                <th colspan="2">Status as at</th>
+                <th colspan="2">Growth / Variance</th>
+                <th colspan="2">Budget / Target</th>
+            </tr>
+            <tr>
+                <th>Current</th>
+                <th>FY Start</th>
+                <th>Amt</th>
+                <th>%</th>
+                <th>Target</th>
+                <th>Achv%</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each categories}}
+            <tr>
+                <td colspan="7" class="category-row">{{this.name}}</td>
+            </tr>
+            {{#each this.params}}
+            <tr>
+                <td class="param-name">{{this.displayName}}</td>
+                <td>{{#if (isRatio this.parameter)}}{{toFixed this.val_current 2}}%{{else}}₹ {{toFixed this.val_current 2}} Cr{{/if}}</td>
+                <td>{{#if (isRatio this.parameter)}}{{toFixed this.val_fy_start 2}}%{{else}}₹ {{toFixed this.val_fy_start 2}} Cr{{/if}}</td>
+                <td style="color: {{#if (isNegative this.growth_fy)}}#b91c1c{{else}}#15803d{{/if}}">
+                    {{#if (isRatio this.parameter)}}{{toFixed this.growth_fy 2}}%{{else}}₹ {{toFixed this.growth_fy 2}} Cr{{/if}}
+                </td>
+                <td style="color: {{#if (isNegative this.growth_fy)}}#b91c1c{{else}}#15803d{{/if}}">
+                    {{#if (isRatio this.parameter)}}-{{else}}{{calculatePercent this.growth_fy this.val_fy_start}}%{{/if}}
+                </td>
+                <td>{{#if (isRatio this.parameter)}}-{{else}}₹ {{toFixed this.budget_month 2}} Cr{{/if}}</td>
+                <td style="font-weight: 700;">
+                    {{#if (isRatio this.parameter)}}-{{else}}{{calculatePercent this.val_current this.budget_month}}%{{/if}}
+                </td>
+            </tr>
+            {{/each}}
+            {{/each}}
+        </tbody>
+    </table>
+
+    <div class="summary-box">
+        <p style="font-weight: 700; margin-bottom: 10px;">CERTIFICATE:</p>
+        <p>Certified that the above consolidated figures for the Dindigul Region have been verified with the system-generated MIS reports and are true to the best of our knowledge and records.</p>
+    </div>
+
+    <div class="signature-container">
+        <div class="signature-block">
+            <div class="sig-line"></div>
+            <p class="sig-name">({{signatoryName}})</p>
+            <p class="sig-title">{{signatoryTitleEn}}</p>
+            <p class="sig-title tamil">{{signatoryTitleTa}}</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated by Dindigul Regional Office Portal on {{date}} | Strictly for Internal Use
+    </div>
+</body>
+</html>

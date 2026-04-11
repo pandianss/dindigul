@@ -11,7 +11,8 @@ import {
     PieChart,
     Save,
     Clock,
-    DollarSign
+    DollarSign,
+    Copy
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { CustomDatePicker } from '../components/CustomDatePicker';
@@ -77,6 +78,20 @@ const ExpenditureManager: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, [filterSection]);
+
+    const handleDuplicateSanction = (sanction: ExpenseSanction) => {
+        setForm({
+            title: `${sanction.title} (Duplicate)`,
+            amount: sanction.amount,
+            section: sanction.section,
+            vendorName: sanction.vendorName || '',
+            billNo: '', 
+            date: format(new Date(), 'yyyy-MM-dd'),
+            type: sanction.type,
+            budgetId: sanction.budget?.id || ''
+        });
+        setShowForm(true);
+    };
 
     const handleSaveSanction = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -210,9 +225,20 @@ const ExpenditureManager: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-lg font-black text-bank-navy">₹{sanction.amount.toLocaleString()}</p>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{sanction.type}</p>
+                                        <div className="flex items-center space-x-4">
+                                            <div className="text-right">
+                                                <p className="text-lg font-black text-bank-navy">₹{sanction.amount.toLocaleString()}</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{sanction.type}</p>
+                                            </div>
+                                            <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity ml-4 border-l pl-4">
+                                                <button 
+                                                    onClick={() => handleDuplicateSanction(sanction)}
+                                                    className="p-2 text-gray-400 hover:text-bank-teal hover:bg-bank-teal/5 rounded-lg transition-all"
+                                                    title="Duplicate Sanction"
+                                                >
+                                                    <Copy size={18} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -273,6 +299,7 @@ const ExpenditureManager: React.FC = () => {
                                 <input
                                     type="text" required placeholder="Description of expense..."
                                     className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
+                                    value={form.title}
                                     onChange={e => setForm({ ...form, title: e.target.value })}
                                 />
                             </div>
@@ -283,6 +310,7 @@ const ExpenditureManager: React.FC = () => {
                                     <input
                                         type="number" required placeholder="0.00"
                                         className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm font-bold"
+                                        value={form.amount || ''}
                                         onChange={e => setForm({ ...form, amount: parseFloat(e.target.value) })}
                                     />
                                 </div>
@@ -290,6 +318,7 @@ const ExpenditureManager: React.FC = () => {
                                     <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Sanction Type</label>
                                     <select
                                         className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
+                                        value={form.type}
                                         onChange={e => setForm({ ...form, type: e.target.value })}
                                     >
                                         <option value="REVENUE">Revenue (Operational)</option>
@@ -303,6 +332,7 @@ const ExpenditureManager: React.FC = () => {
                                     <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Section / Budget Head</label>
                                     <select
                                         required className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
+                                        value={form.budgetId}
                                         onChange={e => {
                                             const budget = budgets.find(b => b.id === e.target.value);
                                             setForm({ ...form, budgetId: e.target.value, section: budget?.section || '' });
@@ -330,6 +360,7 @@ const ExpenditureManager: React.FC = () => {
                                     <input
                                         type="text" placeholder="Optional"
                                         className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
+                                        value={form.vendorName}
                                         onChange={e => setForm({ ...form, vendorName: e.target.value })}
                                     />
                                 </div>
@@ -338,6 +369,7 @@ const ExpenditureManager: React.FC = () => {
                                     <input
                                         type="text" placeholder="Optional"
                                         className="w-full p-3 border-gray-200 rounded-xl focus:ring-2 focus:ring-bank-teal/20 focus:border-bank-teal text-sm"
+                                        value={form.billNo}
                                         onChange={e => setForm({ ...form, billNo: e.target.value })}
                                     />
                                 </div>

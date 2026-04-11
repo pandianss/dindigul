@@ -39,11 +39,25 @@ export class BusinessSnapshotService {
             return data;
         }).sort((a, b) => (a.metadata?.orderIndex || 0) - (b.metadata?.orderIndex || 0));
 
+        // Dynamically find which dates were likely used for comparison
+        const availableDates = await prisma.fact.findMany({
+            where: { unitId: branch.id, date: { lt: businessDate } },
+            distinct: ['date'],
+            orderBy: { date: 'desc' },
+            take: 2,
+            select: { date: true }
+        });
+
         return {
             ...snapshot,
             branch,
-            panelData: enrichedPanelData
+            panelData: enrichedPanelData,
+            compareDates: {
+                yesterday: availableDates[0]?.date || new Date(businessDate.getTime() - 86400000),
+                dby: availableDates[1]?.date || new Date(businessDate.getTime() - 172800000)
+            }
         };
+
     }
 
     static async generateFromStaging(date: string) {
@@ -204,14 +218,26 @@ export class BusinessSnapshotService {
         const snapshotIds = snapshotsIdx.map(s => s.id);
         await tx.misInformationPanel.deleteMany({ where: { snapshotId: { in: snapshotIds } } });
 
-        // Temporal Setup
+        // Temporal Setup: Dynamic Date Detection
         const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+        
+        // Find the 2 most recent dates available before this snapshot globally (or for these units)
+        // We look at the Fact table to see what dates actually have data
+        const availableDates = await tx.fact.findMany({
+            where: { date: { lt: utcDate } },
+            distinct: ['date'],
+            orderBy: { date: 'desc' },
+            take: 2,
+            select: { date: true }
+        });
+
         const dates = {
             current: utcDate,
-            yesterday: new Date(utcDate.getTime() - 86400000),
-            dby: new Date(utcDate.getTime() - 172800000),
+            yesterday: availableDates[0]?.date || new Date(utcDate.getTime() - 86400000),
+            dby: availableDates[1]?.date || new Date(utcDate.getTime() - 172800000),
             prevMonthEnd: new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), 0)),
         };
+
 
         const fyYear = utcDate.getUTCMonth() < 3 ? utcDate.getUTCFullYear() - 1 : utcDate.getUTCFullYear();
         const fyDates = {
@@ -416,19 +442,29 @@ export class BusinessSnapshotService {
         // Clear existing panel data
         await tx.misInformationPanel.deleteMany({ where: { snapshotId } });
 
-        // Temporal Setup
+        // Temporal Setup: Dynamic Date Detection
         const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-        const yesterday = new Date(utcDate); yesterday.setUTCDate(utcDate.getUTCDate() - 1);
-        const dby = new Date(utcDate); dby.setUTCDate(utcDate.getUTCDate() - 2);
+
+        // Find the 2 most recent dates available before this snapshot for this branch
+        const availableDates = await tx.fact.findMany({
+            where: { unitId, date: { lt: utcDate } },
+            distinct: ['date'],
+            orderBy: { date: 'desc' },
+            take: 2,
+            select: { date: true }
+        });
+
+        const yesterday = availableDates[0]?.date || new Date(utcDate.getTime() - 86400000);
+        const dby = availableDates[1]?.date || new Date(utcDate.getTime() - 172800000);
+        
         const prevMonthEnd = new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), 0));
 
-        // Fiscal Year calculation (Dindigul FY starts April 1, we use March 31 eod as Opening/Start)
+        // Fiscal Year calculation
         let fyYear = utcDate.getUTCMonth() < 3 ? utcDate.getUTCFullYear() - 1 : utcDate.getUTCFullYear();
-        const fyStart = new Date(Date.UTC(fyYear, 2, 31)); // March 31 of current FY start year
-        const fyEnd = new Date(Date.UTC(fyYear + 1, 2, 31));
-
-        const prevFyStart = new Date(Date.UTC(fyYear - 1, 2, 31)); // March 31 of previous FY start year
+        const fyStart = new Date(Date.UTC(fyYear, 2, 31)); 
+        const prevFyStart = new Date(Date.UTC(fyYear - 1, 2, 31));
         const prevFyEnd = new Date(Date.UTC(fyYear, 2, 31));
+
 
         // Budget setup
         const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];

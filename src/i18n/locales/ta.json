@@ -11,7 +11,11 @@
         "committees": "குழுக்கள்",
         "planning": "திட்டமிடல் பகுப்பாய்வு",
         "internalNotes": "உள் குறிப்புகள்",
+        "magazine": "மாதாந்திர மண்டல இதழ்",
+        "campaigns": "பிரச்சாரங்கள்",
         "settings": "அமைப்புகள்",
+        "manuals": "துறை கையேடுகள்",
+        "returns": "மண்டல வருவாய்",
         "logout": "வெளியேறு",
         "assets": "சொத்துகள்",
         "legal": "சட்டவியல்",
@@ -34,7 +38,7 @@
         "surpassed": "மிகைப்படுத்தப்பட்டது",
         "positive": "நேர்மறை",
         "lagging": "பின்தங்கியுள்ளது",
-        "negative": "எதிர்மறை"
+        "negative": "எதிறை"
     },
     "classification": {
         "INTERNAL": "உள் மட்டமானது",

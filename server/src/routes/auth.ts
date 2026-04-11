@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, requireAdminOrPlanning } from '../middleware/auth';
 import { z } from 'zod';
 import { validate } from '../lib/validate';
 import os from 'os';
@@ -97,7 +97,7 @@ const registerSchema = z.object({
     })
 });
 
-router.post('/register', validate(registerSchema), async (req, res) => {
+router.post('/register', authenticateToken, requireAdminOrPlanning, validate(registerSchema), async (req: any, res) => {
     const { username, password, fullNameEn, role, section } = req.body;
     try {
         const passwordHash = await bcrypt.hash(password, 10);

@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from './lib/prisma';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 async function main() {
     const passwordHash = await bcrypt.hash('admin123', 10);
@@ -41,9 +39,13 @@ async function main() {
     const parameters = [
         { code: 'TOTAL_DEPOSITS', nameEn: 'Total Deposits', category: 'DEPOSITS', unit: 'Cr' },
         { code: 'TOTAL_ADVANCES', nameEn: 'Total Advances', category: 'ADVANCES', unit: 'Cr' },
+        { code: 'TOTAL_BUSINESS', nameEn: 'Total Business', category: 'BUSINESS', unit: 'Cr' },
+        { code: 'TOTAL_RECOVERY', nameEn: 'Total Recovery', category: 'RECOVERY', unit: 'Cr' },
         { code: 'CASA_RATIO', nameEn: 'CASA Ratio', category: 'RATIO', unit: '%' },
+
         { code: 'GROSS_NPA', nameEn: 'Gross NPA', category: 'ASSET_QUALITY', unit: '%' }
     ];
+
 
     for (const p of parameters) {
         await prisma.parameter.upsert({

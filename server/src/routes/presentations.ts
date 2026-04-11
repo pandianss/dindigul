@@ -4,10 +4,25 @@ import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
+const canManageAllDecks = (user: any) =>
+    ['ADMIN', 'RO_USER', 'RO_MANAGER'].includes(user?.role) || user?.section === 'Planning';
+
+async function getAccessibleDeck(deckId: string, user: any) {
+    const deck = await prisma.presentationDeck.findUnique({
+        where: { id: deckId },
+        include: { createdBy: { select: { fullNameEn: true, username: true } } }
+    });
+
+    if (!deck) return null;
+    if (canManageAllDecks(user) || deck.createdById === user.id) return deck;
+    return null;
+}
+
 // List all decks (most recent first)
 router.get('/', authenticateToken, async (req: any, res) => {
     try {
         const decks = await prisma.presentationDeck.findMany({
+            where: canManageAllDecks(req.user) ? undefined : { createdById: req.user.id },
             orderBy: { createdAt: 'desc' },
             include: { createdBy: { select: { fullNameEn: true, username: true } } }
         });
@@ -18,10 +33,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
 // Get a single deck with full slides JSON
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
-        const deck = await prisma.presentationDeck.findUnique({
-            where: { id: String(req.params.id) },
-            include: { createdBy: { select: { fullNameEn: true, username: true } } }
-        });
+        const deck = await getAccessibleDeck(String(req.params.id), (req as any).user);
         if (!deck) return res.status(404).json({ error: 'Deck not found' });
         res.json(deck);
     } catch { res.status(500).json({ error: 'Failed to fetch deck' }); }
@@ -49,6 +61,9 @@ router.post('/', authenticateToken, async (req: any, res) => {
 // Update (overwrite slides, rename)
 router.put('/:id', authenticateToken, async (req: any, res) => {
     try {
+        const existingDeck = await getAccessibleDeck(String(req.params.id), req.user);
+        if (!existingDeck) return res.status(404).json({ error: 'Deck not found' });
+
         const deck = await prisma.presentationDeck.update({
             where: { id: String(req.params.id) },
             data: {
@@ -64,6 +79,9 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 // Delete
 router.delete('/:id', authenticateToken, async (req: any, res) => {
     try {
+        const existingDeck = await getAccessibleDeck(String(req.params.id), req.user);
+        if (!existingDeck) return res.status(404).json({ error: 'Deck not found' });
+
         await prisma.presentationDeck.delete({ where: { id: String(req.params.id) } });
         res.json({ success: true });
     } catch { res.status(500).json({ error: 'Failed to delete deck' }); }

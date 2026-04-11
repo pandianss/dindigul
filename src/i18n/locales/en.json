@@ -16,7 +16,10 @@
         "magazine": "Monthly Regional Magazine",
         "planning": "Planning Analytics",
         "internalNotes": "Internal Notes",
+        "campaigns": "Campaigns",
         "settings": "Settings",
+        "manuals": "Dept. Manuals / SOPs",
+        "returns": "Regional Returns",
         "logout": "Logout"
     },
     "mis": {

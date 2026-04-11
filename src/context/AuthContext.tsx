@@ -19,6 +19,7 @@ export interface User {
   fullNameEn?: string;
   section?: string | null;
   branchId?: string | null;
+  departmentId?: string | null;
   branch?: {
     id?: string;
     code?: string;

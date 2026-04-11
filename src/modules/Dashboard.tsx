@@ -158,10 +158,24 @@ function Pace({ val }) {
   );
 }
 
+function Growth({ value, display }) {
+  const n = Number(value || 0);
+  const color = n > 0 ? TEAL : n < 0 ? RED : AMBER;
+  const arrow = n > 0 ? "▲" : n < 0 ? "▼" : "→";
+  return (
+    <span style={{ color, fontWeight: 800, fontSize: 14, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+      {arrow} {display || "0"}
+    </span>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function Dashboard() {
+// MAIN DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════════
+export default function Dashboard({ onNav }) {
+
   const [activeNotice, setActiveNotice] = useState(null);
   const [announcementFilter, setAnnouncementFilter] = useState("ALL");
   const [msgExpanded, setMsgExpanded] = useState(false);
@@ -227,6 +241,21 @@ export default function Dashboard() {
   const filteredAnnouncements = announcements.filter(a =>
     announcementFilter === "ALL" || a.type === announcementFilter
   );
+  const pulseItems = [
+    { label: "Surpassed", count: branchPulse.SURPASSED || 0, color: "#66BB6A" },
+    { label: "Positive", count: branchPulse.POSITIVE || 0, color: "#64B5F6" },
+    { label: "Lagging", count: branchPulse.LAGGING || 0, color: "#FFB74D" },
+    { label: "Negative", count: branchPulse.NEGATIVE || 0, color: "#EF5350" },
+  ];
+  const totalPulseUnits = pulseItems.reduce((sum, item) => sum + item.count, 0);
+  const leadingUnits = (branchPulse.SURPASSED || 0) + (branchPulse.POSITIVE || 0);
+  const concernUnits = (branchPulse.LAGGING || 0) + (branchPulse.NEGATIVE || 0);
+  const dominantPulse = [...pulseItems].sort((a, b) => b.count - a.count)[0];
+  const lowCashAtms = atms.filter(a => a.balance < 50000).length;
+  const urgentPendingCount = pendingActions.filter(a => a.urgent).length;
+  const branchPulseSummary = totalPulseUnits === 0
+    ? "Waiting for MIS performance data to build the branch health picture."
+    : `${leadingUnits} of ${totalPulseUnits} units are stable or ahead, while ${concernUnits} need attention. Dominant trend: ${dominantPulse.label}.`;
 
   if (isLoading) {
     return <div className="p-8 text-center text-slate-500 font-medium tracking-wide">Connecting to Command Center...</div>;
@@ -234,7 +263,10 @@ export default function Dashboard() {
 
   return (
     <div className="font-sans text-slate-900 rounded-2xl overflow-hidden bg-slate-50 relative flex flex-col" style={{
-      height: "calc(100vh - 144px)"
+      minHeight: "calc(100vh - 144px)",
+      height: "auto",
+      overflowY: "auto",
+      overflowX: "hidden"
     }}>
 
       {/* ── Top command bar ─────────────────────────────────────────────── */}
@@ -276,10 +308,10 @@ export default function Dashboard() {
       <Ticker items={tickers} />
 
       {/* ── Main layout ─────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_340px] overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_340px]">
 
         {/* ── LEFT COLUMN ──────────────────────────────────────────────── */}
-        <div className="custom-scrollbar" style={{ overflow: "auto", padding: "18px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="custom-scrollbar" style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* SRM Message */}
           {srmMessage && (
@@ -373,7 +405,7 @@ export default function Dashboard() {
                       {k.val}
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
-                      <Pace val={k.pace} />
+                      <Growth value={k.growth} display={k.growthDisplay} />
                       <StatusBadge status={k.status} />
                     </div>
                   </div>
@@ -469,7 +501,7 @@ export default function Dashboard() {
 
         {/* ── RIGHT COLUMN ─────────────────────────────────────────────── */}
         <div className="custom-scrollbar flex-1 min-h-0" style={{
-          overflow: "auto", padding: "18px 18px 18px 0",
+          padding: "18px 18px 18px 0",
           display: "flex", flexDirection: "column", gap: 14,
           borderLeft: "1px solid #E2E8F0",
           background: "#F8FAFC",
@@ -539,48 +571,100 @@ export default function Dashboard() {
           </div>
 
           {/* Quick stats — live branch pulse */}
-          <div style={{ background: NAVY, borderRadius: 12, padding: "16px 16px" }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: GOLD, letterSpacing: "0.08em", marginBottom: 4, textTransform: "uppercase" }}>
-              Branch Pulse
+          <div style={{
+            background: `linear-gradient(180deg, ${NAVY} 0%, #162455 100%)`,
+            borderRadius: 12,
+            padding: "16px 16px",
+            boxShadow: "0 10px 24px rgba(33,53,127,0.18)"
+          }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: GOLD, letterSpacing: "0.08em", marginBottom: 4, textTransform: "uppercase" }}>
+                  Branch Pulse
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: "#fff", lineHeight: 1 }}>
+                  {totalPulseUnits || "--"}
+                </div>
+                <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)", marginTop: 4 }}>
+                  Units in current MIS view
+                </div>
+              </div>
+              <div style={{
+                background: concernUnits > 0 ? "rgba(239,83,80,0.16)" : "rgba(102,187,106,0.16)",
+                color: concernUnits > 0 ? "#FFCDD2" : "#C8E6C9",
+                border: `1px solid ${concernUnits > 0 ? "rgba(239,83,80,0.24)" : "rgba(102,187,106,0.24)"}`,
+                borderRadius: 999,
+                padding: "6px 10px",
+                fontSize: 11.5,
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                whiteSpace: "nowrap"
+              }}>
+                {concernUnits > 0 ? `${concernUnits} need attention` : "Healthy mix"}
+              </div>
             </div>
             {lastUpdated && (
-              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginBottom: 10, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginTop: 10, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>
                 As of {new Date(lastUpdated).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
               </div>
             )}
-            {[
-              { label: "SURPASSED", count: branchPulse.SURPASSED, color: "#66BB6A" },
-              { label: "POSITIVE", count: branchPulse.POSITIVE, color: "#64B5F6" },
-              { label: "LAGGING", count: branchPulse.LAGGING, color: "#FFB74D" },
-              { label: "NEGATIVE", count: branchPulse.NEGATIVE, color: "#EF5350" },
-            ].map(item => {
-              const total = branchPulse.SURPASSED + branchPulse.POSITIVE + branchPulse.LAGGING + branchPulse.NEGATIVE || 1;
-              return (
-                <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.06em", width: 80 }}>{item.label}</div>
-                  <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 2 }}>
-                    <div style={{ height: 4, width: `${(item.count / total) * 100}%`, background: item.color, borderRadius: 2, opacity: 0.8 }} />
+            <div style={{
+              marginTop: 12,
+              padding: "12px 12px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.06)",
+              color: "rgba(255,255,255,0.82)",
+              fontSize: 13,
+              lineHeight: 1.55
+            }}>
+              {branchPulseSummary}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, marginTop: 12 }}>
+              {pulseItems.map(item => {
+                const share = totalPulseUnits > 0 ? Math.round((item.count / totalPulseUnits) * 100) : 0;
+                return (
+                  <div key={item.label} style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    borderRadius: 10,
+                    padding: "10px 11px"
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.58)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        {item.label}
+                      </div>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", marginTop: 6, lineHeight: 1 }}>
+                      {item.count}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>
+                      {share}% of total
+                    </div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: "#fff", fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", width: 20, textAlign: "right" }}>
-                    {item.count}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
 
             <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               {[
-                { label: "ATMs Online", val: atms.length.toString(), color: "#66BB6A" },
-                { label: "Low Cash ATMs", val: atms.filter(a => a.balance < 50000).length.toString(), color: "#EF5350" },
-                { label: "Lagging Units", val: (branchPulse.LAGGING + branchPulse.NEGATIVE).toString(), color: GOLD },
-                { label: "Days to FY End", val: fyMetrics.daysToFYEnd.toString(), color: "#64B5F6" },
+                { label: "Urgent Items", val: urgentPendingCount.toString(), meta: "Pending action queue", color: urgentPendingCount > 0 ? "#FFB4A9" : "#C8E6C9" },
+                { label: "Low Cash ATMs", val: lowCashAtms.toString(), meta: `${atms.length} ATMs online`, color: lowCashAtms > 0 ? "#FFCC80" : "#C8E6C9" },
+                { label: "Attention Bucket", val: concernUnits.toString(), meta: "Lagging + negative", color: concernUnits > 0 ? GOLD : "#C8E6C9" },
+                { label: "Days to FY End", val: fyMetrics.daysToFYEnd.toString(), meta: fyMetrics.financialYear, color: "#90CAF9" },
               ].map(s => (
-                <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "9px 10px" }}>
-                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{s.label}</div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: s.color, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}>{s.val}</div>
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "10px 10px" }}>
+                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>{s.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: s.color, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", lineHeight: 1 }}>
+                    {s.val}
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
+                    {s.meta}
+                  </div>
                 </div>
               ))}
             </div>
@@ -598,7 +682,7 @@ export default function Dashboard() {
                 marginLeft: "auto", background: RED, color: "#fff",
                 fontSize: 11.5, fontWeight: 900, padding: "1px 7px", borderRadius: 10,
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-              }}>{pendingActions.filter(a => a.urgent).length} urgent</div>
+              }}>{urgentPendingCount} urgent</div>
             </div>
             <div>
               {pendingActions.length === 0 ? (
@@ -645,6 +729,28 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* Dept Manuals Quick Access for RO Users */}
+          {(localStorage.getItem('user') && JSON.parse(localStorage.getItem('user'))?.role !== 'BRANCH_USER') && (
+            <button 
+              onClick={() => onNav('manuals')}
+              style={{ 
+                width: "100%", padding: "16px", background: "#fff", 
+                borderRadius: 12, border: `2px dashed ${GOLD}44`, display: "flex", 
+                alignItems: "center", gap: 12, transition: "all 0.2s", textAlign: "left",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)"
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.background = "#fffdf0"; e.currentTarget.style.borderColor = GOLD; }}
+              onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = `${GOLD}44`; }}
+            >
+              <div style={{ width: 40, height: 40, background: `${GOLD}22`, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📖</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 900, color: NAVY }}>DEPARTMENT MANUALS</div>
+                <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, marginTop: 1 }}>Maintain your Dept. SOPs & Activities</div>
+              </div>
+              <div style={{ fontSize: 18, color: GOLD }}>→</div>
+            </button>
+          )}
 
           {/* ATM Monitor */}
           <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>

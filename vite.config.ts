@@ -11,9 +11,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          charts: ['echarts', 'recharts'],
-          i18n: ['i18next', 'react-i18next']
+        manualChunks(id) {
+          if (id.includes('echarts') || id.includes('recharts')) return 'charts';
+          if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
         }
       }
     }

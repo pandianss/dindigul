@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, FileText, Globe, Languages, ChevronDown, Check, Save, RefreshCw } from 'lucide-react';
+import { X, Send, FileText, Globe, Languages, ChevronDown, Check, Save, RefreshCw, Code } from 'lucide-react';
 import api from '../services/api';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
+import { CustomDatePicker } from '../components/CustomDatePicker';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 interface Template {
     id: string;
@@ -31,6 +34,8 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [signatories, setSignatories] = useState<any[]>([]);
+    const [selectedSignatoryId, setSelectedSignatoryId] = useState<string>('');
 
     // Form State
     const [selectedBranchId, setSelectedBranchId] = useState('');
@@ -45,17 +50,29 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
     });
 
     const [activeLang, setActiveLang] = useState<'EN' | 'HI' | 'TA'>('EN');
+    const [isSourceMode, setIsSourceMode] = useState(false);
 
     useEffect(() => {
+        setLoading(true);
         Promise.all([
             api.get('/branches'),
-            api.get('/letters/templates')
-        ]).then(([branchRes, templateRes]) => {
+            api.get('/letters/templates'),
+            api.get('/signatories')
+        ]).then(([branchRes, templateRes, signatoryRes]) => {
             setBranches(branchRes.data || []);
             setTemplates(templateRes.data || []);
+            const sigs = signatoryRes.data || [];
+            setSignatories(sigs);
+            // Default to Annamalai if found
+            const annamalai = sigs.find((s: any) => s.fullNameEn?.includes('Annamalai'));
+            if (annamalai) setSelectedSignatoryId(annamalai.id);
             setLoading(false);
         }).catch(err => {
             console.error('Failed to load metadata:', err);
+            const status = err.response?.status;
+            if (status === 403) {
+                alert('Access Denied: You do not have permission to view the branch list. Functional features may be limited.');
+            }
             setLoading(false);
         });
     }, []);
@@ -78,6 +95,11 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
             return;
         }
 
+        if (!selectedSignatoryId) {
+            alert('Please select a signing authority (Signatory).');
+            return;
+        }
+
         if (!formData.titleEn || !formData.contentEn) {
             alert('Please provide at least English title and content.');
             return;
@@ -93,6 +115,7 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
             await api.post('/letters', {
                 ...formData,
                 branchId: selectedBranchId || branches.find(b => b.code === '3933')?.id || branches[0]?.id,
+                signatoryId: selectedSignatoryId,
                 type: 'MANUAL'
             });
             onSuccess();
@@ -142,29 +165,67 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
                 <div className="flex-grow overflow-hidden flex flex-col md:flex-row">
                     {/* Sidebar: Config & Templates */}
                     <div className="w-full md:w-72 bg-gray-50 border-r border-gray-100 p-6 overflow-y-auto space-y-6">
-                        <div>
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Recipient Branch</label>
-                            <select
-                                value={selectedBranchId}
-                                onChange={(e) => setSelectedBranchId(e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold text-bank-navy focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy transition-all"
-                            >
-                                <option value="">Select Branch...</option>
-                                {branches.map(b => (
-                                    <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>
-                                ))}
-                            </select>
-                        </div>
+                        {!formData.isExternal ? (
+                            <div>
+                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Recipient Branch</label>
+                                <select
+                                    value={selectedBranchId}
+                                    onChange={(e) => setSelectedBranchId(e.target.value)}
+                                    className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold text-bank-navy focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy transition-all"
+                                >
+                                    <option value="">{loading ? 'Loading Branches...' : 'Select Branch...'}</option>
+                                    {branches.map(b => (
+                                        <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>
+                                    ))}
+                                </select>
+                                {!loading && branches.length === 0 && (
+                                    <p className="text-[10px] text-red-500 mt-1">No branches found. Check connection.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="bg-amber-50/50 p-3 rounded-xl border border-amber-100/50">
+                                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                    <Globe size={12} />
+                                    External Correspondence
+                                </p>
+                                <p className="text-[10px] text-amber-600 leading-tight">This letter will be addressed to an external authority but filed internally under the Regional Office.</p>
+                            </div>
+                        )}
 
                         <div>
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block font-black">Letter Period</label>
-                            <input
-                                type="text"
-                                placeholder="MMM YYYY"
-                                value={formData.period}
-                                onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                                className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold text-bank-navy"
+                            <CustomDatePicker
+                                selected={(() => {
+                                    try {
+                                        return parse(formData.period, 'MMM yyyy', new Date());
+                                    } catch (e) {
+                                        return new Date();
+                                    }
+                                })()}
+                                onChange={(date) => setFormData({ 
+                                    ...formData, 
+                                    period: date ? format(date, 'MMM yyyy') : format(new Date(), 'MMM yyyy') 
+                                })}
+                                className="w-full font-bold text-bank-navy"
+                                placeholderText="Select Period"
                             />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Signing Authority</label>
+                            <div className="relative">
+                                <select
+                                    value={selectedSignatoryId}
+                                    onChange={(e) => setSelectedSignatoryId(e.target.value)}
+                                    className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-sm font-bold text-bank-navy focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy transition-all appearance-none"
+                                >
+                                    <option value="">Select Signatory...</option>
+                                    {signatories.map(s => (
+                                        <option key={s.id} value={s.id}>{s.fullNameEn} ({s.designation?.nameEn})</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} />
+                            </div>
                         </div>
 
                         {formData.isExternal && (
@@ -198,6 +259,20 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
                                         onChange={(e) => setFormData({ ...formData, salutation: e.target.value })}
                                         className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-bold text-bank-navy"
                                     />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Associated Internal Branch</label>
+                                    <select
+                                        value={selectedBranchId}
+                                        onChange={(e) => setSelectedBranchId(e.target.value)}
+                                        className="w-full bg-white border border-gray-200 rounded-lg py-2 px-3 text-xs font-bold text-bank-navy focus:ring-2 focus:ring-bank-navy/10 focus:border-bank-navy transition-all"
+                                    >
+                                        <option value="">Select Branch (Optional)...</option>
+                                        {branches.map(b => (
+                                            <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-[9px] text-gray-400 mt-1 italic">Defaults to Regional Office if left blank.</p>
                                 </div>
                            </div>
                         )}
@@ -246,6 +321,17 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
                                 <Languages size={14} />
                                 <span>தமிழ்</span>
                             </button>
+
+                            <div className="w-px h-4 bg-gray-200 mx-2"></div>
+
+                            <button
+                                onClick={() => setIsSourceMode(!isSourceMode)}
+                                title="Toggle HTML Source"
+                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all flex items-center space-x-2 ${isSourceMode ? 'bg-bank-teal text-white shadow-lg' : 'bg-white text-gray-500 hover:text-bank-navy border border-gray-100 shadow-sm'}`}
+                            >
+                                <Code size={14} />
+                                <span>{isSourceMode ? 'EDIT VISUAL' : 'EDIT SOURCE'}</span>
+                            </button>
                         </div>
 
                         <div className="space-y-4 flex-grow flex flex-col overflow-y-auto pr-2 custom-scrollbar">
@@ -267,19 +353,56 @@ const LetterComposer: React.FC<LetterComposerProps> = ({ onClose, onSuccess }) =
                                 />
                             </div>
 
-                            <div className="flex-grow flex flex-col">
+                            <div className="flex-grow flex flex-col min-h-[400px]">
                                 <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Letter Body</label>
-                                <textarea
-                                    placeholder="Type your letter content here..."
-                                    value={activeLang === 'EN' ? formData.contentEn : activeLang === 'HI' ? formData.contentHi : formData.contentTa}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (activeLang === 'EN') setFormData({ ...formData, contentEn: val });
-                                        else if (activeLang === 'HI') setFormData({ ...formData, contentHi: val });
-                                        else setFormData({ ...formData, contentTa: val });
-                                    }}
-                                    className={`w-full flex-grow p-4 bg-gray-50 border border-gray-100 rounded-xl resize-none focus:ring-2 focus:ring-bank-navy/5 outline-none text-gray-800 leading-relaxed ${activeLang === 'HI' ? 'font-hindi text-lg' : activeLang === 'TA' ? 'font-tamil text-lg' : 'text-sm'}`}
-                                />
+                                <div className={`flex-grow border border-gray-100 rounded-xl overflow-hidden flex flex-col bg-gray-50 ${activeLang === 'HI' ? 'font-hindi' : activeLang === 'TA' ? 'font-tamil' : ''}`}>
+                                    {isSourceMode ? (
+                                        <textarea
+                                            value={activeLang === 'EN' ? formData.contentEn : activeLang === 'HI' ? formData.contentHi : formData.contentTa}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                if (activeLang === 'EN') setFormData({ ...formData, contentEn: val });
+                                                else if (activeLang === 'HI') setFormData({ ...formData, contentHi: val });
+                                                else setFormData({ ...formData, contentTa: val });
+                                            }}
+                                            className="flex-grow p-5 font-mono text-xs bg-gray-900 text-gray-100 outline-none resize-none leading-relaxed"
+                                            placeholder="Paste or write raw HTML code here..."
+                                        />
+                                    ) : (
+                                        <ReactQuill
+                                            key={activeLang}
+                                            theme="snow"
+                                            placeholder="Type your letter content here..."
+                                            value={activeLang === 'EN' ? formData.contentEn : activeLang === 'HI' ? formData.contentHi : formData.contentTa}
+                                            onChange={(val) => {
+                                                if (activeLang === 'EN') setFormData({ ...formData, contentEn: val });
+                                                else if (activeLang === 'HI') setFormData({ ...formData, contentHi: val });
+                                                else setFormData({ ...formData, contentTa: val });
+                                            }}
+                                            modules={{
+                                                toolbar: [
+                                                    [{ 'header': [1, 2, 3, false] }],
+                                                    ['bold', 'italic', 'underline', 'strike'],
+                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                    [{ 'color': [] }, { 'background': [] }],
+                                                    ['link', 'image', 'table'],
+                                                    ['clean']
+                                                ],
+                                            }}
+                                            className="flex-grow flex flex-col"
+                                            style={{ height: '100%' }}
+                                        />
+                                    )}
+                                </div>
+                                    <style>{`
+                                        .quill { display: flex; flex-direction: column; height: 100%; border: 1px solid #f3f4f6 !important; border-radius: 12px; overflow: hidden; background: white; }
+                                        .ql-toolbar { border: none !important; border-bottom: 1px solid #f3f4f6 !important; background: #f9fafb; sticky: top; z-index: 10; padding: 10px !important; }
+                                        .ql-container { border: none !important; flex-grow: 1; font-family: inherit; font-size: inherit; }
+                                        .ql-editor { font-family: inherit; font-size: 15px; line-height: 1.6; min-height: 400px; padding: 20px !important; }
+                                        .ql-editor.ql-blank::before { font-family: inherit; color: #9ca3af; font-style: normal; font-weight: normal; }
+                                        .font-hindi .ql-editor { font-size: 1.2rem; }
+                                        .font-tamil .ql-editor { font-size: 1.2rem; }
+                                    `}</style>
                             </div>
                         </div>
                     </div>

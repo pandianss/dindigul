@@ -22,7 +22,8 @@ import {
     ShieldCheck,
     Package,
     BookOpen,
-    Flag
+    Flag,
+    ClipboardCheck
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useAuth } from '../context/AuthContext';
@@ -37,7 +38,7 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon: Icon, label, active, minimized }: SidebarItemProps & { minimized?: boolean }) => (
     <div className={cn(
         "nav-item relative group flex items-center transition-all duration-300",
-        minimized ? "justify-center px-0 mx-0 h-12 w-12 mx-auto" : "gap-3 px-4 py-3 mx-2",
+        minimized ? "justify-center px-0 mx-0 h-10 w-10 mx-auto" : "gap-3 px-4 py-2 mx-2",
         active && "bg-bank-navy/5 text-bank-navy font-black shadow-[inset_0_0_0_1px_rgba(33,53,127,0.1)]"
     )}>
         {active && (
@@ -83,30 +84,53 @@ const Layout: React.FC<LayoutProps> = ({
 
     const { logout, user: authUser } = useAuth();
 
-    const menuItems = [
-        { icon: LayoutDashboard, label: t('nav.dashboard'), key: 'dashboard' },
-        { icon: Bell, label: t('nav.noticeBoard'), key: 'noticeBoard' },
-        { icon: BarChart3, label: t('nav.mis'), key: 'mis', restricted: true },
-        { icon: FileText, label: t('nav.officeNotes'), key: 'officeNotes', restricted: true },
-        { icon: MessageSquare, label: t('nav.requests'), key: 'requests', restricted: true },
-        { icon: Calendar, label: t('nav.calendar'), key: 'calendar' },
-        { icon: IndianRupee, label: t('nav.expenditure'), key: 'expenditure', restricted: true },
-        // GAP 07: newly wired modules
-        { icon: MessageSquare, label: t('nav.letters') || 'Correspondence', key: 'correspondence', restricted: true },
-        { icon: FileText, label: t('nav.internalNotes') || 'Internal Notes', key: 'internalNotes', restricted: true },
-        { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
-        { icon: BookOpen, label: t('nav.magazine') || 'Magazine', key: 'magazine' },
-        { icon: Flag, label: t('nav.campaigns') || 'Campaigns', key: 'campaigns', restricted: true },
+    interface MenuSection {
+        title: string;
+        items: { icon: React.ElementType; label: string; key: string; restricted?: boolean }[];
+    }
+
+    const menuSections: MenuSection[] = [
+        {
+            title: 'Performance & Analytics',
+            items: [
+                { icon: LayoutDashboard, label: t('nav.dashboard'), key: 'dashboard' },
+                { icon: BarChart3, label: t('nav.mis'), key: 'mis', restricted: true },
+                { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
+                { icon: Flag, label: t('nav.campaigns') || 'Campaigns', key: 'campaigns', restricted: true },
+                { icon: ClipboardCheck, label: t('nav.returns') || 'Regional Returns', key: 'returns', restricted: true },
+            ]
+        },
+        {
+            title: 'Operations & Comms',
+            items: [
+                { icon: Bell, label: t('nav.noticeBoard'), key: 'noticeBoard' },
+                { icon: FileText, label: t('nav.officeNotes'), key: 'officeNotes', restricted: true },
+                { icon: MessageSquare, label: t('nav.letters') || 'Correspondence', key: 'correspondence', restricted: true },
+                { icon: BookOpen, label: t('nav.manuals') || 'Dept Manuals', key: 'manuals', restricted: true },
+                { icon: MessageSquare, label: t('nav.requests'), key: 'requests', restricted: true },
+            ]
+        },
+        {
+            title: 'Resources & Finance',
+            items: [
+                { icon: IndianRupee, label: t('nav.expenditure'), key: 'expenditure', restricted: true },
+                { icon: BookOpen, label: t('nav.magazine') || 'Magazine', key: 'magazine' },
+                { icon: Calendar, label: t('nav.calendar'), key: 'calendar' },
+            ]
+        }
     ];
 
-    const visibleItems = portalMode === 'guest'
-        ? menuItems.filter(item => !item.restricted)
-        : menuItems;
+    const getVisibleSections = () => {
+        return menuSections.map(section => ({
+            ...section,
+            items: portalMode === 'guest'
+                ? section.items.filter(item => !item.restricted)
+                : section.items
+        })).filter(section => section.items.length > 0);
+    };
 
-    const allItems = [
-        ...menuItems,
-        { key: 'settings', label: t('nav.settings'), icon: Settings }
-    ];
+    const visibleSections = getVisibleSections();
+    const allItems = menuSections.flatMap(s => s.items).concat([{ key: 'settings', label: t('nav.settings'), icon: Settings }]);
     const currentTitle = allItems.find(item => item.key === activeView)?.label ?? t('nav.dashboard');
 
     const handleExit = () => {
@@ -135,20 +159,31 @@ const Layout: React.FC<LayoutProps> = ({
                     />
                 </div>
 
-                <nav className="flex-1 overflow-y-auto px-2 py-6 space-y-1 custom-scrollbar">
-                    {visibleItems.map((item) => (
-                        <button
-                            key={item.key}
-                            onClick={() => onViewChange(item.key)}
-                            className="w-full text-left"
-                        >
-                            <SidebarItem
-                                icon={item.icon}
-                                label={item.label}
-                                active={activeView === item.key}
-                                minimized={!isSidebarOpen}
-                            />
-                        </button>
+                <nav className="flex-1 overflow-y-auto px-2 py-6 space-y-8 custom-scrollbar">
+                    {visibleSections.map((section) => (
+                        <div key={section.title} className="space-y-1">
+                            {isSidebarOpen && (
+                                <h3 className="px-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 opacity-70">
+                                    {section.title}
+                                </h3>
+                            )}
+                            <div className="space-y-1">
+                                {section.items.map((item) => (
+                                    <button
+                                        key={item.key}
+                                        onClick={() => onViewChange(item.key)}
+                                        className="w-full text-left"
+                                    >
+                                        <SidebarItem
+                                            icon={item.icon}
+                                            label={item.label}
+                                            active={activeView === item.key}
+                                            minimized={!isSidebarOpen}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     ))}
                 </nav>
 
@@ -236,7 +271,7 @@ const Layout: React.FC<LayoutProps> = ({
                         <div className="flex items-center space-x-4 border-l pl-8 border-gray-100">
                             <div className="flex flex-col text-right">
                                 <span className="text-sm font-black text-bank-navy leading-none tracking-tight">{authUser?.fullNameEn || authUser?.username || 'Staff Member'}</span>
-                                <span className="text-[10px] text-bank-gold font-black uppercase tracking-widest mt-1 opacity-80">{authUser?.role || 'Portal User'}</span>
+                                <span className="text-[11px] text-bank-gold font-black uppercase tracking-widest mt-1 opacity-80">{authUser?.role || 'Portal User'}</span>
                             </div>
                             <div className="relative group cursor-pointer">
                                 <div className="absolute inset-0 bg-bank-gold rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
