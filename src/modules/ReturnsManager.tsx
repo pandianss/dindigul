@@ -83,10 +83,10 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
             item8: 0, item9: 0, item10: 0, item11: 0, item12: 0,
         },
         item13: {
-            bracket1: { bracket: 'Upto Rs. 5,00,000', accountCount: 0, amount: 0 },
-            bracket2: { bracket: 'Rs. 5L to 7.5L', accountCount: 0, amount: 0 },
-            bracket3: { bracket: 'Rs. 7.5L to 10L', accountCount: 0, amount: 0 },
-            bracket4: { bracket: 'Over Rs. 10,00,000', accountCount: 0, amount: 0 },
+            bracket1: { bracket: 'Up to ₹ 5.00 Lakh', accountCount: 0, amount: 0 },
+            bracket2: { bracket: '₹ 5.00L to ₹ 7.50L', accountCount: 0, amount: 0 },
+            bracket3: { bracket: '₹ 7.50L to ₹ 10.00L', accountCount: 0, amount: 0 },
+            bracket4: { bracket: 'Over ₹ 10.00 Lakh', accountCount: 0, amount: 0 },
         },
         format1: {
             clearingDifference: 0, clearingNextDay: 0, deposits: 0, ecgcDicgcClaims: 0,
@@ -148,6 +148,11 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
     const totalItem13 = useMemo(() => Object.values(formData.item13).reduce((a, b) => a + b.amount, 0), [formData.item13]);
     const isAmountMismatched = Math.abs(totalItem13 - calculatedItem3) > 1;
 
+    // ── Assessment Calculations ──────────────────────────────────────────────
+    const premiumAmount = useMemo(() => Math.round(calculatedItem3 * 1000 * 0.0006 * 100) / 100, [calculatedItem3]); // 6 paise per 100 = 0.06%
+    const gstAmount = useMemo(() => Math.round(premiumAmount * 0.18 * 100) / 100, [premiumAmount]);
+    const totalPayable = useMemo(() => Math.round((premiumAmount + gstAmount) * 100) / 100, [premiumAmount, gstAmount]);
+
     const updateDI01 = (field: keyof typeof formData.di01, value: number) => {
         setFormData(prev => ({ ...prev, di01: { ...prev.di01, [field]: value } }));
     };
@@ -162,7 +167,17 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        const finalData = { ...formData, di01: { ...formData.di01, item3: calculatedItem3 } };
+        const finalData: DicgcReturnData = { 
+            ...formData, 
+            di01: { ...formData.di01, item3: calculatedItem3 },
+            assessment: {
+                premiumRate: 0.06,
+                premiumAmount,
+                gstRate: 18,
+                gstAmount,
+                totalPayable
+            }
+        };
         const result = DicgcReturnSchema.safeParse(finalData);
 
         if (!result.success) {
@@ -275,7 +290,7 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
                             </div>
                             <div className="grid grid-cols-2 gap-6">
                                 <NumericInput label="ITEM 2: Other Balances" value={formData.di01.item2} onChange={(v:number) => updateDI01('item2',v)} readOnly={isFrozen} />
-                                <div className="space-y-1.5 opacity-90"><label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-1">ITEM 3: Assessable Total</label><div className="bg-indigo-600 h-12 rounded-2xl flex items-center px-4 justify-between shadow-lg shadow-indigo-100"><span className="text-white font-black">₹{calculatedItem3.toLocaleString()}</span><Calculator size={18} className="text-white/40" /></div></div>
+                                <div className="space-y-1.5 opacity-90"><label className="text-[10px] font-black uppercase tracking-widest text-indigo-400 ml-1">ITEM 3: Assessable Total</label><div className="bg-indigo-600 h-12 rounded-2xl flex items-center px-4 justify-between shadow-lg shadow-indigo-100"><span className="text-white font-black">₹{calculatedItem3.toLocaleString('en-IN')}</span><Calculator size={18} className="text-white/40" /></div></div>
                             </div>
                             <div className="grid grid-cols-2 gap-6 pt-4">
                                 <div className="relative"><NumericInput label="ITEM 4: Sundry Creditors" value={formData.di01.item4} onChange={(v:number) => updateDI01('item4',v)} readOnly={isFrozen}/><button type="button" onClick={() => setShowFormat1(true)} className="absolute right-3 top-[34px] hover:text-indigo-600 text-slate-400 transition-colors"><FileSearch size={18} /></button></div>
@@ -315,11 +330,34 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
                                 </div>
                             ))}
                             <div className={cn("mt-4 p-5 rounded-3xl flex justify-between items-center", isAmountMismatched ? "bg-amber-50" : "bg-emerald-50")}>
-                                <div><p className="text-[9px] font-black uppercase opacity-40">Bracket Sum</p><p className={cn("text-lg font-black", isAmountMismatched ? "text-amber-600":"text-emerald-700")}>{totalItem13.toLocaleString()}</p></div>
+                                <div><p className="text-[9px] font-black uppercase opacity-40">Bracket Sum</p><p className={cn("text-lg font-black", isAmountMismatched ? "text-amber-600":"text-emerald-700")}>{totalItem13.toLocaleString('en-IN')}</p></div>
                                 <div className="text-right">{isAmountMismatched ? <AlertTriangle className="text-amber-500" /> : <ShieldCheck className="text-emerald-500" />}</div>
                             </div>
                         </div>
                     </div>
+
+                    <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-700"><Shield size={80} /></div>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-6">Payment Assessment</h4>
+                        <div className="space-y-4 relative z-10">
+                            <div className="flex justify-between items-end border-b border-white/5 pb-4">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black uppercase text-white/40">Premium (0.06%)</p>
+                                    <p className="text-lg font-black text-white">₹{premiumAmount.toLocaleString('en-IN')}</p>
+                                </div>
+                                <div className="text-right space-y-1">
+                                    <p className="text-[9px] font-black uppercase text-white/40">GST (18%)</p>
+                                    <p className="text-base font-bold text-white/80">₹{gstAmount.toLocaleString('en-IN')}</p>
+                                </div>
+                            </div>
+                            <div className="pt-2">
+                                <p className="text-[10px] font-black uppercase text-indigo-300 mb-1">Total Payable</p>
+                                <p className="text-3xl font-black text-white tracking-tighter">₹{totalPayable.toLocaleString('en-IN')}</p>
+                                <p className="text-[9px] text-white/30 italic mt-2 font-medium leading-relaxed">Exact remittance rounded to 2 decimal places as per DICGC circular.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <button 
                         type="submit" 
                         disabled={isSubmitting || isAmountMismatched || !isFrozen} 
@@ -344,7 +382,7 @@ const DICGCReturn: React.FC<{ staff: User[] }> = ({ staff }) => {
                                 <div key={k} className="space-y-1.5"><label className="text-[9px] font-black uppercase text-slate-400 ml-1">{k.replace(/([A-Z])/g, ' $1')}</label><input type="number" readOnly={isFrozen} value={(formData.format1 as any)[k]||''} onChange={(e)=>setFormData(p=>({...p,format1:{...p.format1,[k]:parseFloat(e.target.value)||0}}))} className="w-full bg-slate-50 h-12 rounded-xl px-4 font-bold text-slate-700 text-sm border-none ring-1 ring-slate-100 disabled:opacity-50" /></div>
                             ))}
                         </div>
-                        <div className="p-8 bg-slate-50 border-t flex justify-between items-center"><div><p className="text-[10px] font-black text-slate-400 italic">Total: ₹{totalFormat1.toLocaleString()}</p></div><button onClick={updateFormat1TotalInDI01} disabled={isFrozen} className="bg-indigo-600 text-white px-8 h-12 rounded-2xl font-black disabled:bg-slate-200 disabled:text-slate-400">Sync with DI-01</button></div>
+                        <div className="p-8 bg-slate-50 border-t flex justify-between items-center"><div><p className="text-[10px] font-black text-slate-400 italic">Total: ₹{totalFormat1.toLocaleString('en-IN')}</p></div><button onClick={updateFormat1TotalInDI01} disabled={isFrozen} className="bg-indigo-600 text-white px-8 h-12 rounded-2xl font-black disabled:bg-slate-200 disabled:text-slate-400">Sync with DI-01</button></div>
                     </div>
                 </div>
             )}

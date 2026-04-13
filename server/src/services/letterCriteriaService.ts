@@ -163,10 +163,14 @@ function prettifyParameterName(param: string): string {
         MORT: 'Mortgage Loans',
         LIQ: 'Liquid Loans',
         OTHRET: 'Other Retail',
-        MSME: 'Core SME',
+        MSME: 'Core MSME',
         MUDRA: 'Mudra',
         CORE_AGRI: 'Core Agri',
         AGRI_JL: 'Agri Jewel Loans',
+        GOLD: 'Gold Loan',
+        CASH_TOTAL: 'Total Cash on Hand',
+        CASH_CRL: 'Cash Retention Limit (CRL)',
+        CASH_EXCESS: 'Excess Cash Position',
         KCC: 'KCC',
         SHG: 'SHG',
         GOV: 'Government Sponsored Advances',
@@ -282,25 +286,42 @@ You may submit a concise and time-bound action plan to the Regional Office withi
 This matter may be accorded top priority and monitored personally until measurable improvement becomes visible in the subsequent review cycle.`;
 }
 
-function buildOpRiskContent(
-    branchName: string,
-    headDesignation: string,
-    period: string,
-    exceptionCount: number
-): string {
-    return `Dear Sir/Madam,
+function buildOpRiskContent(branchName: string, designation: string, period: string, count: number, movements: any[] = []) {
+    let content = `Dear Sir/Madam,\n\nBased on our daily operational risk monitoring for ${period}, we have identified ${count} significant exceptions for ${branchName}. These primarily involve business volatility or non-standard movements that require your immediate attention and validation at the operational level.\n\n`;
 
-During the operational risk review for ${period}, the Risk Monitoring System has flagged ${exceptionCount} open exception${exceptionCount === 1 ? '' : 's'} pertaining to ${branchName} Branch. The observations are reproduced below for immediate attention.
+    // Add explicit discussion for Cash Management if data is available
+    const cashTotal = movements.find(m => m.metricKey === 'TotalCash');
+    const cashCRL = movements.find(m => m.metricKey === 'CRL');
+    const fmt = (n: number) => n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-[EXCEPTION_TABLE]
+    if (cashTotal || cashCRL) {
+        content += `A review of your cash management position indicates `;
+        
+        if (cashTotal) {
+            const cashVal = cashTotal.latestValue * 100;
+            content += `Total Cash on Hand of ₹ ${fmt(cashVal)} Lakhs`;
+        }
+        
+        if (cashCRL) {
+            const crlVal = cashCRL.latestValue * 100;
+            content += `${cashTotal ? ' against a' : 'a'} Cash Retention Limit (CRL) of ₹ ${fmt(crlVal)} Lakhs`;
+        }
 
-In addition, a review of the recent business movement of the branch indicates the following trend position:
+        if (cashTotal && cashCRL) {
+            const excessVal = (cashTotal.latestValue - cashCRL.latestValue) * 100;
+            content += `, resulting in an ${excessVal >= 0 ? 'excess' : 'shortfall'} of ₹ ${fmt(Math.abs(excessVal))} Lakhs. `;
+        } else {
+            content += `. `;
+        }
 
-[MOVEMENT_TABLE]
+        content += `Effective monitoring of cash holding within authorized limits is crucial for both security and optimal liquidity management.\n\n`;
+    }
 
-The above exceptions require immediate verification at the branch level. You are advised to review the root cause of each observation, complete the necessary control rectification, and strengthen branch-level monitoring so that recurrence is avoided.
-
-As ${headDesignation}, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.`;
+    content += `In addition, a review of the recent business movement of the branch indicates the following trend position which should be monitored to ensure consistency and stability in business growth:\n\n[MOVEMENT_TABLE]\n\n`;
+    content += `The above exceptions require immediate verification at the branch level. You are advised to review the root cause of each observation, complete the necessary control rectification, and strengthen branch-level monitoring so that recurrence is avoided.\n\n`;
+    content += `As ${designation}, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.`;
+    
+    return content;
 }
 
 
@@ -349,10 +370,19 @@ function createPerformanceStat(
 
 async function getDailyMovement(branchId: string, referenceDate: Date) {
     const params = [
-        { code: 'SB_DEPOSITS', mis: 'SB', name: 'Savings Bank', shortName: 'SB', thresholdPct: 10 },
-        { code: 'CD_DEPOSITS', mis: 'CD', name: 'Current Deposits', shortName: 'CD', thresholdPct: 20 },
-        { code: 'TERM_DEPOSITS', mis: 'TD', name: 'Term Deposits', shortName: 'TD', thresholdPct: 10 },
-        { code: 'TOTAL_ADVANCES', mis: 'Adv', name: 'Total Advances', shortName: 'Adv', thresholdPct: 5 }
+        { code: 'SB_DEPOSITS', mis: 'SB', name: 'SB', shortName: 'SB', thresholdPct: 10, category: 'DEPOSITS' },
+        { code: 'CD_DEPOSITS', mis: 'CD', name: 'CD', shortName: 'CD', thresholdPct: 20, category: 'DEPOSITS' },
+        { code: 'TD_DEPOSITS', mis: 'TD', name: 'TD', shortName: 'TD', thresholdPct: 10, category: 'DEPOSITS' },
+        { code: 'TOTAL_ADVANCES', mis: 'Adv', name: 'Adv', shortName: 'Adv', thresholdPct: 5, category: 'DEPOSITS' },
+        { code: 'CORE_RETAIL', mis: 'Core Ret', name: 'Retail', shortName: 'Retail', thresholdPct: 5, category: 'CORE' },
+        { code: 'MSME', mis: 'MSME', name: 'MSME', shortName: 'MSME', thresholdPct: 5, category: 'CORE' },
+        { code: 'CORE_AGRI', mis: 'Core Agri', name: 'Agri', shortName: 'Agri', thresholdPct: 5, category: 'CORE' },
+        { code: 'GOLD', mis: ['Gold', 'GOLD', 'Gold Adv'], name: 'Gold', shortName: 'Gold', thresholdPct: 5, category: 'CORE' },
+        { code: 'CASH_TOTAL', mis: ['Cash_Total', 'Total Cash', 'CASH', 'Cash Possession', 'Cash Balance', 'Total_Cash'], name: 'Cash Possession (Total)', shortName: 'TotalCash', thresholdPct: 20, category: 'CASH' },
+        { code: 'CASH_CRL', mis: ['Cash_CRL', 'CRL', 'Retention Limit', 'Retention', 'Cash Required Level', 'AuthCash'], name: 'Authorized CRL', shortName: 'CRL', thresholdPct: 10, category: 'CASH' },
+        { code: 'CASH_EXCESS', mis: ['Cash_Excess', 'Excess', 'Excess Cash', 'EXCESS', 'Cash_Excess'], name: 'Excess / (Shortfall)', shortName: 'ExcessCash', thresholdPct: 20, category: 'CASH' },
+        { code: 'GROSS_NPA', mis: ['NPA', 'Npa', 'Gross NPA', 'GNPA'], name: 'NPA', shortName: 'NPA', thresholdPct: 5, category: 'DEPOSITS' },
+        { code: 'CD_RATIO', mis: ['CD_Ratio', 'CD Ratio', 'CD_RATIO'], name: 'CD Ratio', shortName: 'CDRatio', thresholdPct: 1, category: 'DEPOSITS' }
     ];
 
     const movements = [];
@@ -383,13 +413,22 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                 movement: diff,
                 pct,
                 thresholdPct: p.thresholdPct,
-                breached: Math.abs(pct) > p.thresholdPct
+                breached: p.code === 'CD_RATIO' ? latest > 85 : Math.abs(pct) > p.thresholdPct,
+                category: p.category
             });
         } else {
+            const startOfDay = new Date(referenceDate);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(referenceDate);
+            endOfDay.setHours(23, 59, 59, 999);
+
             const mis = await (prisma as any).misInformationPanel.findFirst({
                 where: {
-                    snapshot: { unitId: branchId, businessDate: referenceDate },
-                    parameter: p.mis
+                    snapshot: { 
+                        unitId: branchId, 
+                        businessDate: { gte: startOfDay, lte: endOfDay } 
+                    },
+                    parameter: Array.isArray(p.mis) ? { in: p.mis } : p.mis
                 }
             });
 
@@ -407,10 +446,46 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                     movement,
                     pct,
                     thresholdPct: p.thresholdPct,
-                    breached: Math.abs(pct) > p.thresholdPct
+                    breached: p.code === 'CD_RATIO' ? latest > 85 : Math.abs(pct) > p.thresholdPct,
+                    category: p.category
                 });
+            } else if (p.category === 'CASH') {
+                // LAST RESORT: Search directly in Facts if Panel data is missing for Cash
+                const facts = await (prisma as any).fact.findMany({
+                    where: {
+                        unitId: branchId,
+                        metric: Array.isArray(p.mis) ? { in: p.mis } : p.mis,
+                        date: { gte: startOfDay, lte: endOfDay }
+                    },
+                    orderBy: { date: 'desc' },
+                    take: 1
+                });
+
+                if (facts.length > 0) {
+                    const latest = Number(facts[0].value);
+                    movements.push({
+                        metricKey: p.shortName,
+                        parameter: p.name,
+                        previousValue: latest, // Partial data fallback: use latest as previous to show 0 movement
+                        latestValue: latest,
+                        movement: 0,
+                        pct: 0,
+                        thresholdPct: p.thresholdPct,
+                        breached: false,
+                        category: p.category
+                    });
+                }
             }
         }
+    }
+
+    // DIAGNOSTIC LOGGING: Verify Cash category population
+    const cashCount = movements.filter(m => m.category === 'CASH').length;
+    console.log(`[REPORT-TRACE] Unit: ${branchId} | Date: ${referenceDate.toISOString()}`);
+    console.log(`[REPORT-TRACE] Total movements found: ${movements.length} | Cash movements: ${cashCount}`);
+    if (cashCount === 0 && Array.isArray(params)) {
+        console.log(`[REPORT-TRACE] WARNING: No Cash data found in Panel or Facts for criteria keys:`, 
+            params.filter(p => (p as any).category === 'CASH').map(p => (p as any).code));
     }
 
     return movements;
@@ -470,12 +545,14 @@ async function buildPerformanceBucketsForDate(period: string, businessDate: Date
             panel.snapshot.businessDate,
             fyStartDate,
             context,
-            (panel.snapshot.exceptions || []).map((e: any) => ({
-                ruleId: e.ruleId,
-                parameter: e.parameter,
-                severity: e.severity,
-                message: e.message
-            }))
+            (panel.snapshot.exceptions || [])
+                .filter((e: any) => !(e.ruleId === 'RULE-LIQ-01' || (e.ruleId === 'RULE-OP-RISK' && ['CASA%', 'CD_Ratio'].includes(e.parameter))))
+                .map((e: any) => ({
+                    ruleId: e.ruleId,
+                    parameter: e.parameter,
+                    severity: e.severity,
+                    message: e.message
+                }))
         );
 
         const key = `${panel.snapshot.unitId}::${bucket.code}`;
@@ -847,48 +924,72 @@ export async function generateLettersForPeriod(
         });
 
         for (const [unitId, exceptions] of byBranch) {
-            const branch = exceptions[0].branch;
-            const headDesignation = toTitleCase(branch.headUser?.designation?.nameEn || 'Branch Head');
+            try {
+                const branch = exceptions[0].branch;
+                const headDesignation = toTitleCase(branch.headUser?.designation?.nameEn || 'Branch Head');
 
-            if (sentOpRiskBranches.has(unitId)) {
+                if (sentOpRiskBranches.has(unitId)) {
+                    result.details.push({
+                        branch: branch.code,
+                        param: 'OP_RISK',
+                        type: 'OP_RISK',
+                        reason: 'Sent letter already exists for this date'
+                    });
+                    result.skipped++;
+                    continue;
+                }
+
+                // DELETE EXISTING DRAFT TO ALLOW RE-GENERATION
+                await (prisma as any).letter.deleteMany({
+                    where: {
+                        branchId: unitId,
+                        period: displayPeriod,
+                        type: 'OP_RISK',
+                        status: 'DRAFT'
+                    }
+                });
+
+                const dailyMovement = await getDailyMovement(unitId, businessDate);
+
+                await (prisma as any).letter.create({
+                    data: {
+                        type: 'OP_RISK',
+                        titleEn: `Operational Risk Advisory - ${displayPeriod}`,
+                        contentEn: buildOpRiskContent(
+                            toTitleCase(branch.nameEn),
+                            headDesignation,
+                            displayPeriod,
+                            exceptions.length,
+                            dailyMovement
+                        ),
+                        branchId: unitId,
+                        period: displayPeriod,
+                        status: 'DRAFT',
+                        referenceNo: await generateReference('OP_RISK', branch.headUser?.department?.nameEn || 'PLNG', businessDate),
+                        orgMeta: {
+                            ...orgMeta,
+                            ...signatoryMeta,
+                            businessDate: format(businessDate, 'yyyy-MM-dd'),
+                            letterDate: displayPeriod,
+                            hideApprovedStatus: true,
+                            exceptions: exceptions
+                                .filter((e: any) => !(e.ruleId === 'RULE-OP-RISK' && ['CASA%', 'CD_Ratio', 'CD Ratio'].includes(e.parameter)))
+                                .map((e) => ({ ruleId: e.ruleId, parameter: e.parameter, message: e.message })),
+                            dailyMovement
+                        }
+                    }
+                });
+                result.created++;
+            } catch (err: any) {
+                console.error(`Failed to generate OP_RISK letter for unit ${unitId}:`, err);
                 result.details.push({
-                    branch: branch.code,
+                    branch: unitId,
                     param: 'OP_RISK',
                     type: 'OP_RISK',
-                    reason: 'Sent letter already exists for this date'
+                    reason: `Failed: ${err.message}`
                 });
                 result.skipped++;
-                continue;
             }
-
-            const dailyMovement = await getDailyMovement(unitId, businessDate);
-
-            await (prisma as any).letter.create({
-                data: {
-                    type: 'OP_RISK',
-                    titleEn: `Operational Risk Advisory - ${displayPeriod}`,
-                    contentEn: buildOpRiskContent(
-                        toTitleCase(branch.nameEn),
-                        headDesignation,
-                        displayPeriod,
-                        exceptions.length
-                    ),
-                    branchId: unitId,
-                    period: displayPeriod,
-                    status: 'DRAFT',
-                    referenceNo: await generateReference('OP_RISK', branch.headUser?.department?.nameEn || 'PLNG', businessDate),
-                    orgMeta: {
-                        ...orgMeta,
-                        ...signatoryMeta,
-                        businessDate: format(businessDate, 'yyyy-MM-dd'),
-                        letterDate: displayPeriod,
-                        hideApprovedStatus: true,
-                        exceptions: exceptions.map((e) => ({ ruleId: e.ruleId, parameter: e.parameter, message: e.message })),
-                        dailyMovement
-                    }
-                }
-            });
-            result.created++;
         }
     }
 

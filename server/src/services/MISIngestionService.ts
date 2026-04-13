@@ -21,65 +21,77 @@ const CRITERIA_PARAM_MAP: Record<string, string> = {
     'Mudra': 'MUDRA',
     'MSME': 'MSME',
     'Core Agri': 'CORE_AGRI',
-    'Ret_TD': 'RET_TD'
+    'Ret_TD': 'RET_TD',
+    'Cash_Total': 'CASH_TOTAL',
+    'Cash_CRL': 'CASH_CRL',
+    'Cash_Excess': 'CASH_EXCESS'
 };
 
-
+/**
+ * Greedy header normalization for resilient mapping.
+ * Removes all whitespace, special characters, and converts to uppercase.
+ * e.g., "Total Cash" -> "TOTALCASH", "Cash on hand" -> "CASHONHAND"
+ */
+function normalizeHeader(h: string): string {
+    return (h || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+}
 
 const MAPPING: Record<string, string> = {
-    // Advance sub-portfolios
     'MUDRA': 'Mudra',
-    'AGRI JL': 'Agri_JL',
-    'RETAIL JL': 'Ret-Gold',       // Gold loan advances
-    'GOLD': 'Gold',            // Gold loan balance (stock)
+    'AGRIJL': 'Agri_JL',
+    'RETAILJL': 'Ret-Gold',
+    'GOLD': 'Gold',
     'HOUSING': 'HL',
     'VEHICLE': 'VL',
-    'PERSONAL': 'PersonalLoan',    // FIXED: was 'PL' — caused naming collision
-    'Personal Loan': 'PersonalLoan', // Alternative header
+    'PERSONALLOAN': 'PersonalLoan',
     'MORTGAGE': 'Mort',
     'EDUCATION': 'EL',
     'LIQUIRENT': 'Liq',
-    'OTHER RETAIL': 'OthRet',
-    'TOTAL RETAIL': 'Tot_Retail',      // NEW: bank's own combined retail+gold total
-
-    // Priority / Schematic
+    'OTHERRETAIL': 'OthRet',
+    'TOTALRETAIL': 'Tot_Retail',
     'MSME': 'MSME',
     'SHG': 'SHG',
     'KCC': 'KCC',
-    'Govt Spon': 'Gov',
-    'Oth Schematic': 'OthSch',
-    'CORE AGRI': 'Core_Agri',
-
-    // Risk
+    'GOVTSPON': 'Gov',
+    'OTHSCHEMATIC': 'OthSch',
+    'COREAGRI': 'Core Agri',
+    'CORERETAIL': 'Core Ret',
+    'CORERET': 'Core Ret',
     'NPA': 'NPA',
-
-    // Deposits
     'SB': 'SB',
     'CD': 'CD',
     'TD': 'TD',
-
-    // Advances total
     'ADV': 'Adv',
-
-    // Cash management (NEW — populated in Mar-2026 files onward; null in older files)
-    'Cash on Hand': 'Cash_Hand',
-    'ATM Cash': 'Cash_ATM',
-    'BC Cash': 'Cash_BC',
-    'BNA Cash': 'Cash_BNA',
-    'Total Cash': 'Cash_Total',
-    'CRL': 'Cash_CRL',        // Cash Required Level (ATM authorized limit)
-    'Excess': 'Cash_Excess',     // = Total Cash − CRL
-
-    // Other
-    'Bulk Dep': 'Bulk_Dep',        // NEW — Bulk Deposits
-    'Ret TD': 'Ret_TD',           // Retail Term Deposits
-    'RTDs': 'Ret_TD',              // Alternative header
+    'CASHONHAND': 'Cash_Total',
+    'CASHONH': 'Cash_Total',
+    'ATMCASH': 'Cash_ATM',
+    'BCCASH': 'Cash_BC',
+    'BNACASH': 'Cash_BNA',
+    'TOTALCASH': 'Cash_Total',
+    'CASHPOS': 'Cash_Total',
+    'POSSESSION': 'Cash_Total',
+    'CASHPOSSESSION': 'Cash_Total',
+    'CASH': 'Cash_Total',
+    'CASHBALANCE': 'Cash_Total',
+    'CDRATIO': 'CD_Ratio',
+    'CRL': 'Cash_CRL',
+    'CASHRETENTIONLIMIT': 'Cash_CRL',
+    'RETENTIONLIMIT': 'Cash_CRL',
+    'CASHREQUIREDLEVEL': 'Cash_CRL',
+    'AUTHORIZEDCASH': 'Cash_CRL',
+    'RETENTION': 'Cash_CRL',
+    'EXCESS': 'Cash_Excess',
+    'EXCESSCASH': 'Cash_Excess',
+    'CASHEXCESS': 'Cash_Excess',
+    'BULKDEP': 'Bulk_Dep',
+    'RETTD': 'Ret_TD',
+    'RTDS': 'Ret_TD',
     'RTD': 'Ret_TD',
-    'PL': 'Branch_PL',            // Profit and Loss
-    'Rec Q1': 'Rec_Q1',
-    'Rec Q2': 'Rec_Q2',
-    'Rec Q3': 'Rec_Q3',
-    'Rec Q4': 'Rec_Q4'
+    'PL': 'Branch_PL',
+    'RECQ1': 'Rec_Q1',
+    'RECQ2': 'Rec_Q2',
+    'RECQ3': 'Rec_Q3',
+    'RECQ4': 'Rec_Q4'
 };
 
 
@@ -178,8 +190,14 @@ export class MISIngestionService {
                     const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
                     const scaledTotalRec = isRegional ? rawTotalRec : rawTotalRec / 100;
 
+                    // DEEP-TRACE LOGGING: Print exact headers found to detect hidden characters/spaces
+                    const currentHeaders = Object.keys(row);
+                    console.log(`\n[DEEP-TRACE] Unit: ${branch.code} | Date: ${dateRaw}`);
+                    console.log(`[DEEP-TRACE] Found ${currentHeaders.length} headers:`, currentHeaders.map(h => `'${h}'`).join(', '));
+
                     for (const [rawHeader, rawValue] of Object.entries(row)) {
-                        const paramName = MAPPING[rawHeader.trim()];
+                        const normalizedLabel = normalizeHeader(rawHeader);
+                        const paramName = MAPPING[normalizedLabel] || MAPPING[rawHeader.trim()]; // Fallback to trim for safe transition
                         if (paramName) {
                             let val = Number(rawValue || 0);
                             if (!isRegional) {
@@ -225,18 +243,24 @@ export class MISIngestionService {
                         { unitId: branch.id, date: businessDate, metric: 'Recovery', value: scaledTotalRec, ingestionId: log.id }
                     );
 
-                    // Auto-register Recovery parameter if first time seeing it
-                    await tx.misParameterRegistry.upsert({
-                        where: { parameterName: 'Recovery' },
-                        update: {},
-                        create: {
-                            parameterName: 'Recovery',
-                            displayName: 'Recovery',
-                            category: 'ASSET_QUALITY',
-                            isEnabled: true,
-                            orderIndex: 200 // Position it appropriately
-                        }
-                    });
+                    // Auto-register All Parameters to ensure visibility in Business Snapshots
+                    const metricsToRegister = [...new Set(factsToCreate.map(f => f.metric))];
+                    for (const metricName of metricsToRegister) {
+                        const isCash = metricName.startsWith('Cash_');
+                        const isCore = ['Core Ret', 'MSME', 'Core Agri', 'Gold', 'Core Adv', 'Core_Adv'].includes(metricName);
+                        
+                        await tx.misParameterRegistry.upsert({
+                            where: { parameterName: metricName },
+                            update: {},
+                            create: {
+                                parameterName: metricName,
+                                displayName: metricName.replace(/_/g, ' '),
+                                category: isCash ? 'CASH' : (isCore ? 'CORE_ADVANCES' : 'GENERAL'),
+                                isEnabled: true,
+                                orderIndex: isCash ? 300 : (isCore ? 100 : 500)
+                            }
+                        });
+                    }
 
                     // 3. Modern Snapshot Header
                     const snap = await tx.misSnapshot.upsert({
@@ -251,8 +275,8 @@ export class MISIngestionService {
                     // If Parameter is missing, we auto-create it to ensure letter generation coverage
                     for (const [metricName, val] of Object.entries(factsToCreate.reduce((acc, f) => ({ ...acc, [f.metric]: f.value }), {}))) {
                         // FILTER: Only generate snapshots for primary performance letters
-                        // We skip quarterly recovery figures and cash management components
-                        if (['Rec_Q1', 'Rec_Q2', 'Rec_Q3', 'Rec_Q4', 'Cash_Hand', 'Cash_ATM', 'Cash_BC', 'Cash_BNA', 'Cash_Total', 'Cash_CRL', 'Cash_Excess', 'Branch_PL'].includes(metricName as string)) {
+                        // We skip quarterly recovery figures and branch P&L to keep lists clean
+                        if (['Rec_Q1', 'Rec_Q2', 'Rec_Q3', 'Rec_Q4', 'Branch_PL'].includes(metricName as string)) {
                             continue;
                         }
 

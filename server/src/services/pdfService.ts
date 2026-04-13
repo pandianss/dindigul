@@ -700,46 +700,99 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                         <th style="border:1px solid #94a3b8;padding:8px;width:120px;">PARAMETER</th>
                         <th style="border:1px solid #94a3b8;padding:8px;">OBSERVATION / EXCEPTION</th>
                     </tr>
-                    ${(org.exceptions || []).map((ex: any) => `
+                    ${(org.exceptions || []).length > 0 ? (org.exceptions || []).map((ex: any) => `
                     <tr>
                         <td style="border:1px solid #94a3b8;padding:8px;font-family:monospace;font-size:10px;">${ex.ruleId || 'N/A'}</td>
                         <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">${ex.parameter || 'N/A'}</td>
                         <td style="border:1px solid #94a3b8;padding:8px;text-align:justify;">${ex.message || 'N/A'}</td>
-                    </tr>`).join('')}
+                    </tr>`).join('') : `
+                    <tr>
+                        <td colspan="3" style="border:1px solid #94a3b8;padding:8px;text-align:center;font-style:italic;color:#64748b;">
+                            NIL - No significant operational risk exceptions flagged for the period.
+                        </td>
+                    </tr>`}
                 </table>
             </div>`;
         } else if (para.includes('[MOVEMENT_TABLE]') && org.dailyMovement) {
             const scale = isRegional ? 1 : 100;
             const unitLabel = isRegional ? 'Cr' : 'Lakhs';
-            bodyHtml += `
-            <div style="margin:20px 0;">
-                <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:center;">
-                    <tr style="background:#f1f5f9;font-weight:700;">
-                        <th style="border:1px solid #94a3b8;padding:8px;text-align:left;">PARAMETER</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">PREVIOUS DAY</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">LATEST REPORT</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">MOVEMENT</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">% CHANGE</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">THRESHOLD</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
-                    </tr>
-                    ${(org.dailyMovement || []).map((m: any) => {
-                        const breached = !!m.breached;
-                        const color = breached ? '#b91c1c' : '#15803d';
-                        const thresholdLabel = typeof m.thresholdPct === 'number' ? `+/- ${fmt(m.thresholdPct)}%` : '-';
-                        return `
-                        <tr>
-                            <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${m.parameter}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(m.previousValue * scale)} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(m.latestValue * scale)} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${m.movement >= 0 ? '+' : ''}₹ ${fmt(m.movement * scale)} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${fmt(m.pct)}%</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">${thresholdLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;text-transform:uppercase;">${breached ? 'BREACH' : 'WITHIN LIMIT'}</td>
-                        </tr>`;
-                    }).join('')}
-                </table>
-            </div>`;
+            
+            const cdRatioMetric = (org.dailyMovement || []).find((m: any) => m.metricKey === 'CDRatio');
+            const otherMovements = (org.dailyMovement || []).filter((m: any) => m.metricKey !== 'CDRatio');
+
+            // 1. LIQUIDITY RISK SUMMARY BOX (Specialized Highlight)
+            if (cdRatioMetric) {
+                const color = cdRatioMetric.breached ? '#b91c1c' : '#15803d';
+                bodyHtml += `
+                <div style="margin:20px 0; padding:15px; border:2px solid ${color}; border-radius:8px; background:#fffafb;">
+                    <div style="font-weight:700; font-size:13px; color:#254aa0; margin-bottom:8px; text-transform:uppercase;">LIQUIDITY RISK SUMMARY</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-weight:700; font-size:16px;">CD Ratio: ${cdRatioMetric.latestValue?.toFixed(2)}%</span>
+                            <span style="margin-left:10px; font-size:12px; color:#64748b;">(Prev: ${cdRatioMetric.previousValue?.toFixed(2)}%)</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:#64748b;">SAFETY THRESHOLD</div>
+                            <div style="font-weight:700; font-size:14px; color:${color};">LIMIT > 85.00% — ${cdRatioMetric.breached ? 'BREACHED' : 'WITHIN LIMIT'}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            const categories = [
+                { id: 'DEPOSITS', label: 'TREND POSITION: DEPOSITS AND GENERAL ADVANCES' },
+                { id: 'CORE', label: 'TREND POSITION: CORE ADVANCES AND GOLD LOANS' },
+                { id: 'CASH', label: 'TREND POSITION: CASH MANAGEMENT' }
+            ];
+
+            for (const cat of categories) {
+                const catMovements = (otherMovements || []).filter((m: any) => m.category === cat.id);
+                if (catMovements.length === 0) continue;
+
+                const pageBreak = (cat.id === 'CORE' || cat.id === 'CASH') ? 'page-break-before: always;' : '';
+                bodyHtml += `
+                <div style="margin:20px 0; ${pageBreak}">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:10px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 4px;">${cat.label}</div>
+                    <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:center;">
+                        <tr style="background:#f1f5f9;font-weight:700;">
+                            <th style="border:1px solid #94a3b8;padding:8px;text-align:left;">PARAMETER</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">PREVIOUS DAY</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">LATEST REPORT</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">MOVEMENT</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">% CHANGE</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">THRESHOLD</th>
+                            <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
+                        </tr>
+                        ${catMovements.map((m: any) => {
+                            const breached = !!m.breached;
+                            const color = breached ? '#b91c1c' : '#15803d';
+                            
+                            // Determine if this is a percentage/ratio metric (e.g. CASA%)
+                            const name = (m.parameter || '').toUpperCase();
+                            const isRatio = name.includes('%') || name.includes('RATIO') || name.includes('CASA%');
+                            
+                            const thresholdLabel = typeof m.thresholdPct === 'number' ? `+/- ${fmt(m.thresholdPct)}%` : '-';
+                            const prevDisp = isRatio ? `${fmt(m.previousValue)}%` : `₹ ${fmt(m.previousValue * scale)} ${unitLabel}`;
+                            const latestDisp = isRatio ? `${fmt(m.latestValue)}%` : `₹ ${fmt(m.latestValue * scale)} ${unitLabel}`;
+                            
+                            // Hide movement/pct for ratios to avoid confusion (they use static thresholds)
+                            const moveDisp = isRatio ? '-' : `${m.movement >= 0 ? '+' : ''}${fmt(m.movement * scale)} ${unitLabel}`;
+                            const pctDisp = isRatio ? '-' : `${fmt(m.pct)}%`;
+
+                            return `
+                            <tr>
+                                <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${m.parameter || 'N/A'}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;">${prevDisp}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">${latestDisp}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${moveDisp}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${pctDisp}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">${thresholdLabel}</td>
+                                <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;text-transform:uppercase;">${breached ? 'BREACH' : 'WITHIN LIMIT'}</td>
+                            </tr>`;
+                        }).join('')}
+                    </table>
+                </div>`;
+            }
         } else if (para.trim().startsWith('<div')) {
             bodyHtml += para;
         } else {

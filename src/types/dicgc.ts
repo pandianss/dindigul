@@ -55,6 +55,13 @@ export const DicgcReturnSchema = z.object({
         bracket4: DicgcBracketSchema, // Over 10L
     }),
     format1: DicgcFormat1Schema,
+    assessment: z.object({
+        premiumRate: z.number().default(0.06), // 6 paise per 100
+        premiumAmount: z.number().min(0),
+        gstRate: z.number().default(18),
+        gstAmount: z.number().min(0),
+        totalPayable: z.number().min(0),
+    }).optional(),
 }).refine((data) => {
     // Validation Rule: Item 13 sum must equal Item 3
     const bracketTotal = 

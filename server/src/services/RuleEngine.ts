@@ -26,7 +26,8 @@ export class RuleEngine {
             const isBetterLow = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => row.parameter.toUpperCase().includes(k));
 
             // Rule 1: Operational Risk (+/- 10% daily swing in Key Parameters)
-            if (isKeyBusinessParam) {
+            // Skip CASA% and CD_Ratio as per user request (volatility flags not required for these)
+            if (isKeyBusinessParam && !['CASA%', 'CD_Ratio'].includes(row.parameter)) {
                 const prevVal = Math.abs(Number(row.val_y_eod || 0));
                 const currentSwing = Math.abs(Number(row.growth_day || 0));
 
@@ -67,7 +68,8 @@ export class RuleEngine {
                 });
             }
 
-            // Rule 4: CD Ratio Threshold
+            // Rule 4: CD Ratio Threshold (DISABLED AS PER USER REQUEST)
+            /*
             if (row.parameter === 'CD_Ratio' && Number(row.val_current) > 85) {
                 exceptions.push({
                     type: ExceptionType.LIQUIDITY,
@@ -78,6 +80,7 @@ export class RuleEngine {
                     ruleId: 'RULE-LIQ-01'
                 });
             }
+            */
 
             // Rule 5: Cash Deficit — branch holding less cash than CRL
             if (row.parameter === 'Cash_Excess' && Number(row.val_current) < 0) {
@@ -135,7 +138,9 @@ export class RuleEngine {
                 const isBetterLow = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => row.parameter.toUpperCase().includes(k));
 
                 // Rule 1: Operational Risk (+/- 10% daily swing in Key Parameters)
-                if (isKeyBusinessParam) {
+                // Skip CASA% and CD Ratio as per user request (volatility flags not required for these)
+                const isCDRatio = ['CD_Ratio', 'CD Ratio'].includes(row.parameter);
+                if (isKeyBusinessParam && !['CASA%', 'CASA'].includes(row.parameter) && !isCDRatio) {
                     const prevVal = Math.abs(Number(row.val_y_eod || 0));
                     const currentSwing = Math.abs(Number(row.growth_day || 0));
 
@@ -188,8 +193,8 @@ export class RuleEngine {
                     });
                 }
 
-                // Rule 4: CD Ratio Threshold
-                if (row.parameter === 'CD_Ratio' && Number(row.val_current) > 85) {
+                // Rule 4: CD Ratio Threshold (RE-ENABLED AS PER USER REQUEST)
+                if (isCDRatio && Number(row.val_current) > 85) {
                     allExceptions.push({
                         snapshotId: snapshot.id,
                         unitId: snapshot.unitId,
