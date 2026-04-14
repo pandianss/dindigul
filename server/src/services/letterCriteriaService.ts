@@ -2,6 +2,7 @@ import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
 import prisma from '../lib/prisma';
 import { getRegionalOfficeData } from './pdfService';
 import { generateReference } from './referenceService';
+import { BusinessSnapshotService } from './BusinessSnapshotService';
 
 type LetterKind = 'APPRECIATION' | 'EXPLANATION';
 type PerformanceBucketCode =
@@ -10,7 +11,8 @@ type PerformanceBucketCode =
     | 'CORE_SME'
     | 'CORE_AGRI'
     | 'NPA_MANAGEMENT'
-    | 'ACCOUNT_OPENING';
+    | 'ACCOUNT_OPENING'
+    | 'CASH';
 
 type PerformanceStat = {
     parameter: string;
@@ -43,6 +45,7 @@ type BucketContext = {
     branchType: string;
     headDesignation: string;
     headDept: string;
+    headGender?: string;
 };
 
 type BucketRecord = {
@@ -79,12 +82,12 @@ const PERFORMANCE_BUCKETS: PerformanceBucket[] = [
     {
         code: 'DEPOSITS',
         label: 'Deposits',
-        metricAliases: ['SB', 'CD', 'TD', 'RET_TD', 'RTD', 'CASA', 'TOTAL_DEPOSITS', 'TOTAL_DEP', 'BULK_DEP']
+        metricAliases: ['SB_DEPOSITS', 'CD_DEPOSITS', 'TD_DEPOSITS', 'RET_TD', 'RTD', 'CASA', 'TOTAL_DEPOSITS', 'BULK_DEP', 'SB', 'CD', 'TD']
     },
     {
         code: 'CORE_RETAIL',
         label: 'Core Retail',
-        metricAliases: ['CORE_RET', 'HL', 'PERSONALLOAN', 'EL', 'VL', 'MORT', 'LIQ', 'OTHRET']
+        metricAliases: ['CORE_RETAIL', 'HL', 'PL', 'EL', 'VL', 'MORT', 'LIQ', 'OTH_RET']
     },
     {
         code: 'CORE_SME',
@@ -99,12 +102,17 @@ const PERFORMANCE_BUCKETS: PerformanceBucket[] = [
     {
         code: 'NPA_MANAGEMENT',
         label: 'NPA Management',
-        metricAliases: ['NPA', 'GROSS_NPA', 'SMA', 'OVERDUE', 'RECOVERY']
+        metricAliases: ['NPA', 'GROSS_NPA', 'SMA', 'OVERDUE', 'RECOVERY', 'REC_Q1', 'REC_Q2', 'REC_Q3', 'REC_Q4']
     },
     {
         code: 'ACCOUNT_OPENING',
         label: 'Account Opening',
         metricAliases: []
+    },
+    {
+        code: 'CASH',
+        label: 'Cash Management',
+        metricAliases: ['CASH_TOTAL', 'CASH_CRL', 'CASH_EXCESS', 'CASH_BNA', 'CRL', 'BNACASH', 'CASH_HOLDING']
     }
 ];
 
@@ -146,8 +154,11 @@ function getBucketByMetric(metricName: string) {
 function prettifyParameterName(param: string): string {
     const normalized = normalizeMetricName(param);
     const labels: Record<string, string> = {
-        TOTAL_DEPOSITS: 'Total Deposits',
-        TOTAL_DEP: 'Total Deposits',
+        SB_DEPOSITS: 'Savings Bank',
+        CD_DEPOSITS: 'Current Deposits',
+        TD_DEPOSITS: 'Term Deposits',
+        TOTAL_ADVANCES: 'Total Advances',
+        ADV: 'Total Advances',
         SB: 'Savings Bank',
         CD: 'Current Deposits',
         TD: 'Term Deposits',
@@ -155,13 +166,16 @@ function prettifyParameterName(param: string): string {
         RTD: 'Retail Term Deposits',
         CASA: 'CASA',
         BULK_DEP: 'Bulk Deposits',
+        CORE_RETAIL: 'Core Retail',
         CORE_RET: 'Core Retail',
         HL: 'Housing Loans',
+        PL: 'Personal Loans',
         PERSONALLOAN: 'Personal Loans',
         EL: 'Education Loans',
         VL: 'Vehicle Loans',
         MORT: 'Mortgage Loans',
         LIQ: 'Liquid Loans',
+        OTH_RET: 'Other Retail',
         OTHRET: 'Other Retail',
         MSME: 'Core MSME',
         MUDRA: 'Mudra',
@@ -171,6 +185,11 @@ function prettifyParameterName(param: string): string {
         CASH_TOTAL: 'Total Cash on Hand',
         CASH_CRL: 'Cash Retention Limit (CRL)',
         CASH_EXCESS: 'Excess Cash Position',
+        CASH_BNA: 'BNA Cash Holding',
+        CASH_ATM: 'ATM Cash Balance',
+        CASH_BC: 'BC Cash Balance',
+        TOTALCASH: 'Total Cash on Hand',
+        BNACASH: 'BNA Cash Holding',
         KCC: 'KCC',
         SHG: 'SHG',
         GOV: 'Government Sponsored Advances',
@@ -239,12 +258,13 @@ function buildAppreciationContent(
     bucketLabel: string,
     params: string[],
     period: string,
-    highlights: PerformanceStat[] = []
+    highlights: PerformanceStat[] = [],
+    salutation: string = 'Dear Sir/Madam,'
 ): string {
     const paramList = formatParameterList(params);
     const summary = buildMetricHighlights(highlights);
 
-    return `Dear Sir/Madam,
+    return `${salutation}
 
 The performance of ${branchName} Branch under ${bucketLabel} for the review period ${period} has been examined at the Regional Office, and we are pleased to place on record our appreciation for the results delivered under your leadership as ${headDesignation}.
 
@@ -266,12 +286,13 @@ function buildExplanationContent(
     bucketLabel: string,
     params: string[],
     period: string,
-    concerns: PerformanceStat[] = []
+    concerns: PerformanceStat[] = [],
+    salutation: string = 'Dear Sir/Madam,'
 ): string {
     const paramList = formatParameterList(params);
     const summary = buildMetricHighlights(concerns);
 
-    return `Dear Sir/Madam,
+    return `${salutation}
 
 The performance of ${branchName} Branch under ${bucketLabel} for the review period ${period} has been reviewed, and it is observed that the branch is lagging behind the expected benchmark in ${paramList}${summary ? `, with visible pressure in ${summary}` : ''}.
 
@@ -286,40 +307,44 @@ You may submit a concise and time-bound action plan to the Regional Office withi
 This matter may be accorded top priority and monitored personally until measurable improvement becomes visible in the subsequent review cycle.`;
 }
 
-function buildOpRiskContent(branchName: string, designation: string, period: string, count: number, movements: any[] = []) {
-    let content = `Dear Sir/Madam,\n\nBased on our daily operational risk monitoring for ${period}, we have identified ${count} significant exceptions for ${branchName}. These primarily involve business volatility or non-standard movements that require your immediate attention and validation at the operational level.\n\n`;
+function buildOpRiskContent(branchName: string, designation: string, period: string, count: number, movements: any[], salutation: string = 'Dear Sir/Madam,') {
+    let content = `To,\nThe Branch Manager / ${designation},\n${branchName}.\n\n`;
+    content += `${salutation}\n\n`;
+    content += `Sub: Operational Risk Advisory - ${period}\n\n`;
+    content += `Based on our daily operational risk monitoring for the period ended ${period}, we have identified ${count} significant exceptions for your branch requiring immediate attention and mitigation.\n\n`;
 
-    // Add explicit discussion for Cash Management if data is available
+    // Cash Summary Text Generation
     const cashTotal = movements.find(m => m.metricKey === 'TotalCash');
     const cashCRL = movements.find(m => m.metricKey === 'CRL');
-    const fmt = (n: number) => n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const cashATM = movements.find(m => m.metricKey === 'ATMCash');
+    const cashBC = movements.find(m => m.metricKey === 'BCCash');
+    const cashBNA = movements.find(m => m.metricKey === 'BNACash');
+    
+    const fmt = (n: number) => (Number(n) * 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    if (cashTotal || cashCRL) {
+    if (cashTotal || cashCRL || cashATM || cashBC || cashBNA) {
         content += `A review of your cash management position indicates `;
         
-        if (cashTotal) {
-            const cashVal = cashTotal.latestValue * 100;
-            content += `Total Cash on Hand of ₹ ${fmt(cashVal)} Lakhs`;
-        }
-        
-        if (cashCRL) {
-            const crlVal = cashCRL.latestValue * 100;
-            content += `${cashTotal ? ' against a' : 'a'} Cash Retention Limit (CRL) of ₹ ${fmt(crlVal)} Lakhs`;
-        }
+        const fragments = [];
+        if (cashTotal) fragments.push(`Total Cash on Hand (Possession) of ₹ ${fmt(cashTotal.latestValue)} Lakhs`);
+        if (cashCRL) fragments.push(`Cash Retention Limit (CRL) of ₹ ${fmt(cashCRL.latestValue)} Lakhs`);
+        if (cashATM) fragments.push(`ATM Cash of ₹ ${fmt(cashATM.latestValue)} Lakhs`);
+        if (cashBC) fragments.push(`Cash with BC of ₹ ${fmt(cashBC.latestValue)} Lakhs`);
+        if (cashBNA) fragments.push(`BNA Cash of ₹ ${fmt(cashBNA.latestValue)} Lakhs`);
+
+        content += fragments.join(', ') + '. ';
 
         if (cashTotal && cashCRL) {
-            const excessVal = (cashTotal.latestValue - cashCRL.latestValue) * 100;
-            content += `, resulting in an ${excessVal >= 0 ? 'excess' : 'shortfall'} of ₹ ${fmt(Math.abs(excessVal))} Lakhs. `;
-        } else {
-            content += `. `;
+            const excessVal = (Number(cashTotal.latestValue) - Number(cashCRL.latestValue)) * 100;
+            content += `This results in an ${excessVal >= 0 ? 'excess' : 'shortfall'} of ₹ ${Math.abs(excessVal).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Lakhs against the authorized CRL. `;
         }
 
-        content += `Effective monitoring of cash holding within authorized limits is crucial for both security and optimal liquidity management.\n\n`;
+        content += `Effective monitoring of cash holdings within authorized limits across all points (Branch/ATM/BC) is crucial for both security and optimal liquidity management.\n\n`;
     }
 
     content += `In addition, a review of the recent business movement of the branch indicates the following trend position which should be monitored to ensure consistency and stability in business growth:\n\n[MOVEMENT_TABLE]\n\n`;
     content += `The above exceptions require immediate verification at the branch level. You are advised to review the root cause of each observation, complete the necessary control rectification, and strengthen branch-level monitoring so that recurrence is avoided.\n\n`;
-    content += `As ${designation}, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.`;
+    content += `As Branch Head, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.`;
     
     return content;
 }
@@ -370,19 +395,25 @@ function createPerformanceStat(
 
 async function getDailyMovement(branchId: string, referenceDate: Date) {
     const params = [
-        { code: 'SB_DEPOSITS', mis: 'SB', name: 'SB', shortName: 'SB', thresholdPct: 10, category: 'DEPOSITS' },
-        { code: 'CD_DEPOSITS', mis: 'CD', name: 'CD', shortName: 'CD', thresholdPct: 20, category: 'DEPOSITS' },
-        { code: 'TD_DEPOSITS', mis: 'TD', name: 'TD', shortName: 'TD', thresholdPct: 10, category: 'DEPOSITS' },
-        { code: 'TOTAL_ADVANCES', mis: 'Adv', name: 'Adv', shortName: 'Adv', thresholdPct: 5, category: 'DEPOSITS' },
-        { code: 'CORE_RETAIL', mis: 'Core Ret', name: 'Retail', shortName: 'Retail', thresholdPct: 5, category: 'CORE' },
-        { code: 'MSME', mis: 'MSME', name: 'MSME', shortName: 'MSME', thresholdPct: 5, category: 'CORE' },
-        { code: 'CORE_AGRI', mis: 'Core Agri', name: 'Agri', shortName: 'Agri', thresholdPct: 5, category: 'CORE' },
+        { code: 'SB_DEPOSITS', mis: ['SB', 'SB_DEPOSITS'], name: 'SB', shortName: 'SB', thresholdPct: 10, category: 'DEPOSITS' },
+        { code: 'BULK_DEPOSIT', mis: ['BULK_DEP', 'BULK_DEPOSITS'], name: 'Bulk Deposits', shortName: 'BulkDep', thresholdPct: 15, category: 'DEPOSITS' },
+        { code: 'RET_TD', mis: ['RET_TD', 'RTDS', 'RTD'], name: 'Retail TD', shortName: 'RetTD', thresholdPct: 10, category: 'DEPOSITS' },
+        { code: 'BRANCH_PL', mis: ['BRANCH_PL', 'PROFIT', 'Profit', 'NET_PROFIT', 'PL'], name: 'Operating Profit (Loss)', shortName: 'Profit', thresholdPct: 10, category: 'PROFITABILITY' },
+        { code: 'CD_DEPOSITS', mis: ['CD', 'CD_DEPOSITS'], name: 'CD', shortName: 'CD', thresholdPct: 20, category: 'DEPOSITS' },
+        { code: 'TD_DEPOSITS', mis: ['TD', 'TD_DEPOSITS'], name: 'TD', shortName: 'TD', thresholdPct: 10, category: 'DEPOSITS' },
+        { code: 'TOTAL_ADVANCES', mis: ['Adv', 'TOTAL_ADVANCES', 'ADVANCES'], name: 'Adv', shortName: 'Adv', thresholdPct: 5, category: 'DEPOSITS' },
+        { code: 'CORE_RETAIL', mis: ['Core Ret', 'CORE_RETAIL', 'RETAIL'], name: 'Retail', shortName: 'Retail', thresholdPct: 5, category: 'CORE' },
+        { code: 'MSME', mis: ['MSME', 'CORE_MSME'], name: 'MSME', shortName: 'MSME', thresholdPct: 5, category: 'CORE' },
+        { code: 'CORE_AGRI', mis: ['Core Agri', 'CORE_AGRI', 'AGRI'], name: 'Agri', shortName: 'Agri', thresholdPct: 5, category: 'CORE' },
         { code: 'GOLD', mis: ['Gold', 'GOLD', 'Gold Adv'], name: 'Gold', shortName: 'Gold', thresholdPct: 5, category: 'CORE' },
-        { code: 'CASH_TOTAL', mis: ['Cash_Total', 'Total Cash', 'CASH', 'Cash Possession', 'Cash Balance', 'Total_Cash'], name: 'Cash Possession (Total)', shortName: 'TotalCash', thresholdPct: 20, category: 'CASH' },
-        { code: 'CASH_CRL', mis: ['Cash_CRL', 'CRL', 'Retention Limit', 'Retention', 'Cash Required Level', 'AuthCash'], name: 'Authorized CRL', shortName: 'CRL', thresholdPct: 10, category: 'CASH' },
-        { code: 'CASH_EXCESS', mis: ['Cash_Excess', 'Excess', 'Excess Cash', 'EXCESS', 'Cash_Excess'], name: 'Excess / (Shortfall)', shortName: 'ExcessCash', thresholdPct: 20, category: 'CASH' },
-        { code: 'GROSS_NPA', mis: ['NPA', 'Npa', 'Gross NPA', 'GNPA'], name: 'NPA', shortName: 'NPA', thresholdPct: 5, category: 'DEPOSITS' },
-        { code: 'CD_RATIO', mis: ['CD_Ratio', 'CD Ratio', 'CD_RATIO'], name: 'CD Ratio', shortName: 'CDRatio', thresholdPct: 1, category: 'DEPOSITS' }
+        { code: 'CASH_TOTAL', mis: ['CASH_TOTAL', 'Cash_Total', 'Total Cash', 'CASH', 'Cash Possession', 'Cash Balance', 'Total_Cash'], name: 'Cash Possession (Total)', shortName: 'TotalCash', thresholdPct: 20, category: 'CASH' },
+        { code: 'CASH_CRL', mis: ['CASH_CRL', 'Cash_CRL', 'CRL', 'Retention Limit', 'Retention', 'Cash Required Level', 'AuthCash'], name: 'Authorized CRL', shortName: 'CRL', thresholdPct: 10, category: 'CASH' },
+        { code: 'CASH_ATM', mis: ['CASH_ATM', 'ATM Cash', 'ATM_CASH', 'ATMCASH'], name: 'ATM Cash', shortName: 'ATMCash', thresholdPct: 10, category: 'CASH' },
+        { code: 'CASH_BC', mis: ['CASH_BC', 'Cash with BC', 'BC Cash', 'BCCASH'], name: 'Cash with BC', shortName: 'BCCash', thresholdPct: 10, category: 'CASH' },
+        { code: 'CASH_BNA', mis: ['CASH_BNA', 'BNA Cash', 'BNA_CASH', 'BNACASH'], name: 'BNA Cash', shortName: 'BNACash', thresholdPct: 10, category: 'CASH' },
+        { code: 'CASH_EXCESS', mis: ['CASH_EXCESS', 'Cash_Excess', 'Excess', 'Excess Cash', 'EXCESS'], name: 'Excess / (Shortfall)', shortName: 'ExcessCash', thresholdPct: 20, category: 'CASH' },
+        { code: 'GROSS_NPA', mis: ['GROSS_NPA', 'NPA', 'Npa', 'Gross NPA', 'GNPA'], name: 'NPA', shortName: 'NPA', thresholdPct: 5, category: 'DEPOSITS' },
+        { code: 'CD_RATIO', mis: ['CD_RATIO', 'CD_Ratio', 'CD Ratio'], name: 'CD Ratio', shortName: 'CDRatio', thresholdPct: 1, category: 'DEPOSITS' }
     ];
 
     const movements = [];
@@ -397,6 +428,11 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                 orderBy: { date: 'desc' },
                 take: 2
             });
+            if (p.category === 'CASH' && snaps.length < 2) {
+                console.log(`[CASH-TRACE] Branch: ${branchId} | Param: ${p.code} | Snapshots found: ${snaps.length}`);
+            }
+        } else if (p.category === 'CASH') {
+             console.log(`[CASH-TRACE] WARNING: Parameter code ${p.code} not found in Parameter table.`);
         }
 
         if (snaps.length >= 2) {
@@ -450,11 +486,13 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                     category: p.category
                 });
             } else if (p.category === 'CASH') {
+                console.log(`[CASH-TRACE] Branch: ${branchId} | No MIS Panel entry found for keys:`, p.mis);
                 // LAST RESORT: Search directly in Facts if Panel data is missing for Cash
+                const searchKeys = [...(Array.isArray(p.mis) ? p.mis : [p.mis]), p.code, p.shortName];
                 const facts = await (prisma as any).fact.findMany({
                     where: {
                         unitId: branchId,
-                        metric: Array.isArray(p.mis) ? { in: p.mis } : p.mis,
+                        metric: { in: searchKeys },
                         date: { gte: startOfDay, lte: endOfDay }
                     },
                     orderBy: { date: 'desc' },
@@ -534,7 +572,8 @@ async function buildPerformanceBucketsForDate(period: string, businessDate: Date
             branchName: toTitleCase(branch?.nameEn || 'Branch'),
             branchType: branch?.type || '',
             headDesignation: toTitleCase(branch?.headUser?.designation?.nameEn || 'Branch Head'),
-            headDept: branch?.headUser?.department?.nameEn || 'PLNG'
+            headDept: branch?.headUser?.department?.nameEn || 'PLNG',
+            headGender: branch?.headUser?.gender
         };
 
         const stat = createPerformanceStat(
@@ -725,7 +764,8 @@ async function buildAccountOpeningBuckets(businessDate: Date): Promise<BucketRec
             branchName: row.branchName,
             branchType: row.branchType,
             headDesignation: row.headDesignation,
-            headDept: row.headDept
+            headDept: row.headDept,
+            headGender: branch.headUser?.gender
         };
 
         const stats = [
@@ -847,6 +887,8 @@ export async function generateLettersForPeriod(
                 continue;
             }
 
+            const salutation = getSalutation({ gender: record.context.headGender });
+
             try {
                 await (prisma as any).letter.create({
                     data: {
@@ -858,11 +900,13 @@ export async function generateLettersForPeriod(
                             record.bucketLabel,
                             letterStats.map((stat) => stat.displayName),
                             period,
-                            letterStats
+                            letterStats,
+                            salutation
                         ),
                         branchId: branch.id,
                         period,
                         status: 'DRAFT',
+                        salutation,
                         referenceNo: await generateReference('PERFORMANCE_LETTER', record.context.headDept || 'PLNG', businessDate),
                         orgMeta: {
                             ...orgMeta,
@@ -895,7 +939,7 @@ export async function generateLettersForPeriod(
         const businessDate = new Date(Date.UTC(y, m - 1, d));
         const displayPeriod = date ? `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${y}` : period;
 
-        await (prisma as any).letter.deleteMany({ where: { type: 'OP_RISK', status: 'DRAFT', period: displayPeriod } });
+        await (prisma as any).letter.deleteMany({ where: { type: 'OP_RISK', status: 'DRAFT' } });
 
         const existingSentOpRisk = await (prisma as any).letter.findMany({
             where: { type: 'OP_RISK', status: 'SENT', period: displayPeriod },
@@ -928,6 +972,23 @@ export async function generateLettersForPeriod(
                 const branch = exceptions[0].branch;
                 const headDesignation = toTitleCase(branch.headUser?.designation?.nameEn || 'Branch Head');
 
+                // UNIFIED FILTER: Exclude specialized boxes (Liquidity) to ensure count matches Exception Trace Table
+                // We keep RULE-OP-RISK, RULE-DAILY-DECLINE, RULE-RISK-01, and RULE-CASH-01
+                const filteredExceptions = exceptions.filter((e: any) => 
+                    !(e.ruleId === 'RULE-LIQ-01' || (e.ruleId === 'RULE-OP-RISK' && ['CASA%', 'CD_Ratio', 'CD Ratio', 'CD_RATIO'].includes(e.parameter)))
+                );
+
+                const salutation = getSalutation(branch.headUser);
+
+                // DEDUPLICATE by parameter+ruleId to ensure count is 1:1 with table rows
+                const seen = new Set();
+                const uniqueExceptions = filteredExceptions.filter(e => {
+                    const key = `${e.ruleId}-${e.parameter}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
                 if (sentOpRiskBranches.has(unitId)) {
                     result.details.push({
                         branch: branch.code,
@@ -950,6 +1011,7 @@ export async function generateLettersForPeriod(
                 });
 
                 const dailyMovement = await getDailyMovement(unitId, businessDate);
+                const snapshot = await BusinessSnapshotService.getSnapshot(branch.code, format(businessDate, 'yyyy-MM-dd'));
 
                 await (prisma as any).letter.create({
                     data: {
@@ -959,23 +1021,29 @@ export async function generateLettersForPeriod(
                             toTitleCase(branch.nameEn),
                             headDesignation,
                             displayPeriod,
-                            exceptions.length,
-                            dailyMovement
+                            uniqueExceptions.length,
+                            dailyMovement,
+                            salutation
                         ),
                         branchId: unitId,
                         period: displayPeriod,
                         status: 'DRAFT',
+                        salutation,
                         referenceNo: await generateReference('OP_RISK', branch.headUser?.department?.nameEn || 'PLNG', businessDate),
                         orgMeta: {
                             ...orgMeta,
                             ...signatoryMeta,
                             businessDate: format(businessDate, 'yyyy-MM-dd'),
-                            letterDate: displayPeriod,
+                            letterDate: format(new Date(), 'dd.MM.yyyy'),
+                            reportingPeriod: displayPeriod,
                             hideApprovedStatus: true,
-                            exceptions: exceptions
-                                .filter((e: any) => !(e.ruleId === 'RULE-OP-RISK' && ['CASA%', 'CD_Ratio', 'CD Ratio'].includes(e.parameter)))
-                                .map((e) => ({ ruleId: e.ruleId, parameter: e.parameter, message: e.message })),
-                            dailyMovement
+                            exceptions: uniqueExceptions.map((e: any) => ({ 
+                                ruleId: e.ruleId, 
+                                parameter: e.parameter, 
+                                message: e.message 
+                            })),
+                            dailyMovement,
+                            cashData: snapshot?.cashData?.length ? snapshot.cashData : deriveCashData(dailyMovement)
                         }
                     }
                 });
@@ -993,5 +1061,26 @@ export async function generateLettersForPeriod(
         }
     }
 
+    return result;
+}
+
+function getSalutation(user: any) {
+    if (!user) return 'Dear Sir/Madam,';
+    if (user.gender === 'F' || user.gender === 'Female') return 'Dear Madam,';
+    if (user.gender === 'M' || user.gender === 'Male') return 'Dear Sir,';
+    return 'Dear Sir/Madam,';
+}
+
+function deriveCashData(movements: any[]) {
+    const cashTotal = movements.find(m => m.metricKey === 'TotalCash');
+    const cashCRL = movements.find(m => m.metricKey === 'CRL');
+    const cashATM = movements.find(m => m.metricKey === 'ATMCash');
+    const cashBC = movements.find(m => m.metricKey === 'BCCash');
+    
+    const result = [];
+    if (cashTotal) result.push({ parameter: 'CASH_TOTAL', val_current: cashTotal.latestValue, budget_month: cashCRL?.latestValue || 0, metadata: { displayName: 'Total Cash Possession' } });
+    if (cashATM) result.push({ parameter: 'CASH_ATM', val_current: cashATM.latestValue, budget_month: 0, metadata: { displayName: 'ATM Cash' } });
+    if (cashBC) result.push({ parameter: 'CASH_BC', val_current: cashBC.latestValue, budget_month: 0, metadata: { displayName: 'Cash with BC' } });
+    
     return result;
 }

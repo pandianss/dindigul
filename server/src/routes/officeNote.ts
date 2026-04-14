@@ -96,6 +96,45 @@ router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
             data: { status: 'APPROVED', approverId: req.user.id }
         });
 
+
+        await notifyAdmins('New Office Note Submission', `Note "${note.titleEn}" has been submitted for review.`, `/office-notes/${id}`);
+
+        res.json(note);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to submit note' });
+    }
+});
+    // Checker approval (SUBMITTED to CHECKED)
+router.patch('/:id/check', authenticateToken, async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { id } = req.params;
+    try {
+        const note = await prisma.officeNote.update({
+            where: { id },
+            data: { status: 'CHECKED' }
+        });
+
+        await createNotification(note.preparerId, 'Note Checked', `Your note "${note.titleEn}" has been checked by ${req.user.fullNameEn}.`, 'SUCCESS', `/office-notes/${id}`);
+
+        res.json(note);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to check note' });
+    }
+});
+    // Final approver approval (CHECKED to APPROVED)
+router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
+    if (!['ADMIN', 'RO_USER'].includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { id } = req.params;
+    try {
+        const note = await prisma.officeNote.update({
+            where: { id },
+            data: { status: 'APPROVED', approverId: req.user.id }
+        });
+
         await createNotification(note.preparerId, 'Note Approved', `Your note "${note.titleEn}" has been final approved.`, 'SUCCESS', `/office-notes/${id}`);
 
         res.json(note);
@@ -454,7 +493,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
 
             res.json(updated);
         } else {
-            // Document is beyond draft — create new version record (GAP 19)
+            // Document is beyond draft - create new version record (GAP 19)
             const newVersion = await (prisma.officeNote as any).create({
                 data: {
                     type: type || currentNote.type,
@@ -470,7 +509,6 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
             });
 
             logger.info(`[Office Note] Created new version from ${currentNote.id}. New version: ${newVersion.id}, initiator: ${effectivePreparerId}`);
-
             if (referenceNo) {
                 await (prisma as any).$executeRaw`
                     UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${newVersion.id}

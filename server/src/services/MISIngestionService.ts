@@ -24,7 +24,10 @@ const CRITERIA_PARAM_MAP: Record<string, string> = {
     'Ret_TD': 'RET_TD',
     'Cash_Total': 'CASH_TOTAL',
     'Cash_CRL': 'CASH_CRL',
-    'Cash_Excess': 'CASH_EXCESS'
+    'Cash_Excess': 'CASH_EXCESS',
+    'BNA_CASH': 'CASH_BNA',
+    'CASH_HOLDING': 'CASH_TOTAL',
+    'CASH_RETENTION_LIMIT': 'CASH_CRL'
 };
 
 /**
@@ -36,62 +39,80 @@ function normalizeHeader(h: string): string {
     return (h || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 }
 
+/**
+ * Standardizes metric codes to uppercase with underscores.
+ */
+function normalizeCode(metricName: string): string {
+    if (!metricName) return 'UNKNOWN';
+    const clean = metricName.trim().toUpperCase()
+        .replace(/[^A-Z0-9]/g, '_')
+        .replace(/__+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    return CRITERIA_PARAM_MAP[metricName] || MAPPING[normalizeHeader(metricName)] || clean;
+}
+
 const MAPPING: Record<string, string> = {
-    'MUDRA': 'Mudra',
-    'AGRIJL': 'Agri_JL',
-    'RETAILJL': 'Ret-Gold',
-    'GOLD': 'Gold',
+    'MUDRA': 'MUDRA',
+    'AGRIJL': 'AGRI_JL',
+    'RETAILJL': 'GOLD_RETAIL',
+    'GOLD': 'GOLD',
     'HOUSING': 'HL',
     'VEHICLE': 'VL',
-    'PERSONALLOAN': 'PersonalLoan',
-    'MORTGAGE': 'Mort',
+    'PERSONALLOAN': 'PL',
+    'MORTGAGE': 'MORT',
     'EDUCATION': 'EL',
-    'LIQUIRENT': 'Liq',
-    'OTHERRETAIL': 'OthRet',
-    'TOTALRETAIL': 'Tot_Retail',
+    'LIQUIRENT': 'LIQ',
+    'OTHERRETAIL': 'OTH_RET',
+    'TOTALRETAIL': 'TOT_RETAIL',
     'MSME': 'MSME',
     'SHG': 'SHG',
     'KCC': 'KCC',
-    'GOVTSPON': 'Gov',
-    'OTHSCHEMATIC': 'OthSch',
-    'COREAGRI': 'Core Agri',
-    'CORERETAIL': 'Core Ret',
-    'CORERET': 'Core Ret',
+    'GOVTSPON': 'GOV',
+    'OTHSCHEMATIC': 'OTH_SCH',
+    'COREAGRI': 'CORE_AGRI',
+    'CORERETAIL': 'CORE_RETAIL',
+    'CORERET': 'CORE_RETAIL',
     'NPA': 'NPA',
     'SB': 'SB',
     'CD': 'CD',
     'TD': 'TD',
-    'ADV': 'Adv',
-    'CASHONHAND': 'Cash_Total',
-    'CASHONH': 'Cash_Total',
-    'ATMCASH': 'Cash_ATM',
-    'BCCASH': 'Cash_BC',
-    'BNACASH': 'Cash_BNA',
-    'TOTALCASH': 'Cash_Total',
-    'CASHPOS': 'Cash_Total',
-    'POSSESSION': 'Cash_Total',
-    'CASHPOSSESSION': 'Cash_Total',
-    'CASH': 'Cash_Total',
-    'CASHBALANCE': 'Cash_Total',
-    'CDRATIO': 'CD_Ratio',
-    'CRL': 'Cash_CRL',
-    'CASHRETENTIONLIMIT': 'Cash_CRL',
-    'RETENTIONLIMIT': 'Cash_CRL',
-    'CASHREQUIREDLEVEL': 'Cash_CRL',
-    'AUTHORIZEDCASH': 'Cash_CRL',
-    'RETENTION': 'Cash_CRL',
-    'EXCESS': 'Cash_Excess',
-    'EXCESSCASH': 'Cash_Excess',
-    'CASHEXCESS': 'Cash_Excess',
-    'BULKDEP': 'Bulk_Dep',
-    'RETTD': 'Ret_TD',
-    'RTDS': 'Ret_TD',
-    'RTD': 'Ret_TD',
-    'PL': 'Branch_PL',
-    'RECQ1': 'Rec_Q1',
-    'RECQ2': 'Rec_Q2',
-    'RECQ3': 'Rec_Q3',
-    'RECQ4': 'Rec_Q4'
+    'ADV': 'TOTAL_ADVANCES',
+    'TOTALDEP': 'TOTAL_DEPOSITS',
+    'TOTALDEPOSITS': 'TOTAL_DEPOSITS',
+    'SB': 'SB_DEPOSITS',
+    'CD': 'CD_DEPOSITS',
+    'TD': 'TD_DEPOSITS',
+    'CASA': 'CASA',
+    'CASHONHAND': 'CASH_TOTAL',
+    'CASHONH': 'CASH_TOTAL',
+    'ATMCASH': 'CASH_ATM',
+    'BCCASH': 'CASH_BC',
+    'BNACASH': 'CASH_BNA',
+    'TOTALCASH': 'CASH_TOTAL',
+    'CASHPOS': 'CASH_TOTAL',
+    'POSSESSION': 'CASH_TOTAL',
+    'CASHPOSSESSION': 'CASH_TOTAL',
+    'CASH': 'CASH_TOTAL',
+    'CASHBALANCE': 'CASH_TOTAL',
+    'CDRATIO': 'CD_RATIO',
+    'CRL': 'CASH_CRL',
+    'CASHRETENTIONLIMIT': 'CASH_CRL',
+    'RETENTIONLIMIT': 'CASH_CRL',
+    'CASHREQUIREDLEVEL': 'CASH_CRL',
+    'AUTHORIZEDCASH': 'CASH_CRL',
+    'RETENTION': 'CASH_CRL',
+    'EXCESS': 'CASH_EXCESS',
+    'EXCESSCASH': 'CASH_EXCESS',
+    'CASHEXCESS': 'CASH_EXCESS',
+    'BULKDEP': 'BULK_DEP',
+    'RETTD': 'RET_TD',
+    'RTDS': 'RET_TD',
+    'RTD': 'RET_TD',
+    'PL': 'BRANCH_PL',
+    'RECQ1': 'REC_Q1',
+    'RECQ2': 'REC_Q2',
+    'RECQ3': 'REC_Q3',
+    'RECQ4': 'REC_Q4'
 };
 
 
@@ -178,7 +199,7 @@ export class MISIngestionService {
 
                     // 2. Parse Metric Data
                     let coreRetSum = 0;
-                    const coreRetConstituents = ['EL', 'VL', 'OthRet', 'Mort', 'Liq', 'HL', 'PersonalLoan'];
+                    const coreRetConstituents = ['EL', 'VL', 'OTH_RET', 'MORT', 'LIQ', 'HL', 'PL'];
                     let sb = 0, cd = 0, td = 0, adv = 0, npaVal = 0, bulkDep = 0, retTd = 0;
 
                     const recQ1 = Number(row['Rec Q1'] || 0);
@@ -196,9 +217,8 @@ export class MISIngestionService {
                     console.log(`[DEEP-TRACE] Found ${currentHeaders.length} headers:`, currentHeaders.map(h => `'${h}'`).join(', '));
 
                     for (const [rawHeader, rawValue] of Object.entries(row)) {
-                        const normalizedLabel = normalizeHeader(rawHeader);
-                        const paramName = MAPPING[normalizedLabel] || MAPPING[rawHeader.trim()]; // Fallback to trim for safe transition
-                        if (paramName) {
+                        const paramName = normalizeCode(rawHeader);
+                        if (paramName && paramName !== 'UNKNOWN') {
                             let val = Number(rawValue || 0);
                             if (!isRegional) {
                                 val /= 100;
@@ -213,12 +233,12 @@ export class MISIngestionService {
                             });
 
                             if (coreRetConstituents.includes(paramName)) coreRetSum += val;
-                            if (paramName === 'SB') sb = val;
-                            if (paramName === 'CD') cd = val;
-                            if (paramName === 'TD') td = val;
-                            if (paramName === 'Ret_TD') retTd = val;
-                            if (paramName === 'Bulk_Dep') bulkDep = val;
-                            if (paramName === 'Adv') adv = val;
+                            if (paramName === 'SB_DEPOSITS') sb = val;
+                            if (paramName === 'CD_DEPOSITS') cd = val;
+                            if (paramName === 'TD_DEPOSITS') td = val;
+                            if (paramName === 'RET_TD') retTd = val;
+                            if (paramName === 'BULK_DEP') bulkDep = val;
+                            if (paramName === 'TOTAL_ADVANCES') adv = val;
                             if (paramName === 'NPA') npaVal = val;
                         }
                     }
@@ -246,8 +266,8 @@ export class MISIngestionService {
                     // Auto-register All Parameters to ensure visibility in Business Snapshots
                     const metricsToRegister = [...new Set(factsToCreate.map(f => f.metric))];
                     for (const metricName of metricsToRegister) {
-                        const isCash = metricName.startsWith('Cash_');
-                        const isCore = ['Core Ret', 'MSME', 'Core Agri', 'Gold', 'Core Adv', 'Core_Adv'].includes(metricName);
+                        const isCash = metricName.toUpperCase().includes('CASH') || ['CASH_CRL', 'CASH_BNA', 'CASH_TOTAL'].includes(metricName);
+                        const isCore = ['CORE_RETAIL', 'MSME', 'CORE_AGRI', 'GOLD', 'CORE_ADVANCES', 'TOTAL_ADVANCES'].includes(metricName);
                         
                         await tx.misParameterRegistry.upsert({
                             where: { parameterName: metricName },
@@ -280,7 +300,7 @@ export class MISIngestionService {
                             continue;
                         }
 
-                        const paramCode = CRITERIA_PARAM_MAP[metricName as string] || (metricName as string).toUpperCase().replace(/ /g, '_').replace(/%/g, '_PCT').replace(/-/g, '_');
+                        const paramCode = normalizeCode(metricName as string);
                         
                         let param = parameterMap[paramCode];
                         if (!param) {

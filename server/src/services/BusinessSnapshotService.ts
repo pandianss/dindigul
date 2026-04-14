@@ -17,14 +17,16 @@ export class BusinessSnapshotService {
             include: { panelData: true, exceptions: true }
         });
 
-        if (!snapshot) return null;
+        // Even if the summary snapshot is missing, we attempt to retrieve core data from facts/registry
+        const panelData = snapshot?.panelData || [];
+        const exceptions = snapshot?.exceptions || [];
 
         const parameters = await prisma.misParameterRegistry.findMany({
-            where: { parameterName: { in: snapshot.panelData.map(p => p.parameter) } }
+            where: { parameterName: { in: panelData.map(p => p.parameter) } }
         });
         const paramMap = Object.fromEntries(parameters.map(p => [p.parameterName, p]));
 
-        const enrichedPanelData = snapshot.panelData.map(p => {
+        const enrichedPanelData = panelData.map(p => {
             const data: any = { ...p };
             Object.keys(data).forEach(key => {
                 if (key.startsWith('val_') || key.startsWith('growth_') || key.startsWith('budget_') || key.startsWith('gap_')) {
@@ -48,10 +50,38 @@ export class BusinessSnapshotService {
             select: { date: true }
         });
 
+        // Robust fallback for missing Cash Data: If certain cash metrics are missing from the panel, 
+        // try to fetch them directly from recorded facts.
+        const cashMetricCodes = ['CASH_TOTAL', 'CASH_CRL', 'CASH_BNA', 'CASH_ATM', 'CASH_BC', 'CASH_EXCESS', 'CASH_HOLDING', 'CASH_POSS', 'BNACASH', 'CASH_BNA_TOTAL'];
+        const existingCash = enrichedPanelData.filter(p => cashMetricCodes.includes(p.parameter));
+        const missingCash = cashMetricCodes.filter(code => !existingCash.some(p => p.parameter === code));
+
+        if (missingCash.length > 0) {
+            const missingFacts = await prisma.fact.findMany({
+                where: {
+                    unitId: branch.id,
+                    metric: { in: missingCash },
+                    date: { gte: new Date(businessDate.getTime()), lte: new Date(businessDate.getTime() + 86400000) }
+                }
+            });
+
+            for (const f of missingFacts) {
+                const meta = paramMap[f.metric] || { displayName: f.metric.replace(/_/g, ' '), category: 'CASH', orderIndex: 300 };
+                existingCash.push({
+                    parameter: f.metric,
+                    val_current: Number(f.value),
+                    val_y_eod: 0,
+                    budget_month: 0,
+                    metadata: meta
+                } as any);
+            }
+        }
+
         return {
             ...snapshot,
             branch,
             panelData: enrichedPanelData,
+            cashData: existingCash.sort((a, b) => (a.metadata?.orderIndex || 0) - (b.metadata?.orderIndex || 0)),
             compareDates: {
                 yesterday: availableDates[0]?.date || new Date(businessDate.getTime() - 86400000),
                 dby: availableDates[1]?.date || new Date(businessDate.getTime() - 172800000)
@@ -292,27 +322,27 @@ export class BusinessSnapshotService {
                 
                 // Force derivations for composite metrics
                 if (lowerM === 'core adv' || lowerM === 'core_adv') {
-                    const ret = getValInner('Core Ret', d);
-                    const agri = getValInner('Core_Agri', d);
-                    const msme = getValInner('MSME', d);
+                    const ret = getValInner('CORE_RETAIL', d) || getValInner('Core Ret', d);
+                    const agri = getValInner('CORE_AGRI', d) || getValInner('Core_Agri', d);
+                    const msme = getValInner('MSME', d) || getValInner('CORE_MSME', d);
                     return ret + agri + msme;
                 }
                 
-                if (lowerM === 'total dep' || lowerM === 'total_dep') {
-                    const casa = getValInner('CASA', d) || (getValInner('SB', d) + getValInner('CD', d));
-                    const td = getValInner('TD', d);
+                if (lowerM === 'total dep' || lowerM === 'total_dep' || lowerM === 'total_deposits') {
+                    const casa = getValInner('CASA', d) || (getValInner('SB_DEPOSITS', d) + getValInner('CD_DEPOSITS', d));
+                    const td = getValInner('TD_DEPOSITS', d) || getValInner('TD', d);
                     return casa + td;
                 }
 
                 if (lowerM === 'casa' || lowerM === 'casa_amt') {
-                    return getValInner('CASA', d) || (getValInner('SB', d) + getValInner('CD', d));
+                    return getValInner('CASA', d) || (getValInner('SB_DEPOSITS', d) + getValInner('CD_DEPOSITS', d));
                 }
 
                 const numVal = getValInner(m, d);
                 if (numVal !== 0) return numVal;
 
                 if (lowerM === 'cd_ratio') {
-                    const adv = getValInner('Adv', d);
+                    const adv = getValInner('TOTAL_ADVANCES', d) || getValInner('Adv', d);
                     const dep = getRatioInner('Total Dep', d); // Use derived dep
                     return dep > 0 ? (adv / dep) * 100 : 0;
                 }

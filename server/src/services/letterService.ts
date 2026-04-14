@@ -348,6 +348,7 @@ export const letterService = {
             deptSealSrc,
             orgMeta: org,
             isAdvisory: isOpRisk,
+            cashData: org.cashData || [],
             isBudget,
             hideApprovedStatus: isOpRisk,
             recipient,

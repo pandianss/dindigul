@@ -59,15 +59,22 @@ function buildToken(user: { id: string; username: string; fullNameEn: string; br
 }
 
 async function createSession(userId: string, token: string, label: string, req: any) {
-    await prisma.session.create({
-        data: {
-            userId, token,
-            expiresAt: new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000),
-            osUsername: label,
-            userAgent: req.headers['user-agent'] ?? 'unknown',
-            ipAddress: req.ip ?? '0.0.0.0',
-        },
-    });
+    try {
+        await prisma.session.create({
+            data: {
+                userId, token,
+                expiresAt: new Date(Date.now() + SESSION_HOURS * 60 * 60 * 1000),
+                osUsername: label,
+                userAgent: req.headers['user-agent'] ?? 'unknown',
+                ipAddress: req.ip ?? '0.0.0.0',
+            },
+        });
+    } catch (err: any) {
+        // If it's a unique constraint violation (P2002), we can ignore it as the session already exists
+        if (err.code !== 'P2002') {
+            logger.error('[Auth] Session creation error:', err);
+        }
+    }
 }
 
 async function pruneExpiredSessions() {

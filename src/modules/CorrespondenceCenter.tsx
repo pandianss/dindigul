@@ -1000,6 +1000,9 @@ const CorrespondenceCenter: React.FC = () => {
                                 bodyChunks.push(`<p class="font-tamil text-[11px] mb-4">${selectedLetter.contentTa}</p>`);
                             }
 
+                            const salutation = selectedLetter.salutation || (selectedLetter.orgMeta as any)?.salutation || 'Dear Sir/Madam,';
+                            bodyChunks.push(`<p class="font-bold mb-4">${salutation}</p>`);
+
                             const cleanedContent = selectedLetter.contentEn
                                 .replace(/^Dear Sir\/Madam,?\s*/i, '')
                                 .replace(/^To,?\s*/i, '')
@@ -1094,6 +1097,8 @@ const CorrespondenceCenter: React.FC = () => {
                                     initialSealPos={sealPos}
                                     onSaveSealPos={(pos) => handleSaveSealPosition(pos)}
                                     hideApprovedStatus={selectedLetter.type === 'BUDGET_ALLOTMENT' || selectedLetter.type === 'OP_RISK' || !!(selectedLetter.orgMeta as any)?.hideApprovedStatus}
+                                    dailyMovement={(selectedLetter.orgMeta as any)?.dailyMovement}
+                                    cashData={(selectedLetter.orgMeta as any)?.cashData}
                                 />
                             );
                         })()}

@@ -254,6 +254,7 @@ export interface PremiumLayoutData {
     reviewers?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string }[];
     approver?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string };
     orgMeta?: any;
+    cashData?: any[];
 }
 
 export function buildPremiumLayout(data: PremiumLayoutData): string {
@@ -290,6 +291,43 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n\n/g, hasHtml ? '\n\n' : '<br/><br/>')
         .replace(/\n/g, hasHtml ? '\n' : '<br/>');
+    
+    // CASH MANAGEMENT TABLE BLOCK (Handlebars Partial Style)
+    let cashTableHtml = '';
+    if (data.cashData && data.cashData.length > 0) {
+        const fmt = (n: any) => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        cashTableHtml = `
+            <div style="margin:20px 0; page-break-inside: avoid;">
+                <div style="font-weight:700; font-size:12px; margin-bottom:10px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 4px;">CASH MANAGEMENT SUMMARY</div>
+                <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:center;">
+                    <tr style="background:#f1f5f9;font-weight:700;">
+                        <th style="border:1px solid #94a3b8;padding:8px;text-align:left;">PARAMETER</th>
+                        <th style="border:1px solid #94a3b8;padding:8px;">PREVIOUS DAY</th>
+                        <th style="border:1px solid #94a3b8;padding:8px;">LATEST REPORT</th>
+                        <th style="border:1px solid #94a3b8;padding:8px;">BUDGET / CRL</th>
+                        <th style="border:1px solid #94a3b8;padding:8px;">VARIANCE</th>
+                        <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
+                    </tr>
+                    ${data.cashData.map((m: any) => {
+                        const val = Number(m.val_current || 0);
+                        const prev = Number(m.val_y_eod || 0);
+                        const budget = Number(m.budget_month || 0);
+                        const varVal = val - budget;
+                        const isExcess = ['CASH_TOTAL', 'CASH_EXCESS'].includes(m.parameter) && val > budget;
+                        const color = isExcess ? '#b91c1c' : '#15803d';
+                        return `
+                        <tr>
+                            <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${m.metadata?.displayName || m.parameter}</td>
+                            <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(prev)} Cr</td>
+                            <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(val)} Cr</td>
+                            <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(budget)} Cr</td>
+                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${varVal >= 0 ? '+' : ''}${fmt(varVal)} Cr</td>
+                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${isExcess ? 'BREACH' : 'OK'}</td>
+                        </tr>`;
+                    }).join('')}
+                </table>
+            </div>`;
+    }
 
     // Perform sanitization to allow custom styling while protecting hyphens in text nodes
     const sanitizedBody = sanitizeHtmlForPrint(DOMPurify.sanitize(htmlContent, { 
@@ -417,8 +455,8 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
         ${!data.hideMeta ? `
         <div class="meta-info">
             <div class="ref-no">${data.refNo ? `Ref No: ${data.refNo}` : ''}</div>
-            <div class="date-line">
-                <span class="hindi" style="font-size:12px;">दिनांक</span> / <span class="tamil" style="font-size:9px !important;">தேதி</span> / Date: ${data.date}
+            <div style="text-align: right; font-weight: 700;">
+                <span class="hindi" style="font-size:12px;">दिनांक</span> / <span class="tamil" style="font-size:9px !important;">தேதி</span> / Date: ${(data as any).orgMeta?.letterDate || data.date}
             </div>
         </div>` : ''}
 
@@ -454,6 +492,8 @@ export function buildPremiumLayout(data: PremiumLayoutData): string {
             ${data.salutation ? `<p style="margin-bottom: 15px; font-weight: 700;">${data.salutation}</p>` : ''}
 
             ${sanitizedBody}
+
+            ${cashTableHtml}
         </div>
 
         ${(data.initiator || data.reviewers || data.approver || data.signatoryName) ? `
@@ -557,6 +597,11 @@ export async function generatePDF(html: string, existingBrowser?: any, refNo?: s
         await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
         // Add timeout to prevent hanging on individual letters
         await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
+        
+        // CRITICAL: Wait for all fonts (Inter, Noto Hindi, Tamil) to be fully rendered 
+        // before capturing the PDF. This fixes "unreadable" or "scrambled" text in Chrome.
+        await page.evaluateHandle('document.fonts.ready');
+        
         await page.emulateMediaType('print');
         
         const pdf = await page.pdf({
@@ -594,8 +639,8 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
 
     // Filter out the "Dear Sir/Madam" and "To," if they are manually placed at the start of content
     const cleanedContent = contentEn
-        .replace(/^Dear Sir\/Madam,?\s*/i, '')
         .replace(/^To,?\s*/i, '')
+        .replace(/^Dear (Sir|Madam|Sir\/Madam),?\s*/i, '')
         .trim();
 
     const paragraphs = cleanedContent.split('\n\n');
@@ -736,16 +781,79 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                             <div style="font-weight:700; font-size:14px; color:${color};">LIMIT > 85.00% — ${cdRatioMetric.breached ? 'BREACHED' : 'WITHIN LIMIT'}</div>
                         </div>
                     </div>
+                    <div style="margin-top:8px; font-size:10px; color:#64748b; font-style:italic; border-top:1px solid #fee2e2; padding-top:5px;">
+                        Note: CD Ratio measures the percentage of core deposits utilized for lending. High ratios indicate liquidity saturation.
+                    </div>
                 </div>`;
             }
 
             const categories = [
                 { id: 'DEPOSITS', label: 'TREND POSITION: DEPOSITS AND GENERAL ADVANCES' },
                 { id: 'CORE', label: 'TREND POSITION: CORE ADVANCES AND GOLD LOANS' },
-                { id: 'CASH', label: 'TREND POSITION: CASH MANAGEMENT' }
+                { id: 'CASH', label: 'TREND POSITION: CASH MANAGEMENT' },
+                { id: 'PROFITABILITY', label: 'TREND POSITION: PROFITABILITY AND EFFICIENCY' }
             ];
 
+            const profit = (otherMovements || []).find((m: any) => m.metricKey === 'Profit');
+            const cdRatio = (otherMovements || []).find((m: any) => m.metricKey === 'CD_Ratio' || m.metricKey === 'CDRatio');
+
             for (const cat of categories) {
+                // Show a mini assessment box for Profit next to CD Ratio if we are at the top
+                if (cat.id === 'DEPOSITS' && profit) {
+                    const breached = !!profit.breached;
+                    const color = breached ? '#b91c1c' : '#1d4ed8'; // Blue for positive profit
+                    const label = profit.latestValue >= 0 ? 'NET PROFIT' : 'NET LOSS';
+                    const icon = profit.latestValue >= 0 ? '✓' : '⚠';
+
+                    bodyHtml += `
+                    <div style="display:flex; gap:15px; margin-bottom:20px;">
+                        <div style="flex:1; border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:#f8fafc;">
+                            <div style="font-size:10px; color:#64748b; text-transform:uppercase; margin-bottom:4px; font-weight:700;">Liquidity Risk Summary (CD Ratio)</div>
+                            <div style="font-size:18px; font-weight:700; color:#1e293b;">${fmt(cdRatio?.latestValue)}%</div>
+                            <div style="font-size:10px; color:#64748b; margin-top:4px;">Threshold: 75% | Status: <span style="color:${cdRatio?.latestValue > 75 ? '#b91c1c' : '#15803d'}; font-weight:700;">${cdRatio?.latestValue > 75 ? 'BREACHED' : 'SUSTAINED'}</span></div>
+                            <div style="font-size:8px; color:#94a3b8; margin-top:2px;">* High CD Ratio indicates aggressive lending relative to deposit base.</div>
+                        </div>
+                        <div style="flex:1; border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:#f0f9ff;">
+                            <div style="font-size:10px; color:#64748b; text-transform:uppercase; margin-bottom:4px; font-weight:700;">Profitability Position (${label})</div>
+                            <div style="font-size:18px; font-weight:700; color:${color};">${icon} ₹ ${fmt(profit.latestValue * scale)} ${unitLabel}</div>
+                            <div style="font-size:10px; color:#64748b; margin-top:4px;">Status: <span style="font-weight:700; color:${color};">${profit.latestValue >= 0 ? 'FAVORABLE' : 'ACTION REQUIRED'}</span></div>
+                            <div style="font-size:8px; color:#94a3b8; margin-top:2px;">* Operational monitoring of daily P&L to ensure sustained viability.</div>
+                        </div>
+                    </div>`;
+                }
+                if (cat.id === 'CASH' && org.cashData && org.cashData.length > 0) {
+                    bodyHtml += `
+                    <div style="margin:20px 0; page-break-before: always;">
+                        <div style="font-weight:700; font-size:12px; margin-bottom:10px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 4px;">${cat.label}</div>
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:center;">
+                            <tr style="background:#f1f5f9;font-weight:700;">
+                                <th style="border:1px solid #94a3b8;padding:8px;text-align:left;">PARAMETER</th>
+                                <th style="border:1px solid #94a3b8;padding:8px;">CURRENT LEVEL</th>
+                                <th style="border:1px solid #94a3b8;padding:8px;">AUTHORIZED CRL</th>
+                                <th style="border:1px solid #94a3b8;padding:8px;">VARIANCE</th>
+                                <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
+                            </tr>
+                            ${org.cashData.map((row: any) => {
+                                const cur = Number(row.val_current || 0);
+                                const bud = Number(row.budget_month || 0);
+                                const varVal = cur - bud;
+                                const isExcess = ['CASH_TOTAL', 'CASH_EXCESS'].includes(row.parameter) && cur > bud;
+                                const color = isExcess ? '#b91c1c' : '#15803d';
+                                
+                                return `
+                                <tr>
+                                    <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${row.metadata?.displayName || row.parameter}</td>
+                                    <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(cur * scale)} ${unitLabel}</td>
+                                    <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(bud * scale)} ${unitLabel}</td>
+                                    <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${varVal >= 0 ? '+' : ''}${fmt(varVal * scale)} ${unitLabel}</td>
+                                    <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;text-transform:uppercase;">${isExcess ? 'BREACHED' : 'ADEQUATE'}</td>
+                                </tr>`;
+                            }).join('')}
+                        </table>
+                    </div>`;
+                    continue;
+                }
+
                 const catMovements = (otherMovements || []).filter((m: any) => m.category === cat.id);
                 if (catMovements.length === 0) continue;
 
