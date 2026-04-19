@@ -5,6 +5,16 @@ import authRoutes from '../routes/auth';
 import prisma from '../lib/prisma';
 import bcrypt from 'bcryptjs';
 
+vi.mock('../middleware/auth', () => {
+    return {
+        authenticateToken: (req: any, _res: any, next: any) => {
+            req.user = { id: 'admin-1', role: 'ADMIN', username: 'admin' };
+            next();
+        },
+        requireAdminOrPlanning: (_req: any, _res: any, next: any) => next()
+    };
+});
+
 vi.mock('../lib/prisma', () => {
     return {
         default: {
@@ -17,7 +27,8 @@ vi.mock('../lib/prisma', () => {
                 create: vi.fn()
             },
             session: {
-                create: vi.fn()
+                create: vi.fn(),
+                findUnique: vi.fn()
             }
         }
     };

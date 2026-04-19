@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @font-face {
+            font-family: 'Inter';
+            src: url('data:font/truetype;base64,{{fonts.regular}}') format('truetype');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('data:font/truetype;base64,{{fonts.bold}}') format('truetype');
+            font-weight: 700;
+        }
+        
+        :root {
+            --bank-navy: #1e293b;
+            --bank-teal: #0d9488;
+            --bank-gold: #ca8a04;
+            --bank-red: #be123c;
+            --bg-gray: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: white;
+            color: var(--bank-navy);
+            padding: 60px;
+            width: 1920px;
+        }
+
+        .header {
+            padding-bottom: 20px;
+            margin-bottom: 50px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+        }
+
+        .ro-badge {
+            background: var(--bank-gold);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-main h1 {
+            font-size: 32px; /* Smaller, more professional */
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--bank-navy);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .header-period {
+            font-size: 18px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-period::before {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 3px;
+            background: var(--bank-gold);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 80px;
+        }
+
+        .metric-section {
+            background: #f8fafc;
+            border-radius: 40px;
+            padding: 60px;
+            border: 2px solid #f1f5f9;
+            width: 100%;
+        }
+
+        /* Centering for single metric reports */
+        .metric-section.is-single {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .metric-title {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 48px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            color: var(--bank-navy);
+            border-bottom: 4px solid #cbd5e1;
+            padding-bottom: 20px;
+        }
+
+        .ranking-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 120px;
+        }
+
+        .ranking-list h4 {
+            font-size: 32px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-h4 { color: var(--bank-teal); }
+        .bottom-h4 { color: var(--bank-red); }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .rank-num {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .top-num { background: #f0fdf4; color: var(--bank-teal); }
+        .bot-num { background: #fef2f2; color: var(--bank-red); }
+
+        .branch-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 25px;
+        }
+
+        .branch-name {
+            font-size: 32px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 8px;
+        }
+
+        .branch-val {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--bank-navy);
+            flex-shrink: 0;
+        }
+
+        .progress-bar {
+            height: 18px;
+            background: #eef2f6;
+            border-radius: 9px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill-top { background: var(--bank-teal); }
+        .progress-fill-bot { background: var(--bank-red); }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">
+                {{#if logoSrc}}
+                <img src="{{logoSrc}}" alt="IOB Logo" />
+                {{/if}}
+            </div>
+            <div class="ro-badge">Dindigul Regional Office</div>
+        </div>
+        <div class="header-main">
+            <h1>Performance Analytics — Special Report</h1>
+            <div class="header-period">
+                <span>{{periodLabel}}</span>
+                <span style="margin-left: auto; font-size: 14px; opacity: 0.8;">Generated: {{generatedAt}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        {{#each metrics}}
+        <div class="metric-section {{#if ../isSingle}}is-single{{/if}}">
+            <div class="metric-title">
+                <span>{{label}}</span>
+            </div>
+            <div class="ranking-container">
+                <div class="ranking-list">
+                    <h4 class="top-h4">▲ Top 10 Performers</h4>
+                    {{#each data.top}}
+                    <div class="rank-item">
+                        <div class="rank-num top-num">{{add @index 1}}</div>
+                        <div class="branch-info">
+                            <div class="branch-name">{{name}}</div>
+                            <div class="progress-bar"><div class="progress-fill-top" style="width: {{percent}}%; height: 100%;"></div></div>
+                        </div>
+                        <div class="branch-val">{{formattedValue}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+                <div class="ranking-list">
+                    <h4 class="bottom-h4">▼ Needs Attention (Bottom 10)</h4>
+                    {{#each data.bottom}}
+                    <div class="rank-item">
+                        <div class="rank-num bot-num">{{add @index 1}}</div>
+                        <div class="branch-info">
+                            <div class="branch-name">{{name}}</div>
+                            <div class="progress-bar"><div class="progress-fill-bot" style="width: {{percent}}%; height: 100%;"></div></div>
+                        </div>
+                        <div class="branch-val">{{formattedValue}}</div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</body>
+</html>

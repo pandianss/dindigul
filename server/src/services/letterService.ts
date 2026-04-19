@@ -58,7 +58,6 @@ export const letterService = {
                             }
                         }
                     },
-                    parameter: true,
                     signatory: {
                         include: { designation: true }
                     },
@@ -117,7 +116,6 @@ export const letterService = {
         const existing = await prisma.letter.findUnique({ where: { id } });
         if (!existing) throw new Error('Letter not found');
 
-        // Block transition from SENT to DRAFT if status is being updated to DRAFT
         if (existing.status === 'SENT' && status === 'DRAFT') {
             throw new Error('Cannot reopen a frozen letter. Immutability is enforced.');
         }
@@ -227,7 +225,6 @@ export const letterService = {
                     contentHi: updates.contentHi || currentLetter.contentHi,
                     contentTa: updates.contentTa || currentLetter.contentTa,
                     branchId: currentLetter.branchId,
-                    parameterId: currentLetter.parameterId,
                     valueAtTime: currentLetter.valueAtTime,
                     budgetAtTime: currentLetter.budgetAtTime,
                     period: currentLetter.period,
@@ -257,7 +254,6 @@ export const letterService = {
                         }
                     }
                 },
-                parameter: true,
                 signatory: {
                     include: { designation: true }
                 },
@@ -295,7 +291,7 @@ export const letterService = {
 
         const signatoryTitleEn = selectedSignatory?.designationEn || selectedSignatory?.designation?.nameEn || org.signingAuthEn || (isOpRisk ? 'RO Chief Manager' : (RO_DATA.signingAuthEn || 'Regional Manager'));
         const signatoryTitleHi = selectedSignatory?.designationHi || selectedSignatory?.designation?.nameHi || org.signingAuthHi || (isOpRisk ? 'मुख्य प्रबंधक (क्षे.का.)' : (RO_DATA.signingAuthHi || 'क्षेत्रीय प्रबंधक'));
-        const signatoryTitleTa = selectedSignatory?.designationTa || selectedSignatory?.designation?.nameTa || org.signingAuthTa || (isOpRisk ? 'தலைமை மேலாளர் (ம.அ.)' : (RO_DATA.signingAuthTa || 'மண்டல மேலாளர்'));
+        const signatoryTitleTa = selectedSignatory?.designationTa || selectedSignatory?.designation?.nameTa || org.signingAuthTa || (isOpRisk ? 'தலைமை மேலாலர் (ம.அ.)' : (RO_DATA.signingAuthTa || 'மண்டல மேலாலர்'));
 
         const head = letter.branch?.headUser;
         const recipient = letter.isExternal
@@ -331,6 +327,8 @@ export const letterService = {
         const bodyHtml = `${externalRecipientHtml}${buildLetterBodyHtml(letter.contentEn || '', org, letter)}`;
         const refNo = letter.referenceNo || `RO/ADMIN/${new Date(letter.createdAt).getFullYear()}/${letter.id.slice(-4).toUpperCase()}`;
         const letterDate = resolveLetterDate(letter, org);
+        const cashData = org.cashData || [];
+        
         const html = buildPremiumLayout({
             title: `${letter.titleEn}${isOpRisk ? ` - ${letter.branch?.code || ''}` : ''}`,
             titleHi: letter.titleHi || undefined,
@@ -348,7 +346,7 @@ export const letterService = {
             deptSealSrc,
             orgMeta: org,
             isAdvisory: isOpRisk,
-            cashData: org.cashData || [],
+            cashData,
             isBudget,
             hideApprovedStatus: isOpRisk,
             recipient,
@@ -381,98 +379,70 @@ export const letterService = {
     },
 
     async generateDrafts(period: string) {
-        const param = await prisma.parameter.findUnique({ where: { code: 'TOTAL_DEPOSITS' } });
-        if (!param) throw new Error('Parameter TOTAL_DEPOSITS not found');
-
-        const snapshots = await prisma.snapshot.findMany({
-            where: { parameterId: param.id },
-            orderBy: { value: 'desc' },
+        // Query from Fact table instead of Snapshot
+        const latestFacts = await prisma.fact.findMany({
+            where: { metric: 'TOTAL_DEPOSITS' },
+            orderBy: [{ date: 'desc' }, { value: 'desc' }],
             include: {
                 branch: {
-                    include: {
-                        headUser: {
-                            include: {
-                                designation: true
-                            }
-                        }
-                    }
+                    include: { headUser: { include: { designation: true } } }
                 }
             }
         });
 
-        if (snapshots.length === 0) throw new Error('No snapshots found for this period');
+        if (latestFacts.length === 0) throw new Error('No deposit data found to generate letters');
 
-        const uniqueSnapshots: any[] = [];
-        const seenBranchIds = new Set();
-        for (const snap of snapshots) {
-            if (!seenBranchIds.has(snap.branchId) && snap.branch?.type !== 'REGIONAL OFFICE') {
-                uniqueSnapshots.push(snap);
-                seenBranchIds.add(snap.branchId);
-            }
-        }
+        const latestDate = latestFacts[0].date;
+        const currentSnapshots = latestFacts.filter(f => f.date.getTime() === latestDate.getTime() && f.branch?.type !== 'REGIONAL OFFICE');
 
-        if (uniqueSnapshots.length === 0) throw new Error('No unique snapshots found for this period');
+        const topBranches = currentSnapshots.slice(0, 3);
+        const bottomBranches = currentSnapshots.slice(-3).reverse();
 
-        const topBranches = uniqueSnapshots.slice(0, 3);
-        const bottomBranches = uniqueSnapshots.slice(-3).reverse();
+        const currentOrgMeta = await getRegionalOfficeData();
 
-        const getCurrentOrgMeta = async () => {
-            return await getRegionalOfficeData();
-        };
-
-        const currentOrgMeta = await getCurrentOrgMeta();
-
-        const getMarchFigure = async (branchId: string, paramId: string, snapDate: Date) => {
+        const getMarchFigure = async (unitId: string, metric: string, snapDate: Date) => {
             const date = new Date(snapDate);
             const currentYear = date.getFullYear();
             const currentMonth = date.getMonth();
             const marchYear = currentMonth <= 2 ? currentYear - 1 : currentYear;
-            const marchStart = new Date(marchYear, 2, 1, 0, 0, 0);
-            const marchEnd = new Date(marchYear, 2, 31, 23, 59, 59);
+            const marchDate = new Date(Date.UTC(marchYear, 2, 31));
 
-            const marchSnap = await prisma.snapshot.findFirst({
-                where: {
-                    branchId,
-                    parameterId: paramId,
-                    date: { gte: marchStart, lte: marchEnd }
-                },
-                orderBy: { date: 'desc' }
+            const marchFact = await prisma.fact.findFirst({
+                where: { unitId, metric, date: marchDate },
+                orderBy: { createdAt: 'desc' }
             });
-            return { value: marchSnap?.value || 0, date: marchEnd };
+            return { value: Number(marchFact?.value || 0), date: marchDate };
         };
 
         const createdLetters = [];
 
-        for (const snap of topBranches) {
+        for (const f of topBranches) {
             const existingLetter = await prisma.letter.findFirst({
-                where: { branchId: snap.branchId!, period: period, type: 'APPRECIATION' }
+                where: { branchId: f.unitId, period: period, type: 'APPRECIATION' }
             });
 
             if (!existingLetter) {
-                const headDesignation = toTitleCase(snap.branch?.headUser?.designation?.nameEn || "Branch Head");
-
-                const marchInfo = await getMarchFigure(snap.branchId!, param.id, snap.date);
-                const gap = snap.value - (snap.budget || 0);
+                const headDesignation = toTitleCase(f.branch?.headUser?.designation?.nameEn || "Branch Head");
+                const marchInfo = await getMarchFigure(f.unitId, f.metric, f.date);
+                const actualVal = Number(f.value);
                 const performanceData = {
                     march31stDate: marchInfo.date,
                     march31st: marchInfo.value,
-                    latestDate: snap.date,
-                    latest: snap.value,
-                    budget: snap.budget || 0,
-                    gap: gap,
-                    status: gap >= 0 ? '+ve' : '-ve'
+                    latestDate: f.date,
+                    latest: actualVal,
+                    budget: 0,
+                    gap: actualVal - marchInfo.value,
+                    status: '+ve'
                 };
                 const letterMeta = { ...currentOrgMeta, performanceData };
 
                 const letter = await prisma.letter.create({
                     data: {
                         type: 'APPRECIATION',
-                        titleEn: `${param.nameEn} Target Achievement - ${period}`,
-                        contentEn: `Dear Sir/Madam,\n\nWe are writing to formally acknowledge and commend the exceptional performance of the ${toTitleCase(snap.branch?.nameEn || "Branch")} Branch under your leadership as ${headDesignation} for the period of ${period}.\n\nA review of the branch's performance in the ${param.nameEn} portfolio reveals an outstanding achievement of ₹ ${snap.value.toLocaleString()} Cr against the assigned target of ₹ ${snap.budget?.toLocaleString() || '0'} Cr.\n\n[PERFORMANCE_TABLE]\n\nSuch dedication and a results-oriented approach are highly appreciated by the management. We place on record our appreciation for the diligent efforts put forth by you and your entire team. We trust that you will continue to maintain this momentum and strive for even greater milestones in the upcoming quarters.\n\nKeep up the excellent work!`,
-                        branchId: snap.branchId!,
-                        parameterId: param.id,
-                        valueAtTime: snap.value,
-                        budgetAtTime: snap.budget,
+                        titleEn: `Total Deposits Growth Performance - ${period}`,
+                        contentEn: `Dear Sir/Madam,\n\nWe are writing to formally acknowledge and commend the exceptional performance of the ${toTitleCase(f.branch?.nameEn || "Branch")} Branch under your leadership as ${headDesignation} for the period of ${period}.\n\nA review of the branch's performance in Total Deposits reveals an achievement of ₹ ${actualVal.toFixed(2)} Cr.\n\n[PERFORMANCE_TABLE]\n\nSuch dedication and a results-oriented approach are highly appreciated by the management. Keep up the excellent work!`,
+                        branchId: f.unitId,
+                        valueAtTime: actualVal,
                         period: period,
                         orgMeta: letterMeta
                     }
@@ -481,38 +451,33 @@ export const letterService = {
             }
         }
 
-        for (const snap of bottomBranches) {
+        for (const f of bottomBranches) {
             const existingLetter = await prisma.letter.findFirst({
-                where: { branchId: snap.branchId!, period: period, type: 'EXPLANATION' }
+                where: { branchId: f.unitId, period: period, type: 'EXPLANATION' }
             });
 
             if (!existingLetter) {
-                const headDesignation = snap.branch?.type === 'REGIONAL OFFICE' 
-                    ? "Region Head" 
-                    : toTitleCase(snap.branch?.headUser?.designation?.nameEn || "Branch Head");
-
-                const marchInfo = await getMarchFigure(snap.branchId!, param.id, snap.date);
-                const gap = snap.value - (snap.budget || 0);
+                const headDesignation = toTitleCase(f.branch?.headUser?.designation?.nameEn || "Branch Head");
+                const marchInfo = await getMarchFigure(f.unitId, f.metric, f.date);
+                const actualVal = Number(f.value);
                 const performanceData = {
                     march31stDate: marchInfo.date,
                     march31st: marchInfo.value,
-                    latestDate: snap.date,
-                    latest: snap.value,
-                    budget: snap.budget || 0,
-                    gap: gap,
-                    status: gap >= 0 ? '+ve' : '-ve'
+                    latestDate: f.date,
+                    latest: actualVal,
+                    budget: 0,
+                    gap: actualVal - marchInfo.value,
+                    status: actualVal >= marchInfo.value ? '+ve' : '-ve'
                 };
                 const letterMeta = { ...currentOrgMeta, performanceData };
 
                 const letter = await prisma.letter.create({
                     data: {
                         type: 'EXPLANATION',
-                        titleEn: `Review of ${param.nameEn} - ${period}`,
-                        contentEn: `Dear Sir/Madam,\n\nWe are writing to draw your urgent attention to the performance of the ${toTitleCase(snap.branch?.nameEn || "Branch")} Branch for the period of ${period}, specifically regarding the ${param.nameEn} portfolio.\n\nA detailed review indicates a significant shortfall in achieving the allocated targets. Against an expected budget of ₹ ${snap.budget?.toLocaleString() || '0'} Cr, the branch has only achieved ₹ ${snap.value.toLocaleString()} Cr. This underperformance is a matter of serious concern for the Management.\n\n[PERFORMANCE_TABLE]\n\nAs the ${headDesignation}, you are requested to analyze the reasons for this shortfall and formulate a concrete, time-bound Action Plan to bridge this gap. You are hereby advised to submit this detailed Plan of Action to the Regional Office within the next 7 days without fail.\n\nWe expect a marked improvement in your branch's performance in the coming weeks. Please treat this matter as highly important.`,
-                        branchId: snap.branchId!,
-                        parameterId: param.id,
-                        valueAtTime: snap.value,
-                        budgetAtTime: snap.budget,
+                        titleEn: `Review of Total Deposits - ${period}`,
+                        contentEn: `Dear Sir/Madam,\n\nWe are writing to draw your urgent attention to the performance of the ${toTitleCase(f.branch?.nameEn || "Branch")} Branch for the period of ${period}, specifically regarding the Total Deposits portfolio.\n\n[PERFORMANCE_TABLE]\n\nAs the ${headDesignation}, you are requested to analyze the reasons for any shortfall and formulate a concrete, time-bound Action Plan.`,
+                        branchId: f.unitId,
+                        valueAtTime: actualVal,
                         period: period,
                         orgMeta: letterMeta
                     }

@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { RuleEngine } from './RuleEngine';
 import { MisParameter, MisStatus } from '../types/mis';
+import { toUTCDate, normalizeAmount } from '../utils/businessUtils';
 
 
 
@@ -9,8 +10,7 @@ export class BusinessSnapshotService {
         const branch = await prisma.branch.findUnique({ where: { code: unitCode } });
         if (!branch) return null;
 
-        const [y, m, d] = date.split('-').map(Number);
-        const businessDate = new Date(Date.UTC(y, m - 1, d));
+        const businessDate = toUTCDate(date);
 
         const snapshot = await prisma.misSnapshot.findUnique({
             where: { unitId_businessDate_version: { unitId: branch.id, businessDate, version: 1 } },
@@ -52,7 +52,7 @@ export class BusinessSnapshotService {
 
         // Robust fallback for missing Cash Data: If certain cash metrics are missing from the panel, 
         // try to fetch them directly from recorded facts.
-        const cashMetricCodes = ['CASH_TOTAL', 'CASH_CRL', 'CASH_BNA', 'CASH_ATM', 'CASH_BC', 'CASH_EXCESS', 'CASH_HOLDING', 'CASH_POSS', 'BNACASH', 'CASH_BNA_TOTAL'];
+        const cashMetricCodes = ['CASH_TOTAL', 'CASH_CRL', 'CASH_BNA', 'CASH_ATM', 'CASH_BC', 'CASH_HAND', 'CASH_EXCESS', 'CASH_HOLDING', 'CASH_POSS', 'BNACASH', 'CASH_BNA_TOTAL'];
         const existingCash = enrichedPanelData.filter(p => cashMetricCodes.includes(p.parameter));
         const missingCash = cashMetricCodes.filter(code => !existingCash.some(p => p.parameter === code));
 
@@ -91,8 +91,7 @@ export class BusinessSnapshotService {
     }
 
     static async generateFromStaging(date: string) {
-        const [y, m, d] = date.split('-').map(Number);
-        const businessDate = new Date(Date.UTC(y, m - 1, d));
+        const businessDate = toUTCDate(date);
 
         // Fetch Data from all sources
         const unitFinancials = await prisma.stgUnitFinancialsDaily.findMany({ where: { businessDate } });
@@ -160,26 +159,24 @@ export class BusinessSnapshotService {
                     let td = Number(uf.tdBalance || 0);
                     let adv = Number(uf.advBalance || 0);
 
-                    if (branch.type === 'BRANCH' || branch.type === 'Branch') {
-                        sb /= 100;
-                        cd /= 100;
-                        td /= 100;
-                        adv /= 100;
-                    } 
-
+                    const isNormalBranch = branch.type?.toUpperCase() === 'BRANCH';
+                    sb = normalizeAmount(sb, isNormalBranch);
+                    cd = normalizeAmount(cd, isNormalBranch);
+                    td = normalizeAmount(td, isNormalBranch);
+                    adv = normalizeAmount(adv, isNormalBranch);
                     const dep = sb + cd + td;
                     const casa = sb + cd;
                     const port = portfolioAggs[uf.unitCode] || { retail: 0, sme: 0, agri: 0, other: 0, sma0: 0, sma1: 0, sma2: 0, gnpa: 0 };
 
-                    if (branch.type === 'BRANCH' || branch.type === 'Branch') {
-                        port.retail /= 100;
-                        port.sme /= 100;
-                        port.agri /= 100;
-                        port.other /= 100;
-                        port.sma0 /= 100;
-                        port.sma1 /= 100;
-                        port.sma2 /= 100;
-                        if (port.gnpa) port.gnpa /= 100;
+                    if (isNormalBranch) {
+                        port.retail = normalizeAmount(port.retail, true);
+                        port.sme = normalizeAmount(port.sme, true);
+                        port.agri = normalizeAmount(port.agri, true);
+                        port.other = normalizeAmount(port.other, true);
+                        port.sma0 = normalizeAmount(port.sma0, true);
+                        port.sma1 = normalizeAmount(port.sma1, true);
+                        port.sma2 = normalizeAmount(port.sma2, true);
+                        if (port.gnpa) port.gnpa = normalizeAmount(port.gnpa, true);
                     }
 
                     await tx.fact.createMany({
@@ -350,6 +347,17 @@ export class BusinessSnapshotService {
                     const casa = getRatioInner('CASA', d); // Use derived casa
                     const dep = getRatioInner('Total Dep', d); // Use derived dep
                     return dep > 0 ? (casa / dep) * 100 : 0;
+                }
+                
+                // Add mapping for core deposit types if Fact table uses suffixes
+                if (lowerM === 'sb' || lowerM === 'sb_deposits') {
+                    return getValInner('SB_DEPOSITS', d) || getValInner('SB', d);
+                }
+                if (lowerM === 'cd' || lowerM === 'cd_deposits') {
+                    return getValInner('CD_DEPOSITS', d) || getValInner('CD', d);
+                }
+                if (lowerM === 'td' || lowerM === 'td_deposits') {
+                    return getValInner('TD_DEPOSITS', d) || getValInner('TD', d);
                 }
                 
                 return numVal;
@@ -564,6 +572,18 @@ export class BusinessSnapshotService {
                     const bulk = await this.getMetricValue(tx, unitId, 'Bulk_Dep', d);
                     return td - bulk;
                 }
+                
+                // Add mapping for core deposit types
+                if (lowerM === 'sb' || lowerM === 'sb_deposits') {
+                    return (await this.getMetricValue(tx, unitId, 'SB_DEPOSITS', d)) || (await this.getMetricValue(tx, unitId, 'SB', d));
+                }
+                if (lowerM === 'cd' || lowerM === 'cd_deposits') {
+                    return (await this.getMetricValue(tx, unitId, 'CD_DEPOSITS', d)) || (await this.getMetricValue(tx, unitId, 'CD', d));
+                }
+                if (lowerM === 'td' || lowerM === 'td_deposits') {
+                    return (await this.getMetricValue(tx, unitId, 'TD_DEPOSITS', d)) || (await this.getMetricValue(tx, unitId, 'TD', d));
+                }
+                
                 return numVal;
             };
 

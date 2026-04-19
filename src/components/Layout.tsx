@@ -98,6 +98,7 @@ const Layout: React.FC<LayoutProps> = ({
                 { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
                 { icon: Flag, label: t('nav.campaigns') || 'Campaigns', key: 'campaigns', restricted: true },
                 { icon: ClipboardCheck, label: t('nav.returns') || 'Regional Returns', key: 'returns', restricted: true },
+                { icon: Users, label: t('nav.meetings') || 'Meeting Hub', key: 'meetings', restricted: true },
             ]
         },
         {

@@ -33,30 +33,7 @@ export const budgetLetterService = {
             customOutro,
             specificDirective
         } = config;
-
-        // 0. Robust Cleanup of Test Data (As requested by user)
-        try {
-            const testBranches = await prisma.branch.findMany({
-                where: {
-                    OR: [
-                        { nameEn: { contains: 'TEST' } },
-                        { code: { contains: 'TEST' } }
-                    ]
-                }
-            });
-
-            for (const tb of testBranches) {
-                if (tb.nameEn.toUpperCase().includes('TEST')) {
-                    await prisma.branch.update({
-                        where: { id: tb.id },
-                        data: { nameEn: `Dindigul Branch ${tb.code.replace('TEST_', '')}` }
-                    });
-                }
-            }
-        } catch (e) {
-            console.error('Cleanup error:', e);
-        }
-
+ 
         const branches = await prisma.branch.findMany({
             where: { 
                 type: { notIn: ['REGIONAL OFFICE', 'LPC'] }
@@ -65,9 +42,8 @@ export const budgetLetterService = {
                 code: 'asc'
             }
         });
-
+ 
         // 1. Purge existing DRAFTS for this budget type and period to prevent duplicates
-        // Only frozen (SENT) letters are preserved.
         try {
             const deleteResult = await prisma.letter.deleteMany({
                 where: {
@@ -81,31 +57,36 @@ export const budgetLetterService = {
         } catch (e) {
             console.error('[BudgetPurge] Error during cleanup:', e);
         }
-
+ 
         const orgMeta = await getRegionalOfficeData();
         
-        // Fetch Signatory Details from Staff Database (As requested)
-        const annamalai = await prisma.user.findFirst({
-            where: { fullNameEn: { contains: 'Annamalai', mode: 'insensitive' } },
+        // Dynamic Signatory Lookup: Find the Planning Department Head or senior-most Planning user
+        const signatory = await prisma.user.findFirst({
+            where: { 
+                OR: [
+                    { section: { contains: 'Planning', mode: 'insensitive' }, role: 'ADMIN' },
+                    { fullNameEn: { contains: 'Annamalai', mode: 'insensitive' } } // Retain as specific secondary fallback
+                ]
+            },
             include: { designation: true }
         });
-
-        // Apply Budget-specific Signatory and Seal Overrides
-        if (annamalai) {
-            orgMeta.signatoryName = annamalai.fullNameEn;
-            orgMeta.signatoryNameHi = annamalai.fullNameHi || "अन्नामलाई";
-            orgMeta.signatoryNameTa = annamalai.fullNameTa || "அண்ணாமலை";
-            orgMeta.signingAuthEn = annamalai.designationEn || (annamalai as any).designation?.nameEn || "Chief Manager";
-            orgMeta.signingAuthHi = annamalai.designationHi || (annamalai as any).designation?.nameHi || "मुख्य प्रबंधक";
-            orgMeta.signingAuthTa = annamalai.designationTa || (annamalai as any).designation?.nameTa || "முதன்மை மேலாளர்";
+ 
+        // Apply Dynamic Signatory Overrides
+        if (signatory) {
+            orgMeta.signatoryName = signatory.fullNameEn;
+            orgMeta.signatoryNameHi = signatory.fullNameHi || "अन्नामलाई";
+            orgMeta.signatoryNameTa = signatory.fullNameTa || "அண்ணாமலை";
+            orgMeta.signingAuthEn = signatory.designationEn || (signatory as any).designation?.nameEn || "Chief Manager";
+            orgMeta.signingAuthHi = signatory.designationHi || (signatory as any).designation?.nameHi || "मुख्य प्रबंधक";
+            orgMeta.signingAuthTa = signatory.designationTa || (signatory as any).designation?.nameTa || "முதன்மை மேலாளர்";
         } else {
-            // Fallback for Annamalai if record not found
-            orgMeta.signatoryName = "Annamalai";
-            orgMeta.signatoryNameHi = "अन्नामलाई";
-            orgMeta.signatoryNameTa = "அண்ணாமலை";
-            orgMeta.signingAuthEn = "Chief Manager";
-            orgMeta.signingAuthHi = "मुख्य प्रबंधक";
-            orgMeta.signingAuthTa = "முதன்மை மேலாளர்";
+            // Static fallback if no matching user found
+            orgMeta.signatoryName = "Chief Manager";
+            orgMeta.signatoryNameHi = "मुख्य प्रबंधक";
+            orgMeta.signatoryNameTa = "முதன்மை மேலாளர்";
+            orgMeta.signingAuthEn = "Planning Department";
+            orgMeta.signingAuthHi = "योजना विभाग";
+            orgMeta.signingAuthTa = "திட்டமிடல் துறை";
         }
         
         // Inject Department Seal

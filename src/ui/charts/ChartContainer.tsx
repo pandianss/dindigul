@@ -1,4 +1,4 @@
-import ReactECharts from "echarts-for-react";
+
 import {
     ResponsiveContainer,
     LineChart,
@@ -16,7 +16,7 @@ import {
     Cell
 } from "recharts";
 
-type ChartType = "line" | "bar" | "area" | "pie" | "heatmap";
+type ChartType = "line" | "bar" | "area" | "pie";
 
 interface Props {
     type: ChartType;
@@ -37,27 +37,7 @@ export default function ChartContainer({
     height = 300,
     title
 }: Props) {
-    if (type === "heatmap") {
-        const option = {
-            title: { text: title, textStyle: { fontSize: 14, fontWeight: 'bold', color: '#1e3a8a' } },
-            tooltip: { position: 'top' },
-            grid: { height: '70%', top: '15%' },
-            xAxis: { type: "category", data: [...new Set(dataset.map(d => d[xKey]))] },
-            yAxis: { type: "category", data: [...new Set(dataset.map(d => d.category))] },
-            visualMap: { min: 0, max: 100, calculable: true, orient: 'horizontal', left: 'center', bottom: '0%' },
-            series: [
-                {
-                    name: title,
-                    type: "heatmap",
-                    data: dataset.map(d => [d[xKey], d.category, d[yKey]]),
-                    label: { show: true },
-                    emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
-                },
-            ],
-        };
 
-        return <ReactECharts option={option} style={{ height }} />;
-    }
 
     return (
         <div className="card p-6">

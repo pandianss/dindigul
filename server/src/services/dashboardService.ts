@@ -1,6 +1,5 @@
 import prisma from '../lib/prisma';
-import { getFYMetrics, getFYRange } from '../utils/fyUtils';
-
+import { getFYMetrics, getFYRange } from '../utils/calendar';
 
 export const dashboardService = {
     async getConfig() {
@@ -31,87 +30,77 @@ export const dashboardService = {
             }
         });
 
-        const latestSnapshots = await prisma.snapshot.findMany({
+        const latestFact = await prisma.fact.findFirst({
             orderBy: { date: 'desc' },
-            take: 2000,
-            include: { parameter: true, branch: true }
+            select: { date: true }
         });
+        const latestDate = latestFact?.date || new Date();
+        const { start: fyStart } = getFYRange(latestDate);
+        const baselineDate = new Date(fyStart.getTime() - 86400000);
 
-        const dateGroups = new Map<string, any[]>();
-        for (const s of latestSnapshots) {
-            const dk = s.date.toISOString();
-            if (!dateGroups.has(dk)) dateGroups.set(dk, []);
-            dateGroups.get(dk)!.push(s);
-        }
-        const sortedDates = Array.from(dateGroups.keys()).sort((a, b) => b.localeCompare(a));
-        const latestDate = sortedDates[0];
-        const recentSnaps = latestDate ? dateGroups.get(latestDate)!.filter(s => s.branch?.type !== 'REGIONAL OFFICE') : [];
+        const [recentFacts, baselineFacts, regParams] = await Promise.all([
+            prisma.fact.findMany({
+                where: { date: latestDate, branch: { type: { not: 'REGIONAL OFFICE' } } },
+                include: { branch: true }
+            }),
+            prisma.fact.findMany({
+                where: { date: baselineDate }
+            }),
+            prisma.misParameterRegistry.findMany({ where: { isEnabled: true } })
+        ]);
 
+        const regMap = Object.fromEntries(regParams.map(p => [p.parameterName, p]));
+        const baselineMap = new Map<string, number>();
+        baselineFacts.forEach(f => baselineMap.set(`${f.unitId}:${f.metric}`, Number(f.value)));
 
-        // Fetch Previous FY End (March 31st) snapshots for baseline
-        const { start: fyStart } = getFYRange(latestDate ? new Date(latestDate) : new Date());
-        const baselineSnaps = await prisma.snapshot.findMany({
-            where: {
-                date: {
-                    gte: new Date(fyStart.getTime() - 86400000), 
-                    lte: fyStart 
-                }
+        const paramMap: Record<string, { values: number[], baselines: number[], displayName: string, unit: string }> = {};
+        
+        for (const f of recentFacts) {
+            const config = regMap[f.metric];
+            if (!config) continue;
+
+            if (!paramMap[f.metric]) {
+                paramMap[f.metric] = { 
+                    values: [], baselines: [], 
+                    displayName: config.displayName || f.metric,
+                    unit: config.category === 'CASH' ? 'Lakhs' : (f.metric.includes('%') ? '%' : 'Cr')
+                };
             }
-        });
 
-        const baselineMap: Record<string, number> = {}; 
-        baselineSnaps.forEach(s => {
-            if (s.branchId && s.parameterId) {
-                baselineMap[`${s.branchId}:${s.parameterId}`] = Number(s.value || 0);
-            }
-        });
-
-        const paramMap: Record<string, { values: number[], budgets: number[], baselines: number[], param: any }> = {};
-        for (const s of recentSnaps) {
-            const code = s.parameter?.code || 'UNKNOWN';
-            if (!paramMap[code]) paramMap[code] = { values: [], budgets: [], baselines: [], param: s.parameter };
-            paramMap[code].values.push(Number(s.value || 0));
-            if (s.budget) paramMap[code].budgets.push(Number(s.budget));
-            
-            const bKey = `${s.branchId}:${s.parameterId}`;
-            if (baselineMap[bKey] !== undefined) {
-                paramMap[code].baselines.push(Number(baselineMap[bKey] || 0));
-            }
+            const entry = paramMap[f.metric];
+            entry.values.push(Number(f.value));
+            const bKey = `${f.unitId}:${f.metric}`;
+            entry.baselines.push(baselineMap.get(bKey) || 0);
         }
 
-        const kpis = Object.entries(paramMap).map(([code, { values, budgets, baselines, param }]) => {
+        const kpis = Object.entries(paramMap).map(([code, { values, baselines, displayName, unit }]) => {
             const actual = values.reduce((a, b) => a + b, 0);
-            const budget = budgets.length > 0 ? budgets.reduce((a, b) => a + b, 0) : 0;
-            const baseline = baselines.length > 0 ? baselines.reduce((a, b) => a + b, 0) : 0;
+            const baseline = baselines.reduce((a, b) => a + b, 0);
             const fyGrowth = actual - baseline;
             const pace = baseline !== 0 ? (fyGrowth / Math.abs(baseline)) * 100 : 0;
-            const unit = param?.unit || '';
             
-            // New logic: Surpassed > budget, Positive > base, Negative < base
             let status = 'LAGGING';
-            if (actual > budget && budget > 0) status = 'SURPASSED';
-            else if (actual > baseline) status = 'POSITIVE';
+            if (actual > baseline) status = 'POSITIVE';
             else if (actual < baseline) status = 'NEGATIVE';
 
             const formatVal = (v: number) => {
-                if (unit === 'Cr' || unit === 'Lakhs') return `₹${v.toFixed(1)} Cr`;
+                if (unit === 'Cr' || unit === 'Lakhs') return `₹${v.toFixed(1)} ${unit}`;
                 if (unit === '%') return `${v.toFixed(2)}%`;
                 return v.toLocaleString('en-IN');
             };
 
             const prefix = fyGrowth > 0 ? '+' : '';
-            const growthDisplay =
-                unit === 'Cr' || unit === 'Lakhs'
-                    ? `${prefix}â‚¹${fyGrowth.toFixed(1)} Cr`
-                    : unit === '%'
-                        ? `${prefix}${fyGrowth.toFixed(2)}%`
-                        : `${prefix}${fyGrowth.toLocaleString('en-IN')}`;
+            const growthDisplay = (unit === 'Cr' || unit === 'Lakhs')
+                ? `${prefix}₹${fyGrowth.toFixed(1)} ${unit}`
+                : unit === '%' 
+                    ? `${prefix}${fyGrowth.toFixed(2)}%`
+                    : `${prefix}${fyGrowth.toLocaleString('en-IN')}`;
 
             return {
                 code,
-                label: param?.nameEn || code,
+                label: displayName,
                 val: formatVal(actual),
-                budget: formatVal(budget),
+                budget: 'N/A',
                 growth: fyGrowth,
                 growthDisplay,
                 pace: Number.isFinite(pace) ? parseFloat(pace.toFixed(1)) : 0,
@@ -120,33 +109,19 @@ export const dashboardService = {
             };
         });
 
-        const branchPulse = {
-            SURPASSED: 0,
-            POSITIVE: 0,
-            LAGGING: 0,
-            NEGATIVE: 0,
-        };
-
-        recentSnaps
-            .filter((s: any) => s.parameter?.code === 'TOTAL_BUSINESS')
-            .forEach((s: any) => {
-
-            const bKey = `${s.branchId}:${s.parameterId}`;
-            const baseline = baselineMap[bKey] ?? 0;
-            const actual = s.value;
-            const budget = s.budget ?? 0;
-
-            if (actual > budget && budget > 0) branchPulse.SURPASSED++;
-            else if (actual > baseline) branchPulse.POSITIVE++;
-            else if (actual < baseline) branchPulse.NEGATIVE++;
-            else branchPulse.LAGGING++;
+        const branchPulse = { SURPASSED: 0, POSITIVE: 0, LAGGING: 0, NEGATIVE: 0 };
+        recentFacts.filter(f => f.metric === 'TOTAL_BUSINESS').forEach(f => {
+            const baseline = baselineMap.get(`${f.unitId}:${f.metric}`) || 0;
+            const actual = Number(f.value);
+            if (actual > baseline) branchPulse.POSITIVE++;
+            else branchPulse.NEGATIVE++;
         });
 
         const pendingLetters = await prisma.letter.findMany({
             where: { status: { in: ['DRAFT', 'SENT'] } },
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { branch: true, parameter: true }
+            include: { branch: true }
         });
 
         const pendingAudit = await prisma.auditObservation.findMany({
@@ -161,7 +136,7 @@ export const dashboardService = {
                 id: l.id,
                 type: l.type,
                 branch: `${l.branch?.nameEn} (${l.branch?.code})`,
-                param: l.parameter?.nameEn || 'General',
+                param: 'General',
                 due: l.period || l.createdAt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
                 status: l.status,
                 urgent: l.type === 'EXPLANATION'
@@ -177,14 +152,12 @@ export const dashboardService = {
             }))
         ].sort((a, b) => (a.urgent === b.urgent ? 0 : a.urgent ? -1 : 1)).slice(0, 8);
 
-        const today = new Date();
         const upcomingEvents = await prisma.holiday.findMany({
-            where: { date: { gte: today } },
+            where: { date: { gte: new Date() } },
             take: 6,
             orderBy: { date: 'asc' }
         });
 
-        const fyMetrics = getFYMetrics();
         const curDate = new Date();
         const anniversaryCheckDates = Array.from({ length: 16 }, (_, i) => {
             const d = new Date(curDate);
@@ -203,10 +176,8 @@ export const dashboardService = {
             const m = parseInt(parts[1]);
             const d = parseInt(parts[2]);
             const y = parseInt(parts[0]);
-            
             const match = anniversaryCheckDates.find(ad => ad.month === m && ad.day === d);
             if (!match) return false;
-            
             (b as any).years = match.year - y;
             (b as any).displayDate = `${d.toString().padStart(2, '0')} ${new Date(2000, m - 1).toLocaleDateString('en-GB', { month: 'short' })}`;
             return true;
@@ -220,13 +191,13 @@ export const dashboardService = {
             _d: parseInt(b.openDate!.split('-')[2])
         })).sort((a, b) => (a._m - b._m) || (a._d - b._d));
 
-        console.log(`[Dashboard] Found ${anniversaries.length} upcoming anniversaries`);
-
-        const formattedNotices = notices.map((n: any) => {
-            const type = n.priority === 'URGENT' ? 'URGENT' : (n.category?.toUpperCase() || 'INFO');
-            return {
+        return {
+            success: true,
+            srmMessage,
+            tickers: tickers.map((t: any) => ({ text: t.text, link: t.linkUrl })),
+            announcements: notices.map((n: any) => ({
                 id: n.id,
-                type,
+                type: n.priority === 'URGENT' ? 'URGENT' : (n.category?.toUpperCase() || 'INFO'),
                 category: n.category,
                 title: n.titleEn,
                 body: n.contentEn,
@@ -234,17 +205,7 @@ export const dashboardService = {
                 pinned: n.isPinned,
                 author: n.targetRole || 'SYSTEM',
                 branches: n.branchId ? [n.branch?.code || 'SPECIFIC'] : ['ALL']
-            };
-        });
-
-        return {
-            success: true,
-            srmMessage,
-            tickers: tickers.map((t: any) => ({
-                text: t.text,
-                link: t.linkUrl
             })),
-            announcements: formattedNotices,
             kpis,
             branchPulse,
             lastUpdated: latestDate || null,
@@ -256,44 +217,26 @@ export const dashboardService = {
                 type: e.type || 'CAMP'
             })),
             anniversaries,
-            fyMetrics
+            fyMetrics: getFYMetrics()
         };
     },
 
-
     async updateSrmMessage(data: any) {
-        const newMessage = await prisma.srmMessage.create({
-            data: { ...data, isActive: true }
-        });
-        await prisma.srmMessage.updateMany({
-            where: { id: { not: newMessage.id } },
-            data: { isActive: false }
-        });
+        const newMessage = await prisma.srmMessage.create({ data: { ...data, isActive: true } });
+        await prisma.srmMessage.updateMany({ where: { id: { not: newMessage.id } }, data: { isActive: false } });
         return newMessage;
     },
 
     async addTicker(data: any) {
         return await prisma.dashboardTicker.create({
-            data: {
-                text: data.text,
-                expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                linkUrl: data.linkUrl,
-                isActive: true,
-                order: 0
-            }
+            data: { text: data.text, expiresAt: data.expiresAt ? new Date(data.expiresAt) : null, linkUrl: data.linkUrl, isActive: true, order: 0 }
         });
     },
 
     async updateTicker(id: string, data: any) {
         return await prisma.dashboardTicker.update({
             where: { id },
-            data: {
-                text: data.text,
-                isActive: data.isActive,
-                expiresAt: data.expiresAt !== undefined ? (data.expiresAt ? new Date(data.expiresAt) : null) : undefined,
-                linkUrl: data.linkUrl,
-                order: data.order
-            }
+            data: { text: data.text, isActive: data.isActive, expiresAt: data.expiresAt ? new Date(data.expiresAt) : null, linkUrl: data.linkUrl, order: data.order }
         });
     },
 
@@ -302,8 +245,6 @@ export const dashboardService = {
     },
 
     async getAdminTickers() {
-        return await prisma.dashboardTicker.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
+        return await prisma.dashboardTicker.findMany({ orderBy: { createdAt: 'desc' } });
     }
 };

@@ -37,6 +37,7 @@ model User {
   designationHi        String?
   designationTa        String?
   requests             BranchRequest[]
+  branchVisits         BranchVisit[]
   headedBranch         Branch?            @relation("BranchHead")
   secondLineBranch     Branch?            @relation("BranchSecondLine")
   auditLogs            ChatAuditLog[]
@@ -45,6 +46,8 @@ model User {
   messageAcks          MessageAck[]
   messagesSent         ChatMessage[]
   comments             Comment[]
+  authoredLetters      Letter[]           @relation("LetterAuthor")
+  signatoryLetters     Letter[]           @relation("LetterSignatory")
   loginAuditLogs       LoginAuditLog[]
   assignedActionPoints ActionPoint[]
   noticeAcks           NoticeAck[]
@@ -60,9 +63,6 @@ model User {
   photo                Photo?             @relation(fields: [photoId], references: [id])
   managedDepartments   Department[]       @relation("DepartmentHeads")
   departments          Department[]       @relation("UserDepartments")
-  signatoryLetters     Letter[]           @relation("LetterSignatory")
-  authoredLetters      Letter[]           @relation("LetterAuthor")
-  branchVisits         BranchVisit[]
 
   @@map("users")
 }
@@ -133,6 +133,7 @@ model Branch {
   auditObservations   AuditObservation[]
   history             BranchHistory[]
   requests            BranchRequest[]
+  visits              BranchVisit[]
   headUser            User?                @relation("BranchHead", fields: [headUserId], references: [id])
   secondLineUser      User?                @relation("BranchSecondLine", fields: [secondLineUserId], references: [id])
   budgets             BudgetMaster[]
@@ -151,7 +152,6 @@ model Branch {
   snapshots           Snapshot[]
   stationeryMovements StationeryMovement[]
   users               User[]               @relation("BranchMembers")
-  visits              BranchVisit[]
 
   @@map("branches")
 }
@@ -165,10 +165,10 @@ model Department {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   sealPath  String?
+  manuals   DepartmentManual[]
   mainUsers User[]             @relation("UserDepartment")
   heads     User[]             @relation("DepartmentHeads")
   users     User[]             @relation("UserDepartments")
-  manuals   DepartmentManual[]
 
   @@map("departments")
 }
@@ -227,14 +227,14 @@ model Letter {
   recipientName     String?
   recipientAddress  String?
   salutation        String?
-  signatoryId       String?
   authorId          String?
+  signatoryId       String?
+  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
   branch            Branch     @relation(fields: [branchId], references: [id])
   parameter         Parameter? @relation(fields: [parameterId], references: [id])
   previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[]   @relation("LetterHistory")
   signatory         User?      @relation("LetterSignatory", fields: [signatoryId], references: [id])
-  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
 
   @@map("letters")
 }
@@ -1044,7 +1044,9 @@ model Meeting {
   date         DateTime
   venue        String?
   status       String        @default("DRAFT")
-  minutesJson  String?
+  attendees    Json? // List of participants [{ name, designation, dept }]
+  minutesJson  String? // Structured table content
+  signatories  Json? // Officials in signing block [{ userId, name, designation }]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   actionPoints ActionPoint[]
@@ -1237,11 +1239,11 @@ model BranchVisit {
   visitorId       String
   visitDate       DateTime
   purpose         String?
-  observations    String?  @db.Text
-  letterIssued    Boolean  @default(false)
-  visitorCategory String   @default("SECOND_LINE") // FIRST_LINE or SECOND_LINE
+  visitorCategory String   @default("SECOND_LINE")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  letterIssued    Boolean  @default(false)
+  observations    String?
   branch          Branch   @relation(fields: [branchId], references: [id])
   visitor         User     @relation(fields: [visitorId], references: [id])
 

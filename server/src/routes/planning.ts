@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { PlanningService } from '../services/planningService';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middleware/auth';
+import { format } from 'date-fns';
 
 const router = Router();
 
 
 // Upload Account Opening CSV
-router.post('/upload', authenticateToken, async (req: any, res) => {
+router.post('/upload', authenticateToken, async (req: any, res: any) => {
     const isPlanning = req.user.section?.toLowerCase() === 'planning';
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
 
@@ -29,8 +30,8 @@ router.post('/upload', authenticateToken, async (req: any, res) => {
 });
 
 // Upload Account Closure CSV
-router.post('/upload-closures', authenticateToken, async (req: any, res) => {
-    const isPlanning = req.user.section === 'Planning';
+router.post('/upload-closures', authenticateToken, async (req: any, res: any) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
 
     try {
@@ -51,7 +52,7 @@ router.post('/upload-closures', authenticateToken, async (req: any, res) => {
 });
 
 // Get Account Opening Analytics
-router.get('/analytics', authenticateToken, async (req, res) => {
+router.get('/analytics', authenticateToken, async (req: any, res: any) => {
     try {
         const { solId } = req.query;
         const analytics = await PlanningService.getAnalytics(solId as string);
@@ -63,7 +64,7 @@ router.get('/analytics', authenticateToken, async (req, res) => {
 });
 
 // Get Specialized Intelligence Reports
-router.get('/intelligence-reports', authenticateToken, async (req, res) => {
+router.get('/intelligence-reports', authenticateToken, async (req: any, res: any) => {
     try {
         const { solId } = req.query;
         const reports = await PlanningService.getIntelligenceReports(solId as string);
@@ -75,8 +76,8 @@ router.get('/intelligence-reports', authenticateToken, async (req, res) => {
 });
 
 // Update System Configuration
-router.post('/config', authenticateToken, async (req: any, res) => {
-    const isPlanning = req.user.section === 'Planning';
+router.post('/config', authenticateToken, async (req: any, res: any) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
 
     try {
@@ -108,7 +109,7 @@ router.post('/config', authenticateToken, async (req: any, res) => {
 });
 
 // Get System Configuration
-router.get('/config/:key', authenticateToken, async (req, res) => {
+router.get('/config/:key', authenticateToken, async (req: any, res: any) => {
     try {
         const { key } = req.params;
         const config = await prisma.systemConfig.findUnique({
@@ -120,4 +121,53 @@ router.get('/config/:key', authenticateToken, async (req, res) => {
     }
 });
 
+// Get Special Report: Top 10 / Bottom 10 Branch Rankings
+router.get('/special-report', authenticateToken, async (req: any, res: any) => {
+    try {
+        const period = (req.query.period as string) === 'fy' ? 'fy' : 'month';
+        const report = await PlanningService.getSpecialReport(period);
+        res.json(report);
+    } catch (error: any) {
+        console.error('Special report error:', error);
+        res.status(500).json({ error: error.message || 'Failed to generate special report' });
+    }
+});
+
+// Download Special Report as Image (PNG)
+router.get('/special-report/download', authenticateToken, async (req: any, res: any) => {
+    try {
+        const period = (req.query.period as string) === 'fy' ? 'fy' : 'month';
+        const metric = req.query.metric as string; // Optional: sbNetOpening, cdNetOpening, etc.
+        const imageBuffer = await PlanningService.generateSpecialReportImage(period, metric);
+        
+        const timestamp = format(new Date(), 'yyyyMMdd_HHmm');
+        const metricSuffix = metric ? `_${metric}` : '';
+        const filename = `Special_Report_${period}${metricSuffix}_${timestamp}.png`;
+
+        res.set({
+            'Content-Type': 'image/png',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+            'Content-Length': imageBuffer.length
+        });
+
+        res.send(imageBuffer);
+    } catch (error: any) {
+        console.error('Special report download error:', error);
+        res.status(500).json({ error: error.message || 'Failed to download special report' });
+    }
+});
+
+// Force re-process all account data (use after fixing date issues)
+router.post('/reprocess-all', authenticateToken, async (req: any, res: any) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+    try {
+        PlanningService.reprocessAllAccounts().catch(err => console.error('Reprocess error:', err));
+        res.json({ message: 'Re-processing started in background. Metrics will update shortly.' });
+    } catch (error: any) {
+        res.status(500).json({ error: 'Failed to start reprocessing' });
+    }
+});
+
 export default router;
+

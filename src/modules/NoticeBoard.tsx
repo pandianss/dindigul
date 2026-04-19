@@ -1,44 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Search, Pin, Calendar, Tag, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import api from '../services/api';
-
-interface Notice {
-    id: string;
-    titleEn: string;
-    contentEn: string;
-    category: string;
-    priority: string;
-    isPinned: boolean;
-    createdAt: string;
-    requiresAck: boolean;
-    hasAcknowledged: boolean;
-}
+import { useNotices } from '../hooks/api/useNotices';
 
 const CATEGORY_COLORS: Record<string, string> = {
     'OPERATIONAL': 'bg-blue-100 text-blue-700',
-    'COMPLIANCE': 'bg-purple-100 text-purple-700',
-    'HR': 'bg-green-100 text-green-700',
-    'GENERAL': 'bg-gray-100 text-gray-700'
 };
 
 const NoticeBoard: React.FC = () => {
-    const [notices, setNotices] = useState<Notice[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { notices, loading, error, acknowledge } = useNotices();
     const [filter, setFilter] = useState('');
-
-    useEffect(() => {
-        api.get('/notices')
-            .then(res => res.data)
-            .then(data => {
-                setNotices(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error('Error fetching notices:', err);
-                setLoading(false);
-            });
-    }, []);
 
     const filteredNotices = notices.filter(n =>
         n.titleEn.toLowerCase().includes(filter.toLowerCase()) ||
@@ -47,14 +18,15 @@ const NoticeBoard: React.FC = () => {
 
     const handleAcknowledge = async (id: string) => {
         try {
-            await api.post(`/notices/${id}/ack`);
-            setNotices(notices.map(n =>
-                n.id === id ? { ...n, hasAcknowledged: true } : n
-            ));
+            await acknowledge(id);
         } catch (err) {
-            console.error('Acknowledgement failed:', err);
+            // Error handled in hook console, could add toast here
         }
     };
+
+    if (error) {
+        return <div className="text-red-500 font-bold p-4 text-center">Failed to load bulletins: {error}</div>;
+    }
 
     return (
         <div className="space-y-4">

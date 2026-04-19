@@ -2111,6 +2111,40 @@ const OfficeNoteManager: React.FC = () => {
         }
     };
 
+    const handleDownloadDDRequest = async (id: string) => {
+        try {
+            const response = await api.get(`/office-notes/${id}/dd-request-form`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `DD_Request_Form_${id.slice(-4)}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            alert('Failed to download Request Form');
+        }
+    };
+
+    const handleDownloadBlankDDForm = async () => {
+        try {
+            const response = await api.get('/office-notes/high-value-dd/blank-form', {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Blank_DD_Request_Form.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            alert('Failed to download blank form: ' + getErrorMessage(error));
+        }
+    };
+
     const handlePreviewPDF = async (id: string, noteDate?: string) => {
         try {
             const response = await api.get(`/office-notes/${id}/pdf`, {
@@ -2202,6 +2236,14 @@ const OfficeNoteManager: React.FC = () => {
                     >
                         <FileSpreadsheet size={20} />
                         <span>Summary Report</span>
+                    </button>
+                    <button
+                        onClick={handleDownloadBlankDDForm}
+                        className="flex items-center space-x-2 bg-white text-bank-teal border-2 border-bank-teal px-6 py-3 rounded-xl font-bold hover:bg-bank-teal hover:text-white transition-all shadow-md active:scale-95 group"
+                        title="Download blank request form for branches"
+                    >
+                        <Copy size={20} className="group-hover:scale-110 transition-transform" />
+                        <span>Blank DD Form</span>
                     </button>
                     <button
                         onClick={() => {
@@ -2822,6 +2864,17 @@ const OfficeNoteManager: React.FC = () => {
                                             <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
                                             <span className="text-xs">Vector PDF</span>
                                         </button>
+
+                                        {note.type === 'HIGH_VALUE_DD' && (
+                                            <button
+                                                onClick={() => handleDownloadDDRequest(note.id)}
+                                                className="flex items-center space-x-2 bg-bank-teal text-white px-3 py-1.5 rounded-xl font-semibold hover:bg-bank-teal/90 transition-all shadow-sm active:scale-95 group"
+                                                title="Download formal request from Branch to RO"
+                                            >
+                                                <IndianRupee size={15} className="group-hover:rotate-12 transition-transform" />
+                                                <span className="text-[10px] uppercase font-bold tracking-tight">Branch Request</span>
+                                            </button>
+                                        )}
                                         <button 
                                             onClick={() => {
                                                 setPreviewNote(note);

@@ -1,6 +1,3 @@
-import prisma from '../lib/prisma';
-import { parseCSV } from '../utils/csv';
-import { countWorkingDaysInInterval, getFYBoundaries, Holiday } from '../utils/calendar';
 import {
     startOfMonth,
     endOfMonth,
@@ -8,10 +5,22 @@ import {
     format,
     isAfter,
     startOfDay,
-    parse as parseDate,
-    differenceInMonths
+    differenceInMonths,
+    startOfQuarter,
+    endOfQuarter
 } from 'date-fns';
-
+import { renderTemplate, getBrowser, fontToBase64, imageToBase64 } from './pdfService';
+import { 
+    cleanAmount, 
+    parseCBSDate, 
+    mapAccountClass, 
+    formatSolId, 
+    normalizeAmount, 
+    toUTCDate 
+} from '../utils/businessUtils';
+import prisma from '../lib/prisma';
+import { parseCSV } from '../utils/csv';
+import { getFYBoundaries, countWorkingDaysInInterval } from '../utils/calendar';
 
 
 export interface AccountOpeningCSVRow {
@@ -51,7 +60,7 @@ export class PlanningService {
         const configs = await prisma.systemConfig.findMany({
             where: { group: 'PLANNING' }
         });
-        const getConf = (key: string) => configs.find(c => c.key === key)?.value;
+        const getConf = (key: string) => configs.find((c: any) => c.key === key)?.value;
 
         const minSb = parseFloat(getConf('MIN_SB_BALANCE_THRESHOLD') || '500');
         const minCd = parseFloat(getConf('MIN_CD_BALANCE_THRESHOLD') || '1000');
@@ -64,7 +73,16 @@ export class PlanningService {
         const batchSize = 100;
         for (let i = 0; i < records.length; i += batchSize) {
             const batch = records.slice(i, i + batchSize);
-            await Promise.all(batch.map(async (record) => {
+            
+            // Prefetch branch categories for the batch to avoid N+1 queries
+            const solIdsInBatch = [...new Set(batch.map((r: AccountOpeningCSVRow) => formatSolId(r.SOL_ID)))];
+            const branchInfo = await prisma.branch.findMany({
+                where: { code: { in: solIdsInBatch } },
+                select: { id: true, code: true, populationGroup: true, type: true }
+            });
+            const branchMap = new Map(branchInfo.map((b: any) => [b.code, b]));
+
+            await Promise.all(batch.map(async (record: AccountOpeningCSVRow) => {
                 try {
                     if (!record.FORACID || !record.SOL_ID) {
                         results.skipped++;
@@ -72,30 +90,29 @@ export class PlanningService {
                     }
 
                     // Standardize SOL ID to 4 digits
-                    const solId = (record.SOL_ID || '').toString().padStart(4, '0');
+                    const solId = formatSolId(record.SOL_ID);
+                    const branch = branchMap.get(solId);
+                    const popGroup = ((branch?.populationGroup as string) || 'URBAN').toUpperCase();
+
+                    // Apply dynamic threshold: Rural branches use 251, others use configured minSb
+                    const activeMinSb = popGroup === 'RURAL' ? 251 : minSb;
 
                     // 1. Normalization Layer
-                    const cleanAmount = (val: string | undefined) => {
-                        if (!val) return 0;
-                        return parseFloat(val.toString().replace(/,/g, '').trim()) || 0;
-                    };
-
-                    const balance = cleanAmount(record.CLR_BAL_AMT);
-                    const avgBalance = cleanAmount(record['AVERAGE BALANCE']);
+                    const isPaise = branch?.type?.toUpperCase() === 'BRANCH'; // Heuristic: Branches usually provide paise
+                    const balance = normalizeAmount(cleanAmount(record.CLR_BAL_AMT), isPaise);
+                    const avgBalance = normalizeAmount(cleanAmount(record['AVERAGE BALANCE']), isPaise);
                     const schmType = (record.SCHM_TYPE || '').toUpperCase();
                     const schmCode = (record.SCHM_CODE || '').toUpperCase();
 
-                    // Derive Account Class
-                    let accountClass = 'OTHER';
-                    if (schmType.includes('SB')) accountClass = 'SB';
-                    else if (schmType.includes('CD') || schmType.includes('CA')) accountClass = 'CD';
+                    // Derive Account Class - STRICT MAPPING
+                    const accountClass = mapAccountClass(schmType);
 
                     // 2. Business Qualification Engine
                     const { isQualified, rejectionReason } = this.qualifyAccount(
                         accountClass,
                         balance,
                         schmCode,
-                        minSb,
+                        activeMinSb,
                         minCd,
                         adoptionSchemes
                     );
@@ -106,14 +123,7 @@ export class PlanningService {
                     else if (balance >= premiumThreshold / 10) valueBucket = 'HIGH_VALUE';
 
                     // Standardize Date
-                    let opnDate: Date;
-                    const dateStr = record.ACCT_OPN_DATE.trim();
-                    if (dateStr.includes('/')) opnDate = parseDate(dateStr, 'dd/MM/yyyy', new Date());
-                    else if (dateStr.includes('-')) opnDate = parseDate(dateStr, 'dd-MM-yyyy', new Date());
-                    else opnDate = new Date(dateStr);
-
-                    if (isNaN(opnDate.getTime())) opnDate = bDate;
-                    else opnDate = startOfDay(opnDate);
+                    const opnDate = toUTCDate(parseCBSDate(record.ACCT_OPN_DATE, bDate));
 
                     await prisma.accountOpening.upsert({
                         where: { foracid: record.FORACID },
@@ -166,7 +176,7 @@ export class PlanningService {
         });
 
         console.log(`Synchronizing Fact Tables for ${affectedDates.length} unique opening dates...`);
-        for (const d of affectedDates) {
+        for (const d of affectedDates as any[]) {
             if (d.acctOpnDate) {
                 await this.refreshFactTables(d.acctOpnDate);
             }
@@ -186,7 +196,7 @@ export class PlanningService {
         const batchSize = 100;
         for (let i = 0; i < records.length; i += batchSize) {
             const batch = records.slice(i, i + batchSize);
-            await Promise.all(batch.map(async (record) => {
+            await Promise.all(batch.map(async (record: AccountClosureCSVRow) => {
                 try {
                     if (!record.FORACID || !record.SOL_ID) {
                         results.skipped++;
@@ -200,34 +210,16 @@ export class PlanningService {
                         return;
                     }
 
-                    const cleanAmount = (val: string | undefined) => {
-                        if (!val) return 0;
-                        return parseFloat(val.toString().replace(/,/g, '').trim()) || 0;
-                    };
-
                     const balance = cleanAmount(record['Balance Prior to Closure']);
                     const schmType = (record.SCHM_TYPE || '').toUpperCase();
                     const schmCode = (record.SCHM_CODE || '').toUpperCase();
 
                     // Derive Account Class
-                    let accountClass = 'OTHER';
-                    if (schmType.includes('SB')) accountClass = 'SB';
-                    else if (schmType.includes('CD') || schmType.includes('CA')) accountClass = 'CD';
+                    const accountClass = mapAccountClass(schmType);
 
-                    // Standardize Dates
-                    const parseFODate = (dateStr: string) => {
-                        dateStr = (dateStr || '').trim();
-                        let d: Date;
-                        if (dateStr.includes('/')) d = parseDate(dateStr, 'dd/MM/yyyy', new Date());
-                        else if (dateStr.includes('-')) d = parseDate(dateStr, 'dd-MM-yyyy', new Date());
-                        else d = new Date(dateStr);
-
-                        return isNaN(d.getTime()) ? bDate : startOfDay(d);
-                    };
-
-                    const opnDate = parseFODate(record.ACCT_OPN_DATE);
-                    const clsDate = parseFODate(record.ACCT_CLS_DATE);
-                    const finalClsDate = clsDate; // Already startOfDay from the helper
+                    const opnDate = parseCBSDate(record.ACCT_OPN_DATE, bDate);
+                    const clsDate = parseCBSDate(record.ACCT_CLS_DATE, bDate);
+                    const finalClsDate = clsDate;
 
                     // Normalize SOL_ID to 4 digits
                     let solId = (record.SOL_ID || '').toString().trim();
@@ -278,7 +270,7 @@ export class PlanningService {
         });
 
         console.log(`Synchronizing Fact Tables for ${affectedDates.length} unique closure dates...`);
-        for (const d of affectedDates) {
+        for (const d of affectedDates as any[]) {
             if (d.acctClsDate) {
                 await this.refreshFactTables(d.acctClsDate);
             }
@@ -288,105 +280,126 @@ export class PlanningService {
     }
 
     /**
-     * Refreshes Fact Tables using Calendar Master.
+     * Refreshes Fact Tables using the Unified Fact Model.
      */
     private static async refreshFactTables(businessDate: Date) {
-        console.log(`Refreshing fact tables for ${format(businessDate, 'yyyy-MM-dd')}...`);
+        const bDate = toUTCDate(businessDate);
+        console.log(`Refreshing unified fact tables for ${format(bDate, 'yyyy-MM-dd')}...`);
 
         // 1. Get Calendar Info
         const calendar = await prisma.calendarMaster.findUnique({
-            where: { calDate: businessDate }
+            where: { calDate: bDate }
         });
         if (!calendar) {
-            console.warn(`No calendar entry for ${format(businessDate, 'yyyy-MM-dd')}. Skipping fact refresh.`);
+            console.warn(`No calendar entry for ${format(bDate, 'yyyy-MM-dd')}. Skipping fact refresh.`);
             return;
         }
 
-        // 2. Aggregate counts by Branch using robust count/aggregate logic
-        const branches = await prisma.branch.findMany({ select: { code: true } });
+        const monthStart = startOfMonth(bDate);
+        const monthEnd = endOfMonth(bDate);
 
-        for (const branch of branches) {
-            // Daily SB Fact
-            const dailyOpenStats = await prisma.accountOpening.count({
-                where: { solId: branch.code, acctOpnDate: businessDate, accountClass: 'SB' }
-            });
+        // 2. Batch Aggregate counts for ALL branches at once
+        const [sbOpenStats, sbClosedStats, sbQualStats, cdOpenStats, cdClosedStats, cdQualStats] = await Promise.all([
+            // SB Daily
+            prisma.accountOpening.groupBy({
+                by: ['solId'],
+                where: { acctOpnDate: bDate, accountClass: 'SB' },
+                _count: { foracid: true }
+            }),
+            prisma.accountClosure.groupBy({
+                by: ['solId'],
+                where: { acctClsDate: bDate, accountClass: 'SB' },
+                _count: { foracid: true }
+            }),
+            prisma.accountOpening.groupBy({
+                by: ['solId'],
+                where: { acctOpnDate: bDate, accountClass: 'SB', isQualified: true },
+                _count: { foracid: true }
+            }),
+            // CD Daily (Aggregated for current date, though CD is often monthly)
+            prisma.accountOpening.groupBy({
+                by: ['solId'],
+                where: { acctOpnDate: bDate, accountClass: 'CD' },
+                _count: { foracid: true }
+            }),
+            prisma.accountClosure.groupBy({
+                by: ['solId'],
+                where: { acctClsDate: bDate, accountClass: 'CD' },
+                _count: { foracid: true }
+            }),
+            prisma.accountOpening.groupBy({
+                by: ['solId'],
+                where: { acctOpnDate: bDate, accountClass: 'CD', isQualified: true },
+                _count: { foracid: true }
+            })
+        ]);
 
-            const dailyClosedStats = await prisma.accountClosure.count({
-                where: { solId: branch.code, acctClsDate: businessDate, accountClass: 'SB' }
-            });
+        const getCount = (stats: any[], solId: string) => stats.find((s: any) => s.solId === solId)?._count.foracid || 0;
 
-            const qualifiedStats = await prisma.accountOpening.count({
-                where: { solId: branch.code, acctOpnDate: businessDate, accountClass: 'SB', isQualified: true }
-            });
+        const allSols = [...new Set([
+            ...sbOpenStats.map((s: any) => s.solId),
+            ...sbClosedStats.map((s: any) => s.solId),
+            ...cdOpenStats.map((s: any) => s.solId),
+            ...cdClosedStats.map((s: any) => s.solId)
+        ])];
 
-            if (dailyOpenStats > 0 || dailyClosedStats > 0) {
-                await prisma.factSbDailyBranch.upsert({
-                    where: { solId_openDay: { solId: branch.code, openDay: businessDate } },
-                    update: {
-                        netSbOpened: dailyOpenStats,
-                        sbClosed: dailyClosedStats,
-                        qualifiedCount: qualifiedStats,
-                        workingDayFlag: calendar.isWorkingDay,
-                        dataQualityFlag: 'VALID'
-                    },
-                    create: {
-                        solId: branch.code,
-                        openDay: businessDate,
-                        netSbOpened: dailyOpenStats,
-                        sbClosed: dailyClosedStats,
-                        qualifiedCount: qualifiedStats,
-                        workingDayFlag: calendar.isWorkingDay,
-                        dataQualityFlag: 'VALID'
-                    }
-                });
-            }
+        const branchInfo = await prisma.branch.findMany({
+            where: { code: { in: allSols } },
+            select: { id: true, code: true }
+        });
+        const branchMap = new Map(branchInfo.map((b: any) => [b.code, b.id]));
 
-            // Monthly CD Fact refresh
-            const cdOpenStats = await prisma.accountOpening.count({
-                where: {
-                    solId: branch.code,
-                    accountClass: 'CD',
-                    acctOpnDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
+        console.log(`Updating unified facts for ${branchInfo.length} branches...`);
+
+        // 3. RECONCILIATION CHECK (Planning vs MIS Staging)
+        const stagingData = await prisma.stgUnitFinancialsDaily.findMany({
+            where: { businessDate: bDate, unitCode: { in: allSols } }
+        });
+ 
+        if (stagingData.length > 0) {
+            stagingData.forEach(stg => {
+                const sol = stg.unitCode;
+                const planningCount = getCount(sbOpenStats, sol);
+                const stgBalance = Number(stg.sbBalance || 0);
+                
+                // Rule: If we have > 5 new accounts but 0 balance movement, flag as data delay
+                if (planningCount > 5 && stgBalance === 0) {
+                    console.warn(`[Reconciliation-Alert] SOL ${sol}: ${planningCount} accounts opened but 0 MIS balance. Potential sync delay.`);
                 }
             });
-
-            const cdClosedStats = await prisma.accountClosure.count({
-                where: {
-                    solId: branch.code,
-                    accountClass: 'CD',
-                    acctClsDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
-                }
-            });
-
-            const qualifiedCdStats = await prisma.accountOpening.count({
-                where: {
-                    solId: branch.code,
-                    accountClass: 'CD',
-                    isQualified: true,
-                    acctOpnDate: { gte: startOfMonth(businessDate), lte: endOfMonth(businessDate) }
-                }
-            });
-
-            if (cdOpenStats > 0 || cdClosedStats > 0) {
-                await prisma.factCdMonthlyBranch.upsert({
-                    where: { solId_monthKey: { solId: branch.code, monthKey: calendar.monthKey } },
-                    update: {
-                        netCdOpened: cdOpenStats,
-                        cdClosed: cdClosedStats,
-                        qualifiedCount: qualifiedCdStats,
-                        dataQualityFlag: 'VALID'
-                    },
-                    create: {
-                        solId: branch.code,
-                        monthKey: calendar.monthKey,
-                        netCdOpened: cdOpenStats,
-                        cdClosed: cdClosedStats,
-                        qualifiedCount: qualifiedCdStats,
-                        dataQualityFlag: 'VALID'
-                    }
-                });
-            }
         }
+
+        // 4. Transactional Upsert into Unified Fact Table
+        await prisma.$transaction(async (tx) => {
+            for (const sol of allSols) {
+                const unitId = branchMap.get(sol);
+                if (!unitId) continue;
+
+                const metrics = [
+                    { key: 'PLAN_SB_OPEN', val: getCount(sbOpenStats, sol) },
+                    { key: 'PLAN_SB_CLOSE', val: getCount(sbClosedStats, sol) },
+                    { key: 'PLAN_SB_QUAL', val: getCount(sbQualStats, sol) },
+                    { key: 'PLAN_CD_OPEN', val: getCount(cdOpenStats, sol) },
+                    { key: 'PLAN_CD_CLOSE', val: getCount(cdClosedStats, sol) },
+                    { key: 'PLAN_CD_QUAL', val: getCount(cdQualStats, sol) }
+                ];
+
+                for (const m of metrics) {
+                    if (m.val === 0) continue; 
+                    
+                    // We use date+unitId+metric as the unique identifier for a fact
+                    // Note: Depending on the schema, we might need to delete first or use upsert if available
+                    // Schema shows index on [date, unitId, metric] but not necessarily a unique constraint.
+                    // We'll delete and recreate to ensure freshness.
+                    await tx.fact.deleteMany({
+                        where: { unitId, date: bDate, metric: m.key }
+                    });
+                    await tx.fact.create({
+                        data: { unitId, date: bDate, metric: m.key, value: m.val }
+                    });
+                }
+            }
+        });
     }
 
     /**
@@ -428,22 +441,30 @@ export class PlanningService {
         });
 
         // 3. Branch Performance Leaderboard (using Fact tables)
-        const branchLeaderboard = await prisma.factSbDailyBranch.groupBy({
-            by: ['solId'],
+        const branchLeaderboard = await prisma.fact.groupBy({
+            by: ['unitId'],
             where: { 
-                openDay: { gte: startOfMonth(now) },
-                ...(solId ? { solId } : {})
+                date: { gte: startOfMonth(now) },
+                metric: 'PLAN_SB_OPEN',
+                ...(solId ? { branch: { code: solId } } : {})
             },
-            _sum: { netSbOpened: true, qualifiedCount: true }
+            _sum: { value: true }
         });
 
-        // Enrich with branch names
-        const enrichedLeaderboard = await Promise.all(branchLeaderboard.map(async (item: { solId: string, _sum: { netSbOpened: number | null, qualifiedCount: number | null } }) => {
-            const branch = await prisma.branch.findUnique({ where: { code: item.solId }, select: { nameEn: true } });
-            return {
-                ...item,
-                branchName: branch?.nameEn || item.solId
-            };
+        // Enrich with branch names in BULK to avoid N+1
+        const unitIds = branchLeaderboard.map((item: any) => item.unitId);
+        const branches = await prisma.branch.findMany({
+            where: { id: { in: unitIds } },
+            select: { id: true, code: true, nameEn: true }
+        });
+        const branchNameMap = new Map(branches.map((b: any) => [b.id, b.nameEn]));
+        const branchCodeMap = new Map(branches.map((b: any) => [b.id, b.code]));
+
+        const enrichedLeaderboard = branchLeaderboard.map((item: any) => ({
+            ...item,
+            solId: branchCodeMap.get(item.unitId) || item.unitId,
+            branchName: branchNameMap.get(item.unitId) || item.unitId,
+            _sum: { netSbOpened: Number(item._sum.value || 0) } // Map back for backward compatibility
         }));
 
         // 4. Rejection Summary
@@ -479,6 +500,71 @@ export class PlanningService {
     }
 
     /**
+     * Generates Special Report: Top 10 / Bottom 10 Branch Rankings.
+     * Metrics: Net Account Opening, Avg Balance, Net Rate for SB and CD.
+     */
+    static async getSpecialReport(period: 'month' | 'fy' = 'month') {
+        const now = new Date();
+        const bDate = startOfDay(now);
+        const cal = await prisma.calendarMaster.findUnique({ where: { calDate: bDate } });
+        if (!cal) return { error: 'Calendar not initialized for today' };
+
+        const monthKey = cal.monthKey;
+        const fyBoundaries = getFYBoundaries(bDate);
+
+        const currentMonthDates = await prisma.calendarMaster.aggregate({
+            where: { monthKey }, _min: { calDate: true }
+        });
+        const monthStart = currentMonthDates._min.calDate || startOfMonth(bDate);
+
+        const wdThisMonth = await prisma.calendarMaster.count({
+            where: { monthKey, isWorkingDay: true, calDate: { lte: bDate } }
+        });
+        const wdFY = await prisma.calendarMaster.count({
+            where: { financialPeriod: cal.financialPeriod, isWorkingDay: true, calDate: { lte: bDate } }
+        });
+        const monthsElapsedFY = differenceInMonths(bDate, fyBoundaries.start) + 1;
+
+        const sbRange = period === 'month'
+            ? { gte: monthStart, lte: bDate }
+            : { gte: fyBoundaries.start, lte: bDate };
+        const cdMonthFilter: any = period === 'month'
+            ? monthKey
+            : { gte: format(fyBoundaries.start, 'yyyy-MM') };
+        const sbDivisor = period === 'month' ? (wdThisMonth || 1) : (wdFY || 1);
+        const cdDivisor = period === 'month' ? 1 : monthsElapsedFY;
+        const avgBalStart = period === 'month' ? monthStart : fyBoundaries.start;
+
+        const breakdown = await this.getBranchBreakdown(sbRange, cdMonthFilter, avgBalStart, sbDivisor, cdDivisor);
+
+        const topN = 10;
+        const sortAsc = (arr: any[], key: string) =>
+            [...arr].sort((a: any, b: any) => a[key] - b[key]).slice(0, topN);
+        const sortDesc = (arr: any[], key: string) =>
+            [...arr].sort((a: any, b: any) => b[key] - a[key]).slice(0, topN);
+
+        const enriched = breakdown.map((b: any) => ({
+            ...b,
+            sbNet: b.sbQualified - b.sbClosed,
+            cdNet: b.cdQualified - b.cdClosed
+        }));
+
+        return {
+            period,
+            monthKey,
+            fyKey: cal.financialPeriod,
+            generatedAt: new Date().toISOString(),
+            totalBranches: breakdown.length,
+            sbNetOpening: { top: sortDesc(enriched, 'sbNet'), bottom: sortAsc(enriched, 'sbNet') },
+            cdNetOpening: { top: sortDesc(enriched, 'cdNet'), bottom: sortAsc(enriched, 'cdNet') },
+            avgBalance:   { top: sortDesc(enriched, 'avgBalance'), bottom: sortAsc(enriched, 'avgBalance') },
+            cdAvgBalance: { top: sortDesc(enriched, 'cdAvgBalance'), bottom: sortAsc(enriched, 'cdAvgBalance') },
+            sbNetRate:    { top: sortDesc(enriched, 'sbRate'), bottom: sortAsc(enriched, 'sbRate') },
+            cdNetRate:    { top: sortDesc(enriched, 'cdRate'), bottom: sortAsc(enriched, 'cdRate') }
+        };
+    }
+
+    /**
      * Calculates SB/CD analytics based on Fact tables and Calendar Master.
      */
     static async getAnalytics(solId?: string) {
@@ -507,7 +593,7 @@ export class PlanningService {
         const configs = await prisma.systemConfig.findMany({
             where: { group: 'PLANNING' }
         });
-        const getConf = (key: string) => configs.find(c => c.key === key)?.value;
+        const getConf = (key: string) => configs.find((c: any) => c.key === key)?.value;
 
         const sbThreshold = parseFloat(getConf('MIN_SB_BALANCE_THRESHOLD') || '500');
         const cdThreshold = parseFloat(getConf('MIN_CD_BALANCE_THRESHOLD') || '1000');
@@ -525,59 +611,50 @@ export class PlanningService {
 
         console.log(`[PlanningAnalytics] Context - Month: ${monthKey}, WD: ${wdThisMonth}, FY: ${fy}, WD: ${wdFY}`);
 
-        // 3. SB Stats using Fact tables
+        // 3. SB Stats using Unified Fact table
         // Find date range for current monthKey to avoid timezone issues
         const currentMonthDates = await prisma.calendarMaster.aggregate({
             where: { monthKey },
             _min: { calDate: true }
         });
         const monthStart = currentMonthDates._min.calDate || startOfMonth(bDate);
-
-        const sbThisMonth = await prisma.factSbDailyBranch.aggregate({
-            where: { 
-                openDay: { gte: monthStart, lte: bDate },
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
-        });
-        const sbLastMonth = await prisma.factSbDailyBranch.aggregate({
-            where: { 
-                openDay: { gte: lastMonthStart, lte: lastMonthEnd },
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
-        });
+ 
+        const getFactSum = async (startDate: Date, endDate: Date, metrics: string[]): Promise<any> => {
+            const results = await prisma.fact.groupBy({
+                by: ['metric'],
+                where: {
+                    date: { gte: startDate, lte: endDate },
+                    metric: { in: metrics },
+                    ...(solId ? { branch: { code: solId } } : {})
+                },
+                _sum: { value: true }
+            });
+            const map: any = {};
+            metrics.forEach(m => map[m] = Number(results.find(r => r.metric === m)?._sum.value || 0));
+            return map;
+        };
+ 
+        const sbMetrics = ['PLAN_SB_OPEN', 'PLAN_SB_CLOSE', 'PLAN_SB_QUAL'];
+        const sbThisMonthFact = await getFactSum(monthStart, bDate, sbMetrics);
+        const sbLastMonthFact = await getFactSum(lastMonthStart, lastMonthEnd, sbMetrics);
+        
         const fyBoundaries = getFYBoundaries(bDate);
-        const sbFY = await prisma.factSbDailyBranch.aggregate({
-            where: { 
-                openDay: { gte: fyBoundaries.start, lte: bDate },
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
-        });
-
-        // 4. CD Stats using Fact tables
-        const cdThisMonth = await prisma.factCdMonthlyBranch.aggregate({
-            where: { 
-                monthKey,
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
-        });
-        const cdLastMonth = await prisma.factCdMonthlyBranch.aggregate({
-            where: { 
-                monthKey: format(lastMonthStart, 'yyyy-MM'),
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
-        });
-        const cdFY = await prisma.factCdMonthlyBranch.aggregate({
-            where: { 
-                monthKey: { gte: format(fyBoundaries.start, 'yyyy-MM') },
-                ...(solId ? { solId } : {})
-            },
-            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
-        });
+        const sbFYFact = await getFactSum(fyBoundaries.start, bDate, sbMetrics);
+ 
+        // 4. CD Stats using Unified Fact table
+        const cdMetrics = ['PLAN_CD_OPEN', 'PLAN_CD_CLOSE', 'PLAN_CD_QUAL'];
+        const cdThisMonthFact = await getFactSum(monthStart, bDate, cdMetrics);
+        const cdLastMonthFact = await getFactSum(lastMonthStart, lastMonthEnd, cdMetrics);
+        const cdFYFact = await getFactSum(fyBoundaries.start, bDate, cdMetrics);
+ 
+        // Map for backward compatibility with UI
+        const sbThisMonth = { _sum: { netSbOpened: sbThisMonthFact.PLAN_SB_OPEN, sbClosed: sbThisMonthFact.PLAN_SB_CLOSE, qualifiedCount: sbThisMonthFact.PLAN_SB_QUAL } };
+        const sbLastMonth = { _sum: { netSbOpened: sbLastMonthFact.PLAN_SB_OPEN, sbClosed: sbLastMonthFact.PLAN_SB_CLOSE, qualifiedCount: sbLastMonthFact.PLAN_SB_QUAL } };
+        const sbFY = { _sum: { netSbOpened: sbFYFact.PLAN_SB_OPEN, sbClosed: sbFYFact.PLAN_SB_CLOSE, qualifiedCount: sbFYFact.PLAN_SB_QUAL } };
+ 
+        const cdThisMonth = { _sum: { netCdOpened: cdThisMonthFact.PLAN_CD_OPEN, cdClosed: cdThisMonthFact.PLAN_CD_CLOSE, qualifiedCount: cdThisMonthFact.PLAN_CD_QUAL } };
+        const cdLastMonth = { _sum: { netCdOpened: cdLastMonthFact.PLAN_CD_OPEN, cdClosed: cdLastMonthFact.PLAN_CD_CLOSE, qualifiedCount: cdLastMonthFact.PLAN_CD_QUAL } };
+        const cdFY = { _sum: { netCdOpened: cdFYFact.PLAN_CD_OPEN, cdClosed: cdFYFact.PLAN_CD_CLOSE, qualifiedCount: cdFYFact.PLAN_CD_QUAL } };
 
         // Ensure values are numbers or 0
         const parseStat = (val: number | null | undefined) => val || 0;
@@ -694,64 +771,89 @@ export class PlanningService {
     }
 
     private static async getBranchBreakdown(sbRange: any, cdMonthFilter: any, avgBalStart: Date, sbDivisor: number, cdDivisor: number) {
-        const branchSb = await prisma.factSbDailyBranch.groupBy({
-            by: ['solId'],
-            where: { openDay: sbRange },
-            _sum: { netSbOpened: true, sbClosed: true, qualifiedCount: true }
+        const branchSb = await prisma.fact.groupBy({
+            by: ['unitId', 'metric'],
+            where: { 
+                date: sbRange, 
+                metric: { in: ['PLAN_SB_OPEN', 'PLAN_SB_CLOSE', 'PLAN_SB_QUAL'] } 
+            },
+            _sum: { value: true }
         });
 
-        const branchCd = await prisma.factCdMonthlyBranch.groupBy({
-            by: ['solId'],
-            where: { monthKey: cdMonthFilter },
-            _sum: { netCdOpened: true, cdClosed: true, qualifiedCount: true }
+        // For CD, if cdMonthFilter is a string (e.g., monthKey), adapt it to a date range
+        let cdRange = cdMonthFilter;
+        if (typeof cdMonthFilter === 'string') {
+            const calDates = await prisma.calendarMaster.aggregate({
+                where: { monthKey: cdMonthFilter },
+                _min: { calDate: true },
+                _max: { calDate: true }
+            });
+            cdRange = { gte: calDates._min.calDate, lte: calDates._max.calDate };
+        }
+ 
+        const branchCd = await prisma.fact.groupBy({
+            by: ['unitId', 'metric'],
+            where: { 
+                date: cdRange, 
+                metric: { in: ['PLAN_CD_OPEN', 'PLAN_CD_CLOSE', 'PLAN_CD_QUAL'] } 
+            },
+            _sum: { value: true }
         });
 
-        const branchAvg = await prisma.accountOpening.groupBy({
+        const branchAvgSb = await prisma.accountOpening.groupBy({
             by: ['solId'],
-            where: { acctOpnDate: { gte: avgBalStart } },
+            where: { acctOpnDate: { gte: avgBalStart }, isQualified: true, accountClass: 'SB' },
+            _avg: { clrBalAmt: true }
+        });
+
+        const branchAvgCd = await prisma.accountOpening.groupBy({
+            by: ['solId'],
+            where: { acctOpnDate: { gte: avgBalStart }, isQualified: true, accountClass: { in: ['CAA', 'CD'] } },
             _avg: { clrBalAmt: true }
         });
 
         const branchMap = new Map<string, any>();
 
-        for (const item of branchSb) {
-            branchMap.set(item.solId, {
-                solId: item.solId,
-                sbTotal: item._sum.netSbOpened || 0,
-                sbClosed: item._sum.sbClosed || 0,
-                sbQualified: item._sum.qualifiedCount || 0,
-                cdTotal: 0,
-                cdClosed: 0,
-                cdQualified: 0
-            });
-        }
-
-        for (const item of branchCd) {
-            const existing = branchMap.get(item.solId) || { solId: item.solId, sbTotal: 0, sbClosed: 0, sbQualified: 0 };
-            branchMap.set(item.solId, {
-                ...existing,
-                cdTotal: item._sum.netCdOpened || 0,
-                cdClosed: item._sum.cdClosed || 0,
-                cdQualified: item._sum.qualifiedCount || 0
-            });
-        }
-
-        const avgMap = new Map(branchAvg.map(a => [a.solId, a._avg.clrBalAmt || 0]));
-        const solIds = Array.from(branchMap.keys());
-        const branches = await prisma.branch.findMany({
-            where: { code: { in: solIds } },
-            select: { code: true, nameEn: true }
+        branchSb.forEach((f: any) => {
+            if (!branchMap.has(f.unitId)) {
+                branchMap.set(f.unitId, { unitId: f.unitId, sbTotal: 0, sbClosed: 0, sbQualified: 0, cdTotal: 0, cdClosed: 0, cdQualified: 0 });
+            }
+            const entry = branchMap.get(f.unitId);
+            if (f.metric === 'PLAN_SB_OPEN') entry.sbTotal = Number(f._sum.value || 0);
+            if (f.metric === 'PLAN_SB_CLOSE') entry.sbClosed = Number(f._sum.value || 0);
+            if (f.metric === 'PLAN_SB_QUAL') entry.sbQualified = Number(f._sum.value || 0);
         });
-        const nameMap = new Map(branches.map(b => [b.code, b.nameEn]));
+ 
+        branchCd.forEach((f: any) => {
+            if (!branchMap.has(f.unitId)) {
+                branchMap.set(f.unitId, { unitId: f.unitId, sbTotal: 0, sbClosed: 0, sbQualified: 0, cdTotal: 0, cdClosed: 0, cdQualified: 0 });
+            }
+            const entry = branchMap.get(f.unitId);
+            if (f.metric === 'PLAN_CD_OPEN') entry.cdTotal = Number(f._sum.value || 0);
+            if (f.metric === 'PLAN_CD_CLOSE') entry.cdClosed = Number(f._sum.value || 0);
+            if (f.metric === 'PLAN_CD_QUAL') entry.cdQualified = Number(f._sum.value || 0);
+        });
 
+        const avgMapSb = new Map(branchAvgSb.map((a: any) => [a.solId, a._avg.clrBalAmt || 0]));
+        const avgMapCd = new Map(branchAvgCd.map((a: any) => [a.solId, a._avg.clrBalAmt || 0]));
+
+        const unitIdsInMap = Array.from(branchMap.keys());
+        const branches = await prisma.branch.findMany({
+            where: { id: { in: unitIdsInMap } },
+            select: { id: true, code: true, nameEn: true }
+        });
+        const nameMap = new Map(branches.map((b: any) => [b.id, b.nameEn]));
+        const solCodeMap = new Map(branches.map((b: any) => [b.id, b.code]));
+ 
         return Array.from(branchMap.values()).map(item => {
+            const solId = solCodeMap.get(item.unitId) || '0000';
             const gross = item.sbTotal + item.cdTotal;
             const closed = item.sbClosed + item.cdClosed;
             const qualified = item.sbQualified + item.cdQualified;
             const net = qualified - closed;
             return {
-                code: item.solId,
-                name: nameMap.get(item.solId) || item.solId,
+                code: solId,
+                name: nameMap.get(item.unitId) || solId,
                 sbTotal: item.sbTotal,
                 sbClosed: item.sbClosed,
                 sbQualified: item.sbQualified,
@@ -763,7 +865,8 @@ export class PlanningService {
                 net,
                 qualified,
                 lowBalance: gross - qualified,
-                avgBalance: avgMap.get(item.solId) || 0,
+                avgBalance: Number(avgMapSb.get(solId) || 0),
+                cdAvgBalance: Number(avgMapCd.get(solId) || 0),
                 sbRate: (item.sbQualified - item.sbClosed) / sbDivisor,
                 cdRate: (item.cdQualified - item.cdClosed) / cdDivisor
             };
@@ -837,10 +940,13 @@ export class PlanningService {
         let isQualified = true;
         let rejectionReason: string | null = null;
 
-        if (adoptionSchemes.length > 0 && !adoptionSchemes.includes(schmCode)) {
-            isQualified = false;
-            rejectionReason = 'NON_ELIGIBLE_SCHEME';
-        } else if (accountClass === 'SB' && balance < minSb) {
+        // 1. Special Exemptions (Always Qualified)
+        if (schmCode === 'SBSUB' || schmCode === 'CDSUB') {
+            return { isQualified: true, rejectionReason: null };
+        }
+
+        // 2. Main Qualification Logic (Overall Performance - Removing Adoption Scheme Whitelist)
+        if (accountClass === 'SB' && balance < minSb) {
             isQualified = false;
             rejectionReason = `BELOW_SB_THRESHOLD (${minSb})`;
         } else if (accountClass === 'CD' && balance < minCd) {
@@ -849,5 +955,108 @@ export class PlanningService {
         }
 
         return { isQualified, rejectionReason };
+    }
+
+    /**
+     * Generates a high-quality PNG image of the Special Performance Report.
+     * Supports generating a combined report or a single metric report.
+     */
+    static async generateSpecialReportImage(period: 'month' | 'fy' = 'month', metricKey?: string) {
+        console.log(`[SpecialReport] Starting generation for ${period}${metricKey ? ` (Metric: ${metricKey})` : ''}`);
+        const reportData = await this.getSpecialReport(period);
+        if ((reportData as any).error) throw new Error((reportData as any).error);
+        
+        console.log(`[SpecialReport] Data fetched. Rendering at 1920px width...`);
+
+        const formatNumber = (num: number) => new Intl.NumberFormat('en-IN').format(num);
+        const formatCurrency = (num: number) => '₹' + new Intl.NumberFormat('en-IN').format(Math.round(num));
+
+        const interRegular = fontToBase64('inter-400.ttf');
+        const interBold = fontToBase64('inter-700.ttf');
+
+        const metricsList = [
+            { key: 'sbNetOpening', label: 'SB Net Account Opening', unit: 'Accts' },
+            { key: 'cdNetOpening', label: 'CD Net Account Opening', unit: 'Accts' },
+            { key: 'avgBalance', label: 'Average Balance (SB)', unit: '₹' },
+            { key: 'cdAvgBalance', label: 'Average Balance (CD)', unit: '₹' },
+            { key: 'sbNetRate', label: 'SB Net Rate (Accts/Day)', unit: '/Day' },
+            { key: 'cdNetRate', label: 'CD Net Rate (Accts/Mo)', unit: '/Mo' }
+        ];
+
+        const enrichedMetrics = metricsList
+            .filter(m => !metricKey || m.key === metricKey)
+            .map(m => {
+                const data = (reportData as any)[m.key];
+                const valKey = m.key === 'sbNetOpening' ? 'sbNet' : m.key === 'cdNetOpening' ? 'cdNet' : m.key === 'avgBalance' ? 'avgBalance' : m.key === 'cdAvgBalance' ? 'cdAvgBalance' : m.key === 'sbNetRate' ? 'sbRate' : 'cdRate';
+                
+                const maxVal = Math.max(...data.top.map((b: any) => Math.abs(b[valKey])), 1);
+                const maxBot = Math.max(...data.bottom.map((b: any) => Math.abs(b[valKey])), 1);
+
+                return {
+                    label: m.label,
+                    data: {
+                        top: data.top.map((b: any) => ({
+                            name: b.name,
+                            formattedValue: m.unit === '₹' ? formatCurrency(b[valKey]) : formatNumber(b[valKey]) + (m.unit !== 'Accts' ? ' ' + m.unit : ''),
+                            percent: Math.min((Math.abs(b[valKey]) / maxVal) * 100, 100)
+                        })),
+                        bottom: data.bottom.map((b: any) => ({
+                            name: b.name,
+                            formattedValue: m.unit === '₹' ? formatCurrency(b[valKey]) : formatNumber(b[valKey]) + (m.unit !== 'Accts' ? ' ' + m.unit : ''),
+                            percent: Math.min((Math.abs(b[valKey]) / (maxBot || 1)) * 100, 100)
+                        }))
+                    }
+                };
+            });
+
+        const iobLogo = imageToBase64('assets/logo_full.svg');
+
+        // Format monthKey like 2026-04 to APRIL 2026
+        let fullMonthLabel = reportData.monthKey;
+        try {
+            fullMonthLabel = format(parseCBSDate(reportData.monthKey as string, new Date()), 'MMMM yyyy').toUpperCase();
+        } catch (e) {
+            console.error(`[SpecialReport] Failed to parse monthKey: ${reportData.monthKey}`);
+        }
+
+        const templateData = {
+            monthKey: reportData.monthKey,
+            fullMonthLabel,
+            periodLabel: period === 'month' ? `Monthly Performance — ${fullMonthLabel}` : `Financial Year ${reportData.fyKey}`,
+            generatedAt: format(new Date(), 'dd MMM yyyy HH:mm'),
+            metrics: enrichedMetrics,
+            isSingle: !!metricKey,
+            logoSrc: iobLogo,
+            fonts: { regular: interRegular, bold: interBold }
+        };
+
+        console.log(`[SpecialReport] Rendering template (Period: ${fullMonthLabel})...`);
+        const html = await renderTemplate('specialReport', templateData);
+        
+        console.log(`[SpecialReport] Launching browser...`);
+        const browser = await getBrowser();
+        const page = await browser.newPage();
+        
+        try {
+            console.log(`[SpecialReport] Setting viewport and content...`);
+            console.log(`[SpecialReport] Setting viewport (1920px) and content...`);
+            await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1.5 });
+            await page.setContent(html, { waitUntil: 'networkidle0', timeout: 45000 });
+            
+            // Adjust height to content for proportional height
+            console.log(`[SpecialReport] Measuring content height...`);
+            const height = await page.evaluate(() => document.body.scrollHeight);
+            console.log(`[SpecialReport] Final rendering: 1920x${height}px. Generating screenshot...`);
+            await page.setViewport({ width: 1920, height, deviceScaleFactor: 1.5 });
+
+            const imageBuffer = await page.screenshot({ fullPage: true, type: 'png' });
+            console.log(`[SpecialReport] Generation successful! Size: ${Math.round(imageBuffer.length / 1024)} KB`);
+            return imageBuffer;
+        } catch (err) {
+            console.error(`[SpecialReport] ERR:`, err);
+            throw err;
+        } finally {
+            await page.close();
+        }
     }
 }

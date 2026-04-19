@@ -15,7 +15,17 @@
         "src/**/*"
     ],
     "exclude": [
-    "node_modules",
-    "src/__tests__"
+        "node_modules",
+        "dist",
+        "scratch",
+        "src/__tests__",
+        "src/generated",
+        "src/scratch",
+        "src/scripts",
+        "src/tools",
+        "src/check_*.ts",
+        "src/find_chief.ts",
+        "src/list_users.ts",
+        "src/seed*.ts"
   ]
 }

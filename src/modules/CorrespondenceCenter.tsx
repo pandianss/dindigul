@@ -1004,8 +1004,9 @@ const CorrespondenceCenter: React.FC = () => {
                             bodyChunks.push(`<p class="font-bold mb-4">${salutation}</p>`);
 
                             const cleanedContent = selectedLetter.contentEn
-                                .replace(/^Dear Sir\/Madam,?\s*/i, '')
-                                .replace(/^To,?\s*/i, '')
+                                .replace(/^To,?\s*/gi, '')
+                                .replace(/^The Branch Manager[\s\S]*?\n\n/gi, '')
+                                .replace(/^Dear (Sir|Madam|Sir\/Madam),?\s*/gi, '')
                                 .trim();
 
                             cleanedContent.split('\n\n').forEach((paragraph: string) => {

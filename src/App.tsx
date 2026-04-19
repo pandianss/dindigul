@@ -23,6 +23,7 @@ const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter')
 const Campaigns = lazy(() => import('./modules/Campaigns'));
 const DepartmentManuals = lazy(() => import('./modules/DepartmentManuals'));
 const ReturnsManager = lazy(() => import('./modules/ReturnsManager'));
+const MeetingHub = lazy(() => import('./modules/MeetingHub'));
 
 
 // Loading fallback component
@@ -119,6 +120,8 @@ function App() {
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Campaigns /></Suspense></ErrorBoundary> : null;
             case 'returns':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><ReturnsManager /></Suspense></ErrorBoundary> : null;
+            case 'meetings':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MeetingHub /></Suspense></ErrorBoundary> : null;
 
             default:
                 return (

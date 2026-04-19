@@ -47,6 +47,7 @@ import manualsRoutes from './routes/manuals';
 import signatoryRoutes from './routes/signatory';
 import returnsRoutes from './routes/returns';
 import visitRoutes from './routes/visits';
+import meetingRoutes from './routes/meetingRoutes';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -117,6 +118,7 @@ app.use('/api/manuals', manualsRoutes);
 app.use('/api/signatories', signatoryRoutes);
 app.use('/api/returns', returnsRoutes);
 app.use('/api/visits', visitRoutes);
+app.use('/api/meetings', meetingRoutes);
 
 
 // Global error handler — must be defined after all routes

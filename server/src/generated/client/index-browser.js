@@ -261,8 +261,8 @@ exports.Prisma.LetterScalarFieldEnum = {
   recipientName: 'recipientName',
   recipientAddress: 'recipientAddress',
   salutation: 'salutation',
-  signatoryId: 'signatoryId',
-  authorId: 'authorId'
+  authorId: 'authorId',
+  signatoryId: 'signatoryId'
 };
 
 exports.Prisma.LetterTemplateScalarFieldEnum = {
@@ -891,7 +891,9 @@ exports.Prisma.MeetingScalarFieldEnum = {
   date: 'date',
   venue: 'venue',
   status: 'status',
+  attendees: 'attendees',
   minutesJson: 'minutesJson',
+  signatories: 'signatories',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1039,11 +1041,11 @@ exports.Prisma.BranchVisitScalarFieldEnum = {
   visitorId: 'visitorId',
   visitDate: 'visitDate',
   purpose: 'purpose',
-  observations: 'observations',
-  letterIssued: 'letterIssued',
   visitorCategory: 'visitorCategory',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  letterIssued: 'letterIssued',
+  observations: 'observations'
 };
 
 exports.Prisma.SortOrder = {

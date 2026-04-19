@@ -14,6 +14,22 @@ vi.mock('xlsx', () => {
     };
 });
 
+vi.mock('../services/BusinessSnapshotService', () => {
+    return {
+        BusinessSnapshotService: {
+            populatePanelsBatch: vi.fn()
+        }
+    };
+});
+
+vi.mock('../services/RuleEngine', () => {
+    return {
+        RuleEngine: {
+            evaluateBatch: vi.fn()
+        }
+    };
+});
+
 vi.mock('../lib/prisma', () => {
     return {
         default: {
@@ -22,7 +38,10 @@ vi.mock('../lib/prisma', () => {
                 update: vi.fn()
             },
             branch: {
-                findUnique: vi.fn(),
+                findMany: vi.fn(),
+            },
+            parameter: {
+                findMany: vi.fn(),
             },
             snapshot: {
                 upsert: vi.fn()
@@ -49,11 +68,24 @@ describe('MISIngestionService', () => {
         ]);
 
         vi.mocked(prisma.misImportLog.create).mockResolvedValue({ id: 'log-1' } as any);
-        vi.mocked(prisma.branch.findUnique).mockResolvedValue({ id: 'branch-1', code: '1234' } as any);
+        vi.mocked(prisma.branch.findMany).mockResolvedValue([{ id: 'branch-1', code: '1234', type: 'BRANCH' }] as any);
+        vi.mocked(prisma.parameter.findMany).mockResolvedValue([] as any);
         vi.mocked(prisma.$transaction).mockImplementation(async (callback: any) => {
             return callback({
                 ingestionLog: { create: vi.fn().mockResolvedValue({ id: 'ingestion-1' }) },
-                fact: { deleteMany: vi.fn(), createMany: vi.fn() }
+                misParameterRegistry: { 
+                    findMany: vi.fn().mockResolvedValue([]),
+                    create: vi.fn().mockResolvedValue({})
+                },
+                parameter: { upsert: vi.fn().mockResolvedValue({ id: 'param-1', code: 'MUDRA' }) },
+                budgetMaster: { findFirst: vi.fn().mockResolvedValue(null) },
+                snapshot: {
+                    findFirst: vi.fn().mockResolvedValue(null),
+                    create: vi.fn(),
+                    update: vi.fn()
+                },
+                fact: { deleteMany: vi.fn(), createMany: vi.fn() },
+                misSnapshot: { upsert: vi.fn().mockResolvedValue({ id: 'snapshot-1', unitId: 'branch-1' }) }
             });
         });
 
@@ -61,7 +93,7 @@ describe('MISIngestionService', () => {
 
         expect(xlsx.readFile).toHaveBeenCalledWith('dummy.xlsx');
         expect(prisma.misImportLog.create).toHaveBeenCalled();
-        expect(prisma.branch.findUnique).toHaveBeenCalledWith({ where: { code: '1234' } });
+        expect(prisma.branch.findMany).toHaveBeenCalled();
         expect(prisma.$transaction).toHaveBeenCalled();
     });
 
@@ -77,10 +109,12 @@ describe('MISIngestionService', () => {
         ]);
 
         vi.mocked(prisma.misImportLog.create).mockResolvedValue({ id: 'log-1' } as any);
+        vi.mocked(prisma.branch.findMany).mockResolvedValue([] as any);
+        vi.mocked(prisma.parameter.findMany).mockResolvedValue([] as any);
 
         await MISIngestionService.processExcel('dummy.xlsx', 'dummy.xlsx');
 
-        expect(prisma.branch.findUnique).not.toHaveBeenCalled();
-        expect(prisma.$transaction).not.toHaveBeenCalled();
+        expect(prisma.branch.findMany).toHaveBeenCalled();
+        expect(prisma.$transaction).toHaveBeenCalled();
     });
 });

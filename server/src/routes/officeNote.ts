@@ -582,8 +582,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         if (note.type === 'PROFORMA_BRANCH_CODE') {
             bodyHtml = `
                 <style>
-                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
-                    .proforma-table td { padding: 4px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+                    .proforma-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11.5px; }
+                    .proforma-table td { padding: 2.5px 6px; border: 1px solid #e2e8f0; vertical-align: top; line-height: 1.25; }
                     .proforma-table .label { font-weight: bold; width: 38%; background-color: #f8fafc; color: #475569; }
                     .proforma-table .value { width: 62%; color: #1e293b; }
                     .remarks-section { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
@@ -615,8 +615,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         } else if (note.type === 'MICR_CODE_REQUEST') {
             bodyHtml = `
                 <style>
-                    .micr-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-                    .micr-table th, .micr-table td { border: 1px solid #000; padding: 8px 10px; text-align: left; vertical-align: top; }
+                    .micr-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+                    .micr-table th, .micr-table td { border: 1px solid #000; padding: 3.5px 6px; text-align: left; vertical-align: top; line-height: 1.2; }
                     .micr-table .num { width: 5%; text-align: center; }
                     .micr-table .label { width: 45%; font-weight: bold; background-color: #f3f4f6; }
                     .micr-table .value { width: 50%; text-transform: uppercase; }
@@ -711,8 +711,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         } else if (note.type === 'HIGH_VALUE_DD') {
             bodyHtml = `
                 <style>
-                    .dd-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11.5px; }
-                    .dd-table th, .dd-table td { padding: 4px 8px; border: 1px solid #cbd5e1; vertical-align: top; text-align: left; }
+                    .dd-table { width: 100%; border-collapse: collapse; margin-top: 2px; font-size: 10.5px; }
+                    .dd-table th, .dd-table td { padding: 1.5px 4px; border: 1px solid #cbd5e1; vertical-align: top; text-align: left; line-height: 1.15; }
                     .dd-table th { background-color: #f8fafc; font-weight: bold; text-transform: uppercase; color: #1e3a5f; }
                     .dd-table .label { width: 38%; font-weight: bold; background-color: #f8fafc; }
                     .dd-table .value { width: 62%; }
@@ -775,8 +775,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         } else if (note.type === 'EXPENSE_APPROVAL') {
             bodyHtml = `
                 <style>
-                    .exp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11.5px; }
-                    .exp-table th, .exp-table td { padding: 5px 10px; border: 1px solid #cbd5e1; text-align: left; }
+                    .exp-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11.5px; }
+                    .exp-table th, .exp-table td { padding: 2.5px 6px; border: 1px solid #cbd5e1; text-align: left; line-height: 1.25; }
                     .exp-table th { background-color: #f1f5f9; font-weight: bold; color: #1e3a5f; text-transform: uppercase; font-size: 10px; }
                     .exp-table .label { font-weight: bold; background-color: #f8fafc; width: 38%; color: #334155; }
                     .exp-table .value { width: 62%; color: #0f172a; }
@@ -867,8 +867,8 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
 
             bodyHtml = `
                 <style>
-                    .bi-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                    .bi-table th, .bi-table td { border: 1px solid #dee2e6; padding: 6px 10px; text-align: left; }
+                    .bi-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12px; }
+                    .bi-table th, .bi-table td { border: 1px solid #dee2e6; padding: 3px 6px; text-align: left; line-height: 1.2; }
                     .bi-table th { background-color: #f8f9fa; font-weight: bold; width: 42%; color: #343a40; }
                     .bi-table .val { color: #212529; font-family: "Courier New", Courier, monospace; font-weight: 600; }
                     .bi-table .val-plain { color: #212529; font-weight: 600; }

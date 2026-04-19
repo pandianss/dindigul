@@ -584,36 +584,54 @@ const BusinessSnapshot: React.FC = () => {
                                                             <div className="overflow-x-auto max-h-[70vh] scrollbar-thin scrollbar-thumb-slate-200">
                                                                 <table className="w-full text-[14px] border-collapse whitespace-nowrap">
                                                                     <thead className="sticky top-0 z-20 backdrop-blur-md bg-white/95">
-                                                                        <tr className="text-slate-400 font-black uppercase tracking-[0.2em] text-[11px]">
-                                                                            <th rowSpan={2} className="px-6 py-4 text-left border-r border-slate-100 bg-white min-w-[220px]">Parameters</th>
-                                                                            <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-slate-400 bg-slate-50/50">Historical Performance</th>
-                                                                            <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-navy bg-slate-50/50">Current Trajectory</th>
-                                                                            <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-teal bg-slate-50/50">Dynamic Variance</th>
-                                                                            <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-indigo-400 bg-slate-50/50">Monthly Objectives</th>
-                                                                            <th colSpan={2} className="px-6 py-2 text-center border-t-2 border-amber-400 bg-slate-50/50">Quarterly Target</th>
-                                                                        </tr>
-                                                                        <tr className="border-b border-slate-100 bg-white text-slate-500 font-bold shadow-sm">
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyStart}</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyEnd}</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 text-slate-400 font-base uppercase text-[10px]">Var</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-100 text-slate-400 font-base uppercase text-[10px]">Var %</th>
+                                                                        {cat === 'CASH' ? (
+                                                                            <>
+                                                                                <tr className="text-slate-400 font-black uppercase tracking-[0.2em] text-[11px]">
+                                                                                    <th rowSpan={2} className="px-6 py-4 text-left border-r border-slate-100 bg-white min-w-[300px]">Cash Parameters</th>
+                                                                                    <th rowSpan={2} className="px-6 py-4 text-right border-r border-slate-100 border-t-2 border-indigo-400 bg-slate-50/50">Authorized CRL (Limit)</th>
+                                                                                    <th rowSpan={2} className="px-6 py-4 text-right border-r border-slate-100 border-t-2 border-bank-navy bg-slate-50/50">Current Possession</th>
+                                                                                    <th colSpan={2} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-rose-500 bg-slate-50/50">Risk Assessment</th>
+                                                                                    <th rowSpan={2} className="px-6 py-4 text-center border-t-2 border-amber-400 bg-slate-50/50">Status</th>
+                                                                                </tr>
+                                                                                <tr className="border-b border-slate-100 bg-white text-slate-500 font-bold shadow-sm">
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">Excess / (Shortfall)</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-100 uppercase text-[10px]">Variance %</th>
+                                                                                </tr>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <tr className="text-slate-400 font-black uppercase tracking-[0.2em] text-[11px]">
+                                                                                    <th rowSpan={2} className="px-6 py-4 text-left border-r border-slate-100 bg-white min-w-[220px]">Parameters</th>
+                                                                                    <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-slate-400 bg-slate-50/50">Historical Performance</th>
+                                                                                    <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-navy bg-slate-50/50">Current Trajectory</th>
+                                                                                    <th colSpan={4} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-bank-teal bg-slate-50/50">Dynamic Variance</th>
+                                                                                    <th colSpan={3} className="px-6 py-2 text-center border-r border-slate-100 border-t-2 border-indigo-400 bg-slate-50/50">Monthly Objectives</th>
+                                                                                    <th colSpan={2} className="px-6 py-2 text-center border-t-2 border-amber-400 bg-slate-50/50">Quarterly Target</th>
+                                                                                </tr>
+                                                                                <tr className="border-b border-slate-100 bg-white text-slate-500 font-bold shadow-sm">
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyStart}</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.prevFyEnd}</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 text-slate-400 font-base uppercase text-[10px]">Var</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-100 text-slate-400 font-base uppercase text-[10px]">Var %</th>
 
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.monthEnd}</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.yesterday}</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy bg-blue-50/50 ring-1 ring-inset ring-blue-100">{headerDates?.current}</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.monthEnd}</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50">{headerDates?.yesterday}</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy bg-blue-50/50 ring-1 ring-inset ring-blue-100">{headerDates?.current}</th>
 
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">Daily</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">MTD</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 text-bank-teal uppercase text-[10px]">YTD</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-100 font-bold text-bank-teal uppercase text-[10px]">YTD %</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">Daily</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 uppercase text-[10px]">MTD</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 text-bank-teal uppercase text-[10px]">YTD</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-100 font-bold text-bank-teal uppercase text-[10px]">YTD %</th>
 
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 text-indigo-600 text-[10px] uppercase">Gap</th>
-                                                                            <th className="px-4 py-3 text-center border-r border-slate-100 text-[10px] uppercase">Status</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 text-indigo-600 text-[10px] uppercase">Gap</th>
+                                                                                    <th className="px-4 py-3 text-center border-r border-slate-100 text-[10px] uppercase">Status</th>
 
-                                                                            <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
-                                                                            <th className="px-4 py-3 text-right text-amber-600 text-[10px] uppercase">Gap</th>
-                                                                        </tr>
+                                                                                    <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">Budget</th>
+                                                                                    <th className="px-4 py-3 text-right text-amber-600 text-[10px] uppercase">Gap</th>
+                                                                                </tr>
+                                                                            </>
+                                                                        )}
                                                                     </thead>
                                                                     <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
                                                                         {items.map((row) => {
@@ -685,50 +703,70 @@ const BusinessSnapshot: React.FC = () => {
                                                                                                 </div>
                                                                                             </div>
                                                                                         </td>
-                                                                                        <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_start, isPercentMetric)}</td>
-                                                                                        <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_end, isPercentMetric)}</td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-50 bg-slate-50/10">
-                                                                                            {!isRate ? <GrowthIndicator val={row.growth_prev_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-100 bg-slate-50/20">
-                                                                                            {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_prev_fy, row.val_prev_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_prev_m_end, isPercentMetric)}</td>
-                                                                                        <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_y_eod, isPercentMetric)}</td>
-                                                                                        <td className={`px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy text-[16px] bg-blue-50/30 ring-1 ring-inset ring-blue-50/50 ${isRoot ? 'text-[18px] bg-blue-100/20' : ''}`}>
-                                                                                            {formatValue(row.val_current, isPercentMetric)}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-50">
-                                                                                            {!isRate ? <GrowthIndicator val={row.growth_day} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-50">
-                                                                                            {!isRate ? <GrowthIndicator val={row.growth_month} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-50 bg-bank-teal/5">
-                                                                                            {!isRate ? <GrowthIndicator val={row.growth_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right border-r border-slate-100 bg-bank-teal/10">
-                                                                                            {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_fy, row.val_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">
-                                                                                            {!isRate ? formatValue(row.budget_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
-                                                                                        </td>
-                                                                                        <td className={`px-4 py-3 text-right font-bold border-r border-slate-50 ${(isInverse ? row.gap_month <= 0 : row.gap_month >= 0) ? 'text-bank-teal' : 'text-rose-500'}`}>
-                                                                                            {!isRate ? formatValue(row.gap_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
-                                                                                        </td>
-                                                                                        <td className="px-4 py-3 border-r border-slate-100 text-center bg-indigo-50/5">
-                                                                                            {!isRate ? (
-                                                                                                <span className={`px-3 py-1 rounded text-[11px] font-black uppercase tracking-tighter ${getStatusStyle(row.status)} shadow-[0_1px_2px_rgba(0,0,0,0.1)] opacity-90`}>
-                                                                                                    {row.status}
-                                                                                                </span>
-                                                                                            ) : <span className="text-slate-200 text-[11px]">-</span>}
-                                                                                        </td>
-                                                                                        <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">
-                                                                                            {!isRate ? formatValue(row.budget_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
-                                                                                        </th>
-                                                                                        <th className={`px-4 py-3 text-right font-bold border-l border-slate-50 ${(isInverse ? row.gap_quarter <= 0 : row.gap_quarter >= 0) ? 'text-bank-teal' : 'text-rose-500'}`}>
-                                                                                            {!isRate ? formatValue(row.gap_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
-                                                                                        </th>
+                                                                                        {cat === 'CASH' ? (
+                                                                                            <>
+                                                                                                <td className="px-4 py-3 text-right text-indigo-600 font-black border-r border-slate-50 bg-indigo-50/20">{formatValue(row.budget_month)}</td>
+                                                                                                <td className="px-4 py-3 text-right text-bank-navy font-black border-r border-slate-50">{formatValue(row.val_current)}</td>
+                                                                                                <td className={`px-4 py-3 text-right font-black border-r border-slate-50 ${row.val_current > row.budget_month ? 'text-rose-500' : 'text-emerald-500'}`}>
+                                                                                                    <GrowthIndicator val={row.val_current - row.budget_month} isInverse={true} />
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-100 bg-slate-50/10">
+                                                                                                    <GrowthIndicator val={calcPctVar(row.val_current - row.budget_month, row.budget_month)} isInverse={true} isPercent={true} />
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 border-r border-slate-100 text-center bg-indigo-50/5">
+                                                                                                    <span className={`px-3 py-1 rounded text-[11px] font-black uppercase tracking-tighter ${getStatusStyle(row.status)} shadow-[0_1px_2px_rgba(0,0,0,0.1)] opacity-90`}>
+                                                                                                        {row.status}
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </>
+                                                                                        ) : (
+                                                                                            <>
+                                                                                                <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_start, isPercentMetric)}</td>
+                                                                                                <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">{formatValue(row.val_prev_fy_end, isPercentMetric)}</td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-50 bg-slate-50/10">
+                                                                                                    {!isRate ? <GrowthIndicator val={row.growth_prev_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-100 bg-slate-50/20">
+                                                                                                    {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_prev_fy, row.val_prev_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_prev_m_end, isPercentMetric)}</td>
+                                                                                                <td className="px-4 py-3 text-right text-slate-500 border-r border-slate-50">{formatValue(row.val_y_eod, isPercentMetric)}</td>
+                                                                                                <td className={`px-4 py-3 text-right border-r border-slate-100 font-black text-bank-navy text-[16px] bg-blue-50/30 ring-1 ring-inset ring-blue-50/50 ${isRoot ? 'text-[18px] bg-blue-100/20' : ''}`}>
+                                                                                                    {formatValue(row.val_current, isPercentMetric)}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-50">
+                                                                                                    {!isRate ? <GrowthIndicator val={row.growth_day} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-50">
+                                                                                                    {!isRate ? <GrowthIndicator val={row.growth_month} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-50 bg-bank-teal/5">
+                                                                                                    {!isRate ? <GrowthIndicator val={row.growth_fy} isInverse={isInverse} isPercent={isPercentMetric} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right border-r border-slate-100 bg-bank-teal/10">
+                                                                                                    {!isRate ? <GrowthIndicator val={calcPctVar(row.growth_fy, row.val_fy_start)} isInverse={isInverse} isPercent={true} /> : <span className="text-slate-200">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 text-right text-slate-400 border-r border-slate-50">
+                                                                                                    {!isRate ? formatValue(row.budget_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
+                                                                                                </td>
+                                                                                                <td className={`px-4 py-3 text-right font-bold border-r border-slate-50 ${(isInverse ? row.gap_month <= 0 : row.gap_month >= 0) ? 'text-bank-teal' : 'text-rose-500'}`}>
+                                                                                                    {!isRate ? formatValue(row.gap_month, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                                                </td>
+                                                                                                <td className="px-4 py-3 border-r border-slate-100 text-center bg-indigo-50/5">
+                                                                                                    {!isRate ? (
+                                                                                                        <span className={`px-3 py-1 rounded text-[11px] font-black uppercase tracking-tighter ${getStatusStyle(row.status)} shadow-[0_1px_2px_rgba(0,0,0,0.1)] opacity-90`}>
+                                                                                                            {row.status}
+                                                                                                        </span>
+                                                                                                    ) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                                                </td>
+                                                                                                <th className="px-4 py-3 text-right border-r border-slate-50 text-[10px] uppercase">
+                                                                                                    {!isRate ? formatValue(row.budget_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">N/A</span>}
+                                                                                                </th>
+                                                                                                <th className={`px-4 py-3 text-right font-bold border-l border-slate-50 ${(isInverse ? row.gap_quarter <= 0 : row.gap_quarter >= 0) ? 'text-bank-teal' : 'text-rose-500'}`}>
+                                                                                                    {!isRate ? formatValue(row.gap_quarter, isPercentMetric) : <span className="text-slate-200 text-[11px]">-</span>}
+                                                                                                </th>
+                                                                                            </>
+                                                                                        )}
                                                                                     </tr>
                                                                                 );
                                                                             })();

@@ -44,7 +44,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         await prisma.branchVisit.delete({
-            where: { id: req.params.id }
+            where: { id: req.params.id as string }
         });
         res.sendStatus(204);
     } catch (error: any) {

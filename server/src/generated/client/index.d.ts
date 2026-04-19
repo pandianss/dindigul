@@ -7419,12 +7419,15 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     requests: number
+    branchVisits: number
     auditLogs: number
     chatMemberships: number
     createdChatGroups: number
     messageAcks: number
     messagesSent: number
     comments: number
+    authoredLetters: number
+    signatoryLetters: number
     loginAuditLogs: number
     assignedActionPoints: number
     noticeAcks: number
@@ -7436,19 +7439,19 @@ export namespace Prisma {
     sessions: number
     managedDepartments: number
     departments: number
-    signatoryLetters: number
-    authoredLetters: number
-    branchVisits: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     requests?: boolean | UserCountOutputTypeCountRequestsArgs
+    branchVisits?: boolean | UserCountOutputTypeCountBranchVisitsArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
     chatMemberships?: boolean | UserCountOutputTypeCountChatMembershipsArgs
     createdChatGroups?: boolean | UserCountOutputTypeCountCreatedChatGroupsArgs
     messageAcks?: boolean | UserCountOutputTypeCountMessageAcksArgs
     messagesSent?: boolean | UserCountOutputTypeCountMessagesSentArgs
     comments?: boolean | UserCountOutputTypeCountCommentsArgs
+    authoredLetters?: boolean | UserCountOutputTypeCountAuthoredLettersArgs
+    signatoryLetters?: boolean | UserCountOutputTypeCountSignatoryLettersArgs
     loginAuditLogs?: boolean | UserCountOutputTypeCountLoginAuditLogsArgs
     assignedActionPoints?: boolean | UserCountOutputTypeCountAssignedActionPointsArgs
     noticeAcks?: boolean | UserCountOutputTypeCountNoticeAcksArgs
@@ -7460,9 +7463,6 @@ export namespace Prisma {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     managedDepartments?: boolean | UserCountOutputTypeCountManagedDepartmentsArgs
     departments?: boolean | UserCountOutputTypeCountDepartmentsArgs
-    signatoryLetters?: boolean | UserCountOutputTypeCountSignatoryLettersArgs
-    authoredLetters?: boolean | UserCountOutputTypeCountAuthoredLettersArgs
-    branchVisits?: boolean | UserCountOutputTypeCountBranchVisitsArgs
   }
 
   // Custom InputTypes
@@ -7481,6 +7481,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BranchRequestWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBranchVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BranchVisitWhereInput
   }
 
   /**
@@ -7523,6 +7530,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CommentWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAuthoredLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LetterWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSignatoryLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LetterWhereInput
   }
 
   /**
@@ -7602,27 +7623,6 @@ export namespace Prisma {
     where?: DepartmentWhereInput
   }
 
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountSignatoryLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LetterWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountAuthoredLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LetterWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountBranchVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BranchVisitWhereInput
-  }
-
 
   /**
    * Count Type BranchCountOutputType
@@ -7635,6 +7635,7 @@ export namespace Prisma {
     auditObservations: number
     history: number
     requests: number
+    visits: number
     budgets: number
     campaignData: number
     campaignTargets: number
@@ -7651,7 +7652,6 @@ export namespace Prisma {
     snapshots: number
     stationeryMovements: number
     users: number
-    visits: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7661,6 +7661,7 @@ export namespace Prisma {
     auditObservations?: boolean | BranchCountOutputTypeCountAuditObservationsArgs
     history?: boolean | BranchCountOutputTypeCountHistoryArgs
     requests?: boolean | BranchCountOutputTypeCountRequestsArgs
+    visits?: boolean | BranchCountOutputTypeCountVisitsArgs
     budgets?: boolean | BranchCountOutputTypeCountBudgetsArgs
     campaignData?: boolean | BranchCountOutputTypeCountCampaignDataArgs
     campaignTargets?: boolean | BranchCountOutputTypeCountCampaignTargetsArgs
@@ -7677,7 +7678,6 @@ export namespace Prisma {
     snapshots?: boolean | BranchCountOutputTypeCountSnapshotsArgs
     stationeryMovements?: boolean | BranchCountOutputTypeCountStationeryMovementsArgs
     users?: boolean | BranchCountOutputTypeCountUsersArgs
-    visits?: boolean | BranchCountOutputTypeCountVisitsArgs
   }
 
   // Custom InputTypes
@@ -7731,6 +7731,13 @@ export namespace Prisma {
    */
   export type BranchCountOutputTypeCountRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BranchRequestWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BranchVisitWhereInput
   }
 
   /**
@@ -7845,30 +7852,23 @@ export namespace Prisma {
     where?: UserWhereInput
   }
 
-  /**
-   * BranchCountOutputType without action
-   */
-  export type BranchCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BranchVisitWhereInput
-  }
-
 
   /**
    * Count Type DepartmentCountOutputType
    */
 
   export type DepartmentCountOutputType = {
+    manuals: number
     mainUsers: number
     heads: number
     users: number
-    manuals: number
   }
 
   export type DepartmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    manuals?: boolean | DepartmentCountOutputTypeCountManualsArgs
     mainUsers?: boolean | DepartmentCountOutputTypeCountMainUsersArgs
     heads?: boolean | DepartmentCountOutputTypeCountHeadsArgs
     users?: boolean | DepartmentCountOutputTypeCountUsersArgs
-    manuals?: boolean | DepartmentCountOutputTypeCountManualsArgs
   }
 
   // Custom InputTypes
@@ -7880,6 +7880,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the DepartmentCountOutputType
      */
     select?: DepartmentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DepartmentCountOutputType without action
+   */
+  export type DepartmentCountOutputTypeCountManualsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentManualWhereInput
   }
 
   /**
@@ -7901,13 +7908,6 @@ export namespace Prisma {
    */
   export type DepartmentCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
-  }
-
-  /**
-   * DepartmentCountOutputType without action
-   */
-  export type DepartmentCountOutputTypeCountManualsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DepartmentManualWhereInput
   }
 
 
@@ -8964,6 +8964,7 @@ export namespace Prisma {
     designationHi?: boolean
     designationTa?: boolean
     requests?: boolean | User$requestsArgs<ExtArgs>
+    branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
     headedBranch?: boolean | User$headedBranchArgs<ExtArgs>
     secondLineBranch?: boolean | User$secondLineBranchArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
@@ -8972,6 +8973,8 @@ export namespace Prisma {
     messageAcks?: boolean | User$messageAcksArgs<ExtArgs>
     messagesSent?: boolean | User$messagesSentArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
+    authoredLetters?: boolean | User$authoredLettersArgs<ExtArgs>
+    signatoryLetters?: boolean | User$signatoryLettersArgs<ExtArgs>
     loginAuditLogs?: boolean | User$loginAuditLogsArgs<ExtArgs>
     assignedActionPoints?: boolean | User$assignedActionPointsArgs<ExtArgs>
     noticeAcks?: boolean | User$noticeAcksArgs<ExtArgs>
@@ -8987,9 +8990,6 @@ export namespace Prisma {
     photo?: boolean | User$photoArgs<ExtArgs>
     managedDepartments?: boolean | User$managedDepartmentsArgs<ExtArgs>
     departments?: boolean | User$departmentsArgs<ExtArgs>
-    signatoryLetters?: boolean | User$signatoryLettersArgs<ExtArgs>
-    authoredLetters?: boolean | User$authoredLettersArgs<ExtArgs>
-    branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -9094,6 +9094,7 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "passwordHash" | "fullNameEn" | "fullNameTa" | "fullNameHi" | "grade" | "role" | "photoId" | "section" | "branchId" | "isRegionHead" | "isSecondLine" | "departmentId" | "designationId" | "createdAt" | "updatedAt" | "failedLoginAttempts" | "lockedUntil" | "mfaEnabled" | "mfaSecret" | "lastLoginAt" | "lastLoginIp" | "gender" | "designationEn" | "designationHi" | "designationTa", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     requests?: boolean | User$requestsArgs<ExtArgs>
+    branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
     headedBranch?: boolean | User$headedBranchArgs<ExtArgs>
     secondLineBranch?: boolean | User$secondLineBranchArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
@@ -9102,6 +9103,8 @@ export namespace Prisma {
     messageAcks?: boolean | User$messageAcksArgs<ExtArgs>
     messagesSent?: boolean | User$messagesSentArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
+    authoredLetters?: boolean | User$authoredLettersArgs<ExtArgs>
+    signatoryLetters?: boolean | User$signatoryLettersArgs<ExtArgs>
     loginAuditLogs?: boolean | User$loginAuditLogsArgs<ExtArgs>
     assignedActionPoints?: boolean | User$assignedActionPointsArgs<ExtArgs>
     noticeAcks?: boolean | User$noticeAcksArgs<ExtArgs>
@@ -9117,9 +9120,6 @@ export namespace Prisma {
     photo?: boolean | User$photoArgs<ExtArgs>
     managedDepartments?: boolean | User$managedDepartmentsArgs<ExtArgs>
     departments?: boolean | User$departmentsArgs<ExtArgs>
-    signatoryLetters?: boolean | User$signatoryLettersArgs<ExtArgs>
-    authoredLetters?: boolean | User$authoredLettersArgs<ExtArgs>
-    branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9139,6 +9139,7 @@ export namespace Prisma {
     name: "User"
     objects: {
       requests: Prisma.$BranchRequestPayload<ExtArgs>[]
+      branchVisits: Prisma.$BranchVisitPayload<ExtArgs>[]
       headedBranch: Prisma.$BranchPayload<ExtArgs> | null
       secondLineBranch: Prisma.$BranchPayload<ExtArgs> | null
       auditLogs: Prisma.$ChatAuditLogPayload<ExtArgs>[]
@@ -9147,6 +9148,8 @@ export namespace Prisma {
       messageAcks: Prisma.$MessageAckPayload<ExtArgs>[]
       messagesSent: Prisma.$ChatMessagePayload<ExtArgs>[]
       comments: Prisma.$CommentPayload<ExtArgs>[]
+      authoredLetters: Prisma.$LetterPayload<ExtArgs>[]
+      signatoryLetters: Prisma.$LetterPayload<ExtArgs>[]
       loginAuditLogs: Prisma.$LoginAuditLogPayload<ExtArgs>[]
       assignedActionPoints: Prisma.$ActionPointPayload<ExtArgs>[]
       noticeAcks: Prisma.$NoticeAckPayload<ExtArgs>[]
@@ -9162,9 +9165,6 @@ export namespace Prisma {
       photo: Prisma.$PhotoPayload<ExtArgs> | null
       managedDepartments: Prisma.$DepartmentPayload<ExtArgs>[]
       departments: Prisma.$DepartmentPayload<ExtArgs>[]
-      signatoryLetters: Prisma.$LetterPayload<ExtArgs>[]
-      authoredLetters: Prisma.$LetterPayload<ExtArgs>[]
-      branchVisits: Prisma.$BranchVisitPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9589,6 +9589,7 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     requests<T extends User$requestsArgs<ExtArgs> = {}>(args?: Subset<T, User$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    branchVisits<T extends User$branchVisitsArgs<ExtArgs> = {}>(args?: Subset<T, User$branchVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     headedBranch<T extends User$headedBranchArgs<ExtArgs> = {}>(args?: Subset<T, User$headedBranchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     secondLineBranch<T extends User$secondLineBranchArgs<ExtArgs> = {}>(args?: Subset<T, User$secondLineBranchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9597,6 +9598,8 @@ export namespace Prisma {
     messageAcks<T extends User$messageAcksArgs<ExtArgs> = {}>(args?: Subset<T, User$messageAcksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageAckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messagesSent<T extends User$messagesSentArgs<ExtArgs> = {}>(args?: Subset<T, User$messagesSentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     comments<T extends User$commentsArgs<ExtArgs> = {}>(args?: Subset<T, User$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    authoredLetters<T extends User$authoredLettersArgs<ExtArgs> = {}>(args?: Subset<T, User$authoredLettersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    signatoryLetters<T extends User$signatoryLettersArgs<ExtArgs> = {}>(args?: Subset<T, User$signatoryLettersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginAuditLogs<T extends User$loginAuditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginAuditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignedActionPoints<T extends User$assignedActionPointsArgs<ExtArgs> = {}>(args?: Subset<T, User$assignedActionPointsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActionPointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     noticeAcks<T extends User$noticeAcksArgs<ExtArgs> = {}>(args?: Subset<T, User$noticeAcksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NoticeAckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9612,9 +9615,6 @@ export namespace Prisma {
     photo<T extends User$photoArgs<ExtArgs> = {}>(args?: Subset<T, User$photoArgs<ExtArgs>>): Prisma__PhotoClient<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     managedDepartments<T extends User$managedDepartmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$managedDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     departments<T extends User$departmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    signatoryLetters<T extends User$signatoryLettersArgs<ExtArgs> = {}>(args?: Subset<T, User$signatoryLettersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    authoredLetters<T extends User$authoredLettersArgs<ExtArgs> = {}>(args?: Subset<T, User$authoredLettersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    branchVisits<T extends User$branchVisitsArgs<ExtArgs> = {}>(args?: Subset<T, User$branchVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10096,6 +10096,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.branchVisits
+   */
+  export type User$branchVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchVisit
+     */
+    select?: BranchVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchVisit
+     */
+    omit?: BranchVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchVisitInclude<ExtArgs> | null
+    where?: BranchVisitWhereInput
+    orderBy?: BranchVisitOrderByWithRelationInput | BranchVisitOrderByWithRelationInput[]
+    cursor?: BranchVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BranchVisitScalarFieldEnum | BranchVisitScalarFieldEnum[]
+  }
+
+  /**
    * User.headedBranch
    */
   export type User$headedBranchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10275,6 +10299,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CommentScalarFieldEnum | CommentScalarFieldEnum[]
+  }
+
+  /**
+   * User.authoredLetters
+   */
+  export type User$authoredLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Letter
+     */
+    select?: LetterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Letter
+     */
+    omit?: LetterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LetterInclude<ExtArgs> | null
+    where?: LetterWhereInput
+    orderBy?: LetterOrderByWithRelationInput | LetterOrderByWithRelationInput[]
+    cursor?: LetterWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LetterScalarFieldEnum | LetterScalarFieldEnum[]
+  }
+
+  /**
+   * User.signatoryLetters
+   */
+  export type User$signatoryLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Letter
+     */
+    select?: LetterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Letter
+     */
+    omit?: LetterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LetterInclude<ExtArgs> | null
+    where?: LetterWhereInput
+    orderBy?: LetterOrderByWithRelationInput | LetterOrderByWithRelationInput[]
+    cursor?: LetterWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LetterScalarFieldEnum | LetterScalarFieldEnum[]
   }
 
   /**
@@ -10615,78 +10687,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
-  }
-
-  /**
-   * User.signatoryLetters
-   */
-  export type User$signatoryLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Letter
-     */
-    select?: LetterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Letter
-     */
-    omit?: LetterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: LetterInclude<ExtArgs> | null
-    where?: LetterWhereInput
-    orderBy?: LetterOrderByWithRelationInput | LetterOrderByWithRelationInput[]
-    cursor?: LetterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: LetterScalarFieldEnum | LetterScalarFieldEnum[]
-  }
-
-  /**
-   * User.authoredLetters
-   */
-  export type User$authoredLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Letter
-     */
-    select?: LetterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Letter
-     */
-    omit?: LetterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: LetterInclude<ExtArgs> | null
-    where?: LetterWhereInput
-    orderBy?: LetterOrderByWithRelationInput | LetterOrderByWithRelationInput[]
-    cursor?: LetterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: LetterScalarFieldEnum | LetterScalarFieldEnum[]
-  }
-
-  /**
-   * User.branchVisits
-   */
-  export type User$branchVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BranchVisit
-     */
-    select?: BranchVisitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BranchVisit
-     */
-    omit?: BranchVisitOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BranchVisitInclude<ExtArgs> | null
-    where?: BranchVisitWhereInput
-    orderBy?: BranchVisitOrderByWithRelationInput | BranchVisitOrderByWithRelationInput[]
-    cursor?: BranchVisitWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BranchVisitScalarFieldEnum | BranchVisitScalarFieldEnum[]
   }
 
   /**
@@ -13341,6 +13341,7 @@ export namespace Prisma {
     auditObservations?: boolean | Branch$auditObservationsArgs<ExtArgs>
     history?: boolean | Branch$historyArgs<ExtArgs>
     requests?: boolean | Branch$requestsArgs<ExtArgs>
+    visits?: boolean | Branch$visitsArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
     budgets?: boolean | Branch$budgetsArgs<ExtArgs>
@@ -13359,7 +13360,6 @@ export namespace Prisma {
     snapshots?: boolean | Branch$snapshotsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
-    visits?: boolean | Branch$visitsArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
@@ -13462,6 +13462,7 @@ export namespace Prisma {
     auditObservations?: boolean | Branch$auditObservationsArgs<ExtArgs>
     history?: boolean | Branch$historyArgs<ExtArgs>
     requests?: boolean | Branch$requestsArgs<ExtArgs>
+    visits?: boolean | Branch$visitsArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
     budgets?: boolean | Branch$budgetsArgs<ExtArgs>
@@ -13480,7 +13481,6 @@ export namespace Prisma {
     snapshots?: boolean | Branch$snapshotsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
-    visits?: boolean | Branch$visitsArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13501,6 +13501,7 @@ export namespace Prisma {
       auditObservations: Prisma.$AuditObservationPayload<ExtArgs>[]
       history: Prisma.$BranchHistoryPayload<ExtArgs>[]
       requests: Prisma.$BranchRequestPayload<ExtArgs>[]
+      visits: Prisma.$BranchVisitPayload<ExtArgs>[]
       headUser: Prisma.$UserPayload<ExtArgs> | null
       secondLineUser: Prisma.$UserPayload<ExtArgs> | null
       budgets: Prisma.$BudgetMasterPayload<ExtArgs>[]
@@ -13519,7 +13520,6 @@ export namespace Prisma {
       snapshots: Prisma.$SnapshotPayload<ExtArgs>[]
       stationeryMovements: Prisma.$StationeryMovementPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
-      visits: Prisma.$BranchVisitPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13948,6 +13948,7 @@ export namespace Prisma {
     auditObservations<T extends Branch$auditObservationsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$auditObservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditObservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     history<T extends Branch$historyArgs<ExtArgs> = {}>(args?: Subset<T, Branch$historyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     requests<T extends Branch$requestsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$requestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    visits<T extends Branch$visitsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     headUser<T extends Branch$headUserArgs<ExtArgs> = {}>(args?: Subset<T, Branch$headUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     secondLineUser<T extends Branch$secondLineUserArgs<ExtArgs> = {}>(args?: Subset<T, Branch$secondLineUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     budgets<T extends Branch$budgetsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BudgetMasterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13966,7 +13967,6 @@ export namespace Prisma {
     snapshots<T extends Branch$snapshotsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stationeryMovements<T extends Branch$stationeryMovementsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$stationeryMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StationeryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     users<T extends Branch$usersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    visits<T extends Branch$visitsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14567,6 +14567,30 @@ export namespace Prisma {
   }
 
   /**
+   * Branch.visits
+   */
+  export type Branch$visitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BranchVisit
+     */
+    select?: BranchVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BranchVisit
+     */
+    omit?: BranchVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchVisitInclude<ExtArgs> | null
+    where?: BranchVisitWhereInput
+    orderBy?: BranchVisitOrderByWithRelationInput | BranchVisitOrderByWithRelationInput[]
+    cursor?: BranchVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BranchVisitScalarFieldEnum | BranchVisitScalarFieldEnum[]
+  }
+
+  /**
    * Branch.headUser
    */
   export type Branch$headUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14989,30 +15013,6 @@ export namespace Prisma {
   }
 
   /**
-   * Branch.visits
-   */
-  export type Branch$visitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BranchVisit
-     */
-    select?: BranchVisitSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BranchVisit
-     */
-    omit?: BranchVisitOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BranchVisitInclude<ExtArgs> | null
-    where?: BranchVisitWhereInput
-    orderBy?: BranchVisitOrderByWithRelationInput | BranchVisitOrderByWithRelationInput[]
-    cursor?: BranchVisitWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BranchVisitScalarFieldEnum | BranchVisitScalarFieldEnum[]
-  }
-
-  /**
    * Branch without action
    */
   export type BranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15219,10 +15219,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     sealPath?: boolean
+    manuals?: boolean | Department$manualsArgs<ExtArgs>
     mainUsers?: boolean | Department$mainUsersArgs<ExtArgs>
     heads?: boolean | Department$headsArgs<ExtArgs>
     users?: boolean | Department$usersArgs<ExtArgs>
-    manuals?: boolean | Department$manualsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["department"]>
 
@@ -15261,10 +15261,10 @@ export namespace Prisma {
 
   export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "nameEn" | "nameTa" | "nameHi" | "createdAt" | "updatedAt" | "sealPath", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    manuals?: boolean | Department$manualsArgs<ExtArgs>
     mainUsers?: boolean | Department$mainUsersArgs<ExtArgs>
     heads?: boolean | Department$headsArgs<ExtArgs>
     users?: boolean | Department$usersArgs<ExtArgs>
-    manuals?: boolean | Department$manualsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -15273,10 +15273,10 @@ export namespace Prisma {
   export type $DepartmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Department"
     objects: {
+      manuals: Prisma.$DepartmentManualPayload<ExtArgs>[]
       mainUsers: Prisma.$UserPayload<ExtArgs>[]
       heads: Prisma.$UserPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
-      manuals: Prisma.$DepartmentManualPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -15681,10 +15681,10 @@ export namespace Prisma {
    */
   export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    manuals<T extends Department$manualsArgs<ExtArgs> = {}>(args?: Subset<T, Department$manualsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentManualPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mainUsers<T extends Department$mainUsersArgs<ExtArgs> = {}>(args?: Subset<T, Department$mainUsersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     heads<T extends Department$headsArgs<ExtArgs> = {}>(args?: Subset<T, Department$headsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     users<T extends Department$usersArgs<ExtArgs> = {}>(args?: Subset<T, Department$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    manuals<T extends Department$manualsArgs<ExtArgs> = {}>(args?: Subset<T, Department$manualsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentManualPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16115,6 +16115,30 @@ export namespace Prisma {
   }
 
   /**
+   * Department.manuals
+   */
+  export type Department$manualsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentManual
+     */
+    select?: DepartmentManualSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentManual
+     */
+    omit?: DepartmentManualOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentManualInclude<ExtArgs> | null
+    where?: DepartmentManualWhereInput
+    orderBy?: DepartmentManualOrderByWithRelationInput | DepartmentManualOrderByWithRelationInput[]
+    cursor?: DepartmentManualWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DepartmentManualScalarFieldEnum | DepartmentManualScalarFieldEnum[]
+  }
+
+  /**
    * Department.mainUsers
    */
   export type Department$mainUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16184,30 +16208,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
-  }
-
-  /**
-   * Department.manuals
-   */
-  export type Department$manualsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DepartmentManual
-     */
-    select?: DepartmentManualSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DepartmentManual
-     */
-    omit?: DepartmentManualOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DepartmentManualInclude<ExtArgs> | null
-    where?: DepartmentManualWhereInput
-    orderBy?: DepartmentManualOrderByWithRelationInput | DepartmentManualOrderByWithRelationInput[]
-    cursor?: DepartmentManualWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DepartmentManualScalarFieldEnum | DepartmentManualScalarFieldEnum[]
   }
 
   /**
@@ -18543,8 +18543,8 @@ export namespace Prisma {
     recipientName: string | null
     recipientAddress: string | null
     salutation: string | null
-    signatoryId: string | null
     authorId: string | null
+    signatoryId: string | null
   }
 
   export type LetterMaxAggregateOutputType = {
@@ -18572,8 +18572,8 @@ export namespace Prisma {
     recipientName: string | null
     recipientAddress: string | null
     salutation: string | null
-    signatoryId: string | null
     authorId: string | null
+    signatoryId: string | null
   }
 
   export type LetterCountAggregateOutputType = {
@@ -18602,8 +18602,8 @@ export namespace Prisma {
     recipientName: number
     recipientAddress: number
     salutation: number
-    signatoryId: number
     authorId: number
+    signatoryId: number
     _all: number
   }
 
@@ -18645,8 +18645,8 @@ export namespace Prisma {
     recipientName?: true
     recipientAddress?: true
     salutation?: true
-    signatoryId?: true
     authorId?: true
+    signatoryId?: true
   }
 
   export type LetterMaxAggregateInputType = {
@@ -18674,8 +18674,8 @@ export namespace Prisma {
     recipientName?: true
     recipientAddress?: true
     salutation?: true
-    signatoryId?: true
     authorId?: true
+    signatoryId?: true
   }
 
   export type LetterCountAggregateInputType = {
@@ -18704,8 +18704,8 @@ export namespace Prisma {
     recipientName?: true
     recipientAddress?: true
     salutation?: true
-    signatoryId?: true
     authorId?: true
+    signatoryId?: true
     _all?: true
   }
 
@@ -18821,8 +18821,8 @@ export namespace Prisma {
     recipientName: string | null
     recipientAddress: string | null
     salutation: string | null
-    signatoryId: string | null
     authorId: string | null
+    signatoryId: string | null
     _count: LetterCountAggregateOutputType | null
     _avg: LetterAvgAggregateOutputType | null
     _sum: LetterSumAggregateOutputType | null
@@ -18870,14 +18870,14 @@ export namespace Prisma {
     recipientName?: boolean
     recipientAddress?: boolean
     salutation?: boolean
-    signatoryId?: boolean
     authorId?: boolean
+    signatoryId?: boolean
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     nextVersions?: boolean | Letter$nextVersionsArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
     _count?: boolean | LetterCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["letter"]>
 
@@ -18907,13 +18907,13 @@ export namespace Prisma {
     recipientName?: boolean
     recipientAddress?: boolean
     salutation?: boolean
-    signatoryId?: boolean
     authorId?: boolean
+    signatoryId?: boolean
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
   }, ExtArgs["result"]["letter"]>
 
   export type LetterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -18942,13 +18942,13 @@ export namespace Prisma {
     recipientName?: boolean
     recipientAddress?: boolean
     salutation?: boolean
-    signatoryId?: boolean
     authorId?: boolean
+    signatoryId?: boolean
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
   }, ExtArgs["result"]["letter"]>
 
   export type LetterSelectScalar = {
@@ -18977,44 +18977,44 @@ export namespace Prisma {
     recipientName?: boolean
     recipientAddress?: boolean
     salutation?: boolean
-    signatoryId?: boolean
     authorId?: boolean
+    signatoryId?: boolean
   }
 
-  export type LetterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "titleEn" | "contentEn" | "titleTa" | "contentTa" | "branchId" | "parameterId" | "valueAtTime" | "budgetAtTime" | "period" | "createdAt" | "updatedAt" | "previousVersionId" | "version" | "orgMeta" | "scannedCopyUrl" | "referenceNo" | "titleHi" | "contentHi" | "isExternal" | "recipientName" | "recipientAddress" | "salutation" | "signatoryId" | "authorId", ExtArgs["result"]["letter"]>
+  export type LetterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "titleEn" | "contentEn" | "titleTa" | "contentTa" | "branchId" | "parameterId" | "valueAtTime" | "budgetAtTime" | "period" | "createdAt" | "updatedAt" | "previousVersionId" | "version" | "orgMeta" | "scannedCopyUrl" | "referenceNo" | "titleHi" | "contentHi" | "isExternal" | "recipientName" | "recipientAddress" | "salutation" | "authorId" | "signatoryId", ExtArgs["result"]["letter"]>
   export type LetterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     nextVersions?: boolean | Letter$nextVersionsArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
     _count?: boolean | LetterCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LetterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
   }
   export type LetterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
-    author?: boolean | Letter$authorArgs<ExtArgs>
   }
 
   export type $LetterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Letter"
     objects: {
+      author: Prisma.$UserPayload<ExtArgs> | null
       branch: Prisma.$BranchPayload<ExtArgs>
       parameter: Prisma.$ParameterPayload<ExtArgs> | null
       previousVersion: Prisma.$LetterPayload<ExtArgs> | null
       nextVersions: Prisma.$LetterPayload<ExtArgs>[]
       signatory: Prisma.$UserPayload<ExtArgs> | null
-      author: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19042,8 +19042,8 @@ export namespace Prisma {
       recipientName: string | null
       recipientAddress: string | null
       salutation: string | null
-      signatoryId: string | null
       authorId: string | null
+      signatoryId: string | null
     }, ExtArgs["result"]["letter"]>
     composites: {}
   }
@@ -19438,12 +19438,12 @@ export namespace Prisma {
    */
   export interface Prisma__LetterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    author<T extends Letter$authorArgs<ExtArgs> = {}>(args?: Subset<T, Letter$authorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     parameter<T extends Letter$parameterArgs<ExtArgs> = {}>(args?: Subset<T, Letter$parameterArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     previousVersion<T extends Letter$previousVersionArgs<ExtArgs> = {}>(args?: Subset<T, Letter$previousVersionArgs<ExtArgs>>): Prisma__LetterClient<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     nextVersions<T extends Letter$nextVersionsArgs<ExtArgs> = {}>(args?: Subset<T, Letter$nextVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatory<T extends Letter$signatoryArgs<ExtArgs> = {}>(args?: Subset<T, Letter$signatoryArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    author<T extends Letter$authorArgs<ExtArgs> = {}>(args?: Subset<T, Letter$authorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19498,8 +19498,8 @@ export namespace Prisma {
     readonly recipientName: FieldRef<"Letter", 'String'>
     readonly recipientAddress: FieldRef<"Letter", 'String'>
     readonly salutation: FieldRef<"Letter", 'String'>
-    readonly signatoryId: FieldRef<"Letter", 'String'>
     readonly authorId: FieldRef<"Letter", 'String'>
+    readonly signatoryId: FieldRef<"Letter", 'String'>
   }
     
 
@@ -19901,6 +19901,25 @@ export namespace Prisma {
   }
 
   /**
+   * Letter.author
+   */
+  export type Letter$authorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * Letter.parameter
    */
   export type Letter$parameterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19966,25 +19985,6 @@ export namespace Prisma {
    * Letter.signatory
    */
   export type Letter$signatoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the User
-     */
-    select?: UserSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the User
-     */
-    omit?: UserOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: UserInclude<ExtArgs> | null
-    where?: UserWhereInput
-  }
-
-  /**
-   * Letter.author
-   */
-  export type Letter$authorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -77588,7 +77588,9 @@ export namespace Prisma {
     date: number
     venue: number
     status: number
+    attendees: number
     minutesJson: number
+    signatories: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -77623,7 +77625,9 @@ export namespace Prisma {
     date?: true
     venue?: true
     status?: true
+    attendees?: true
     minutesJson?: true
+    signatories?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -77707,7 +77711,9 @@ export namespace Prisma {
     date: Date
     venue: string | null
     status: string
+    attendees: JsonValue | null
     minutesJson: string | null
+    signatories: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: MeetingCountAggregateOutputType | null
@@ -77735,7 +77741,9 @@ export namespace Prisma {
     date?: boolean
     venue?: boolean
     status?: boolean
+    attendees?: boolean
     minutesJson?: boolean
+    signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     actionPoints?: boolean | Meeting$actionPointsArgs<ExtArgs>
@@ -77749,7 +77757,9 @@ export namespace Prisma {
     date?: boolean
     venue?: boolean
     status?: boolean
+    attendees?: boolean
     minutesJson?: boolean
+    signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     committee?: boolean | CommitteeDefaultArgs<ExtArgs>
@@ -77761,7 +77771,9 @@ export namespace Prisma {
     date?: boolean
     venue?: boolean
     status?: boolean
+    attendees?: boolean
     minutesJson?: boolean
+    signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     committee?: boolean | CommitteeDefaultArgs<ExtArgs>
@@ -77773,12 +77785,14 @@ export namespace Prisma {
     date?: boolean
     venue?: boolean
     status?: boolean
+    attendees?: boolean
     minutesJson?: boolean
+    signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type MeetingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "committeeId" | "date" | "venue" | "status" | "minutesJson" | "createdAt" | "updatedAt", ExtArgs["result"]["meeting"]>
+  export type MeetingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "committeeId" | "date" | "venue" | "status" | "attendees" | "minutesJson" | "signatories" | "createdAt" | "updatedAt", ExtArgs["result"]["meeting"]>
   export type MeetingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     actionPoints?: boolean | Meeting$actionPointsArgs<ExtArgs>
     committee?: boolean | CommitteeDefaultArgs<ExtArgs>
@@ -77803,7 +77817,9 @@ export namespace Prisma {
       date: Date
       venue: string | null
       status: string
+      attendees: Prisma.JsonValue | null
       minutesJson: string | null
+      signatories: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["meeting"]>
@@ -78236,7 +78252,9 @@ export namespace Prisma {
     readonly date: FieldRef<"Meeting", 'DateTime'>
     readonly venue: FieldRef<"Meeting", 'String'>
     readonly status: FieldRef<"Meeting", 'String'>
+    readonly attendees: FieldRef<"Meeting", 'Json'>
     readonly minutesJson: FieldRef<"Meeting", 'String'>
+    readonly signatories: FieldRef<"Meeting", 'Json'>
     readonly createdAt: FieldRef<"Meeting", 'DateTime'>
     readonly updatedAt: FieldRef<"Meeting", 'DateTime'>
   }
@@ -92208,11 +92226,11 @@ export namespace Prisma {
     visitorId: string | null
     visitDate: Date | null
     purpose: string | null
-    observations: string | null
-    letterIssued: boolean | null
     visitorCategory: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    letterIssued: boolean | null
+    observations: string | null
   }
 
   export type BranchVisitMaxAggregateOutputType = {
@@ -92221,11 +92239,11 @@ export namespace Prisma {
     visitorId: string | null
     visitDate: Date | null
     purpose: string | null
-    observations: string | null
-    letterIssued: boolean | null
     visitorCategory: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    letterIssued: boolean | null
+    observations: string | null
   }
 
   export type BranchVisitCountAggregateOutputType = {
@@ -92234,11 +92252,11 @@ export namespace Prisma {
     visitorId: number
     visitDate: number
     purpose: number
-    observations: number
-    letterIssued: number
     visitorCategory: number
     createdAt: number
     updatedAt: number
+    letterIssued: number
+    observations: number
     _all: number
   }
 
@@ -92249,11 +92267,11 @@ export namespace Prisma {
     visitorId?: true
     visitDate?: true
     purpose?: true
-    observations?: true
-    letterIssued?: true
     visitorCategory?: true
     createdAt?: true
     updatedAt?: true
+    letterIssued?: true
+    observations?: true
   }
 
   export type BranchVisitMaxAggregateInputType = {
@@ -92262,11 +92280,11 @@ export namespace Prisma {
     visitorId?: true
     visitDate?: true
     purpose?: true
-    observations?: true
-    letterIssued?: true
     visitorCategory?: true
     createdAt?: true
     updatedAt?: true
+    letterIssued?: true
+    observations?: true
   }
 
   export type BranchVisitCountAggregateInputType = {
@@ -92275,11 +92293,11 @@ export namespace Prisma {
     visitorId?: true
     visitDate?: true
     purpose?: true
-    observations?: true
-    letterIssued?: true
     visitorCategory?: true
     createdAt?: true
     updatedAt?: true
+    letterIssued?: true
+    observations?: true
     _all?: true
   }
 
@@ -92361,11 +92379,11 @@ export namespace Prisma {
     visitorId: string
     visitDate: Date
     purpose: string | null
-    observations: string | null
-    letterIssued: boolean
     visitorCategory: string
     createdAt: Date
     updatedAt: Date
+    letterIssued: boolean
+    observations: string | null
     _count: BranchVisitCountAggregateOutputType | null
     _min: BranchVisitMinAggregateOutputType | null
     _max: BranchVisitMaxAggregateOutputType | null
@@ -92391,11 +92409,11 @@ export namespace Prisma {
     visitorId?: boolean
     visitDate?: boolean
     purpose?: boolean
-    observations?: boolean
-    letterIssued?: boolean
     visitorCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    letterIssued?: boolean
+    observations?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     visitor?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branchVisit"]>
@@ -92406,11 +92424,11 @@ export namespace Prisma {
     visitorId?: boolean
     visitDate?: boolean
     purpose?: boolean
-    observations?: boolean
-    letterIssued?: boolean
     visitorCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    letterIssued?: boolean
+    observations?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     visitor?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branchVisit"]>
@@ -92421,11 +92439,11 @@ export namespace Prisma {
     visitorId?: boolean
     visitDate?: boolean
     purpose?: boolean
-    observations?: boolean
-    letterIssued?: boolean
     visitorCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    letterIssued?: boolean
+    observations?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     visitor?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branchVisit"]>
@@ -92436,14 +92454,14 @@ export namespace Prisma {
     visitorId?: boolean
     visitDate?: boolean
     purpose?: boolean
-    observations?: boolean
-    letterIssued?: boolean
     visitorCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    letterIssued?: boolean
+    observations?: boolean
   }
 
-  export type BranchVisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branchId" | "visitorId" | "visitDate" | "purpose" | "observations" | "letterIssued" | "visitorCategory" | "createdAt" | "updatedAt", ExtArgs["result"]["branchVisit"]>
+  export type BranchVisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "branchId" | "visitorId" | "visitDate" | "purpose" | "visitorCategory" | "createdAt" | "updatedAt" | "letterIssued" | "observations", ExtArgs["result"]["branchVisit"]>
   export type BranchVisitInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     visitor?: boolean | UserDefaultArgs<ExtArgs>
@@ -92469,11 +92487,11 @@ export namespace Prisma {
       visitorId: string
       visitDate: Date
       purpose: string | null
-      observations: string | null
-      letterIssued: boolean
       visitorCategory: string
       createdAt: Date
       updatedAt: Date
+      letterIssued: boolean
+      observations: string | null
     }, ExtArgs["result"]["branchVisit"]>
     composites: {}
   }
@@ -92904,11 +92922,11 @@ export namespace Prisma {
     readonly visitorId: FieldRef<"BranchVisit", 'String'>
     readonly visitDate: FieldRef<"BranchVisit", 'DateTime'>
     readonly purpose: FieldRef<"BranchVisit", 'String'>
-    readonly observations: FieldRef<"BranchVisit", 'String'>
-    readonly letterIssued: FieldRef<"BranchVisit", 'Boolean'>
     readonly visitorCategory: FieldRef<"BranchVisit", 'String'>
     readonly createdAt: FieldRef<"BranchVisit", 'DateTime'>
     readonly updatedAt: FieldRef<"BranchVisit", 'DateTime'>
+    readonly letterIssued: FieldRef<"BranchVisit", 'Boolean'>
+    readonly observations: FieldRef<"BranchVisit", 'String'>
   }
     
 
@@ -93504,8 +93522,8 @@ export namespace Prisma {
     recipientName: 'recipientName',
     recipientAddress: 'recipientAddress',
     salutation: 'salutation',
-    signatoryId: 'signatoryId',
-    authorId: 'authorId'
+    authorId: 'authorId',
+    signatoryId: 'signatoryId'
   };
 
   export type LetterScalarFieldEnum = (typeof LetterScalarFieldEnum)[keyof typeof LetterScalarFieldEnum]
@@ -94290,7 +94308,9 @@ export namespace Prisma {
     date: 'date',
     venue: 'venue',
     status: 'status',
+    attendees: 'attendees',
     minutesJson: 'minutesJson',
+    signatories: 'signatories',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -94477,11 +94497,11 @@ export namespace Prisma {
     visitorId: 'visitorId',
     visitDate: 'visitDate',
     purpose: 'purpose',
-    observations: 'observations',
-    letterIssued: 'letterIssued',
     visitorCategory: 'visitorCategory',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    letterIssued: 'letterIssued',
+    observations: 'observations'
   };
 
   export type BranchVisitScalarFieldEnum = (typeof BranchVisitScalarFieldEnum)[keyof typeof BranchVisitScalarFieldEnum]
@@ -94666,6 +94686,7 @@ export namespace Prisma {
     designationHi?: StringNullableFilter<"User"> | string | null
     designationTa?: StringNullableFilter<"User"> | string | null
     requests?: BranchRequestListRelationFilter
+    branchVisits?: BranchVisitListRelationFilter
     headedBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     secondLineBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     auditLogs?: ChatAuditLogListRelationFilter
@@ -94674,6 +94695,8 @@ export namespace Prisma {
     messageAcks?: MessageAckListRelationFilter
     messagesSent?: ChatMessageListRelationFilter
     comments?: CommentListRelationFilter
+    authoredLetters?: LetterListRelationFilter
+    signatoryLetters?: LetterListRelationFilter
     loginAuditLogs?: LoginAuditLogListRelationFilter
     assignedActionPoints?: ActionPointListRelationFilter
     noticeAcks?: NoticeAckListRelationFilter
@@ -94689,9 +94712,6 @@ export namespace Prisma {
     photo?: XOR<PhotoNullableScalarRelationFilter, PhotoWhereInput> | null
     managedDepartments?: DepartmentListRelationFilter
     departments?: DepartmentListRelationFilter
-    signatoryLetters?: LetterListRelationFilter
-    authoredLetters?: LetterListRelationFilter
-    branchVisits?: BranchVisitListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -94723,6 +94743,7 @@ export namespace Prisma {
     designationHi?: SortOrderInput | SortOrder
     designationTa?: SortOrderInput | SortOrder
     requests?: BranchRequestOrderByRelationAggregateInput
+    branchVisits?: BranchVisitOrderByRelationAggregateInput
     headedBranch?: BranchOrderByWithRelationInput
     secondLineBranch?: BranchOrderByWithRelationInput
     auditLogs?: ChatAuditLogOrderByRelationAggregateInput
@@ -94731,6 +94752,8 @@ export namespace Prisma {
     messageAcks?: MessageAckOrderByRelationAggregateInput
     messagesSent?: ChatMessageOrderByRelationAggregateInput
     comments?: CommentOrderByRelationAggregateInput
+    authoredLetters?: LetterOrderByRelationAggregateInput
+    signatoryLetters?: LetterOrderByRelationAggregateInput
     loginAuditLogs?: LoginAuditLogOrderByRelationAggregateInput
     assignedActionPoints?: ActionPointOrderByRelationAggregateInput
     noticeAcks?: NoticeAckOrderByRelationAggregateInput
@@ -94746,9 +94769,6 @@ export namespace Prisma {
     photo?: PhotoOrderByWithRelationInput
     managedDepartments?: DepartmentOrderByRelationAggregateInput
     departments?: DepartmentOrderByRelationAggregateInput
-    signatoryLetters?: LetterOrderByRelationAggregateInput
-    authoredLetters?: LetterOrderByRelationAggregateInput
-    branchVisits?: BranchVisitOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -94783,6 +94803,7 @@ export namespace Prisma {
     designationHi?: StringNullableFilter<"User"> | string | null
     designationTa?: StringNullableFilter<"User"> | string | null
     requests?: BranchRequestListRelationFilter
+    branchVisits?: BranchVisitListRelationFilter
     headedBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     secondLineBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
     auditLogs?: ChatAuditLogListRelationFilter
@@ -94791,6 +94812,8 @@ export namespace Prisma {
     messageAcks?: MessageAckListRelationFilter
     messagesSent?: ChatMessageListRelationFilter
     comments?: CommentListRelationFilter
+    authoredLetters?: LetterListRelationFilter
+    signatoryLetters?: LetterListRelationFilter
     loginAuditLogs?: LoginAuditLogListRelationFilter
     assignedActionPoints?: ActionPointListRelationFilter
     noticeAcks?: NoticeAckListRelationFilter
@@ -94806,9 +94829,6 @@ export namespace Prisma {
     photo?: XOR<PhotoNullableScalarRelationFilter, PhotoWhereInput> | null
     managedDepartments?: DepartmentListRelationFilter
     departments?: DepartmentListRelationFilter
-    signatoryLetters?: LetterListRelationFilter
-    authoredLetters?: LetterListRelationFilter
-    branchVisits?: BranchVisitListRelationFilter
   }, "id" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -95065,6 +95085,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationListRelationFilter
     history?: BranchHistoryListRelationFilter
     requests?: BranchRequestListRelationFilter
+    visits?: BranchVisitListRelationFilter
     headUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     secondLineUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     budgets?: BudgetMasterListRelationFilter
@@ -95083,7 +95104,6 @@ export namespace Prisma {
     snapshots?: SnapshotListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
-    visits?: BranchVisitListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
@@ -95119,6 +95139,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationOrderByRelationAggregateInput
     history?: BranchHistoryOrderByRelationAggregateInput
     requests?: BranchRequestOrderByRelationAggregateInput
+    visits?: BranchVisitOrderByRelationAggregateInput
     headUser?: UserOrderByWithRelationInput
     secondLineUser?: UserOrderByWithRelationInput
     budgets?: BudgetMasterOrderByRelationAggregateInput
@@ -95137,7 +95158,6 @@ export namespace Prisma {
     snapshots?: SnapshotOrderByRelationAggregateInput
     stationeryMovements?: StationeryMovementOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
-    visits?: BranchVisitOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -95176,6 +95196,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationListRelationFilter
     history?: BranchHistoryListRelationFilter
     requests?: BranchRequestListRelationFilter
+    visits?: BranchVisitListRelationFilter
     headUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     secondLineUser?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     budgets?: BudgetMasterListRelationFilter
@@ -95194,7 +95215,6 @@ export namespace Prisma {
     snapshots?: SnapshotListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
-    visits?: BranchVisitListRelationFilter
   }, "id" | "code" | "headUserId" | "secondLineUserId">
 
   export type BranchOrderByWithAggregationInput = {
@@ -95275,10 +95295,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Department"> | Date | string
     updatedAt?: DateTimeFilter<"Department"> | Date | string
     sealPath?: StringNullableFilter<"Department"> | string | null
+    manuals?: DepartmentManualListRelationFilter
     mainUsers?: UserListRelationFilter
     heads?: UserListRelationFilter
     users?: UserListRelationFilter
-    manuals?: DepartmentManualListRelationFilter
   }
 
   export type DepartmentOrderByWithRelationInput = {
@@ -95290,10 +95310,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     sealPath?: SortOrderInput | SortOrder
+    manuals?: DepartmentManualOrderByRelationAggregateInput
     mainUsers?: UserOrderByRelationAggregateInput
     heads?: UserOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
-    manuals?: DepartmentManualOrderByRelationAggregateInput
   }
 
   export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
@@ -95308,10 +95328,10 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Department"> | Date | string
     updatedAt?: DateTimeFilter<"Department"> | Date | string
     sealPath?: StringNullableFilter<"Department"> | string | null
+    manuals?: DepartmentManualListRelationFilter
     mainUsers?: UserListRelationFilter
     heads?: UserListRelationFilter
     users?: UserListRelationFilter
-    manuals?: DepartmentManualListRelationFilter
   }, "id" | "code">
 
   export type DepartmentOrderByWithAggregationInput = {
@@ -95511,14 +95531,14 @@ export namespace Prisma {
     recipientName?: StringNullableFilter<"Letter"> | string | null
     recipientAddress?: StringNullableFilter<"Letter"> | string | null
     salutation?: StringNullableFilter<"Letter"> | string | null
-    signatoryId?: StringNullableFilter<"Letter"> | string | null
     authorId?: StringNullableFilter<"Letter"> | string | null
+    signatoryId?: StringNullableFilter<"Letter"> | string | null
+    author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     parameter?: XOR<ParameterNullableScalarRelationFilter, ParameterWhereInput> | null
     previousVersion?: XOR<LetterNullableScalarRelationFilter, LetterWhereInput> | null
     nextVersions?: LetterListRelationFilter
     signatory?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type LetterOrderByWithRelationInput = {
@@ -95547,14 +95567,14 @@ export namespace Prisma {
     recipientName?: SortOrderInput | SortOrder
     recipientAddress?: SortOrderInput | SortOrder
     salutation?: SortOrderInput | SortOrder
-    signatoryId?: SortOrderInput | SortOrder
     authorId?: SortOrderInput | SortOrder
+    signatoryId?: SortOrderInput | SortOrder
+    author?: UserOrderByWithRelationInput
     branch?: BranchOrderByWithRelationInput
     parameter?: ParameterOrderByWithRelationInput
     previousVersion?: LetterOrderByWithRelationInput
     nextVersions?: LetterOrderByRelationAggregateInput
     signatory?: UserOrderByWithRelationInput
-    author?: UserOrderByWithRelationInput
   }
 
   export type LetterWhereUniqueInput = Prisma.AtLeast<{
@@ -95586,14 +95606,14 @@ export namespace Prisma {
     recipientName?: StringNullableFilter<"Letter"> | string | null
     recipientAddress?: StringNullableFilter<"Letter"> | string | null
     salutation?: StringNullableFilter<"Letter"> | string | null
-    signatoryId?: StringNullableFilter<"Letter"> | string | null
     authorId?: StringNullableFilter<"Letter"> | string | null
+    signatoryId?: StringNullableFilter<"Letter"> | string | null
+    author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     parameter?: XOR<ParameterNullableScalarRelationFilter, ParameterWhereInput> | null
     previousVersion?: XOR<LetterNullableScalarRelationFilter, LetterWhereInput> | null
     nextVersions?: LetterListRelationFilter
     signatory?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "referenceNo">
 
   export type LetterOrderByWithAggregationInput = {
@@ -95622,8 +95642,8 @@ export namespace Prisma {
     recipientName?: SortOrderInput | SortOrder
     recipientAddress?: SortOrderInput | SortOrder
     salutation?: SortOrderInput | SortOrder
-    signatoryId?: SortOrderInput | SortOrder
     authorId?: SortOrderInput | SortOrder
+    signatoryId?: SortOrderInput | SortOrder
     _count?: LetterCountOrderByAggregateInput
     _avg?: LetterAvgOrderByAggregateInput
     _max?: LetterMaxOrderByAggregateInput
@@ -95660,8 +95680,8 @@ export namespace Prisma {
     recipientName?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     recipientAddress?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     salutation?: StringNullableWithAggregatesFilter<"Letter"> | string | null
-    signatoryId?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     authorId?: StringNullableWithAggregatesFilter<"Letter"> | string | null
+    signatoryId?: StringNullableWithAggregatesFilter<"Letter"> | string | null
   }
 
   export type LetterTemplateWhereInput = {
@@ -99626,7 +99646,9 @@ export namespace Prisma {
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
+    attendees?: JsonNullableFilter<"Meeting">
     minutesJson?: StringNullableFilter<"Meeting"> | string | null
+    signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
     actionPoints?: ActionPointListRelationFilter
@@ -99639,7 +99661,9 @@ export namespace Prisma {
     date?: SortOrder
     venue?: SortOrderInput | SortOrder
     status?: SortOrder
+    attendees?: SortOrderInput | SortOrder
     minutesJson?: SortOrderInput | SortOrder
+    signatories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     actionPoints?: ActionPointOrderByRelationAggregateInput
@@ -99655,7 +99679,9 @@ export namespace Prisma {
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
+    attendees?: JsonNullableFilter<"Meeting">
     minutesJson?: StringNullableFilter<"Meeting"> | string | null
+    signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
     actionPoints?: ActionPointListRelationFilter
@@ -99668,7 +99694,9 @@ export namespace Prisma {
     date?: SortOrder
     venue?: SortOrderInput | SortOrder
     status?: SortOrder
+    attendees?: SortOrderInput | SortOrder
     minutesJson?: SortOrderInput | SortOrder
+    signatories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: MeetingCountOrderByAggregateInput
@@ -99685,7 +99713,9 @@ export namespace Prisma {
     date?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
     venue?: StringNullableWithAggregatesFilter<"Meeting"> | string | null
     status?: StringWithAggregatesFilter<"Meeting"> | string
+    attendees?: JsonNullableWithAggregatesFilter<"Meeting">
     minutesJson?: StringNullableWithAggregatesFilter<"Meeting"> | string | null
+    signatories?: JsonNullableWithAggregatesFilter<"Meeting">
     createdAt?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
   }
@@ -100589,11 +100619,11 @@ export namespace Prisma {
     visitorId?: StringFilter<"BranchVisit"> | string
     visitDate?: DateTimeFilter<"BranchVisit"> | Date | string
     purpose?: StringNullableFilter<"BranchVisit"> | string | null
-    observations?: StringNullableFilter<"BranchVisit"> | string | null
-    letterIssued?: BoolFilter<"BranchVisit"> | boolean
     visitorCategory?: StringFilter<"BranchVisit"> | string
     createdAt?: DateTimeFilter<"BranchVisit"> | Date | string
     updatedAt?: DateTimeFilter<"BranchVisit"> | Date | string
+    letterIssued?: BoolFilter<"BranchVisit"> | boolean
+    observations?: StringNullableFilter<"BranchVisit"> | string | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     visitor?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -100604,11 +100634,11 @@ export namespace Prisma {
     visitorId?: SortOrder
     visitDate?: SortOrder
     purpose?: SortOrderInput | SortOrder
-    observations?: SortOrderInput | SortOrder
-    letterIssued?: SortOrder
     visitorCategory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    letterIssued?: SortOrder
+    observations?: SortOrderInput | SortOrder
     branch?: BranchOrderByWithRelationInput
     visitor?: UserOrderByWithRelationInput
   }
@@ -100622,11 +100652,11 @@ export namespace Prisma {
     visitorId?: StringFilter<"BranchVisit"> | string
     visitDate?: DateTimeFilter<"BranchVisit"> | Date | string
     purpose?: StringNullableFilter<"BranchVisit"> | string | null
-    observations?: StringNullableFilter<"BranchVisit"> | string | null
-    letterIssued?: BoolFilter<"BranchVisit"> | boolean
     visitorCategory?: StringFilter<"BranchVisit"> | string
     createdAt?: DateTimeFilter<"BranchVisit"> | Date | string
     updatedAt?: DateTimeFilter<"BranchVisit"> | Date | string
+    letterIssued?: BoolFilter<"BranchVisit"> | boolean
+    observations?: StringNullableFilter<"BranchVisit"> | string | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     visitor?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
@@ -100637,11 +100667,11 @@ export namespace Prisma {
     visitorId?: SortOrder
     visitDate?: SortOrder
     purpose?: SortOrderInput | SortOrder
-    observations?: SortOrderInput | SortOrder
-    letterIssued?: SortOrder
     visitorCategory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    letterIssued?: SortOrder
+    observations?: SortOrderInput | SortOrder
     _count?: BranchVisitCountOrderByAggregateInput
     _max?: BranchVisitMaxOrderByAggregateInput
     _min?: BranchVisitMinOrderByAggregateInput
@@ -100656,11 +100686,11 @@ export namespace Prisma {
     visitorId?: StringWithAggregatesFilter<"BranchVisit"> | string
     visitDate?: DateTimeWithAggregatesFilter<"BranchVisit"> | Date | string
     purpose?: StringNullableWithAggregatesFilter<"BranchVisit"> | string | null
-    observations?: StringNullableWithAggregatesFilter<"BranchVisit"> | string | null
-    letterIssued?: BoolWithAggregatesFilter<"BranchVisit"> | boolean
     visitorCategory?: StringWithAggregatesFilter<"BranchVisit"> | string
     createdAt?: DateTimeWithAggregatesFilter<"BranchVisit"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BranchVisit"> | Date | string
+    letterIssued?: BoolWithAggregatesFilter<"BranchVisit"> | boolean
+    observations?: StringNullableWithAggregatesFilter<"BranchVisit"> | string | null
   }
 
   export type UserCreateInput = {
@@ -100688,6 +100718,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -100696,6 +100727,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -100711,9 +100744,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -100745,6 +100775,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -100753,6 +100784,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -100764,9 +100797,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUpdateInput = {
@@ -100794,6 +100824,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -100802,6 +100833,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -100817,9 +100850,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -100851,6 +100881,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -100859,6 +100890,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -100870,9 +100903,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -101158,6 +101188,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -101176,7 +101207,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
@@ -101212,6 +101242,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -101228,7 +101259,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
@@ -101262,6 +101292,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -101280,7 +101311,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
@@ -101316,6 +101346,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -101332,7 +101363,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
@@ -101429,10 +101459,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserCreateNestedManyWithoutDepartmentInput
     heads?: UserCreateNestedManyWithoutManagedDepartmentsInput
     users?: UserCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateInput = {
@@ -101444,10 +101474,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserUncheckedCreateNestedManyWithoutDepartmentInput
     heads?: UserUncheckedCreateNestedManyWithoutManagedDepartmentsInput
     users?: UserUncheckedCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUpdateInput = {
@@ -101459,10 +101489,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUpdateManyWithoutDepartmentNestedInput
     heads?: UserUpdateManyWithoutManagedDepartmentsNestedInput
     users?: UserUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateInput = {
@@ -101474,10 +101504,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUncheckedUpdateManyWithoutDepartmentNestedInput
     heads?: UserUncheckedUpdateManyWithoutManagedDepartmentsNestedInput
     users?: UserUncheckedUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentCreateManyInput = {
@@ -101690,12 +101720,12 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
     parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
   }
 
   export type LetterUncheckedCreateInput = {
@@ -101724,8 +101754,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
     nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
   }
 
@@ -101752,12 +101782,12 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
     parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
   }
 
   export type LetterUncheckedUpdateInput = {
@@ -101786,8 +101816,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
   }
 
@@ -101817,8 +101847,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
   }
 
   export type LetterUpdateManyMutationInput = {
@@ -101872,8 +101902,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type LetterTemplateCreateInput = {
@@ -106250,7 +106280,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     actionPoints?: ActionPointCreateNestedManyWithoutMeetingInput
@@ -106263,7 +106295,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     actionPoints?: ActionPointUncheckedCreateNestedManyWithoutMeetingInput
@@ -106274,7 +106308,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     actionPoints?: ActionPointUpdateManyWithoutMeetingNestedInput
@@ -106287,7 +106323,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     actionPoints?: ActionPointUncheckedUpdateManyWithoutMeetingNestedInput
@@ -106299,7 +106337,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -106309,7 +106349,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -106320,7 +106362,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -107292,11 +107336,11 @@ export namespace Prisma {
     id?: string
     visitDate: Date | string
     purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
     visitorCategory?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
     branch: BranchCreateNestedOneWithoutVisitsInput
     visitor: UserCreateNestedOneWithoutBranchVisitsInput
   }
@@ -107307,22 +107351,22 @@ export namespace Prisma {
     visitorId: string
     visitDate: Date | string
     purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
     visitorCategory?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
   }
 
   export type BranchVisitUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
     purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
     visitorCategory?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
     branch?: BranchUpdateOneRequiredWithoutVisitsNestedInput
     visitor?: UserUpdateOneRequiredWithoutBranchVisitsNestedInput
   }
@@ -107333,11 +107377,11 @@ export namespace Prisma {
     visitorId?: StringFieldUpdateOperationsInput | string
     visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
     purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
     visitorCategory?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BranchVisitCreateManyInput = {
@@ -107346,22 +107390,22 @@ export namespace Prisma {
     visitorId: string
     visitDate: Date | string
     purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
     visitorCategory?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
   }
 
   export type BranchVisitUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
     purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
     visitorCategory?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BranchVisitUncheckedUpdateManyInput = {
@@ -107370,11 +107414,11 @@ export namespace Prisma {
     visitorId?: StringFieldUpdateOperationsInput | string
     visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
     purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
     visitorCategory?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -107451,6 +107495,12 @@ export namespace Prisma {
     none?: BranchRequestWhereInput
   }
 
+  export type BranchVisitListRelationFilter = {
+    every?: BranchVisitWhereInput
+    some?: BranchVisitWhereInput
+    none?: BranchVisitWhereInput
+  }
+
   export type BranchNullableScalarRelationFilter = {
     is?: BranchWhereInput | null
     isNot?: BranchWhereInput | null
@@ -107490,6 +107540,12 @@ export namespace Prisma {
     every?: CommentWhereInput
     some?: CommentWhereInput
     none?: CommentWhereInput
+  }
+
+  export type LetterListRelationFilter = {
+    every?: LetterWhereInput
+    some?: LetterWhereInput
+    none?: LetterWhereInput
   }
 
   export type LoginAuditLogListRelationFilter = {
@@ -107561,24 +107617,16 @@ export namespace Prisma {
     none?: DepartmentWhereInput
   }
 
-  export type LetterListRelationFilter = {
-    every?: LetterWhereInput
-    some?: LetterWhereInput
-    none?: LetterWhereInput
-  }
-
-  export type BranchVisitListRelationFilter = {
-    every?: BranchVisitWhereInput
-    some?: BranchVisitWhereInput
-    none?: BranchVisitWhereInput
-  }
-
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type BranchRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BranchVisitOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -107603,6 +107651,10 @@ export namespace Prisma {
   }
 
   export type CommentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LetterOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -107639,14 +107691,6 @@ export namespace Prisma {
   }
 
   export type DepartmentOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type LetterOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type BranchVisitOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -108442,8 +108486,8 @@ export namespace Prisma {
     recipientName?: SortOrder
     recipientAddress?: SortOrder
     salutation?: SortOrder
-    signatoryId?: SortOrder
     authorId?: SortOrder
+    signatoryId?: SortOrder
   }
 
   export type LetterAvgOrderByAggregateInput = {
@@ -108477,8 +108521,8 @@ export namespace Prisma {
     recipientName?: SortOrder
     recipientAddress?: SortOrder
     salutation?: SortOrder
-    signatoryId?: SortOrder
     authorId?: SortOrder
+    signatoryId?: SortOrder
   }
 
   export type LetterMinOrderByAggregateInput = {
@@ -108506,8 +108550,8 @@ export namespace Prisma {
     recipientName?: SortOrder
     recipientAddress?: SortOrder
     salutation?: SortOrder
-    signatoryId?: SortOrder
     authorId?: SortOrder
+    signatoryId?: SortOrder
   }
 
   export type LetterSumOrderByAggregateInput = {
@@ -110957,7 +111001,9 @@ export namespace Prisma {
     date?: SortOrder
     venue?: SortOrder
     status?: SortOrder
+    attendees?: SortOrder
     minutesJson?: SortOrder
+    signatories?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -111500,11 +111546,11 @@ export namespace Prisma {
     visitorId?: SortOrder
     visitDate?: SortOrder
     purpose?: SortOrder
-    observations?: SortOrder
-    letterIssued?: SortOrder
     visitorCategory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    letterIssued?: SortOrder
+    observations?: SortOrder
   }
 
   export type BranchVisitMaxOrderByAggregateInput = {
@@ -111513,11 +111559,11 @@ export namespace Prisma {
     visitorId?: SortOrder
     visitDate?: SortOrder
     purpose?: SortOrder
-    observations?: SortOrder
-    letterIssued?: SortOrder
     visitorCategory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    letterIssued?: SortOrder
+    observations?: SortOrder
   }
 
   export type BranchVisitMinOrderByAggregateInput = {
@@ -111526,11 +111572,11 @@ export namespace Prisma {
     visitorId?: SortOrder
     visitDate?: SortOrder
     purpose?: SortOrder
-    observations?: SortOrder
-    letterIssued?: SortOrder
     visitorCategory?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    letterIssued?: SortOrder
+    observations?: SortOrder
   }
 
   export type BranchRequestCreateNestedManyWithoutUserInput = {
@@ -111538,6 +111584,13 @@ export namespace Prisma {
     connectOrCreate?: BranchRequestCreateOrConnectWithoutUserInput | BranchRequestCreateOrConnectWithoutUserInput[]
     createMany?: BranchRequestCreateManyUserInputEnvelope
     connect?: BranchRequestWhereUniqueInput | BranchRequestWhereUniqueInput[]
+  }
+
+  export type BranchVisitCreateNestedManyWithoutVisitorInput = {
+    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
+    createMany?: BranchVisitCreateManyVisitorInputEnvelope
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
   }
 
   export type BranchCreateNestedOneWithoutHeadUserInput = {
@@ -111592,6 +111645,20 @@ export namespace Prisma {
     connectOrCreate?: CommentCreateOrConnectWithoutUserInput | CommentCreateOrConnectWithoutUserInput[]
     createMany?: CommentCreateManyUserInputEnvelope
     connect?: CommentWhereUniqueInput | CommentWhereUniqueInput[]
+  }
+
+  export type LetterCreateNestedManyWithoutAuthorInput = {
+    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
+    createMany?: LetterCreateManyAuthorInputEnvelope
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+  }
+
+  export type LetterCreateNestedManyWithoutSignatoryInput = {
+    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
+    createMany?: LetterCreateManySignatoryInputEnvelope
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
   }
 
   export type LoginAuditLogCreateNestedManyWithoutUserInput = {
@@ -111693,32 +111760,18 @@ export namespace Prisma {
     connect?: DepartmentWhereUniqueInput | DepartmentWhereUniqueInput[]
   }
 
-  export type LetterCreateNestedManyWithoutSignatoryInput = {
-    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
-    createMany?: LetterCreateManySignatoryInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type LetterCreateNestedManyWithoutAuthorInput = {
-    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
-    createMany?: LetterCreateManyAuthorInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type BranchVisitCreateNestedManyWithoutVisitorInput = {
-    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
-    createMany?: BranchVisitCreateManyVisitorInputEnvelope
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-  }
-
   export type BranchRequestUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<BranchRequestCreateWithoutUserInput, BranchRequestUncheckedCreateWithoutUserInput> | BranchRequestCreateWithoutUserInput[] | BranchRequestUncheckedCreateWithoutUserInput[]
     connectOrCreate?: BranchRequestCreateOrConnectWithoutUserInput | BranchRequestCreateOrConnectWithoutUserInput[]
     createMany?: BranchRequestCreateManyUserInputEnvelope
     connect?: BranchRequestWhereUniqueInput | BranchRequestWhereUniqueInput[]
+  }
+
+  export type BranchVisitUncheckedCreateNestedManyWithoutVisitorInput = {
+    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
+    createMany?: BranchVisitCreateManyVisitorInputEnvelope
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
   }
 
   export type BranchUncheckedCreateNestedOneWithoutHeadUserInput = {
@@ -111773,6 +111826,20 @@ export namespace Prisma {
     connectOrCreate?: CommentCreateOrConnectWithoutUserInput | CommentCreateOrConnectWithoutUserInput[]
     createMany?: CommentCreateManyUserInputEnvelope
     connect?: CommentWhereUniqueInput | CommentWhereUniqueInput[]
+  }
+
+  export type LetterUncheckedCreateNestedManyWithoutAuthorInput = {
+    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
+    createMany?: LetterCreateManyAuthorInputEnvelope
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+  }
+
+  export type LetterUncheckedCreateNestedManyWithoutSignatoryInput = {
+    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
+    createMany?: LetterCreateManySignatoryInputEnvelope
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
   }
 
   export type LoginAuditLogUncheckedCreateNestedManyWithoutUserInput = {
@@ -111850,27 +111917,6 @@ export namespace Prisma {
     connect?: DepartmentWhereUniqueInput | DepartmentWhereUniqueInput[]
   }
 
-  export type LetterUncheckedCreateNestedManyWithoutSignatoryInput = {
-    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
-    createMany?: LetterCreateManySignatoryInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type LetterUncheckedCreateNestedManyWithoutAuthorInput = {
-    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
-    createMany?: LetterCreateManyAuthorInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type BranchVisitUncheckedCreateNestedManyWithoutVisitorInput = {
-    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
-    createMany?: BranchVisitCreateManyVisitorInputEnvelope
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-  }
-
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -111911,6 +111957,20 @@ export namespace Prisma {
     update?: BranchRequestUpdateWithWhereUniqueWithoutUserInput | BranchRequestUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BranchRequestUpdateManyWithWhereWithoutUserInput | BranchRequestUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BranchRequestScalarWhereInput | BranchRequestScalarWhereInput[]
+  }
+
+  export type BranchVisitUpdateManyWithoutVisitorNestedInput = {
+    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
+    upsert?: BranchVisitUpsertWithWhereUniqueWithoutVisitorInput | BranchVisitUpsertWithWhereUniqueWithoutVisitorInput[]
+    createMany?: BranchVisitCreateManyVisitorInputEnvelope
+    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    update?: BranchVisitUpdateWithWhereUniqueWithoutVisitorInput | BranchVisitUpdateWithWhereUniqueWithoutVisitorInput[]
+    updateMany?: BranchVisitUpdateManyWithWhereWithoutVisitorInput | BranchVisitUpdateManyWithWhereWithoutVisitorInput[]
+    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
   }
 
   export type BranchUpdateOneWithoutHeadUserNestedInput = {
@@ -112015,6 +112075,34 @@ export namespace Prisma {
     update?: CommentUpdateWithWhereUniqueWithoutUserInput | CommentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CommentUpdateManyWithWhereWithoutUserInput | CommentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
+  }
+
+  export type LetterUpdateManyWithoutAuthorNestedInput = {
+    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
+    upsert?: LetterUpsertWithWhereUniqueWithoutAuthorInput | LetterUpsertWithWhereUniqueWithoutAuthorInput[]
+    createMany?: LetterCreateManyAuthorInputEnvelope
+    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    update?: LetterUpdateWithWhereUniqueWithoutAuthorInput | LetterUpdateWithWhereUniqueWithoutAuthorInput[]
+    updateMany?: LetterUpdateManyWithWhereWithoutAuthorInput | LetterUpdateManyWithWhereWithoutAuthorInput[]
+    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
+  }
+
+  export type LetterUpdateManyWithoutSignatoryNestedInput = {
+    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
+    upsert?: LetterUpsertWithWhereUniqueWithoutSignatoryInput | LetterUpsertWithWhereUniqueWithoutSignatoryInput[]
+    createMany?: LetterCreateManySignatoryInputEnvelope
+    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    update?: LetterUpdateWithWhereUniqueWithoutSignatoryInput | LetterUpdateWithWhereUniqueWithoutSignatoryInput[]
+    updateMany?: LetterUpdateManyWithWhereWithoutSignatoryInput | LetterUpdateManyWithWhereWithoutSignatoryInput[]
+    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
   }
 
   export type LoginAuditLogUpdateManyWithoutUserNestedInput = {
@@ -112209,48 +112297,6 @@ export namespace Prisma {
     deleteMany?: DepartmentScalarWhereInput | DepartmentScalarWhereInput[]
   }
 
-  export type LetterUpdateManyWithoutSignatoryNestedInput = {
-    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutSignatoryInput | LetterUpsertWithWhereUniqueWithoutSignatoryInput[]
-    createMany?: LetterCreateManySignatoryInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutSignatoryInput | LetterUpdateWithWhereUniqueWithoutSignatoryInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutSignatoryInput | LetterUpdateManyWithWhereWithoutSignatoryInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type LetterUpdateManyWithoutAuthorNestedInput = {
-    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutAuthorInput | LetterUpsertWithWhereUniqueWithoutAuthorInput[]
-    createMany?: LetterCreateManyAuthorInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutAuthorInput | LetterUpdateWithWhereUniqueWithoutAuthorInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutAuthorInput | LetterUpdateManyWithWhereWithoutAuthorInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type BranchVisitUpdateManyWithoutVisitorNestedInput = {
-    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
-    upsert?: BranchVisitUpsertWithWhereUniqueWithoutVisitorInput | BranchVisitUpsertWithWhereUniqueWithoutVisitorInput[]
-    createMany?: BranchVisitCreateManyVisitorInputEnvelope
-    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    update?: BranchVisitUpdateWithWhereUniqueWithoutVisitorInput | BranchVisitUpdateWithWhereUniqueWithoutVisitorInput[]
-    updateMany?: BranchVisitUpdateManyWithWhereWithoutVisitorInput | BranchVisitUpdateManyWithWhereWithoutVisitorInput[]
-    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
-  }
-
   export type BranchRequestUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<BranchRequestCreateWithoutUserInput, BranchRequestUncheckedCreateWithoutUserInput> | BranchRequestCreateWithoutUserInput[] | BranchRequestUncheckedCreateWithoutUserInput[]
     connectOrCreate?: BranchRequestCreateOrConnectWithoutUserInput | BranchRequestCreateOrConnectWithoutUserInput[]
@@ -112263,6 +112309,20 @@ export namespace Prisma {
     update?: BranchRequestUpdateWithWhereUniqueWithoutUserInput | BranchRequestUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BranchRequestUpdateManyWithWhereWithoutUserInput | BranchRequestUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BranchRequestScalarWhereInput | BranchRequestScalarWhereInput[]
+  }
+
+  export type BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput = {
+    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
+    upsert?: BranchVisitUpsertWithWhereUniqueWithoutVisitorInput | BranchVisitUpsertWithWhereUniqueWithoutVisitorInput[]
+    createMany?: BranchVisitCreateManyVisitorInputEnvelope
+    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    update?: BranchVisitUpdateWithWhereUniqueWithoutVisitorInput | BranchVisitUpdateWithWhereUniqueWithoutVisitorInput[]
+    updateMany?: BranchVisitUpdateManyWithWhereWithoutVisitorInput | BranchVisitUpdateManyWithWhereWithoutVisitorInput[]
+    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
   }
 
   export type BranchUncheckedUpdateOneWithoutHeadUserNestedInput = {
@@ -112367,6 +112427,34 @@ export namespace Prisma {
     update?: CommentUpdateWithWhereUniqueWithoutUserInput | CommentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CommentUpdateManyWithWhereWithoutUserInput | CommentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
+  }
+
+  export type LetterUncheckedUpdateManyWithoutAuthorNestedInput = {
+    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
+    upsert?: LetterUpsertWithWhereUniqueWithoutAuthorInput | LetterUpsertWithWhereUniqueWithoutAuthorInput[]
+    createMany?: LetterCreateManyAuthorInputEnvelope
+    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    update?: LetterUpdateWithWhereUniqueWithoutAuthorInput | LetterUpdateWithWhereUniqueWithoutAuthorInput[]
+    updateMany?: LetterUpdateManyWithWhereWithoutAuthorInput | LetterUpdateManyWithWhereWithoutAuthorInput[]
+    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
+  }
+
+  export type LetterUncheckedUpdateManyWithoutSignatoryNestedInput = {
+    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
+    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
+    upsert?: LetterUpsertWithWhereUniqueWithoutSignatoryInput | LetterUpsertWithWhereUniqueWithoutSignatoryInput[]
+    createMany?: LetterCreateManySignatoryInputEnvelope
+    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
+    update?: LetterUpdateWithWhereUniqueWithoutSignatoryInput | LetterUpdateWithWhereUniqueWithoutSignatoryInput[]
+    updateMany?: LetterUpdateManyWithWhereWithoutSignatoryInput | LetterUpdateManyWithWhereWithoutSignatoryInput[]
+    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
   }
 
   export type LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput = {
@@ -112521,48 +112609,6 @@ export namespace Prisma {
     deleteMany?: DepartmentScalarWhereInput | DepartmentScalarWhereInput[]
   }
 
-  export type LetterUncheckedUpdateManyWithoutSignatoryNestedInput = {
-    create?: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput> | LetterCreateWithoutSignatoryInput[] | LetterUncheckedCreateWithoutSignatoryInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutSignatoryInput | LetterCreateOrConnectWithoutSignatoryInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutSignatoryInput | LetterUpsertWithWhereUniqueWithoutSignatoryInput[]
-    createMany?: LetterCreateManySignatoryInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutSignatoryInput | LetterUpdateWithWhereUniqueWithoutSignatoryInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutSignatoryInput | LetterUpdateManyWithWhereWithoutSignatoryInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type LetterUncheckedUpdateManyWithoutAuthorNestedInput = {
-    create?: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput> | LetterCreateWithoutAuthorInput[] | LetterUncheckedCreateWithoutAuthorInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutAuthorInput | LetterCreateOrConnectWithoutAuthorInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutAuthorInput | LetterUpsertWithWhereUniqueWithoutAuthorInput[]
-    createMany?: LetterCreateManyAuthorInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutAuthorInput | LetterUpdateWithWhereUniqueWithoutAuthorInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutAuthorInput | LetterUpdateManyWithWhereWithoutAuthorInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput = {
-    create?: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput> | BranchVisitCreateWithoutVisitorInput[] | BranchVisitUncheckedCreateWithoutVisitorInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutVisitorInput | BranchVisitCreateOrConnectWithoutVisitorInput[]
-    upsert?: BranchVisitUpsertWithWhereUniqueWithoutVisitorInput | BranchVisitUpsertWithWhereUniqueWithoutVisitorInput[]
-    createMany?: BranchVisitCreateManyVisitorInputEnvelope
-    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    update?: BranchVisitUpdateWithWhereUniqueWithoutVisitorInput | BranchVisitUpdateWithWhereUniqueWithoutVisitorInput[]
-    updateMany?: BranchVisitUpdateManyWithWhereWithoutVisitorInput | BranchVisitUpdateManyWithWhereWithoutVisitorInput[]
-    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
-  }
-
   export type UserCreateNestedOneWithoutSessionsInput = {
     create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
@@ -112633,6 +112679,13 @@ export namespace Prisma {
     connectOrCreate?: BranchRequestCreateOrConnectWithoutBranchInput | BranchRequestCreateOrConnectWithoutBranchInput[]
     createMany?: BranchRequestCreateManyBranchInputEnvelope
     connect?: BranchRequestWhereUniqueInput | BranchRequestWhereUniqueInput[]
+  }
+
+  export type BranchVisitCreateNestedManyWithoutBranchInput = {
+    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
+    createMany?: BranchVisitCreateManyBranchInputEnvelope
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
   }
 
   export type UserCreateNestedOneWithoutHeadedBranchInput = {
@@ -112759,13 +112812,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type BranchVisitCreateNestedManyWithoutBranchInput = {
-    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
-    createMany?: BranchVisitCreateManyBranchInputEnvelope
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-  }
-
   export type AccountClosureUncheckedCreateNestedManyWithoutBranchInput = {
     create?: XOR<AccountClosureCreateWithoutBranchInput, AccountClosureUncheckedCreateWithoutBranchInput> | AccountClosureCreateWithoutBranchInput[] | AccountClosureUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: AccountClosureCreateOrConnectWithoutBranchInput | AccountClosureCreateOrConnectWithoutBranchInput[]
@@ -112806,6 +112852,13 @@ export namespace Prisma {
     connectOrCreate?: BranchRequestCreateOrConnectWithoutBranchInput | BranchRequestCreateOrConnectWithoutBranchInput[]
     createMany?: BranchRequestCreateManyBranchInputEnvelope
     connect?: BranchRequestWhereUniqueInput | BranchRequestWhereUniqueInput[]
+  }
+
+  export type BranchVisitUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
+    createMany?: BranchVisitCreateManyBranchInputEnvelope
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
   }
 
   export type BudgetMasterUncheckedCreateNestedManyWithoutBranchInput = {
@@ -112920,13 +112973,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type BranchVisitUncheckedCreateNestedManyWithoutBranchInput = {
-    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
-    createMany?: BranchVisitCreateManyBranchInputEnvelope
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-  }
-
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -113025,6 +113071,20 @@ export namespace Prisma {
     update?: BranchRequestUpdateWithWhereUniqueWithoutBranchInput | BranchRequestUpdateWithWhereUniqueWithoutBranchInput[]
     updateMany?: BranchRequestUpdateManyWithWhereWithoutBranchInput | BranchRequestUpdateManyWithWhereWithoutBranchInput[]
     deleteMany?: BranchRequestScalarWhereInput | BranchRequestScalarWhereInput[]
+  }
+
+  export type BranchVisitUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
+    upsert?: BranchVisitUpsertWithWhereUniqueWithoutBranchInput | BranchVisitUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: BranchVisitCreateManyBranchInputEnvelope
+    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    update?: BranchVisitUpdateWithWhereUniqueWithoutBranchInput | BranchVisitUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: BranchVisitUpdateManyWithWhereWithoutBranchInput | BranchVisitUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
   }
 
   export type UserUpdateOneWithoutHeadedBranchNestedInput = {
@@ -113271,20 +113331,6 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type BranchVisitUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
-    upsert?: BranchVisitUpsertWithWhereUniqueWithoutBranchInput | BranchVisitUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: BranchVisitCreateManyBranchInputEnvelope
-    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    update?: BranchVisitUpdateWithWhereUniqueWithoutBranchInput | BranchVisitUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: BranchVisitUpdateManyWithWhereWithoutBranchInput | BranchVisitUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
-  }
-
   export type AccountClosureUncheckedUpdateManyWithoutBranchNestedInput = {
     create?: XOR<AccountClosureCreateWithoutBranchInput, AccountClosureUncheckedCreateWithoutBranchInput> | AccountClosureCreateWithoutBranchInput[] | AccountClosureUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: AccountClosureCreateOrConnectWithoutBranchInput | AccountClosureCreateOrConnectWithoutBranchInput[]
@@ -113367,6 +113413,20 @@ export namespace Prisma {
     update?: BranchRequestUpdateWithWhereUniqueWithoutBranchInput | BranchRequestUpdateWithWhereUniqueWithoutBranchInput[]
     updateMany?: BranchRequestUpdateManyWithWhereWithoutBranchInput | BranchRequestUpdateManyWithWhereWithoutBranchInput[]
     deleteMany?: BranchRequestScalarWhereInput | BranchRequestScalarWhereInput[]
+  }
+
+  export type BranchVisitUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
+    upsert?: BranchVisitUpsertWithWhereUniqueWithoutBranchInput | BranchVisitUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: BranchVisitCreateManyBranchInputEnvelope
+    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
+    update?: BranchVisitUpdateWithWhereUniqueWithoutBranchInput | BranchVisitUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: BranchVisitUpdateManyWithWhereWithoutBranchInput | BranchVisitUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
   }
 
   export type BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput = {
@@ -113593,18 +113653,11 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type BranchVisitUncheckedUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput> | BranchVisitCreateWithoutBranchInput[] | BranchVisitUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: BranchVisitCreateOrConnectWithoutBranchInput | BranchVisitCreateOrConnectWithoutBranchInput[]
-    upsert?: BranchVisitUpsertWithWhereUniqueWithoutBranchInput | BranchVisitUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: BranchVisitCreateManyBranchInputEnvelope
-    set?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    disconnect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    delete?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    connect?: BranchVisitWhereUniqueInput | BranchVisitWhereUniqueInput[]
-    update?: BranchVisitUpdateWithWhereUniqueWithoutBranchInput | BranchVisitUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: BranchVisitUpdateManyWithWhereWithoutBranchInput | BranchVisitUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
+  export type DepartmentManualCreateNestedManyWithoutDepartmentInput = {
+    create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
+    connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
+    createMany?: DepartmentManualCreateManyDepartmentInputEnvelope
+    connect?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
   }
 
   export type UserCreateNestedManyWithoutDepartmentInput = {
@@ -113626,7 +113679,7 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type DepartmentManualCreateNestedManyWithoutDepartmentInput = {
+  export type DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput = {
     create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
     connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
     createMany?: DepartmentManualCreateManyDepartmentInputEnvelope
@@ -113652,11 +113705,18 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
-  export type DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput = {
+  export type DepartmentManualUpdateManyWithoutDepartmentNestedInput = {
     create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
     connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
+    upsert?: DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput | DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput[]
     createMany?: DepartmentManualCreateManyDepartmentInputEnvelope
+    set?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
+    disconnect?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
+    delete?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
     connect?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
+    update?: DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput | DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput[]
+    updateMany?: DepartmentManualUpdateManyWithWhereWithoutDepartmentInput | DepartmentManualUpdateManyWithWhereWithoutDepartmentInput[]
+    deleteMany?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
   }
 
   export type UserUpdateManyWithoutDepartmentNestedInput = {
@@ -113699,7 +113759,7 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type DepartmentManualUpdateManyWithoutDepartmentNestedInput = {
+  export type DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput = {
     create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
     connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
     upsert?: DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput | DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput[]
@@ -113751,20 +113811,6 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutDepartmentsInput | UserUpdateWithWhereUniqueWithoutDepartmentsInput[]
     updateMany?: UserUpdateManyWithWhereWithoutDepartmentsInput | UserUpdateManyWithWhereWithoutDepartmentsInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
-  }
-
-  export type DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput = {
-    create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
-    connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
-    upsert?: DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput | DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput[]
-    createMany?: DepartmentManualCreateManyDepartmentInputEnvelope
-    set?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
-    disconnect?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
-    delete?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
-    connect?: DepartmentManualWhereUniqueInput | DepartmentManualWhereUniqueInput[]
-    update?: DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput | DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput[]
-    updateMany?: DepartmentManualUpdateManyWithWhereWithoutDepartmentInput | DepartmentManualUpdateManyWithWhereWithoutDepartmentInput[]
-    deleteMany?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
   }
 
   export type PostingHistoryCreateNestedManyWithoutDesignationInput = {
@@ -113865,6 +113911,12 @@ export namespace Prisma {
     update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutHistoryInput, BranchUpdateWithoutHistoryInput>, BranchUncheckedUpdateWithoutHistoryInput>
   }
 
+  export type UserCreateNestedOneWithoutAuthoredLettersInput = {
+    create?: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuthoredLettersInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type BranchCreateNestedOneWithoutLettersInput = {
     create?: XOR<BranchCreateWithoutLettersInput, BranchUncheckedCreateWithoutLettersInput>
     connectOrCreate?: BranchCreateOrConnectWithoutLettersInput
@@ -113896,12 +113948,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type UserCreateNestedOneWithoutAuthoredLettersInput = {
-    create?: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
-    connectOrCreate?: UserCreateOrConnectWithoutAuthoredLettersInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type LetterUncheckedCreateNestedManyWithoutPreviousVersionInput = {
     create?: XOR<LetterCreateWithoutPreviousVersionInput, LetterUncheckedCreateWithoutPreviousVersionInput> | LetterCreateWithoutPreviousVersionInput[] | LetterUncheckedCreateWithoutPreviousVersionInput[]
     connectOrCreate?: LetterCreateOrConnectWithoutPreviousVersionInput | LetterCreateOrConnectWithoutPreviousVersionInput[]
@@ -113915,6 +113961,16 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type UserUpdateOneWithoutAuthoredLettersNestedInput = {
+    create?: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAuthoredLettersInput
+    upsert?: UserUpsertWithoutAuthoredLettersInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuthoredLettersInput, UserUpdateWithoutAuthoredLettersInput>, UserUncheckedUpdateWithoutAuthoredLettersInput>
   }
 
   export type BranchUpdateOneRequiredWithoutLettersNestedInput = {
@@ -113967,16 +114023,6 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSignatoryLettersInput, UserUpdateWithoutSignatoryLettersInput>, UserUncheckedUpdateWithoutSignatoryLettersInput>
-  }
-
-  export type UserUpdateOneWithoutAuthoredLettersNestedInput = {
-    create?: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
-    connectOrCreate?: UserCreateOrConnectWithoutAuthoredLettersInput
-    upsert?: UserUpsertWithoutAuthoredLettersInput
-    disconnect?: UserWhereInput | boolean
-    delete?: UserWhereInput | boolean
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuthoredLettersInput, UserUpdateWithoutAuthoredLettersInput>, UserUncheckedUpdateWithoutAuthoredLettersInput>
   }
 
   export type LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput = {
@@ -116205,6 +116251,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BranchVisitCreateWithoutVisitorInput = {
+    id?: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
+    branch: BranchCreateNestedOneWithoutVisitsInput
+  }
+
+  export type BranchVisitUncheckedCreateWithoutVisitorInput = {
+    id?: string
+    branchId: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
+  }
+
+  export type BranchVisitCreateOrConnectWithoutVisitorInput = {
+    where: BranchVisitWhereUniqueInput
+    create: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput>
+  }
+
+  export type BranchVisitCreateManyVisitorInputEnvelope = {
+    data: BranchVisitCreateManyVisitorInput | BranchVisitCreateManyVisitorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type BranchCreateWithoutHeadUserInput = {
     id?: string
     sNo?: number | null
@@ -116236,6 +116316,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
@@ -116253,7 +116334,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutHeadUserInput = {
@@ -116288,6 +116368,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -116304,7 +116385,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutHeadUserInput = {
@@ -116343,6 +116423,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
@@ -116360,7 +116441,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSecondLineUserInput = {
@@ -116395,6 +116475,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -116411,7 +116492,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSecondLineUserInput = {
@@ -116594,6 +116674,146 @@ export namespace Prisma {
 
   export type CommentCreateManyUserInputEnvelope = {
     data: CommentCreateManyUserInput | CommentCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LetterCreateWithoutAuthorInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    branch: BranchCreateNestedOneWithoutLettersInput
+    parameter?: ParameterCreateNestedOneWithoutLettersInput
+    previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
+    nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
+    signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
+  }
+
+  export type LetterUncheckedCreateWithoutAuthorInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    branchId: string
+    parameterId?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    previousVersionId?: string | null
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    signatoryId?: string | null
+    nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
+  }
+
+  export type LetterCreateOrConnectWithoutAuthorInput = {
+    where: LetterWhereUniqueInput
+    create: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type LetterCreateManyAuthorInputEnvelope = {
+    data: LetterCreateManyAuthorInput | LetterCreateManyAuthorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LetterCreateWithoutSignatoryInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
+    branch: BranchCreateNestedOneWithoutLettersInput
+    parameter?: ParameterCreateNestedOneWithoutLettersInput
+    previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
+    nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
+  }
+
+  export type LetterUncheckedCreateWithoutSignatoryInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    branchId: string
+    parameterId?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    previousVersionId?: string | null
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    authorId?: string | null
+    nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
+  }
+
+  export type LetterCreateOrConnectWithoutSignatoryInput = {
+    where: LetterWhereUniqueInput
+    create: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput>
+  }
+
+  export type LetterCreateManySignatoryInputEnvelope = {
+    data: LetterCreateManySignatoryInput | LetterCreateManySignatoryInput[]
     skipDuplicates?: boolean
   }
 
@@ -116922,6 +117142,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -116939,7 +117160,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutUsersInput = {
@@ -116975,6 +117195,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -116990,7 +117211,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutUsersInput = {
@@ -117007,9 +117227,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
     heads?: UserCreateNestedManyWithoutManagedDepartmentsInput
     users?: UserCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateWithoutMainUsersInput = {
@@ -117021,9 +117241,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
     heads?: UserUncheckedCreateNestedManyWithoutManagedDepartmentsInput
     users?: UserUncheckedCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutMainUsersInput = {
@@ -117092,9 +117312,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserCreateNestedManyWithoutDepartmentInput
     users?: UserCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateWithoutHeadsInput = {
@@ -117106,9 +117326,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserUncheckedCreateNestedManyWithoutDepartmentInput
     users?: UserUncheckedCreateNestedManyWithoutDepartmentsInput
-    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutHeadsInput = {
@@ -117125,9 +117345,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserCreateNestedManyWithoutDepartmentInput
     heads?: UserCreateNestedManyWithoutManagedDepartmentsInput
-    manuals?: DepartmentManualCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateWithoutUsersInput = {
@@ -117139,188 +117359,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     sealPath?: string | null
+    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
     mainUsers?: UserUncheckedCreateNestedManyWithoutDepartmentInput
     heads?: UserUncheckedCreateNestedManyWithoutManagedDepartmentsInput
-    manuals?: DepartmentManualUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutUsersInput = {
     where: DepartmentWhereUniqueInput
     create: XOR<DepartmentCreateWithoutUsersInput, DepartmentUncheckedCreateWithoutUsersInput>
-  }
-
-  export type LetterCreateWithoutSignatoryInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
-    previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
-    nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
-  }
-
-  export type LetterUncheckedCreateWithoutSignatoryInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    parameterId?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    authorId?: string | null
-    nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
-  }
-
-  export type LetterCreateOrConnectWithoutSignatoryInput = {
-    where: LetterWhereUniqueInput
-    create: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput>
-  }
-
-  export type LetterCreateManySignatoryInputEnvelope = {
-    data: LetterCreateManySignatoryInput | LetterCreateManySignatoryInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type LetterCreateWithoutAuthorInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
-    previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
-    nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
-    signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-  }
-
-  export type LetterUncheckedCreateWithoutAuthorInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    parameterId?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    signatoryId?: string | null
-    nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
-  }
-
-  export type LetterCreateOrConnectWithoutAuthorInput = {
-    where: LetterWhereUniqueInput
-    create: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput>
-  }
-
-  export type LetterCreateManyAuthorInputEnvelope = {
-    data: LetterCreateManyAuthorInput | LetterCreateManyAuthorInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type BranchVisitCreateWithoutVisitorInput = {
-    id?: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    branch: BranchCreateNestedOneWithoutVisitsInput
-  }
-
-  export type BranchVisitUncheckedCreateWithoutVisitorInput = {
-    id?: string
-    branchId: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type BranchVisitCreateOrConnectWithoutVisitorInput = {
-    where: BranchVisitWhereUniqueInput
-    create: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput>
-  }
-
-  export type BranchVisitCreateManyVisitorInputEnvelope = {
-    data: BranchVisitCreateManyVisitorInput | BranchVisitCreateManyVisitorInput[]
-    skipDuplicates?: boolean
   }
 
   export type BranchRequestUpsertWithWhereUniqueWithoutUserInput = {
@@ -117359,6 +117405,38 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableFilter<"BranchRequest"> | Date | string | null
     slaBreached?: BoolFilter<"BranchRequest"> | boolean
     contentJson?: JsonNullableFilter<"BranchRequest">
+  }
+
+  export type BranchVisitUpsertWithWhereUniqueWithoutVisitorInput = {
+    where: BranchVisitWhereUniqueInput
+    update: XOR<BranchVisitUpdateWithoutVisitorInput, BranchVisitUncheckedUpdateWithoutVisitorInput>
+    create: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput>
+  }
+
+  export type BranchVisitUpdateWithWhereUniqueWithoutVisitorInput = {
+    where: BranchVisitWhereUniqueInput
+    data: XOR<BranchVisitUpdateWithoutVisitorInput, BranchVisitUncheckedUpdateWithoutVisitorInput>
+  }
+
+  export type BranchVisitUpdateManyWithWhereWithoutVisitorInput = {
+    where: BranchVisitScalarWhereInput
+    data: XOR<BranchVisitUpdateManyMutationInput, BranchVisitUncheckedUpdateManyWithoutVisitorInput>
+  }
+
+  export type BranchVisitScalarWhereInput = {
+    AND?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
+    OR?: BranchVisitScalarWhereInput[]
+    NOT?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
+    id?: StringFilter<"BranchVisit"> | string
+    branchId?: StringFilter<"BranchVisit"> | string
+    visitorId?: StringFilter<"BranchVisit"> | string
+    visitDate?: DateTimeFilter<"BranchVisit"> | Date | string
+    purpose?: StringNullableFilter<"BranchVisit"> | string | null
+    visitorCategory?: StringFilter<"BranchVisit"> | string
+    createdAt?: DateTimeFilter<"BranchVisit"> | Date | string
+    updatedAt?: DateTimeFilter<"BranchVisit"> | Date | string
+    letterIssued?: BoolFilter<"BranchVisit"> | boolean
+    observations?: StringNullableFilter<"BranchVisit"> | string | null
   }
 
   export type BranchUpsertWithoutHeadUserInput = {
@@ -117403,6 +117481,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
@@ -117420,7 +117499,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutHeadUserInput = {
@@ -117455,6 +117533,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -117471,7 +117550,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUpsertWithoutSecondLineUserInput = {
@@ -117516,6 +117594,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
@@ -117533,7 +117612,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSecondLineUserInput = {
@@ -117568,6 +117646,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -117584,7 +117663,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ChatAuditLogUpsertWithWhereUniqueWithoutActorInput = {
@@ -117761,6 +117839,71 @@ export namespace Prisma {
     userId?: StringFilter<"Comment"> | string
     requestId?: StringFilter<"Comment"> | string
     createdAt?: DateTimeFilter<"Comment"> | Date | string
+  }
+
+  export type LetterUpsertWithWhereUniqueWithoutAuthorInput = {
+    where: LetterWhereUniqueInput
+    update: XOR<LetterUpdateWithoutAuthorInput, LetterUncheckedUpdateWithoutAuthorInput>
+    create: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type LetterUpdateWithWhereUniqueWithoutAuthorInput = {
+    where: LetterWhereUniqueInput
+    data: XOR<LetterUpdateWithoutAuthorInput, LetterUncheckedUpdateWithoutAuthorInput>
+  }
+
+  export type LetterUpdateManyWithWhereWithoutAuthorInput = {
+    where: LetterScalarWhereInput
+    data: XOR<LetterUpdateManyMutationInput, LetterUncheckedUpdateManyWithoutAuthorInput>
+  }
+
+  export type LetterScalarWhereInput = {
+    AND?: LetterScalarWhereInput | LetterScalarWhereInput[]
+    OR?: LetterScalarWhereInput[]
+    NOT?: LetterScalarWhereInput | LetterScalarWhereInput[]
+    id?: StringFilter<"Letter"> | string
+    type?: StringFilter<"Letter"> | string
+    status?: StringFilter<"Letter"> | string
+    titleEn?: StringFilter<"Letter"> | string
+    contentEn?: StringFilter<"Letter"> | string
+    titleTa?: StringNullableFilter<"Letter"> | string | null
+    contentTa?: StringNullableFilter<"Letter"> | string | null
+    branchId?: StringFilter<"Letter"> | string
+    parameterId?: StringNullableFilter<"Letter"> | string | null
+    valueAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
+    period?: StringNullableFilter<"Letter"> | string | null
+    createdAt?: DateTimeFilter<"Letter"> | Date | string
+    updatedAt?: DateTimeFilter<"Letter"> | Date | string
+    previousVersionId?: StringNullableFilter<"Letter"> | string | null
+    version?: IntFilter<"Letter"> | number
+    orgMeta?: JsonNullableFilter<"Letter">
+    scannedCopyUrl?: StringNullableFilter<"Letter"> | string | null
+    referenceNo?: StringNullableFilter<"Letter"> | string | null
+    titleHi?: StringNullableFilter<"Letter"> | string | null
+    contentHi?: StringNullableFilter<"Letter"> | string | null
+    isExternal?: BoolFilter<"Letter"> | boolean
+    recipientName?: StringNullableFilter<"Letter"> | string | null
+    recipientAddress?: StringNullableFilter<"Letter"> | string | null
+    salutation?: StringNullableFilter<"Letter"> | string | null
+    authorId?: StringNullableFilter<"Letter"> | string | null
+    signatoryId?: StringNullableFilter<"Letter"> | string | null
+  }
+
+  export type LetterUpsertWithWhereUniqueWithoutSignatoryInput = {
+    where: LetterWhereUniqueInput
+    update: XOR<LetterUpdateWithoutSignatoryInput, LetterUncheckedUpdateWithoutSignatoryInput>
+    create: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput>
+  }
+
+  export type LetterUpdateWithWhereUniqueWithoutSignatoryInput = {
+    where: LetterWhereUniqueInput
+    data: XOR<LetterUpdateWithoutSignatoryInput, LetterUncheckedUpdateWithoutSignatoryInput>
+  }
+
+  export type LetterUpdateManyWithWhereWithoutSignatoryInput = {
+    where: LetterScalarWhereInput
+    data: XOR<LetterUpdateManyMutationInput, LetterUncheckedUpdateManyWithoutSignatoryInput>
   }
 
   export type LoginAuditLogUpsertWithWhereUniqueWithoutUserInput = {
@@ -118066,6 +118209,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -118083,7 +118227,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutUsersInput = {
@@ -118119,6 +118262,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -118134,7 +118278,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type DepartmentUpsertWithoutMainUsersInput = {
@@ -118157,9 +118300,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
     heads?: UserUpdateManyWithoutManagedDepartmentsNestedInput
     users?: UserUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutMainUsersInput = {
@@ -118171,9 +118314,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
     heads?: UserUncheckedUpdateManyWithoutManagedDepartmentsNestedInput
     users?: UserUncheckedUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DesignationUpsertWithoutUsersInput = {
@@ -118286,103 +118429,6 @@ export namespace Prisma {
     data: XOR<DepartmentUpdateManyMutationInput, DepartmentUncheckedUpdateManyWithoutUsersInput>
   }
 
-  export type LetterUpsertWithWhereUniqueWithoutSignatoryInput = {
-    where: LetterWhereUniqueInput
-    update: XOR<LetterUpdateWithoutSignatoryInput, LetterUncheckedUpdateWithoutSignatoryInput>
-    create: XOR<LetterCreateWithoutSignatoryInput, LetterUncheckedCreateWithoutSignatoryInput>
-  }
-
-  export type LetterUpdateWithWhereUniqueWithoutSignatoryInput = {
-    where: LetterWhereUniqueInput
-    data: XOR<LetterUpdateWithoutSignatoryInput, LetterUncheckedUpdateWithoutSignatoryInput>
-  }
-
-  export type LetterUpdateManyWithWhereWithoutSignatoryInput = {
-    where: LetterScalarWhereInput
-    data: XOR<LetterUpdateManyMutationInput, LetterUncheckedUpdateManyWithoutSignatoryInput>
-  }
-
-  export type LetterScalarWhereInput = {
-    AND?: LetterScalarWhereInput | LetterScalarWhereInput[]
-    OR?: LetterScalarWhereInput[]
-    NOT?: LetterScalarWhereInput | LetterScalarWhereInput[]
-    id?: StringFilter<"Letter"> | string
-    type?: StringFilter<"Letter"> | string
-    status?: StringFilter<"Letter"> | string
-    titleEn?: StringFilter<"Letter"> | string
-    contentEn?: StringFilter<"Letter"> | string
-    titleTa?: StringNullableFilter<"Letter"> | string | null
-    contentTa?: StringNullableFilter<"Letter"> | string | null
-    branchId?: StringFilter<"Letter"> | string
-    parameterId?: StringNullableFilter<"Letter"> | string | null
-    valueAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
-    period?: StringNullableFilter<"Letter"> | string | null
-    createdAt?: DateTimeFilter<"Letter"> | Date | string
-    updatedAt?: DateTimeFilter<"Letter"> | Date | string
-    previousVersionId?: StringNullableFilter<"Letter"> | string | null
-    version?: IntFilter<"Letter"> | number
-    orgMeta?: JsonNullableFilter<"Letter">
-    scannedCopyUrl?: StringNullableFilter<"Letter"> | string | null
-    referenceNo?: StringNullableFilter<"Letter"> | string | null
-    titleHi?: StringNullableFilter<"Letter"> | string | null
-    contentHi?: StringNullableFilter<"Letter"> | string | null
-    isExternal?: BoolFilter<"Letter"> | boolean
-    recipientName?: StringNullableFilter<"Letter"> | string | null
-    recipientAddress?: StringNullableFilter<"Letter"> | string | null
-    salutation?: StringNullableFilter<"Letter"> | string | null
-    signatoryId?: StringNullableFilter<"Letter"> | string | null
-    authorId?: StringNullableFilter<"Letter"> | string | null
-  }
-
-  export type LetterUpsertWithWhereUniqueWithoutAuthorInput = {
-    where: LetterWhereUniqueInput
-    update: XOR<LetterUpdateWithoutAuthorInput, LetterUncheckedUpdateWithoutAuthorInput>
-    create: XOR<LetterCreateWithoutAuthorInput, LetterUncheckedCreateWithoutAuthorInput>
-  }
-
-  export type LetterUpdateWithWhereUniqueWithoutAuthorInput = {
-    where: LetterWhereUniqueInput
-    data: XOR<LetterUpdateWithoutAuthorInput, LetterUncheckedUpdateWithoutAuthorInput>
-  }
-
-  export type LetterUpdateManyWithWhereWithoutAuthorInput = {
-    where: LetterScalarWhereInput
-    data: XOR<LetterUpdateManyMutationInput, LetterUncheckedUpdateManyWithoutAuthorInput>
-  }
-
-  export type BranchVisitUpsertWithWhereUniqueWithoutVisitorInput = {
-    where: BranchVisitWhereUniqueInput
-    update: XOR<BranchVisitUpdateWithoutVisitorInput, BranchVisitUncheckedUpdateWithoutVisitorInput>
-    create: XOR<BranchVisitCreateWithoutVisitorInput, BranchVisitUncheckedCreateWithoutVisitorInput>
-  }
-
-  export type BranchVisitUpdateWithWhereUniqueWithoutVisitorInput = {
-    where: BranchVisitWhereUniqueInput
-    data: XOR<BranchVisitUpdateWithoutVisitorInput, BranchVisitUncheckedUpdateWithoutVisitorInput>
-  }
-
-  export type BranchVisitUpdateManyWithWhereWithoutVisitorInput = {
-    where: BranchVisitScalarWhereInput
-    data: XOR<BranchVisitUpdateManyMutationInput, BranchVisitUncheckedUpdateManyWithoutVisitorInput>
-  }
-
-  export type BranchVisitScalarWhereInput = {
-    AND?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
-    OR?: BranchVisitScalarWhereInput[]
-    NOT?: BranchVisitScalarWhereInput | BranchVisitScalarWhereInput[]
-    id?: StringFilter<"BranchVisit"> | string
-    branchId?: StringFilter<"BranchVisit"> | string
-    visitorId?: StringFilter<"BranchVisit"> | string
-    visitDate?: DateTimeFilter<"BranchVisit"> | Date | string
-    purpose?: StringNullableFilter<"BranchVisit"> | string | null
-    observations?: StringNullableFilter<"BranchVisit"> | string | null
-    letterIssued?: BoolFilter<"BranchVisit"> | boolean
-    visitorCategory?: StringFilter<"BranchVisit"> | string
-    createdAt?: DateTimeFilter<"BranchVisit"> | Date | string
-    updatedAt?: DateTimeFilter<"BranchVisit"> | Date | string
-  }
-
   export type UserCreateWithoutSessionsInput = {
     id?: string
     username: string
@@ -118408,6 +118454,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -118416,6 +118463,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -118430,9 +118479,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -118464,6 +118510,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -118472,6 +118519,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -118482,9 +118531,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -118528,6 +118574,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -118536,6 +118583,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -118550,9 +118599,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -118584,6 +118630,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -118592,6 +118639,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -118602,9 +118651,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserCreateWithoutLoginAuditLogsInput = {
@@ -118632,6 +118678,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -118640,6 +118687,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -118654,9 +118703,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutLoginAuditLogsInput = {
@@ -118688,6 +118734,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -118696,6 +118743,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -118706,9 +118755,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutLoginAuditLogsInput = {
@@ -118752,6 +118798,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -118760,6 +118807,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -118774,9 +118823,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginAuditLogsInput = {
@@ -118808,6 +118854,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -118816,6 +118863,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -118826,9 +118875,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type AccountClosureCreateWithoutBranchInput = {
@@ -119063,6 +119109,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BranchVisitCreateWithoutBranchInput = {
+    id?: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
+    visitor: UserCreateNestedOneWithoutBranchVisitsInput
+  }
+
+  export type BranchVisitUncheckedCreateWithoutBranchInput = {
+    id?: string
+    visitorId: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
+  }
+
+  export type BranchVisitCreateOrConnectWithoutBranchInput = {
+    where: BranchVisitWhereUniqueInput
+    create: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput>
+  }
+
+  export type BranchVisitCreateManyBranchInputEnvelope = {
+    data: BranchVisitCreateManyBranchInput | BranchVisitCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserCreateWithoutHeadedBranchInput = {
     id?: string
     username: string
@@ -119088,6 +119168,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
     chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
@@ -119095,6 +119176,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -119110,9 +119193,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutHeadedBranchInput = {
@@ -119144,6 +119224,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
     chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
@@ -119151,6 +119232,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -119162,9 +119245,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutHeadedBranchInput = {
@@ -119197,6 +119277,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
     chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
@@ -119204,6 +119285,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -119219,9 +119302,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutSecondLineBranchInput = {
@@ -119253,6 +119333,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
     chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
@@ -119260,6 +119341,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -119271,9 +119354,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutSecondLineBranchInput = {
@@ -119416,11 +119496,11 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
     parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
   }
 
   export type LetterUncheckedCreateWithoutBranchInput = {
@@ -119448,8 +119528,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
     nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
   }
 
@@ -119820,6 +119900,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -119828,6 +119909,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -119842,9 +119925,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutBranchInput = {
@@ -119875,6 +119955,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -119883,6 +119964,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -119894,9 +119977,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutBranchInput = {
@@ -119906,40 +119986,6 @@ export namespace Prisma {
 
   export type UserCreateManyBranchInputEnvelope = {
     data: UserCreateManyBranchInput | UserCreateManyBranchInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type BranchVisitCreateWithoutBranchInput = {
-    id?: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    visitor: UserCreateNestedOneWithoutBranchVisitsInput
-  }
-
-  export type BranchVisitUncheckedCreateWithoutBranchInput = {
-    id?: string
-    visitorId: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type BranchVisitCreateOrConnectWithoutBranchInput = {
-    where: BranchVisitWhereUniqueInput
-    create: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput>
-  }
-
-  export type BranchVisitCreateManyBranchInputEnvelope = {
-    data: BranchVisitCreateManyBranchInput | BranchVisitCreateManyBranchInput[]
     skipDuplicates?: boolean
   }
 
@@ -120126,6 +120172,22 @@ export namespace Prisma {
     data: XOR<BranchRequestUpdateManyMutationInput, BranchRequestUncheckedUpdateManyWithoutBranchInput>
   }
 
+  export type BranchVisitUpsertWithWhereUniqueWithoutBranchInput = {
+    where: BranchVisitWhereUniqueInput
+    update: XOR<BranchVisitUpdateWithoutBranchInput, BranchVisitUncheckedUpdateWithoutBranchInput>
+    create: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput>
+  }
+
+  export type BranchVisitUpdateWithWhereUniqueWithoutBranchInput = {
+    where: BranchVisitWhereUniqueInput
+    data: XOR<BranchVisitUpdateWithoutBranchInput, BranchVisitUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type BranchVisitUpdateManyWithWhereWithoutBranchInput = {
+    where: BranchVisitScalarWhereInput
+    data: XOR<BranchVisitUpdateManyMutationInput, BranchVisitUncheckedUpdateManyWithoutBranchInput>
+  }
+
   export type UserUpsertWithoutHeadedBranchInput = {
     update: XOR<UserUpdateWithoutHeadedBranchInput, UserUncheckedUpdateWithoutHeadedBranchInput>
     create: XOR<UserCreateWithoutHeadedBranchInput, UserUncheckedCreateWithoutHeadedBranchInput>
@@ -120162,6 +120224,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
     chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
@@ -120169,6 +120232,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -120184,9 +120249,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutHeadedBranchInput = {
@@ -120218,6 +120280,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
     chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -120225,6 +120288,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -120236,9 +120301,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUpsertWithoutSecondLineBranchInput = {
@@ -120277,6 +120339,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
     chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
@@ -120284,6 +120347,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -120299,9 +120364,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSecondLineBranchInput = {
@@ -120333,6 +120395,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
     chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -120340,6 +120403,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -120351,9 +120416,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type BudgetMasterUpsertWithWhereUniqueWithoutBranchInput = {
@@ -120822,20 +120884,36 @@ export namespace Prisma {
     designationTa?: StringNullableFilter<"User"> | string | null
   }
 
-  export type BranchVisitUpsertWithWhereUniqueWithoutBranchInput = {
-    where: BranchVisitWhereUniqueInput
-    update: XOR<BranchVisitUpdateWithoutBranchInput, BranchVisitUncheckedUpdateWithoutBranchInput>
-    create: XOR<BranchVisitCreateWithoutBranchInput, BranchVisitUncheckedCreateWithoutBranchInput>
+  export type DepartmentManualCreateWithoutDepartmentInput = {
+    id?: string
+    titleEn: string
+    titleTa?: string | null
+    titleHi?: string | null
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: DepartmentActivityCreateNestedManyWithoutManualInput
   }
 
-  export type BranchVisitUpdateWithWhereUniqueWithoutBranchInput = {
-    where: BranchVisitWhereUniqueInput
-    data: XOR<BranchVisitUpdateWithoutBranchInput, BranchVisitUncheckedUpdateWithoutBranchInput>
+  export type DepartmentManualUncheckedCreateWithoutDepartmentInput = {
+    id?: string
+    titleEn: string
+    titleTa?: string | null
+    titleHi?: string | null
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activities?: DepartmentActivityUncheckedCreateNestedManyWithoutManualInput
   }
 
-  export type BranchVisitUpdateManyWithWhereWithoutBranchInput = {
-    where: BranchVisitScalarWhereInput
-    data: XOR<BranchVisitUpdateManyMutationInput, BranchVisitUncheckedUpdateManyWithoutBranchInput>
+  export type DepartmentManualCreateOrConnectWithoutDepartmentInput = {
+    where: DepartmentManualWhereUniqueInput
+    create: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput>
+  }
+
+  export type DepartmentManualCreateManyDepartmentInputEnvelope = {
+    data: DepartmentManualCreateManyDepartmentInput | DepartmentManualCreateManyDepartmentInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserCreateWithoutDepartmentInput = {
@@ -120863,6 +120941,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -120871,6 +120950,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -120885,9 +120966,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -120918,6 +120996,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -120926,6 +121005,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -120937,9 +121018,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -120977,6 +121055,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -120985,6 +121064,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -120999,9 +121080,6 @@ export namespace Prisma {
     designation?: DesignationCreateNestedOneWithoutUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -121033,6 +121111,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -121041,6 +121120,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -121051,9 +121132,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -121086,6 +121164,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -121094,6 +121173,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -121108,9 +121189,6 @@ export namespace Prisma {
     designation?: DesignationCreateNestedOneWithoutUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutDepartmentsInput = {
@@ -121142,6 +121220,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -121150,6 +121229,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -121160,9 +121241,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutDepartmentsInput = {
@@ -121170,36 +121248,34 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutDepartmentsInput, UserUncheckedCreateWithoutDepartmentsInput>
   }
 
-  export type DepartmentManualCreateWithoutDepartmentInput = {
-    id?: string
-    titleEn: string
-    titleTa?: string | null
-    titleHi?: string | null
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    activities?: DepartmentActivityCreateNestedManyWithoutManualInput
-  }
-
-  export type DepartmentManualUncheckedCreateWithoutDepartmentInput = {
-    id?: string
-    titleEn: string
-    titleTa?: string | null
-    titleHi?: string | null
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    activities?: DepartmentActivityUncheckedCreateNestedManyWithoutManualInput
-  }
-
-  export type DepartmentManualCreateOrConnectWithoutDepartmentInput = {
+  export type DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput = {
     where: DepartmentManualWhereUniqueInput
+    update: XOR<DepartmentManualUpdateWithoutDepartmentInput, DepartmentManualUncheckedUpdateWithoutDepartmentInput>
     create: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput>
   }
 
-  export type DepartmentManualCreateManyDepartmentInputEnvelope = {
-    data: DepartmentManualCreateManyDepartmentInput | DepartmentManualCreateManyDepartmentInput[]
-    skipDuplicates?: boolean
+  export type DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput = {
+    where: DepartmentManualWhereUniqueInput
+    data: XOR<DepartmentManualUpdateWithoutDepartmentInput, DepartmentManualUncheckedUpdateWithoutDepartmentInput>
+  }
+
+  export type DepartmentManualUpdateManyWithWhereWithoutDepartmentInput = {
+    where: DepartmentManualScalarWhereInput
+    data: XOR<DepartmentManualUpdateManyMutationInput, DepartmentManualUncheckedUpdateManyWithoutDepartmentInput>
+  }
+
+  export type DepartmentManualScalarWhereInput = {
+    AND?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
+    OR?: DepartmentManualScalarWhereInput[]
+    NOT?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
+    id?: StringFilter<"DepartmentManual"> | string
+    titleEn?: StringFilter<"DepartmentManual"> | string
+    titleTa?: StringNullableFilter<"DepartmentManual"> | string | null
+    titleHi?: StringNullableFilter<"DepartmentManual"> | string | null
+    description?: StringNullableFilter<"DepartmentManual"> | string | null
+    departmentId?: StringFilter<"DepartmentManual"> | string
+    createdAt?: DateTimeFilter<"DepartmentManual"> | Date | string
+    updatedAt?: DateTimeFilter<"DepartmentManual"> | Date | string
   }
 
   export type UserUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -121248,36 +121324,6 @@ export namespace Prisma {
   export type UserUpdateManyWithWhereWithoutDepartmentsInput = {
     where: UserScalarWhereInput
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutDepartmentsInput>
-  }
-
-  export type DepartmentManualUpsertWithWhereUniqueWithoutDepartmentInput = {
-    where: DepartmentManualWhereUniqueInput
-    update: XOR<DepartmentManualUpdateWithoutDepartmentInput, DepartmentManualUncheckedUpdateWithoutDepartmentInput>
-    create: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput>
-  }
-
-  export type DepartmentManualUpdateWithWhereUniqueWithoutDepartmentInput = {
-    where: DepartmentManualWhereUniqueInput
-    data: XOR<DepartmentManualUpdateWithoutDepartmentInput, DepartmentManualUncheckedUpdateWithoutDepartmentInput>
-  }
-
-  export type DepartmentManualUpdateManyWithWhereWithoutDepartmentInput = {
-    where: DepartmentManualScalarWhereInput
-    data: XOR<DepartmentManualUpdateManyMutationInput, DepartmentManualUncheckedUpdateManyWithoutDepartmentInput>
-  }
-
-  export type DepartmentManualScalarWhereInput = {
-    AND?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
-    OR?: DepartmentManualScalarWhereInput[]
-    NOT?: DepartmentManualScalarWhereInput | DepartmentManualScalarWhereInput[]
-    id?: StringFilter<"DepartmentManual"> | string
-    titleEn?: StringFilter<"DepartmentManual"> | string
-    titleTa?: StringNullableFilter<"DepartmentManual"> | string | null
-    titleHi?: StringNullableFilter<"DepartmentManual"> | string | null
-    description?: StringNullableFilter<"DepartmentManual"> | string | null
-    departmentId?: StringFilter<"DepartmentManual"> | string
-    createdAt?: DateTimeFilter<"DepartmentManual"> | Date | string
-    updatedAt?: DateTimeFilter<"DepartmentManual"> | Date | string
   }
 
   export type PostingHistoryCreateWithoutDesignationInput = {
@@ -121337,6 +121383,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -121345,6 +121392,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -121359,9 +121408,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutDesignationInput = {
@@ -121392,6 +121438,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -121400,6 +121447,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -121411,9 +121460,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutDesignationInput = {
@@ -121488,6 +121534,7 @@ export namespace Prisma {
     atms?: AtmCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -121506,7 +121553,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutHistoryInput = {
@@ -121541,6 +121587,7 @@ export namespace Prisma {
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -121557,7 +121604,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutHistoryInput = {
@@ -121606,6 +121652,7 @@ export namespace Prisma {
     atms?: AtmUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -121624,7 +121671,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutHistoryInput = {
@@ -121659,6 +121705,7 @@ export namespace Prisma {
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -121675,7 +121722,115 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type UserCreateWithoutAuthoredLettersInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    fullNameEn: string
+    fullNameTa?: string | null
+    fullNameHi?: string | null
+    grade?: string | null
+    role?: string
+    section?: string | null
+    isRegionHead?: boolean
+    isSecondLine?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    failedLoginAttempts?: number
+    lockedUntil?: Date | string | null
+    mfaEnabled?: boolean
+    mfaSecret?: string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    gender?: string
+    designationEn?: string | null
+    designationHi?: string | null
+    designationTa?: string | null
+    requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
+    headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
+    secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
+    auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
+    chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
+    createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
+    messageAcks?: MessageAckCreateNestedManyWithoutUserInput
+    messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
+    comments?: CommentCreateNestedManyWithoutUserInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
+    loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
+    assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    approvedNotes?: OfficeNoteCreateNestedManyWithoutApproverInput
+    preparedNotes?: OfficeNoteCreateNestedManyWithoutPreparerInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
+    presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
+    designation?: DesignationCreateNestedOneWithoutUsersInput
+    photo?: PhotoCreateNestedOneWithoutUserInput
+    managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
+    departments?: DepartmentCreateNestedManyWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutAuthoredLettersInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    fullNameEn: string
+    fullNameTa?: string | null
+    fullNameHi?: string | null
+    grade?: string | null
+    role?: string
+    photoId?: string | null
+    section?: string | null
+    branchId?: string | null
+    isRegionHead?: boolean
+    isSecondLine?: boolean
+    departmentId?: string | null
+    designationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    failedLoginAttempts?: number
+    lockedUntil?: Date | string | null
+    mfaEnabled?: boolean
+    mfaSecret?: string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    gender?: string
+    designationEn?: string | null
+    designationHi?: string | null
+    designationTa?: string | null
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
+    headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
+    secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
+    auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
+    chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
+    createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
+    messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
+    messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+    comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
+    loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
+    assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    approvedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutApproverInput
+    preparedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutPreparerInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutUserInput
+    presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
+    departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
+  }
+
+  export type UserCreateOrConnectWithoutAuthoredLettersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
   }
 
   export type BranchCreateWithoutLettersInput = {
@@ -121709,6 +121864,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -121726,7 +121882,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutLettersInput = {
@@ -121762,6 +121917,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -121777,7 +121933,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutLettersInput = {
@@ -121835,11 +121990,11 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
     parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
   }
 
   export type LetterUncheckedCreateWithoutNextVersionsInput = {
@@ -121868,8 +122023,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
   }
 
   export type LetterCreateOrConnectWithoutNextVersionsInput = {
@@ -121900,11 +122055,11 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
     parameter?: ParameterCreateNestedOneWithoutLettersInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
   }
 
   export type LetterUncheckedCreateWithoutPreviousVersionInput = {
@@ -121932,8 +122087,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
     nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
   }
 
@@ -121972,6 +122127,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -121980,6 +122136,7 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -121995,8 +122152,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutSignatoryLettersInput = {
@@ -122028,6 +122183,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -122036,6 +122192,7 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -122047,8 +122204,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutSignatoryLettersInput = {
@@ -122056,113 +122211,119 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutSignatoryLettersInput, UserUncheckedCreateWithoutSignatoryLettersInput>
   }
 
-  export type UserCreateWithoutAuthoredLettersInput = {
-    id?: string
-    username: string
-    passwordHash: string
-    fullNameEn: string
-    fullNameTa?: string | null
-    fullNameHi?: string | null
-    grade?: string | null
-    role?: string
-    section?: string | null
-    isRegionHead?: boolean
-    isSecondLine?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    failedLoginAttempts?: number
-    lockedUntil?: Date | string | null
-    mfaEnabled?: boolean
-    mfaSecret?: string | null
-    lastLoginAt?: Date | string | null
-    lastLoginIp?: string | null
-    gender?: string
-    designationEn?: string | null
-    designationHi?: string | null
-    designationTa?: string | null
-    requests?: BranchRequestCreateNestedManyWithoutUserInput
-    headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
-    secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
-    auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
-    chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
-    createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
-    messageAcks?: MessageAckCreateNestedManyWithoutUserInput
-    messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
-    comments?: CommentCreateNestedManyWithoutUserInput
-    loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
-    assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
-    noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
-    notifications?: NotificationCreateNestedManyWithoutUserInput
-    approvedNotes?: OfficeNoteCreateNestedManyWithoutApproverInput
-    preparedNotes?: OfficeNoteCreateNestedManyWithoutPreparerInput
-    postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
-    presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
-    sessions?: SessionCreateNestedManyWithoutUserInput
-    branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
-    designation?: DesignationCreateNestedOneWithoutUsersInput
-    photo?: PhotoCreateNestedOneWithoutUserInput
-    managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
-    departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
-  }
-
-  export type UserUncheckedCreateWithoutAuthoredLettersInput = {
-    id?: string
-    username: string
-    passwordHash: string
-    fullNameEn: string
-    fullNameTa?: string | null
-    fullNameHi?: string | null
-    grade?: string | null
-    role?: string
-    photoId?: string | null
-    section?: string | null
-    branchId?: string | null
-    isRegionHead?: boolean
-    isSecondLine?: boolean
-    departmentId?: string | null
-    designationId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    failedLoginAttempts?: number
-    lockedUntil?: Date | string | null
-    mfaEnabled?: boolean
-    mfaSecret?: string | null
-    lastLoginAt?: Date | string | null
-    lastLoginIp?: string | null
-    gender?: string
-    designationEn?: string | null
-    designationHi?: string | null
-    designationTa?: string | null
-    requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
-    headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
-    secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
-    auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
-    chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
-    createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
-    messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
-    messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
-    comments?: CommentUncheckedCreateNestedManyWithoutUserInput
-    loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
-    assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
-    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
-    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
-    approvedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutApproverInput
-    preparedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutPreparerInput
-    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutUserInput
-    presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
-    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
-    managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
-    departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
-  }
-
-  export type UserCreateOrConnectWithoutAuthoredLettersInput = {
-    where: UserWhereUniqueInput
+  export type UserUpsertWithoutAuthoredLettersInput = {
+    update: XOR<UserUpdateWithoutAuthoredLettersInput, UserUncheckedUpdateWithoutAuthoredLettersInput>
     create: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAuthoredLettersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAuthoredLettersInput, UserUncheckedUpdateWithoutAuthoredLettersInput>
+  }
+
+  export type UserUpdateWithoutAuthoredLettersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullNameEn?: StringFieldUpdateOperationsInput | string
+    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
+    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
+    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
+    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
+    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
+    headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
+    secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
+    auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
+    chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
+    createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
+    messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
+    messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
+    comments?: CommentUpdateManyWithoutUserNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
+    loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
+    assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    approvedNotes?: OfficeNoteUpdateManyWithoutApproverNestedInput
+    preparedNotes?: OfficeNoteUpdateManyWithoutPreparerNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
+    presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
+    designation?: DesignationUpdateOneWithoutUsersNestedInput
+    photo?: PhotoUpdateOneWithoutUserNestedInput
+    managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
+    departments?: DepartmentUpdateManyWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAuthoredLettersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullNameEn?: StringFieldUpdateOperationsInput | string
+    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    photoId?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
+    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
+    departmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
+    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
+    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
+    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
+    headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
+    secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
+    auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
+    chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
+    createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
+    messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
+    messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
+    loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
+    assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    approvedNotes?: OfficeNoteUncheckedUpdateManyWithoutApproverNestedInput
+    preparedNotes?: OfficeNoteUncheckedUpdateManyWithoutPreparerNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutUserNestedInput
+    presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
+    departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
   }
 
   export type BranchUpsertWithoutLettersInput = {
@@ -122207,6 +122368,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -122224,7 +122386,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutLettersInput = {
@@ -122260,6 +122421,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -122275,7 +122437,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ParameterUpsertWithoutLettersInput = {
@@ -122345,11 +122506,11 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
     parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
   }
 
   export type LetterUncheckedUpdateWithoutNextVersionsInput = {
@@ -122378,8 +122539,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type LetterUpsertWithWhereUniqueWithoutPreviousVersionInput = {
@@ -122434,6 +122595,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -122442,6 +122604,7 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -122457,8 +122620,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSignatoryLettersInput = {
@@ -122490,6 +122651,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -122498,121 +122660,7 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
-    loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
-    assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
-    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
-    approvedNotes?: OfficeNoteUncheckedUpdateManyWithoutApproverNestedInput
-    preparedNotes?: OfficeNoteUncheckedUpdateManyWithoutPreparerNestedInput
-    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutUserNestedInput
-    presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
-    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
-    managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
-    departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
     authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
-  }
-
-  export type UserUpsertWithoutAuthoredLettersInput = {
-    update: XOR<UserUpdateWithoutAuthoredLettersInput, UserUncheckedUpdateWithoutAuthoredLettersInput>
-    create: XOR<UserCreateWithoutAuthoredLettersInput, UserUncheckedCreateWithoutAuthoredLettersInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutAuthoredLettersInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutAuthoredLettersInput, UserUncheckedUpdateWithoutAuthoredLettersInput>
-  }
-
-  export type UserUpdateWithoutAuthoredLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    fullNameEn?: StringFieldUpdateOperationsInput | string
-    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
-    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
-    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
-    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: StringFieldUpdateOperationsInput | string
-    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
-    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
-    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
-    requests?: BranchRequestUpdateManyWithoutUserNestedInput
-    headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
-    secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
-    auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
-    chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
-    createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
-    messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
-    messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
-    comments?: CommentUpdateManyWithoutUserNestedInput
-    loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
-    assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
-    noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
-    notifications?: NotificationUpdateManyWithoutUserNestedInput
-    approvedNotes?: OfficeNoteUpdateManyWithoutApproverNestedInput
-    preparedNotes?: OfficeNoteUpdateManyWithoutPreparerNestedInput
-    postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
-    presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
-    sessions?: SessionUpdateManyWithoutUserNestedInput
-    branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
-    designation?: DesignationUpdateOneWithoutUsersNestedInput
-    photo?: PhotoUpdateOneWithoutUserNestedInput
-    managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
-    departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutAuthoredLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    username?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    fullNameEn?: StringFieldUpdateOperationsInput | string
-    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    grade?: NullableStringFieldUpdateOperationsInput | string | null
-    role?: StringFieldUpdateOperationsInput | string
-    photoId?: NullableStringFieldUpdateOperationsInput | string | null
-    section?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: NullableStringFieldUpdateOperationsInput | string | null
-    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
-    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
-    departmentId?: NullableStringFieldUpdateOperationsInput | string | null
-    designationId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
-    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
-    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
-    gender?: StringFieldUpdateOperationsInput | string
-    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
-    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
-    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
-    requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
-    headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
-    secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
-    auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
-    chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
-    createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
-    messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
-    messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
-    comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -122624,8 +122672,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserCreateWithoutApprovedNotesInput = {
@@ -122653,6 +122699,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -122661,6 +122708,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -122675,9 +122724,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutApprovedNotesInput = {
@@ -122709,6 +122755,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -122717,6 +122764,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -122727,9 +122776,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutApprovedNotesInput = {
@@ -122762,6 +122808,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -122770,6 +122817,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -122784,9 +122833,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutPreparedNotesInput = {
@@ -122818,6 +122864,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -122826,6 +122873,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -122836,9 +122885,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutPreparedNotesInput = {
@@ -122961,6 +123007,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -122969,6 +123016,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -122983,9 +123032,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovedNotesInput = {
@@ -123017,6 +123063,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -123025,6 +123072,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -123035,9 +123084,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUpsertWithoutPreparedNotesInput = {
@@ -123076,6 +123122,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -123084,6 +123131,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -123098,9 +123147,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPreparedNotesInput = {
@@ -123132,6 +123178,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -123140,6 +123187,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -123150,9 +123199,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type OfficeNoteUpsertWithoutNextVersionsInput = {
@@ -123244,6 +123290,7 @@ export namespace Prisma {
     atms?: AtmCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -123262,7 +123309,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRequestsInput = {
@@ -123297,6 +123343,7 @@ export namespace Prisma {
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -123313,7 +123360,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRequestsInput = {
@@ -123345,6 +123391,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -123353,6 +123400,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -123368,9 +123417,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutRequestsInput = {
@@ -123401,6 +123447,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -123409,6 +123456,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -123420,9 +123469,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutRequestsInput = {
@@ -123495,6 +123541,7 @@ export namespace Prisma {
     atms?: AtmUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -123513,7 +123560,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRequestsInput = {
@@ -123548,6 +123594,7 @@ export namespace Prisma {
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -123564,7 +123611,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutRequestsInput = {
@@ -123602,6 +123648,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -123610,6 +123657,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -123625,9 +123674,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRequestsInput = {
@@ -123658,6 +123704,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -123666,6 +123713,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -123677,9 +123726,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type CommentUpsertWithWhereUniqueWithoutRequestInput = {
@@ -123766,6 +123812,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -123773,6 +123820,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -123788,9 +123837,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutCommentsInput = {
@@ -123822,6 +123868,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -123829,6 +123876,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -123840,9 +123889,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutCommentsInput = {
@@ -123935,6 +123981,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -123942,6 +123989,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -123957,9 +124006,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -123991,6 +124037,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -123998,6 +124045,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -124009,9 +124058,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type NoticeCreateWithoutPhotoInput = {
@@ -124087,6 +124133,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -124095,6 +124142,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -124109,9 +124158,6 @@ export namespace Prisma {
     designation?: DesignationCreateNestedOneWithoutUsersInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutPhotoInput = {
@@ -124142,6 +124188,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -124150,6 +124197,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -124161,9 +124210,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutPhotoInput = {
@@ -124231,11 +124277,11 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
+    author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
   }
 
   export type LetterUncheckedCreateWithoutParameterInput = {
@@ -124263,8 +124309,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
     nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
   }
 
@@ -124371,6 +124417,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -124388,7 +124435,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSnapshotsInput = {
@@ -124424,6 +124470,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -124439,7 +124486,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSnapshotsInput = {
@@ -124516,6 +124562,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -124533,7 +124580,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSnapshotsInput = {
@@ -124569,6 +124615,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -124584,7 +124631,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ParameterUpsertWithoutSnapshotsInput = {
@@ -124675,6 +124721,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -124692,7 +124739,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutNoticesInput = {
@@ -124728,6 +124774,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -124743,7 +124790,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutNoticesInput = {
@@ -124832,6 +124878,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -124849,7 +124896,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutNoticesInput = {
@@ -124885,6 +124931,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -124900,7 +124947,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type PhotoUpsertWithoutNoticesInput = {
@@ -124963,6 +125009,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -124980,7 +125027,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutNoticeAcksInput = {
@@ -125016,6 +125062,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -125031,7 +125078,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutNoticeAcksInput = {
@@ -125107,6 +125153,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -125115,6 +125162,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -125129,9 +125178,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutNoticeAcksInput = {
@@ -125163,6 +125209,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -125171,6 +125218,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -125181,9 +125230,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutNoticeAcksInput = {
@@ -125233,6 +125279,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -125250,7 +125297,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutNoticeAcksInput = {
@@ -125286,6 +125332,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -125301,7 +125348,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type NoticeUpsertWithoutAcknowledgementsInput = {
@@ -125389,6 +125435,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -125397,6 +125444,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -125411,9 +125460,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNoticeAcksInput = {
@@ -125445,6 +125491,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -125453,6 +125500,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -125463,9 +125512,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type StationeryMovementCreateWithoutItemInput = {
@@ -125547,6 +125593,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -125564,7 +125611,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutStationeryMovementsInput = {
@@ -125600,6 +125646,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -125615,7 +125662,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutStationeryMovementsInput = {
@@ -125686,6 +125732,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -125703,7 +125750,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutStationeryMovementsInput = {
@@ -125739,6 +125785,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -125754,7 +125801,6 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type StationeryItemUpsertWithoutMovementsInput = {
@@ -125942,6 +125988,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -125960,7 +126007,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAtmsInput = {
@@ -125995,6 +126041,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -126011,7 +126058,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAtmsInput = {
@@ -126060,6 +126106,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -126078,7 +126125,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAtmsInput = {
@@ -126113,6 +126159,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -126129,7 +126176,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutPostingHistoryInput = {
@@ -126163,6 +126209,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -126180,7 +126227,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutPostingHistoryInput = {
@@ -126216,6 +126262,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -126231,7 +126278,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutPostingHistoryInput = {
@@ -126293,6 +126339,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -126301,6 +126348,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -126315,9 +126364,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutPostingHistoryInput = {
@@ -126349,6 +126395,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -126357,6 +126404,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -126367,9 +126416,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutPostingHistoryInput = {
@@ -126419,6 +126465,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -126436,7 +126483,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutPostingHistoryInput = {
@@ -126472,6 +126518,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -126487,7 +126534,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type DesignationUpsertWithoutPostingHistoryInput = {
@@ -126561,6 +126607,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -126569,6 +126616,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -126583,9 +126632,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPostingHistoryInput = {
@@ -126617,6 +126663,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -126625,6 +126672,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -126635,9 +126684,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type ChatMemberCreateWithoutGroupInput = {
@@ -126695,6 +126741,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -126702,6 +126749,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -126717,9 +126766,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutCreatedChatGroupsInput = {
@@ -126751,6 +126797,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -126758,6 +126805,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -126769,9 +126818,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutCreatedChatGroupsInput = {
@@ -126871,6 +126917,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -126878,6 +126925,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -126893,9 +126942,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedChatGroupsInput = {
@@ -126927,6 +126973,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -126934,6 +126981,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -126945,9 +126994,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type ChatMessageUpsertWithWhereUniqueWithoutGroupInput = {
@@ -127018,6 +127064,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -127025,6 +127072,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -127040,9 +127089,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutChatMembershipsInput = {
@@ -127074,6 +127120,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -127081,6 +127128,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -127092,9 +127141,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutChatMembershipsInput = {
@@ -127171,6 +127217,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -127178,6 +127225,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -127193,9 +127242,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutChatMembershipsInput = {
@@ -127227,6 +127273,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -127234,6 +127281,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -127245,9 +127294,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type MessageAckCreateWithoutMessageInput = {
@@ -127326,6 +127372,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -127333,6 +127380,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -127348,9 +127397,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutMessagesSentInput = {
@@ -127382,6 +127428,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -127389,6 +127436,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -127400,9 +127449,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutMessagesSentInput = {
@@ -127495,6 +127541,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -127502,6 +127549,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -127517,9 +127566,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessagesSentInput = {
@@ -127551,6 +127597,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -127558,6 +127605,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -127569,9 +127618,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type ChatMessageCreateWithoutAcksInput = {
@@ -127634,6 +127680,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -127641,6 +127688,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -127656,9 +127705,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutMessageAcksInput = {
@@ -127690,6 +127736,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -127697,6 +127744,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -127708,9 +127757,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutMessageAcksInput = {
@@ -127795,6 +127841,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -127802,6 +127849,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -127817,9 +127866,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessageAcksInput = {
@@ -127851,6 +127897,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -127858,6 +127905,8 @@ export namespace Prisma {
     createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -127869,9 +127918,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -127899,6 +127945,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
@@ -127906,6 +127953,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -127921,9 +127970,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -127955,6 +128001,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
@@ -127962,6 +128009,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -127973,9 +128022,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -128019,6 +128065,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
@@ -128026,6 +128073,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -128041,9 +128090,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -128075,6 +128121,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
@@ -128082,6 +128129,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -128093,9 +128142,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type MisImportLogCreateWithoutIngestionLogsInput = {
@@ -128154,6 +128200,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -128171,7 +128218,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutIngestionLogsInput = {
@@ -128207,6 +128253,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -128222,7 +128269,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutIngestionLogsInput = {
@@ -128331,6 +128377,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -128348,7 +128395,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutIngestionLogsInput = {
@@ -128384,6 +128430,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -128399,7 +128446,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type FactUpsertWithWhereUniqueWithoutIngestionInput = {
@@ -128474,6 +128520,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -128491,7 +128538,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutFactsInput = {
@@ -128527,6 +128573,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -128542,7 +128589,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutFactsInput = {
@@ -128623,6 +128669,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -128640,7 +128687,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutFactsInput = {
@@ -128676,6 +128722,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -128691,7 +128738,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisExceptionCreateWithoutSnapshotInput = {
@@ -128819,6 +128865,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -128836,7 +128883,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutMisSnapshotsInput = {
@@ -128872,6 +128918,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -128887,7 +128934,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutMisSnapshotsInput = {
@@ -128995,6 +129041,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -129012,7 +129059,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutMisSnapshotsInput = {
@@ -129048,6 +129094,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -129063,7 +129110,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisSnapshotCreateWithoutPanelDataInput = {
@@ -129184,6 +129230,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -129201,7 +129248,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutMisExceptionsInput = {
@@ -129237,6 +129283,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -129252,7 +129299,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutMisExceptionsInput = {
@@ -129335,6 +129381,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -129352,7 +129399,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutMisExceptionsInput = {
@@ -129388,6 +129434,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -129403,7 +129450,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAccountOpeningsInput = {
@@ -129436,6 +129482,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -129454,7 +129501,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAccountOpeningsInput = {
@@ -129489,6 +129535,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -129505,7 +129552,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAccountOpeningsInput = {
@@ -129554,6 +129600,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -129572,7 +129619,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAccountOpeningsInput = {
@@ -129607,6 +129653,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -129623,7 +129670,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAccountClosuresInput = {
@@ -129656,6 +129702,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -129674,7 +129721,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAccountClosuresInput = {
@@ -129709,6 +129755,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -129725,7 +129772,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAccountClosuresInput = {
@@ -129774,6 +129820,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -129792,7 +129839,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAccountClosuresInput = {
@@ -129827,6 +129873,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -129843,7 +129890,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -129871,6 +129917,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -129879,6 +129926,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -129893,9 +129942,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -129927,6 +129973,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -129935,6 +129982,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -129945,9 +129994,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -129991,6 +130037,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -129999,6 +130046,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -130013,9 +130062,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -130047,6 +130093,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -130055,6 +130102,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -130065,9 +130114,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type BranchCreateWithoutBudgetsInput = {
@@ -130101,6 +130147,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
@@ -130118,7 +130165,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutBudgetsInput = {
@@ -130154,6 +130200,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
     ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
@@ -130169,7 +130216,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutBudgetsInput = {
@@ -130219,6 +130265,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
@@ -130236,7 +130283,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutBudgetsInput = {
@@ -130272,6 +130318,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
     ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
@@ -130287,7 +130334,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisParameterRegistryCreateWithoutChildParametersInput = {
@@ -130490,6 +130536,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -130498,6 +130545,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -130512,9 +130561,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutPresentationDecksInput = {
@@ -130546,6 +130592,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -130554,6 +130601,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -130564,9 +130613,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutPresentationDecksInput = {
@@ -130610,6 +130656,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -130618,6 +130665,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -130632,9 +130681,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPresentationDecksInput = {
@@ -130666,6 +130712,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -130674,6 +130721,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -130684,9 +130733,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type MeetingCreateWithoutCommitteeInput = {
@@ -130694,7 +130740,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     actionPoints?: ActionPointCreateNestedManyWithoutMeetingInput
@@ -130705,7 +130753,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     actionPoints?: ActionPointUncheckedCreateNestedManyWithoutMeetingInput
@@ -130746,7 +130796,9 @@ export namespace Prisma {
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
+    attendees?: JsonNullableFilter<"Meeting">
     minutesJson?: StringNullableFilter<"Meeting"> | string | null
+    signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
   }
@@ -130872,6 +130924,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
@@ -130880,6 +130933,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
@@ -130894,9 +130949,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
   }
 
   export type UserUncheckedCreateWithoutAssignedActionPointsInput = {
@@ -130928,6 +130980,7 @@ export namespace Prisma {
     designationHi?: string | null
     designationTa?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
     auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
@@ -130936,6 +130989,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
@@ -130946,9 +131001,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
-    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
   }
 
   export type UserCreateOrConnectWithoutAssignedActionPointsInput = {
@@ -130961,7 +131013,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     committee: CommitteeCreateNestedOneWithoutMeetingsInput
@@ -130973,7 +131027,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -131019,6 +131075,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -131027,6 +131084,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
@@ -131041,9 +131100,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedActionPointsInput = {
@@ -131075,6 +131131,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -131083,6 +131140,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
@@ -131093,9 +131152,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type MeetingUpsertWithoutActionPointsInput = {
@@ -131114,7 +131170,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     committee?: CommitteeUpdateOneRequiredWithoutMeetingsNestedInput
@@ -131126,7 +131184,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -131162,6 +131222,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -131179,7 +131240,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRecoveryActionsInput = {
@@ -131215,6 +131275,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -131230,7 +131291,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRecoveryActionsInput = {
@@ -131280,6 +131340,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -131297,7 +131358,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRecoveryActionsInput = {
@@ -131333,6 +131393,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -131348,7 +131409,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAuditObservationsInput = {
@@ -131381,6 +131441,7 @@ export namespace Prisma {
     atms?: AtmCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -131399,7 +131460,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAuditObservationsInput = {
@@ -131434,6 +131494,7 @@ export namespace Prisma {
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -131450,7 +131511,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAuditObservationsInput = {
@@ -131499,6 +131559,7 @@ export namespace Prisma {
     atms?: AtmUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -131517,7 +131578,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAuditObservationsInput = {
@@ -131552,6 +131612,7 @@ export namespace Prisma {
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -131568,7 +131629,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MaintenanceRecordCreateWithoutAssetInput = {
@@ -131632,6 +131692,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -131649,7 +131710,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRegionalAssetsInput = {
@@ -131685,6 +131745,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
@@ -131700,7 +131761,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRegionalAssetsInput = {
@@ -131780,6 +131840,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -131797,7 +131858,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRegionalAssetsInput = {
@@ -131833,6 +131893,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
@@ -131848,7 +131909,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type RegionalAssetCreateWithoutMaintenancesInput = {
@@ -132028,6 +132088,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -132045,7 +132106,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutCampaignTargetsInput = {
@@ -132081,6 +132141,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
     ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
@@ -132096,7 +132157,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutCampaignTargetsInput = {
@@ -132183,6 +132243,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -132200,7 +132261,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutCampaignTargetsInput = {
@@ -132236,6 +132296,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
     ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
@@ -132251,7 +132312,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CampaignUpsertWithoutTargetsInput = {
@@ -132328,6 +132388,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
     history?: BranchHistoryCreateNestedManyWithoutBranchInput
     requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
     headUser?: UserCreateNestedOneWithoutHeadedBranchInput
     secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
     budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
@@ -132345,7 +132406,6 @@ export namespace Prisma {
     snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutCampaignDataInput = {
@@ -132381,6 +132441,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
     history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
     requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
     budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
     campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
     ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
@@ -132396,7 +132457,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutCampaignDataInput = {
@@ -132483,6 +132543,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
     headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
     secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
     budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
@@ -132500,7 +132561,6 @@ export namespace Prisma {
     snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutCampaignDataInput = {
@@ -132536,6 +132596,7 @@ export namespace Prisma {
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
     history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
     requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
     budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
     campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
     ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
@@ -132551,7 +132612,6 @@ export namespace Prisma {
     snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CampaignUpsertWithoutDailyDataInput = {
@@ -132938,6 +132998,8 @@ export namespace Prisma {
     messageAcks?: MessageAckCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
@@ -132953,8 +133015,6 @@ export namespace Prisma {
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutBranchVisitsInput = {
@@ -132994,6 +133054,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
     messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
     loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
     assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
     noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
@@ -133005,8 +133067,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
     departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
-    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
-    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutBranchVisitsInput = {
@@ -133171,6 +133231,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -133186,8 +133248,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBranchVisitsInput = {
@@ -133227,6 +133287,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -133238,8 +133300,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type BranchRequestCreateManyUserInput = {
@@ -133258,6 +133318,18 @@ export namespace Prisma {
     resolvedAt?: Date | string | null
     slaBreached?: boolean
     contentJson?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BranchVisitCreateManyVisitorInput = {
+    id?: string
+    branchId: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
   }
 
   export type ChatAuditLogCreateManyActorInput = {
@@ -133314,6 +133386,64 @@ export namespace Prisma {
     content: string
     requestId: string
     createdAt?: Date | string
+  }
+
+  export type LetterCreateManyAuthorInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    branchId: string
+    parameterId?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    previousVersionId?: string | null
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    signatoryId?: string | null
+  }
+
+  export type LetterCreateManySignatoryInput = {
+    id?: string
+    type?: string
+    status?: string
+    titleEn: string
+    contentEn: string
+    titleTa?: string | null
+    contentTa?: string | null
+    branchId: string
+    parameterId?: string | null
+    valueAtTime?: Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
+    period?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    previousVersionId?: string | null
+    version?: number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: string | null
+    referenceNo?: string | null
+    titleHi?: string | null
+    contentHi?: string | null
+    isExternal?: boolean
+    recipientName?: string | null
+    recipientAddress?: string | null
+    salutation?: string | null
+    authorId?: string | null
   }
 
   export type LoginAuditLogCreateManyUserInput = {
@@ -133416,76 +133546,6 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type LetterCreateManySignatoryInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    parameterId?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    authorId?: string | null
-  }
-
-  export type LetterCreateManyAuthorInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    parameterId?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    signatoryId?: string | null
-  }
-
-  export type BranchVisitCreateManyVisitorInput = {
-    id?: string
-    branchId: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type BranchRequestUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     titleEn?: StringFieldUpdateOperationsInput | string
@@ -133540,6 +133600,42 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     slaBreached?: BoolFieldUpdateOperationsInput | boolean
     contentJson?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type BranchVisitUpdateWithoutVisitorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    branch?: BranchUpdateOneRequiredWithoutVisitsNestedInput
+  }
+
+  export type BranchVisitUncheckedUpdateWithoutVisitorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BranchVisitUncheckedUpdateManyWithoutVisitorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ChatAuditLogUpdateWithoutActorInput = {
@@ -133714,6 +133810,184 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     requestId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LetterUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
+    parameter?: ParameterUpdateOneWithoutLettersNestedInput
+    previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
+    nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
+    signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
+  }
+
+  export type LetterUncheckedUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: StringFieldUpdateOperationsInput | string
+    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
+  }
+
+  export type LetterUncheckedUpdateManyWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: StringFieldUpdateOperationsInput | string
+    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type LetterUpdateWithoutSignatoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
+    branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
+    parameter?: ParameterUpdateOneWithoutLettersNestedInput
+    previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
+    nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
+  }
+
+  export type LetterUncheckedUpdateWithoutSignatoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: StringFieldUpdateOperationsInput | string
+    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
+  }
+
+  export type LetterUncheckedUpdateManyWithoutSignatoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    contentEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: StringFieldUpdateOperationsInput | string
+    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
+    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    period?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    orgMeta?: NullableJsonNullValueInput | InputJsonValue
+    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
+    isExternal?: BoolFieldUpdateOperationsInput | boolean
+    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    authorId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type LoginAuditLogUpdateWithoutUserInput = {
@@ -134029,9 +134303,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUpdateManyWithoutDepartmentNestedInput
     users?: UserUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutHeadsInput = {
@@ -134043,9 +134317,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUncheckedUpdateManyWithoutDepartmentNestedInput
     users?: UserUncheckedUpdateManyWithoutDepartmentsNestedInput
-    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateManyWithoutHeadsInput = {
@@ -134068,9 +134342,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUpdateManyWithoutDepartmentNestedInput
     heads?: UserUpdateManyWithoutManagedDepartmentsNestedInput
-    manuals?: DepartmentManualUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutUsersInput = {
@@ -134082,9 +134356,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
+    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
     mainUsers?: UserUncheckedUpdateManyWithoutDepartmentNestedInput
     heads?: UserUncheckedUpdateManyWithoutManagedDepartmentsNestedInput
-    manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateManyWithoutUsersInput = {
@@ -134096,220 +134370,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type LetterUpdateWithoutSignatoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
-    previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
-    nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
-  }
-
-  export type LetterUncheckedUpdateWithoutSignatoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: NullableStringFieldUpdateOperationsInput | string | null
-    nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
-  }
-
-  export type LetterUncheckedUpdateManyWithoutSignatoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type LetterUpdateWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
-    previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
-    nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
-    signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-  }
-
-  export type LetterUncheckedUpdateWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
-    nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
-  }
-
-  export type LetterUncheckedUpdateManyWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type BranchVisitUpdateWithoutVisitorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    branch?: BranchUpdateOneRequiredWithoutVisitsNestedInput
-  }
-
-  export type BranchVisitUncheckedUpdateWithoutVisitorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    branchId?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BranchVisitUncheckedUpdateManyWithoutVisitorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    branchId?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AccountClosureCreateManyBranchInput = {
@@ -134397,6 +134457,18 @@ export namespace Prisma {
     contentJson?: NullableJsonNullValueInput | InputJsonValue
   }
 
+  export type BranchVisitCreateManyBranchInput = {
+    id?: string
+    visitorId: string
+    visitDate: Date | string
+    purpose?: string | null
+    visitorCategory?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    letterIssued?: boolean
+    observations?: string | null
+  }
+
   export type BudgetMasterCreateManyBranchInput = {
     id?: string
     parameterName: string
@@ -134457,8 +134529,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
   }
 
   export type MisExceptionCreateManyBranchInput = {
@@ -134600,18 +134672,6 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
-  }
-
-  export type BranchVisitCreateManyBranchInput = {
-    id?: string
-    visitorId: string
-    visitDate: Date | string
-    purpose?: string | null
-    observations?: string | null
-    letterIssued?: boolean
-    visitorCategory?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type AccountClosureUpdateWithoutBranchInput = {
@@ -134871,6 +134931,42 @@ export namespace Prisma {
     contentJson?: NullableJsonNullValueInput | InputJsonValue
   }
 
+  export type BranchVisitUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+    visitor?: UserUpdateOneRequiredWithoutBranchVisitsNestedInput
+  }
+
+  export type BranchVisitUncheckedUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitorId?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BranchVisitUncheckedUpdateManyWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    visitorId?: StringFieldUpdateOperationsInput | string
+    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    visitorCategory?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    letterIssued?: BoolFieldUpdateOperationsInput | boolean
+    observations?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type BudgetMasterUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     parameterName?: StringFieldUpdateOperationsInput | string
@@ -135001,11 +135097,11 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
   }
 
   export type LetterUncheckedUpdateWithoutBranchInput = {
@@ -135033,8 +135129,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
   }
 
@@ -135063,8 +135159,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MisExceptionUpdateWithoutBranchInput = {
@@ -135436,6 +135532,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -135444,6 +135541,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -135458,9 +135557,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBranchInput = {
@@ -135491,6 +135587,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -135499,6 +135596,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -135510,9 +135609,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutBranchInput = {
@@ -135544,40 +135640,14 @@ export namespace Prisma {
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type BranchVisitUpdateWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    visitor?: UserUpdateOneRequiredWithoutBranchVisitsNestedInput
-  }
-
-  export type BranchVisitUncheckedUpdateWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    visitorId?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BranchVisitUncheckedUpdateManyWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    visitorId?: StringFieldUpdateOperationsInput | string
-    visitDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    purpose?: NullableStringFieldUpdateOperationsInput | string | null
-    observations?: NullableStringFieldUpdateOperationsInput | string | null
-    letterIssued?: BoolFieldUpdateOperationsInput | boolean
-    visitorCategory?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DepartmentManualCreateManyDepartmentInput = {
+    id?: string
+    titleEn: string
+    titleTa?: string | null
+    titleHi?: string | null
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserCreateManyDepartmentInput = {
@@ -135609,14 +135679,36 @@ export namespace Prisma {
     designationTa?: string | null
   }
 
-  export type DepartmentManualCreateManyDepartmentInput = {
-    id?: string
-    titleEn: string
-    titleTa?: string | null
-    titleHi?: string | null
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
+  export type DepartmentManualUpdateWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: DepartmentActivityUpdateManyWithoutManualNestedInput
+  }
+
+  export type DepartmentManualUncheckedUpdateWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: DepartmentActivityUncheckedUpdateManyWithoutManualNestedInput
+  }
+
+  export type DepartmentManualUncheckedUpdateManyWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    titleEn?: StringFieldUpdateOperationsInput | string
+    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
+    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUpdateWithoutDepartmentInput = {
@@ -135644,6 +135736,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -135652,6 +135745,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -135666,9 +135761,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -135699,6 +135791,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -135707,6 +135800,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -135718,9 +135813,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -135777,6 +135869,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -135785,6 +135878,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -135799,9 +135894,6 @@ export namespace Prisma {
     designation?: DesignationUpdateOneWithoutUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -135833,6 +135925,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -135841,6 +135934,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -135851,9 +135946,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutManagedDepartmentsInput = {
@@ -135911,6 +136003,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -135919,6 +136012,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -135933,9 +136028,6 @@ export namespace Prisma {
     designation?: DesignationUpdateOneWithoutUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartmentsInput = {
@@ -135967,6 +136059,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -135975,6 +136068,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -135985,9 +136080,6 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDepartmentsInput = {
@@ -136018,38 +136110,6 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type DepartmentManualUpdateWithoutDepartmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    activities?: DepartmentActivityUpdateManyWithoutManualNestedInput
-  }
-
-  export type DepartmentManualUncheckedUpdateWithoutDepartmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    activities?: DepartmentActivityUncheckedUpdateManyWithoutManualNestedInput
-  }
-
-  export type DepartmentManualUncheckedUpdateManyWithoutDepartmentInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PostingHistoryCreateManyDesignationInput = {
@@ -136150,6 +136210,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -136158,6 +136219,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -136172,9 +136235,6 @@ export namespace Prisma {
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignationInput = {
@@ -136205,6 +136265,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -136213,6 +136274,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -136224,9 +136287,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutDesignationInput = {
@@ -136283,8 +136343,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
   }
 
   export type LetterUpdateWithoutPreviousVersionInput = {
@@ -136310,11 +136370,11 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
     parameter?: ParameterUpdateOneWithoutLettersNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
   }
 
   export type LetterUncheckedUpdateWithoutPreviousVersionInput = {
@@ -136342,8 +136402,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
   }
 
@@ -136372,8 +136432,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OfficeNoteCreateManyPreviousVersionInput = {
@@ -136594,6 +136654,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
@@ -136602,6 +136663,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
@@ -136616,9 +136679,6 @@ export namespace Prisma {
     designation?: DesignationUpdateOneWithoutUsersNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPhotoInput = {
@@ -136649,6 +136709,7 @@ export namespace Prisma {
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
     auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
@@ -136657,6 +136718,8 @@ export namespace Prisma {
     messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
     messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
     loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
     assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
     noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
@@ -136668,9 +136731,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
-    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
-    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
-    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutPhotoInput = {
@@ -136727,8 +136787,8 @@ export namespace Prisma {
     recipientName?: string | null
     recipientAddress?: string | null
     salutation?: string | null
-    signatoryId?: string | null
     authorId?: string | null
+    signatoryId?: string | null
   }
 
   export type SnapshotCreateManyParameterInput = {
@@ -136764,11 +136824,11 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
+    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
   }
 
   export type LetterUncheckedUpdateWithoutParameterInput = {
@@ -136796,8 +136856,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
   }
 
@@ -136826,8 +136886,8 @@ export namespace Prisma {
     recipientName?: NullableStringFieldUpdateOperationsInput | string | null
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
+    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SnapshotUpdateWithoutParameterInput = {
@@ -137387,7 +137447,9 @@ export namespace Prisma {
     date: Date | string
     venue?: string | null
     status?: string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -137397,7 +137459,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     actionPoints?: ActionPointUpdateManyWithoutMeetingNestedInput
@@ -137408,7 +137472,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     actionPoints?: ActionPointUncheckedUpdateManyWithoutMeetingNestedInput
@@ -137419,7 +137485,9 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    attendees?: NullableJsonNullValueInput | InputJsonValue
     minutesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
