@@ -20,7 +20,7 @@ const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
 const RequestManager = lazy(() => import('./modules/RequestManager'));
 const CalendarManager = lazy(() => import('./modules/admin/CalendarManager'));
 const CorrespondenceCenter = lazy(() => import('./modules/CorrespondenceCenter'));
-const Campaigns = lazy(() => import('./modules/Campaigns'));
+const Campaigns = lazy(() => import('./modules/CampaignSystem'));
 const DepartmentManuals = lazy(() => import('./modules/DepartmentManuals'));
 const ReturnsManager = lazy(() => import('./modules/ReturnsManager'));
 const MeetingHub = lazy(() => import('./modules/MeetingHub'));

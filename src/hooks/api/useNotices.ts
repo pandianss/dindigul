@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Notice, fetchNotices, acknowledgeNotice } from '../../services/api/notices';
+import type { Notice } from '../../services/api/notices';
+import { fetchNotices, acknowledgeNotice } from '../../services/api/notices';
 
 export function useNotices() {
     const [notices, setNotices] = useState<Notice[]>([]);

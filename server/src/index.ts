@@ -26,11 +26,6 @@ import noticeRoutes from './routes/notice';
 import letterRoutes from './routes/letter';
 import officeNoteRoutes from './routes/officeNote';
 import requestRoutes from './routes/request';
-import logisticsRoutes from './routes/logistics';
-import expenditureRoutes from './routes/expenditure';
-import calendarRoutes from './routes/calendar';
-import departmentRoutes from './routes/department';
-import designationRoutes from './routes/designation';
 import unitRoutes from './routes/unit';
 import chatRoutes from './routes/chat';
 import dashboardRoutes from './routes/dashboard';
@@ -39,15 +34,9 @@ import planningRoutes from './routes/planning';
 import budgetRoutes from './routes/budgetRoutes';
 import parameterRoutes from './routes/parameterRoutes';
 import internalNoteRoutes from './routes/internalNote';
-import campaignRoutes from './routes/campaign';
 import publicRoutes from './routes/public';
-import organizationRoutes from './routes/organization';
-import presentationRoutes from './routes/presentations';
-import manualsRoutes from './routes/manuals';
-import signatoryRoutes from './routes/signatory';
 import returnsRoutes from './routes/returns';
-import visitRoutes from './routes/visits';
-import meetingRoutes from './routes/meetingRoutes';
+import systemRoutes from './routes/systemRoutes';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -97,28 +86,19 @@ app.use('/api/notices', noticeRoutes);
 app.use('/api/letters', letterRoutes);
 app.use('/api/office-notes', officeNoteRoutes);
 app.use('/api/requests', requestRoutes);
-app.use('/api/logistics', logisticsRoutes);
-app.use('/api/expenditure', expenditureRoutes);
-app.use('/api/calendar', calendarRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/atms', atmRoutes);
-app.use('/api/departments', departmentRoutes);
-app.use('/api/designations', designationRoutes);
 app.use('/api/branches', unitRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/planning', planningRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/parameters', parameterRoutes);
 app.use('/api/internal-notes', internalNoteRoutes);
-app.use('/api/campaigns', campaignRoutes);
 app.use('/api/public', publicRoutes);
-app.use('/api/organization', organizationRoutes);
-app.use('/api/presentations', presentationRoutes);
-app.use('/api/manuals', manualsRoutes);
-app.use('/api/signatories', signatoryRoutes);
 app.use('/api/returns', returnsRoutes);
-app.use('/api/visits', visitRoutes);
-app.use('/api/meetings', meetingRoutes);
+
+// Unified System Routes (Merging 11 previous files)
+app.use('/api', systemRoutes);
 
 
 // Global error handler — must be defined after all routes

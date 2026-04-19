@@ -642,7 +642,6 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                 movement = latest - previous;
                 dataFound = latest !== 0 || previous !== 0;
             }
-        }
 
         if (!dataFound) {
             // Raw Fact Fallback
