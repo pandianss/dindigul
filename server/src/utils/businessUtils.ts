@@ -1,4 +1,4 @@
-import { parse as parseDate, startOfDay } from 'date-fns';
+import { parse as parseDate, startOfDay, subMonths, endOfMonth, isBefore, setMonth, setDate, getYear, getMonth } from 'date-fns';
 
 /**
  * Normalizes an amount string by removing commas and trimming.
@@ -69,7 +69,47 @@ export function normalizeAmount(amount: number, forceNormalize: boolean = false)
  * Ensures a date is consistently treated as UTC to prevent timezone drift.
  */
 export function toUTCDate(date: Date | string | number): Date {
+    if (typeof date === 'string' && date.includes('-') && date.length === 10) {
+        // Handle YYYY-MM-DD string directly to avoid timezone interpretation
+        const [y, m, d] = date.split('-').map(Number);
+        return new Date(Date.UTC(y, m - 1, d));
+    }
+    
     const d = new Date(date);
     if (isNaN(d.getTime())) return new Date();
+    
+    // For Date objects, use UTC components to create a clean UTC midnight date
     return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+/**
+ * Returns the start of the financial year (April 1st) for a given date.
+ * In India, FY runs from April 1 to March 31.
+ */
+export function getFinancialYearStart(date: Date): Date {
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth(); // 0-indexed, April is 3
+    
+    // If month is Jan(0), Feb(1), or Mar(2), FY started in previous year
+    const fyStartYear = month < 3 ? year - 1 : year;
+    return new Date(Date.UTC(fyStartYear, 3, 1)); // April 1st UTC
+}
+
+/**
+ * Returns the end of the previous month for a given date.
+ */
+export function getPreviousMonthEnd(date: Date): Date {
+    const d = new Date(date);
+    // Move to first of current month, then subtract one day
+    const firstOfCurrent = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    return new Date(firstOfCurrent.getTime() - 86400000); // Subtract one day (24h in ms)
+}
+
+/**
+ * Returns the previous business day (simplified as yesterday).
+ */
+export function getYesterday(date: Date): Date {
+    const d = new Date(date);
+    return new Date(d.getTime() - 86400000);
 }

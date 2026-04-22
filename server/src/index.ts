@@ -8,7 +8,7 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason: any) => {
     logger.error('[unhandledRejection]', reason);
 });
 
@@ -40,12 +40,12 @@ import systemRoutes from './routes/systemRoutes';
 import manualsRoutes from './routes/manuals';
 import prisma from './lib/prisma';
 
-import { initScheduler } from './services/schedulerService';
+import { SchedulerOrchestrator } from './services/SchedulerOrchestrator';
 import path from 'path';
 
 const app = express();
 
-initScheduler();
+SchedulerOrchestrator.init();
 
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -142,7 +142,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 import { registerChatHandlers } from './socket/chatHandler';
-import { userService } from './services/userService';
+import { UserRepository } from './infra';
 
 const httpServer = createServer(app);
 
@@ -181,9 +181,9 @@ io.on('connection', (socket: any) => {
 
 httpServer.listen(Number(PORT), '0.0.0.0', async () => {
     try {
-        await userService.ensureAdminUser();
+        await UserRepository.ensureAdminUser();
         logger.info('[System] Admin user verification complete.');
-    } catch (err) {
+    } catch (err: any) {
         logger.error('[System] Failed to verify/create admin user:', err);
     }
     logger.info(`Secured Server running on port ${PORT}`);

@@ -48,7 +48,7 @@ const MISUpload: React.FC = () => {
             if (response.status === 200) {
                 setMessage({
                     type: 'success',
-                    text: `MIS Ingestion Complete: ${response.data.processedCount} units processed.`,
+                    text: `MIS Ingestion Complete: ${response.data.processedUnits} units processed.`,
                     details: response.data
                 });
                 setFile(null);
@@ -140,15 +140,15 @@ const MISUpload: React.FC = () => {
                                 <div className="grid grid-cols-3 gap-4 pt-4 border-t border-emerald-200/50">
                                     <div className="text-center">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Units</p>
-                                        <p className="text-xl font-black">{message.details.uniqueUnits}</p>
+                                        <p className="text-xl font-black">{message.details.processedUnits}</p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Records</p>
-                                        <p className="text-xl font-black">{message.details.processedCount}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Dates Found</p>
+                                        <p className="text-xl font-black">{message.details.datesFound?.length || 0}</p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Failed</p>
-                                        <p className="text-xl font-black">{message.details.failedCount}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/60">Skipped</p>
+                                        <p className="text-xl font-black">{message.details.skippedUnits}</p>
                                     </div>
                                 </div>
                             )}

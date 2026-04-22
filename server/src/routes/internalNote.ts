@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { createInternalNote, getInternalNoteById, getAllInternalNotes } from '../services/internalNoteService';
+import { InternalNoteOrchestrator } from '../services';
+import { InternalNoteRepository } from '../infra';
 import { authenticateToken } from '../middleware/auth';
 import { z } from 'zod';
 
@@ -7,7 +8,7 @@ const router = Router();
 
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const notes = await getAllInternalNotes();
+        const notes = await InternalNoteRepository.findAll();
         res.json(notes);
     } catch (error) {
         console.error('Error fetching internal notes:', error);
@@ -29,7 +30,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
     try {
         const validatedData = internalNoteSchema.parse(req.body);
         console.log('[InternalNoteRoute] User in request:', req.user);
-        const { note } = await createInternalNote({
+        const note = await InternalNoteOrchestrator.createNote(req.user.id, {
             ...validatedData,
             createdBy: req.user.fullNameEn || req.user.username || 'System User',
             creatorBranchId: req.user.branchId
@@ -47,7 +48,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
-        const note = await getInternalNoteById(req.params.id as string);
+        const note = await InternalNoteRepository.findById(req.params.id as string);
         if (!note) return res.status(404).json({ error: 'Note not found' });
         res.json(note);
     } catch (error) {
@@ -62,7 +63,7 @@ import path from 'path';
 router.get('/:id/pdf', authenticateToken, async (req, res) => {
     try {
         console.log('[InternalNoteRoute] PDF Requested for ID:', req.params.id);
-        const note = await getInternalNoteById(req.params.id as string);
+        const note = await InternalNoteRepository.findById(req.params.id as string);
         if (!note || !note.fileUrl) {
             console.warn('[InternalNoteRoute] Note or fileUrl not found for ID:', req.params.id);
             return res.status(404).json({ error: 'PDF not found' });

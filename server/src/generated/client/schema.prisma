@@ -1188,3 +1188,15 @@ model BranchVisit {
 
   @@map("branch_visits")
 }
+
+model GenerationRecord {
+  id          String   @id @default(uuid())
+  payloadHash String   @unique
+  letterId    String
+  fileUrl     String
+  timestamp   DateTime @default(now())
+
+  @@index([payloadHash])
+  @@index([letterId])
+  @@map("generation_records")
+}

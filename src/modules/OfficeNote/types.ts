@@ -28,5 +28,7 @@ export interface OfficeNoteFormState {
     deptName: string;
     referenceNo: string;
     preparerId: string;
+    approverId?: string;
+    reviewerIds?: string[];
     contentJson: Record<string, any>;
 }

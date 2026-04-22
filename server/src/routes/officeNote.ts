@@ -1,15 +1,20 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
-import { parsePagination, getPaginatedResponse } from '../utils/pagination';
-import { generatePDF } from '../services/pdfService';
-import { generateReference } from '../services/referenceService';
 import { authenticateToken } from '../middleware/auth';
-import { createNotification, notifyAdmins } from '../services/notificationService';
+import { parsePagination, getPaginatedResponse } from '../utils/pagination';
+import { 
+  ReferenceGenerator, 
+  NotificationService, 
+  FactRepository 
+} from '../infra';
+import { PDFRenderer, TemplateRenderer } from '../renderers';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
 import { officeNoteUpload as upload } from '../middleware/upload';
+
+const { notifyAdmins, createNotification } = NotificationService;
 
 const router = Router();
 
@@ -61,7 +66,7 @@ router.patch('/:id/submit', authenticateToken, async (req: any, res) => {
         await notifyAdmins('New Office Note Submission', `Note "${note.titleEn}" has been submitted for review.`, `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to submit note' });
     }
 });
@@ -80,7 +85,7 @@ router.patch('/:id/check', authenticateToken, async (req: any, res) => {
         await createNotification(note.preparerId, 'Note Checked', `Your note "${note.titleEn}" has been checked by ${req.user.fullNameEn}.`, 'SUCCESS', `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to check note' });
     }
 });
@@ -100,7 +105,7 @@ router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
         await notifyAdmins('New Office Note Submission', `Note "${note.titleEn}" has been submitted for review.`, `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to submit note' });
     }
 });
@@ -119,7 +124,7 @@ router.patch('/:id/check', authenticateToken, async (req: any, res) => {
         await createNotification(note.preparerId, 'Note Checked', `Your note "${note.titleEn}" has been checked by ${req.user.fullNameEn}.`, 'SUCCESS', `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to check note' });
     }
 });
@@ -135,10 +140,10 @@ router.patch('/:id/approve', authenticateToken, async (req: any, res) => {
             data: { status: 'APPROVED', approverId: req.user.id }
         });
 
-        await createNotification(note.preparerId, 'Note Approved', `Your note "${note.titleEn}" has been final approved.`, 'SUCCESS', `/office-notes/${id}`);
+        await NotificationService.createNotification(note.preparerId, 'Note Approved', `Your note "${note.titleEn}" has been final approved.`, 'SUCCESS', `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to approve note' });
     }
 });
@@ -158,8 +163,7 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
         if (!note) return res.status(404).json({ error: 'Note not found' });
         if (!canEditOfficeNote(req.user, note)) return res.status(403).json({ error: 'Forbidden' });
         
-        const { getRegionalOfficeData } = require('../services/pdfService');
-        const RO_DATA = await getRegionalOfficeData();
+        const RO_DATA = await FactRepository.getRegionalOfficeConfig();
 
         const content = typeof note.contentJson === 'string' ? JSON.parse(note.contentJson) : note.contentJson;
         
@@ -186,34 +190,37 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
             }
         }
 
-        const roChiefManagers = await prisma.user.findMany({
-            where: {
-                role: { in: ['RO_USER', 'RO_MANAGER'] },
-                OR: [
-                    { designation: { nameEn: { contains: 'Chief Manager', mode: 'insensitive' } } },
-                    { designationEn: { contains: 'Chief Manager', mode: 'insensitive' } }
-                ]
-            },
-            orderBy: { fullNameEn: 'asc' },
-            include: { designation: true }
-        });
+        const selectedReviewerIds = content.reviewerIds || [];
+        const reviewerUsers = selectedReviewerIds.length > 0 
+            ? await prisma.user.findMany({ where: { id: { in: selectedReviewerIds } }, include: { designation: true } })
+            : await prisma.user.findMany({
+                where: {
+                    role: { in: ['RO_USER', 'RO_MANAGER'] },
+                    OR: [
+                        { designation: { nameEn: { contains: 'Chief Manager', mode: 'insensitive' } } },
+                        { designationEn: { contains: 'Chief Manager', mode: 'insensitive' } }
+                    ]
+                },
+                orderBy: { fullNameEn: 'asc' },
+                include: { designation: true }
+            });
 
-        const reviewers = roChiefManagers.map(u => ({
+        const reviewers = reviewerUsers.map(u => ({
             name: u.fullNameEn,
             nameTa: u.fullNameTa || undefined,
             nameHi: u.fullNameHi || undefined,
-            titleEn: u.designationEn || 'Chief Manager',
-            titleTa: u.designationTa || undefined,
-            titleHi: u.designationHi || undefined
+            titleEn: u.designationEn || (u as any).designation?.nameEn || 'Chief Manager',
+            titleTa: u.designationTa || (u as any).designation?.nameTa || undefined,
+            titleHi: u.designationHi || (u as any).designation?.nameHi || undefined
         }));
 
         const approver = {
             name: note.approver?.fullNameEn || RO_DATA.signatoryName || 'System Admin',
-            nameTa: note.approver?.fullNameTa || RO_DATA.signatoryNameTa || '',
-            nameHi: note.approver?.fullNameHi || RO_DATA.signatoryNameHi || '',
-            titleEn: note.approver?.designationEn || RO_DATA.signingAuthEn || 'Approver',
-            titleTa: note.approver?.designationTa || RO_DATA.signingAuthTa || '',
-            titleHi: note.approver?.designationHi || RO_DATA.signingAuthHi || ''
+            nameTa: note.approver?.fullNameTa || '',
+            nameHi: note.approver?.fullNameHi || '',
+            titleEn: note.approver?.designationEn || "Approver",
+            titleTa: note.approver?.designationTa || '',
+            titleHi: note.approver?.designationHi || ''
         };
 
         const snapshot = {
@@ -221,15 +228,15 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
             reviewers,
             approver,
             organization: {
-                bankNameEn: RO_DATA.bankNameEn,
-                bankNameHi: RO_DATA.bankNameHi,
-                bankNameTa: RO_DATA.bankNameTa,
-                officeNameEn: RO_DATA.officeNameEn,
-                officeNameHi: RO_DATA.officeNameHi,
-                officeNameTa: RO_DATA.officeNameTa,
-                addressEn: RO_DATA.addressEn,
-                addressHi: RO_DATA.addressHi,
-                addressTa: RO_DATA.addressTa,
+                bankNameEn: RO_DATA.bankName.en,
+                bankNameHi: RO_DATA.bankName.hi,
+                bankNameTa: RO_DATA.bankName.ta,
+                officeNameEn: RO_DATA.officeName.en,
+                officeNameHi: RO_DATA.officeName.hi,
+                officeNameTa: RO_DATA.officeName.ta,
+                addressEn: RO_DATA.address.en,
+                addressHi: RO_DATA.address.hi,
+                addressTa: RO_DATA.address.ta,
                 phone: RO_DATA.phone,
                 email: RO_DATA.email
             }
@@ -248,10 +255,10 @@ router.patch('/:id/freeze', authenticateToken, async (req: any, res) => {
         });
 
         res.json(updated);
-    } catch (err) {
-        logger.error('Freeze error:', err);
-        res.status(500).json({ error: 'Failed to freeze note' });
-    }
+        } catch (err: any) {
+            logger.error('OFFICE_NOTE_FREEZE_FAILURE', err, { id });
+            res.status(500).json({ error: 'Failed to freeze office note' });
+        }
 });
 
 // Reject note
@@ -266,10 +273,10 @@ router.patch('/:id/reject', authenticateToken, async (req: any, res) => {
             data: { status: 'REJECTED' }
         });
 
-        await createNotification(note.preparerId, 'Note Rejected', `Your note "${note.titleEn}" was returned/rejected.`, 'ERROR', `/office-notes/${id}`);
+        await NotificationService.createNotification(note.preparerId, 'Note Rejected', `Your note "${note.titleEn}" was returned/rejected.`, 'ERROR', `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).json({ error: 'Failed to reject note' });
     }
 });
@@ -298,9 +305,64 @@ router.get('/initiators', authenticateToken, async (req: any, res) => {
             orderBy: { fullNameEn: 'asc' }
         });
         res.json(initiators);
-    } catch (err) {
+    } catch (err: any) {
         logger.error('Fetch initiators error:', err);
         res.status(500).json({ error: 'Failed to fetch initiators' });
+    }
+});
+
+// Get valid reviewers (RO Chief Managers)
+router.get('/reviewers', authenticateToken, async (req: any, res) => {
+    try {
+        const reviewers = await prisma.user.findMany({
+            where: {
+                role: { in: ['RO_USER', 'RO_MANAGER', 'ADMIN'] },
+                OR: [
+                    { designationEn: { contains: 'Chief Manager', mode: 'insensitive' } },
+                    { designation: { nameEn: { contains: 'Chief Manager', mode: 'insensitive' } } }
+                ]
+            },
+            select: {
+                id: true,
+                fullNameEn: true,
+                designationEn: true,
+                username: true
+            },
+            orderBy: { fullNameEn: 'asc' }
+        });
+        res.json(reviewers);
+    } catch (err: any) {
+        logger.error('Fetch reviewers error:', err);
+        res.status(500).json({ error: 'Failed to fetch reviewers' });
+    }
+});
+
+// Get valid approvers (RM, AGM, DGMs)
+router.get('/approvers', authenticateToken, async (req: any, res) => {
+    try {
+        const approvers = await prisma.user.findMany({
+            where: {
+                role: { in: ['RO_USER', 'RO_MANAGER', 'ADMIN'] },
+                OR: [
+                    { isRegionHead: true },
+                    { designationEn: { contains: 'AGM', mode: 'insensitive' } },
+                    { designationEn: { contains: 'Assistant General Manager', mode: 'insensitive' } },
+                    { designationEn: { contains: 'DGM', mode: 'insensitive' } },
+                    { designationEn: { contains: 'Deputy General Manager', mode: 'insensitive' } }
+                ]
+            },
+            select: {
+                id: true,
+                fullNameEn: true,
+                designationEn: true,
+                username: true
+            },
+            orderBy: { fullNameEn: 'asc' }
+        });
+        res.json(approvers);
+    } catch (err: any) {
+        logger.error('Fetch approvers error:', err);
+        res.status(500).json({ error: 'Failed to fetch approvers' });
     }
 });
 
@@ -309,11 +371,10 @@ router.get('/suggest-reference', authenticateToken, async (req: any, res) => {
     const { deptName, date } = req.query;
     if (!deptName) return res.status(400).json({ error: 'deptName required' });
     try {
-        const { generateReference } = require('../services/referenceService');
-        const ref = await generateReference('OFFICE_NOTE', deptName, date as string);
+        const ref = await ReferenceGenerator.generate('OFFICE_NOTE', deptName as string, date ? new Date(date as string) : new Date());
         res.json({ referenceNo: ref });
-    } catch (err) {
-        logger.error('Reference suggestion error:', err);
+    } catch (err: any) {
+        logger.error('Reference suggestion error:', err, { deptName });
         res.status(500).json({ error: 'Failed to suggest reference' });
     }
 });
@@ -345,15 +406,15 @@ router.get('/', authenticateToken, async (req: any, res) => {
             prisma.officeNote.count({ where: whereClause })
         ]);
         res.json(getPaginatedResponse(notes, total, page, limit));
-    } catch (error) {
-        logger.error('Error fetching office notes:', error);
-        res.status(500).json({ error: 'Failed to fetch office notes' });
-    }
+        } catch (err: any) {
+            logger.error('OFFICE_NOTE_FETCH_FAILURE', err, { id: req.user.id });
+            res.status(500).json({ error: 'Failed to fetch office note' });
+        }
 });
 
 // Create a new office note
 router.post('/', authenticateToken, async (req: any, res) => {
-    const { type, titleEn, titleTa, titleHi, contentJson, preparerId, referenceNo: manualReferenceNo, deptName: selectedDeptName } = req.body;
+    const { type, titleEn, titleTa, titleHi, contentJson, preparerId, referenceNo: manualReferenceNo, deptName: selectedDeptName, approverId, reviewerIds } = req.body;
     try {
         const effectivePreparerId = canManageOfficeNotes(req.user) && preparerId ? preparerId : req.user.id;
         const preparer = await prisma.user.findUnique({
@@ -365,16 +426,17 @@ router.post('/', authenticateToken, async (req: any, res) => {
 
         const deptName = selectedDeptName || preparer?.department?.nameEn || 'ADMIN';
         const noteDate = (contentJson && typeof contentJson === 'object') ? contentJson.noteDate : (contentJson ? JSON.parse(contentJson).noteDate : null);
-        const referenceNo = manualReferenceNo || (await generateReference('OFFICE_NOTE', deptName, noteDate));
+        const referenceNo = manualReferenceNo || (await ReferenceGenerator.generate('OFFICE_NOTE', deptName, noteDate ? new Date(noteDate) : new Date()));
 
         const note = await (prisma.officeNote as any).create({
             data: {
                 type,
                 titleEn,
                 contentJson: typeof contentJson === 'string'
-                    ? JSON.stringify({ ...JSON.parse(contentJson), titleTa, titleHi, deptName })
-                    : JSON.stringify({ ...contentJson, titleTa, titleHi, deptName }),
+                    ? JSON.stringify({ ...JSON.parse(contentJson), titleTa, titleHi, deptName, reviewerIds })
+                    : JSON.stringify({ ...contentJson, titleTa, titleHi, deptName, reviewerIds }),
                 preparerId: effectivePreparerId,
+                approverId: approverId || undefined,
                 status: 'DRAFT'
             }
         });
@@ -388,7 +450,7 @@ router.post('/', authenticateToken, async (req: any, res) => {
         note.referenceNo = referenceNo;
 
         res.json(note);
-    } catch (error) {
+    } catch (error: any) {
         logger.error('Error creating office note:', error);
         res.status(500).json({ error: 'Failed to create office note' });
     }
@@ -416,10 +478,10 @@ router.post('/:id/upload-scan', authenticateToken, upload.single('document'), as
             } as any
         });
 
-        await createNotification(note.preparerId, 'Signed Copy Uploaded', `Signed copy for note "${note.titleEn}" has been uploaded successfully.`, 'SUCCESS', `/office-notes/${id}`);
+        await NotificationService.createNotification(note.preparerId, 'Signed Copy Uploaded', `Signed copy for note "${note.titleEn}" has been uploaded successfully.`, 'SUCCESS', `/office-notes/${id}`);
 
         res.json({ message: 'Scanned document uploaded successfully', note });
-    } catch (err) {
+    } catch (err: any) {
         logger.error('Upload scan error:', err);
         res.status(500).json({ error: 'Failed to upload document' });
     }
@@ -438,11 +500,11 @@ router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
             data: { status: 'FORWARDED_TO_RO' }
         });
 
-        await notifyAdmins('Office Note Forwarded to RO', `Note "${note.titleEn}" has been forwarded to Regional Office by ${req.user.fullNameEn}.`, `/office-notes/${id}`);
+        await NotificationService.notifyAdmins('Office Note Forwarded to RO', `Note "${note.titleEn}" has been forwarded to Regional Office by ${req.user.fullNameEn}.`, `/office-notes/${id}`);
 
         res.json(note);
-    } catch (err) {
-        logger.error('Forward error:', err);
+    } catch (err: any) {
+        logger.error('Verification error:', err);
         res.status(500).json({ error: 'Failed to forward note' });
     }
 });
@@ -451,7 +513,7 @@ router.patch('/:id/forward', authenticateToken, async (req: any, res) => {
 // Update office note with versioning
 router.put('/:id', authenticateToken, async (req: any, res) => {
     const { id } = req.params;
-    const { type, titleEn, contentJson, deptName, referenceNo, preparerId } = req.body;
+    const { type, titleEn, contentJson, deptName, referenceNo, preparerId, approverId, reviewerIds } = req.body;
     try {
         const currentNote = await getAccessibleOfficeNote(id, req.user);
         if (!currentNote) return res.status(404).json({ error: 'Note not found' });
@@ -476,19 +538,24 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     type,
                     titleEn,
                     contentJson: typeof contentJson === 'string' 
-                        ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName })
-                        : JSON.stringify({ ...contentJson, titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName }),
-                    preparerId: effectivePreparerId
+                        ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName, reviewerIds })
+                        : JSON.stringify({ ...contentJson, titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName, reviewerIds }),
+                    preparerId: effectivePreparerId,
+                    approverId: (approverId && approverId !== '') ? approverId : undefined
                 }
             });
 
             logger.info(`[Office Note] Updated draft ${id} with initiator: ${effectivePreparerId}`);
 
             if (referenceNo) {
-                await (prisma as any).$executeRaw`
-                    UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${id}
-                `;
-                updated.referenceNo = referenceNo;
+                try {
+                    await (prisma as any).$executeRaw`
+                        UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${id}
+                    `;
+                    updated.referenceNo = referenceNo;
+                } catch (e: any) {
+                    logger.warn(`Could not update referenceNo ${referenceNo} for note ${id}: ${e.message}`);
+                }
             }
 
             res.json(updated);
@@ -500,26 +567,31 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
                     titleEn: titleEn || currentNote.titleEn,
                     status: 'DRAFT',
                     preparerId: effectivePreparerId,
+                    approverId: (approverId && approverId !== '') ? approverId : currentNote.approverId,
                     version: (currentNote.version || 1) + 1,
                     previousVersionId: currentNote.id,
                     contentJson: typeof contentJson === 'string' 
-                        ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName })
-                        : JSON.stringify({ ...(contentJson || {}), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName }),
+                        ? JSON.stringify({ ...JSON.parse(contentJson), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName, reviewerIds })
+                        : JSON.stringify({ ...(contentJson || {}), titleHi: req.body.titleHi, titleTa: req.body.titleTa, deptName, reviewerIds }),
                 }
             });
 
             logger.info(`[Office Note] Created new version from ${currentNote.id}. New version: ${newVersion.id}, initiator: ${effectivePreparerId}`);
-            if (referenceNo) {
-                await (prisma as any).$executeRaw`
-                    UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${newVersion.id}
-                `;
-                newVersion.referenceNo = referenceNo;
+            if (referenceNo && referenceNo !== currentNote.referenceNo) {
+                try {
+                    await (prisma as any).$executeRaw`
+                        UPDATE office_notes SET "referenceNo" = ${referenceNo} WHERE id = ${newVersion.id}
+                    `;
+                    newVersion.referenceNo = referenceNo;
+                } catch (e: any) {
+                    logger.warn(`Could not set reference ${referenceNo} for new version, likely conflict: ${e.message}`);
+                }
             }
 
             res.json({ message: 'New version created', note: newVersion });
         }
-    } catch (err) {
-        logger.error('Update error:', err);
+    } catch (err: any) {
+        logger.error('[OfficeNoteUpdate] Error:', err);
         res.status(500).json({ error: 'Failed to update note' });
     }
 });
@@ -542,8 +614,8 @@ router.delete('/:id', authenticateToken, async (req: any, res) => {
 
         await prisma.officeNote.delete({ where: { id } });
         res.json({ message: 'Note deleted successfully' });
-    } catch (err) {
-        logger.error('Delete error:', err);
+    } catch (err: any) {
+        logger.error('[OfficeNoteCreate] Error:', err);
         res.status(500).json({ error: 'Failed to delete note' });
     }
 });
@@ -1532,10 +1604,10 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             `;
         }
 
-        const { generatePDF, buildPremiumLayout, getRegionalOfficeData, imageToBase64 } = require('../services/pdfService');
+        // Modular services imported at top of file
 
         // Fetch current RO and Org data (respect freeze snapshot if available)
-        const RO_DATA = content.isFrozen ? content.signatorySnapshot.organization : await getRegionalOfficeData();
+        const RO_DATA = content.isFrozen ? content.signatorySnapshot.organization : await FactRepository.getRegionalOfficeConfig();
 
         // Authority override for Proforma: Region Head signs instead of preparer
         const isProforma = ['PROFORMA_BRANCH_CODE', 'RBI_BO_PROFORMA'].includes(note.type);
@@ -1547,13 +1619,15 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
 
         if (note.type === 'PROFORMA_BRANCH_CODE') {
             pdfTitle = 'PROFORMA FOR OBTENTION OF BRANCH CODE';
-            pdfSubTitle = 'கிளைக் குறியீடு பெறுவதற்கான படிவம் / शाखा कोड प्राप्त करने के लिए प्रोफார்மா';
+            pdfSubTitle = 'கிளைக் குறியீடு பெறுவதற்கான படிவம் / शाखा कोड प्राप्त करने के लिए प्रोफார்मा';
         } else if (note.type === 'RBI_BO_PROFORMA') {
             pdfTitle = 'PROFORMA FOR REPORTING TO RBI - ANNEX-I';
             pdfSubTitle = 'भारतीय रिज़र्व बैंक को रिपोर्ट करने के लिए प्रोफார்मा / ரிசர்வ் வங்கிக்கு சமர்ப்பிப்பதற்கான படிவம்';
         } else if (note.type === 'HIGH_VALUE_DD') {
-            pdfTitle = 'Office Note / कार्यालय टिप्पणी / அலுவலகக் குறிப்பு';
-            pdfSubTitle = 'HIGH VALUE DEMAND DRAFT / उच्च मूल्य का डिमांड ड्राफ्ट / அதிக மதிப்புள்ள கோரிக்கை வரைவோலை';
+            pdfTitle = 'HIGH VALUE DEMAND DRAFT';
+            pdfTitleHi = 'उच्च मूल्य का डिमांड ड्राफ्ट';
+            pdfTitleTa = 'அதிக மதிப்புள்ள கோரிக்கை வரைவோலை';
+            pdfSubTitle = undefined;
         }
 
         const isHighValueDD = note.type === 'HIGH_VALUE_DD';
@@ -1584,7 +1658,7 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
         });
 
         const deptSealPath = (issuingDept as any)?.sealPath || (note.preparer?.department as any)?.sealPath;
-        const deptSealSrc = deptSealPath ? imageToBase64(deptSealPath) : undefined;
+        const deptSealSrc = deptSealPath ? PDFRenderer.getImageAsDataUri(deptSealPath) : undefined;
 
         const initiator = (note.type === 'MICR_CODE_REQUEST') ? undefined : (content.isFrozen ? content.signatorySnapshot.preparer : {
             name: note.preparer.fullNameEn,
@@ -1595,27 +1669,30 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             titleHi: note.preparer.designationHi || undefined
         });
 
-        const roChiefManagers = (note.type === 'MICR_CODE_REQUEST' || content.isFrozen) ? [] : await prisma.user.findMany({
-            where: {
-                role: { in: ['RO_USER', 'RO_MANAGER'] },
-                OR: [
-                    { designation: { nameEn: { contains: 'Chief Manager', mode: 'insensitive' } } },
-                    { designationEn: { contains: 'Chief Manager', mode: 'insensitive' } }
-                ]
-            },
-            orderBy: {
-                fullNameEn: 'asc'
-            },
-            include: { designation: true }
-        });
+        const selectedReviewerIds = content.reviewerIds || [];
+        const reviewerUsers = (note.type === 'MICR_CODE_REQUEST' || content.isFrozen) ? [] : 
+            (selectedReviewerIds.length > 0 
+                ? await prisma.user.findMany({ where: { id: { in: selectedReviewerIds } }, include: { designation: true } })
+                : await prisma.user.findMany({
+                    where: {
+                        role: { in: ['RO_USER', 'RO_MANAGER'] },
+                        OR: [
+                            { designation: { nameEn: { contains: 'Chief Manager', mode: 'insensitive' } } },
+                            { designationEn: { contains: 'Chief Manager', mode: 'insensitive' } }
+                        ]
+                    },
+                    orderBy: { fullNameEn: 'asc' },
+                    include: { designation: true }
+                  })
+            );
 
-        const reviewers = (note.type === 'MICR_CODE_REQUEST') ? [] : (content.isFrozen ? content.signatorySnapshot.reviewers : roChiefManagers.map((u: any) => ({
+        const reviewers = (note.type === 'MICR_CODE_REQUEST') ? [] : (content.isFrozen ? content.signatorySnapshot.reviewers : reviewerUsers.map((u: any) => ({
             name: u.fullNameEn,
             nameTa: u.fullNameTa || undefined,
             nameHi: u.fullNameHi || undefined,
-            titleEn: u.designationEn || 'Chief Manager',
-            titleTa: u.designationTa || undefined,
-            titleHi: u.designationHi || undefined
+            titleEn: u.designationEn || (u as any).designation?.nameEn || 'Chief Manager',
+            titleTa: u.designationTa || (u as any).designation?.nameTa || undefined,
+            titleHi: u.designationHi || (u as any).designation?.nameHi || undefined
         })));
 
         const approver = content.isFrozen ? content.signatorySnapshot.approver : {
@@ -1627,7 +1704,38 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             titleHi: note.approver?.designationHi || RO_DATA.signingAuthHi || ''
         };
 
-        const html = buildPremiumLayout({
+        const initiatorSig = initiator ? {
+            nameEn: initiator.name,
+            nameTa: initiator.nameTa,
+            nameHi: initiator.nameHi,
+            titleEn: initiator.titleEn,
+            titleTa: initiator.titleTa,
+            titleHi: initiator.titleHi
+        } : undefined;
+
+        const reviewersOrApprovers = [];
+        reviewers.forEach((r: any) => {
+            reviewersOrApprovers.push({
+                nameEn: r.name,
+                nameTa: r.nameTa,
+                nameHi: r.nameHi,
+                titleEn: r.titleEn,
+                titleTa: r.titleTa,
+                titleHi: r.titleHi
+            });
+        });
+        if (approver) {
+            reviewersOrApprovers.push({
+                nameEn: approver.name,
+                nameTa: approver.nameTa,
+                nameHi: approver.nameHi,
+                titleEn: approver.titleEn,
+                titleTa: approver.titleTa,
+                titleHi: approver.titleHi
+            });
+        }
+
+        const html = TemplateRenderer.buildPremiumLayout({
             title: pdfTitle,
             titleHi: pdfTitleHi,
             titleTa: pdfTitleTa,
@@ -1635,15 +1743,11 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             refNo,
             date: noteDate,
             bodyHtml,
-            initiator,
-            reviewers,
-            approver,
-            signatoryName: approver.name,
-            signatoryTitleEn: approver.titleEn,
-            signatoryTitleHi: sigTitleHi,
-            signatoryTitleTa: sigTitleTa,
+            initiator: initiatorSig,
+            reviewersOrApprovers,
             organization: RO_DATA,
             isAdvisory: false,
+            metaHeader: isHighValueDD ? note.titleEn : undefined,
             deptSealSrc,
             orgMeta: {
                 sealX: content.sealX,
@@ -1655,17 +1759,16 @@ router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
             hideApprovedStatus: note.type === 'MICR_CODE_REQUEST'
         });
 
-        const pdfBuffer = await generatePDF(html, undefined, refNo);
+        const pdfBuffer = await PDFRenderer.generate(html, { refNo });
 
         res.contentType('application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="OfficeNote_${note.id.slice(-4)}.pdf"`);
         res.send(pdfBuffer);
-    } catch (error) {
+    } catch (error: any) {
         logger.error('Error generating PDF:', error);
         res.status(500).json({ error: 'Failed to generate PDF' });
     }
 });
-
 
 // Get summary of High Value DD notes (Weekly/Monthly)
 router.get('/high-value-dd/summary', authenticateToken, async (req: any, res) => {
@@ -1674,11 +1777,13 @@ router.get('/high-value-dd/summary', authenticateToken, async (req: any, res) =>
 
     let startDate, endDate;
     if (period === 'weekly') {
-        startDate = startOfWeek(referenceDate, { weekStartsOn: 1 });
-        endDate = endOfWeek(referenceDate, { weekStartsOn: 1 });
+        startDate = new Date(referenceDate);
+        startDate.setDate(referenceDate.getDate() - referenceDate.getDay() + 1);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
     } else {
-        startDate = startOfMonth(referenceDate);
-        endDate = endOfMonth(referenceDate);
+        startDate = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
+        endDate = new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 0);
     }
 
     try {
@@ -1721,8 +1826,8 @@ router.get('/high-value-dd/summary', authenticateToken, async (req: any, res) =>
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(csv);
-    } catch (err) {
-        logger.error('Summary generation error:', err);
+    } catch (err: any) {
+        logger.error('Manual generation error:', err);
         res.status(500).json({ error: 'Failed to generate summary' });
     }
 });

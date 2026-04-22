@@ -1,12 +1,12 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
-import { dashboardService } from '../services/dashboardService';
+import { DashboardService } from '../services/dashboardService';
 
 const router = express.Router();
 
 router.get('/config', authenticateToken, async (req, res) => {
     try {
-        const config = await dashboardService.getConfig();
+        const config = await DashboardService.getConfig();
         res.json(config);
     } catch (error) {
         console.error('Error fetching dashboard config:', error);
@@ -23,7 +23,7 @@ router.post('/srm-message', authenticateToken, async (req: any, res) => {
     }
     const { name, nameTa, nameHi, title, titleTa, titleHi, region, regionTa, regionHi, highlight, message } = req.body;
     try {
-        const newMessage = await dashboardService.updateSrmMessage({
+        const newMessage = await DashboardService.updateSrmMessage({
             name, nameTa, nameHi,
             title, titleTa, titleHi,
             region, regionTa, regionHi,
@@ -42,7 +42,7 @@ router.post('/tickers', authenticateToken, async (req: any, res) => {
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     const { text, expiresAt, linkUrl } = req.body;
     try {
-        const ticker = await dashboardService.addTicker({ text, expiresAt, linkUrl });
+        const ticker = await DashboardService.addTicker({ text, expiresAt, linkUrl });
         res.json({ success: true, ticker });
     } catch (error) {
         console.error('Error adding ticker:', error);
@@ -56,7 +56,7 @@ router.put('/tickers/:id', authenticateToken, async (req: any, res) => {
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     const { text, isActive, expiresAt, linkUrl, order } = req.body;
     try {
-        const ticker = await dashboardService.updateTicker(req.params.id, { text, isActive, expiresAt, linkUrl, order });
+        const ticker = await DashboardService.updateTicker(req.params.id, { text, isActive, expiresAt, linkUrl, order });
         res.json({ success: true, ticker });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed to update ticker' });
@@ -68,7 +68,7 @@ router.delete('/tickers/:id', authenticateToken, async (req: any, res) => {
     const isPlanning = req.user.section?.toLowerCase() === 'planning';
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     try {
-        await dashboardService.deleteTicker(req.params.id);
+        await DashboardService.deleteTicker(req.params.id);
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed to delete ticker' });
@@ -80,7 +80,7 @@ router.get('/admin/tickers', authenticateToken, async (req: any, res) => {
     const isPlanning = req.user.section?.toLowerCase() === 'planning';
     if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
     try {
-        const tickers = await dashboardService.getAdminTickers();
+        const tickers = await DashboardService.getAdminTickers();
         res.json(tickers);
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed to fetch tickers' });

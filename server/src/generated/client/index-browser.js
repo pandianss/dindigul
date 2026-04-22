@@ -1004,6 +1004,14 @@ exports.Prisma.BranchVisitScalarFieldEnum = {
   observations: 'observations'
 };
 
+exports.Prisma.GenerationRecordScalarFieldEnum = {
+  id: 'id',
+  payloadHash: 'payloadHash',
+  letterId: 'letterId',
+  fileUrl: 'fileUrl',
+  timestamp: 'timestamp'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1104,7 +1112,8 @@ exports.Prisma.ModelName = {
   CampaignDailyData: 'CampaignDailyData',
   DepartmentManual: 'DepartmentManual',
   DepartmentActivity: 'DepartmentActivity',
-  BranchVisit: 'BranchVisit'
+  BranchVisit: 'BranchVisit',
+  GenerationRecord: 'GenerationRecord'
 };
 
 /**

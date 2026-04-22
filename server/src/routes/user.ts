@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { validate } from '../lib/validate';
 import { parsePagination } from '../utils/pagination';
-import { userService } from '../services/userService';
+import { UserRepository } from '../infra';
 
 const router = Router();
 
@@ -87,7 +87,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
     try {
         const { skip, take, page, limit } = parsePagination(req);
         const { role } = req.query;
-        const paginatedResponse = await userService.getUsers(skip, take, page, limit, role as string | string[]);
+        const paginatedResponse = await UserRepository.getUsers(skip, take, page, limit, role as string | string[]);
         res.json(paginatedResponse);
     } catch (error) {
         console.error("Fetch users error:", error);
@@ -104,7 +104,7 @@ router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res
     } = req.body;
 
     try {
-        const user = await userService.createUser(req.body);
+        const user = await UserRepository.createUser(req.body);
         res.json(user);
     } catch (error) {
         console.error('User creation error:', error);
@@ -122,7 +122,7 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
     } = req.body;
 
     try {
-        const user = await userService.updateUser(id, req.body);
+        const user = await UserRepository.updateUser(id, req.body);
         res.json(user);
     } catch (error) {
         console.error('Update failed:', error);
@@ -134,8 +134,8 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
 router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const id = req.params.id as string;
     try {
-        await userService.deleteUser(id);
-        res.json({ message: 'Deleted' });
+        await UserRepository.deleteUser(id);
+    const result = { message: 'Deleted' };
     } catch (error) {
         res.status(400).json({ error: 'Delete failed' });
     }
@@ -328,7 +328,7 @@ router.post('/:id/transfer', authenticateToken, requireAdminOrPlanning, async (r
     }
 
     try {
-        const result = await userService.transferUser(id, branchId, designationId, remarks);
+        const result = await UserRepository.transferUser(id, branchId, designationId, remarks);
         res.json(result);
     } catch (error) {
         console.error('Transfer error:', error);

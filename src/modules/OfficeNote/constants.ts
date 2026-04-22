@@ -45,6 +45,8 @@ export const INITIAL_FORM = {
     deptName: '',
     referenceNo: '',
     preparerId: '',
+    approverId: '',
+    reviewerIds: [],
     contentJson: {
         details: '',
         amount: '',

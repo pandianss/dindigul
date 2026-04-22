@@ -2,80 +2,91 @@ import { Router } from 'express';
 import { getFYRange } from '../utils/calendar';
 import { io } from '../index';
 import prisma from '../lib/prisma';
-import { generatePDF, getBrowser, renderTemplate, buildLetterBodyHtml } from '../services/pdfService';
-import archiver from 'archiver';
-import { v4 as uuidv4 } from 'uuid';
-import { BusinessSnapshotService } from '../services/BusinessSnapshotService';
-import { MisStatus } from '../types/mis';
-import { RuleEngine } from '../services/RuleEngine';
-import { MISIngestionService } from '../services/MISIngestionService';
+import { 
+  PDFRenderer, 
+  TemplateRenderer, 
+} from '../renderers';
+import { 
+  SnapshotOrchestrator,
+  SnapshotBuilder,
+} from '../services';
+import {
+  SnapshotRepository,
+  MISIngester
+} from '../infra';
+import { RuleEvaluator } from '../rules/RuleEvaluator';
 import { authenticateToken } from '../middleware/auth';
 import { misUpload as upload } from '../middleware/upload';
 import path from 'path';
 import { logger } from '../utils/logger';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import archiver from 'archiver';
 
 const router = Router();
 
 // Get latest snapshots for dashboard (Legacy compatibility layer using Fact)
+/**
+ * MIS Snapshot Routes - Realigned to SSOT (Single Source of Truth).
+ * All data now flows from Fact table -> SnapshotBuilder -> Snapshot UI.
+ */
+
 router.get('/snapshots', authenticateToken, async (req, res) => {
     try {
-        const facts = await prisma.fact.findMany({
-            orderBy: { date: 'desc' },
-            take: 50,
+        const latestSnapshots = await prisma.misSnapshot.findMany({
+            orderBy: { businessDate: 'desc' },
+            take: 20,
             include: { branch: true }
         });
-        const regParams = await prisma.misParameterRegistry.findMany();
-        const regMap = Object.fromEntries(regParams.map(p => [p.parameterName, p.displayName]));
-
-        const snapshots = facts.map(f => ({
-            id: f.id,
-            date: f.date,
-            value: f.value,
-            metric: f.metric,
-            displayName: regMap[f.metric] || f.metric,
-            branch: f.branch
-        }));
-        res.json(snapshots);
-    } catch (error) {
+        res.json(latestSnapshots);
+    } catch (error: any) {
         logger.error('Error fetching snapshots:', error);
         res.status(500).json({ error: 'Failed to fetch snapshots' });
     }
 });
 
-// Get specific branch snapshot for chat command (Fact-driven)
-router.get('/snapshot', authenticateToken, async (req, res) => {
-    const { branchCode } = req.query;
-    if (!branchCode) return res.status(400).json({ error: 'Missing branchCode' });
+router.get('/business-snapshot/:branchCode', authenticateToken, async (req, res) => {
+    const { branchCode } = req.params;
+    const { date } = req.query;
 
     try {
-        const branch = await prisma.branch.findUnique({ where: { code: String(branchCode) } });
+        const branch = await prisma.branch.findUnique({ where: { code: branchCode } });
         if (!branch) return res.status(404).json({ error: 'Branch not found' });
 
-        const latestFact = await prisma.fact.findFirst({
-            where: { unitId: branch.id },
-            orderBy: { date: 'desc' },
-            select: { date: true }
-        });
-
-        if (!latestFact) {
-            return res.json({ branchCode, branchName: branch.nameEn, date: new Date().toISOString().split('T')[0], rows: [] });
+        let businessDate: Date;
+        if (date) {
+            const [y, m, d] = String(date).split('-').map(Number);
+            businessDate = new Date(Date.UTC(y, m - 1, d));
+        } else {
+            const latest = await prisma.fact.findFirst({
+                where: { unitId: branch.id },
+                orderBy: { date: 'desc' }
+            });
+            if (!latest) return res.status(404).json({ error: 'No data found for this branch' });
+            businessDate = latest.date;
         }
 
-        const facts = await prisma.fact.findMany({ where: { unitId: branch.id, date: latestFact.date } });
-        const regParams = await prisma.misParameterRegistry.findMany();
-        const regMap = Object.fromEntries(regParams.map(p => [p.parameterName, p.displayName]));
+        const snapshot = await prisma.misSnapshot.findUnique({
+            where: {
+                unitId_businessDate: {
+                    unitId: branch.id,
+                    businessDate
+                }
+            },
+            include: {
+                panelData: {
+                    include: { registry: true }
+                }
+            }
+        });
 
-        const rows = facts.map(f => ({
-            paramCode: f.metric,
-            paramName: regMap[f.metric] || f.metric,
-            actual: f.value,
-            status: 'NEUTRAL'
-        }));
+        if (!snapshot) {
+            return res.status(404).json({ error: `Snapshot not generated for ${businessDate.toISOString().split('T')[0]}` });
+        }
 
-        res.json({ branchCode: branch.code, branchName: branch.nameEn, date: latestFact.date.toISOString().split('T')[0], rows });
-    } catch (error) {
-        logger.error('Error fetching branch snapshot:', error);
+        res.json(snapshot);
+    } catch (error: any) {
+        logger.error('Error fetching business snapshot:', error);
         res.status(500).json({ error: 'Failed to fetch snapshot' });
     }
 });
@@ -107,7 +118,7 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
         const regMap = Object.fromEntries(registry.map(r => [r.parameterName, r]));
 
         const enriched = snapshots
-            .filter(s => s.branch && s.branch.type !== 'REGIONAL OFFICE')
+            .filter(s => !!s.branch)
             .map(s => ({
                 branchId: s.unitId,
                 branchCode: s.branch!.code,
@@ -155,7 +166,19 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
     try {
-        const result = await MISIngestionService.processExcel(req.file.path, req.file.originalname);
+        const result = await MISIngester.processExcel(req.file.path, req.file.originalname);
+        
+        // Create permanent record in Inlet History
+        await prisma.misImportLog.create({
+            data: {
+                filename: req.file.originalname,
+                status: 'SUCCESS',
+                processedUnits: result.processedUnits,
+                failedUnits: result.skippedUnits,
+                uniqueDates: result.datesFound,
+            }
+        });
+
         fs.unlinkSync(req.file.path);
         res.json(result);
     } catch (error: any) {
@@ -172,12 +195,13 @@ router.post('/upload', authenticateToken, (req, res) => {
 // Generate from staging
 router.post('/generate-from-staging', authenticateToken, async (req, res) => {
     const { date } = req.body;
+    logger.info('MIS_GENERATE_STAGING_HIT', { date });
     if (!date) return res.status(400).json({ error: 'Missing date' });
     try {
-        const result = await BusinessSnapshotService.generateFromStaging(date);
+        const result = await SnapshotBuilder.generateDailySnapshots(String(date));
         res.json(result);
     } catch (error: any) {
-        logger.error('Error generating from staging:', error);
+        logger.error('Error generating snapshots:', error);
         res.status(500).json({ error: error.message || 'Failed to generate snapshots' });
     }
 });
@@ -188,9 +212,22 @@ router.get('/business-snapshot/:branchCode', async (req, res) => {
     const { date } = req.query;
     if (!date) return res.status(400).json({ error: 'Missing date' });
     try {
-        const snapshot = await BusinessSnapshotService.getSnapshot(branchCode, String(date));
+        const snapshot = await SnapshotRepository.getSnapshot(branchCode, String(date));
         if (!snapshot) return res.status(404).json({ error: `Snapshot not found for ${branchCode}` });
-        res.json(snapshot);
+
+        // Enrich panel data with metadata for frontend components (PerformanceWidget etc)
+        const registry = await prisma.misParameterRegistry.findMany();
+        const regMap = Object.fromEntries(registry.map(r => [r.parameterName, { displayName: r.displayName, category: r.category }]));
+
+        const enrichedSnapshot = {
+            ...snapshot,
+            panelData: snapshot.panelData.map(p => ({
+                ...p,
+                metadata: regMap[p.parameter] || { displayName: p.parameter, category: 'Uncategorized' }
+            }))
+        };
+
+        res.json(enrichedSnapshot);
     } catch (error: any) {
         logger.error('Error getting business snapshot:', error);
         res.status(500).json({ error: 'Internal server error while fetching snapshot' });
@@ -201,7 +238,7 @@ router.get('/business-snapshot/:branchCode', async (req, res) => {
 router.post('/freeze/:snapshotId', authenticateToken, async (req, res) => {
     const { snapshotId } = req.params;
     try {
-        const frozen = await BusinessSnapshotService.freezeSnapshot(String(snapshotId));
+        const frozen = await SnapshotOrchestrator.freezeAndEvaluate(String(snapshotId));
         res.json({ message: 'Snapshot frozen and evaluated', frozen });
     } catch (error: any) {
         logger.error('Error freezing snapshot:', error);
@@ -214,7 +251,7 @@ router.get('/exceptions', authenticateToken, async (req, res) => {
     try {
         const exceptions = await prisma.misException.findMany({ where: { status: 'OPEN' }, include: { branch: true }, orderBy: { businessDate: 'desc' } });
         res.json(exceptions);
-    } catch (error) {
+    } catch (error: any) {
         logger.error('Error fetching exceptions:', error);
         res.status(500).json({ error: 'Failed to fetch exceptions' });
     }
@@ -225,7 +262,7 @@ router.get('/import-logs', authenticateToken, async (req, res) => {
     try {
         const logs = await prisma.misImportLog.findMany({ orderBy: { createdAt: 'desc' }, take: 50 });
         res.json(logs);
-    } catch (error) {
+    } catch (error: any) {
         logger.error('Error fetching import logs:', error);
         res.status(500).json({ error: 'Failed to fetch import logs' });
     }
@@ -237,7 +274,7 @@ router.delete('/import-logs/:id', authenticateToken, async (req: any, res) => {
     if (req.user?.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Forbidden' });
     try {
         const { id } = req.params;
-        await MISIngestionService.deleteImport(id);
+        await SnapshotRepository.deleteByImportId(id);
         res.json({ message: 'Import deleted successfully' });
     } catch (error: any) {
         logger.error('Error deleting import:', error);
@@ -252,7 +289,7 @@ router.post('/finalize-all', authenticateToken, async (req: any, res) => {
     const { date } = req.body;
     if (!date) return res.status(400).json({ error: 'Missing date' });
     try {
-        const result = await BusinessSnapshotService.finalizeAllSnapshots(String(date));
+        const result = await SnapshotOrchestrator.finalizeAllSnapshots(String(date));
         res.json(result);
     } catch (error: any) {
         logger.error('Error finalizing all snapshots:', error);
@@ -270,7 +307,7 @@ router.post('/evaluate-all', authenticateToken, async (req: any, res) => {
         const [y, m, d] = String(date).split('-').map(Number);
         const businessDate = new Date(Date.UTC(y, m - 1, d));
         const snapshots = await prisma.misSnapshot.findMany({ where: { businessDate } });
-        for (const s of snapshots) { await RuleEngine.evaluate(s.id); }
+        for (const s of snapshots) { await RuleEvaluator.evaluate(s.id); }
         res.json({ success: true, count: snapshots.length });
     } catch (error: any) {
         logger.error('Error triggering evaluations:', error);
@@ -295,21 +332,40 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
         if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
         if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 
-        const browser = await getBrowser();
         for (const letter of letters) {
             try {
                 const fileName = `${letter.type}_${letter.branch.code}_${letter.id}.pdf`;
-                const html = await renderTemplate('letter', {
-                    ...(letter.orgMeta as any || {}),
-                    title: letter.titleEn,
-                    refNo: letter.referenceNo,
-                    bodyHtml: buildLetterBodyHtml(letter.contentEn || '', letter.orgMeta as any || {}, letter)
+                const html = await TemplateRenderer.renderLetter({
+                    metadata: {
+                        referenceNo: letter.referenceNo || 'M-PENDING',
+                        letterDate: new Date(letter.createdAt).toLocaleDateString(),
+                        generatedAt: new Date(),
+                        type: letter.type as any,
+                        category: 'GENERAL',
+                        version: 1
+                    },
+                    organization: {
+                        bankName: { en: 'Dindigul Bank', hi: '', ta: '' },
+                        officeName: { en: 'Regional Office', hi: '', ta: '' },
+                        address: { en: '', hi: '', ta: '' },
+                        phone: '',
+                        email: '',
+                        website: 'http://bank.com'
+                    },
+                    recipient: { name: letter.branch.nameEn, isExternal: false },
+                    signatory: {
+                        name: { en: 'Regional Manager', hi: '', ta: '' },
+                        title: { en: 'Regional Office', hi: '', ta: '' }
+                    },
+                    content: {
+                        title: { en: letter.titleEn, hi: '', ta: '' },
+                        bodyHtml: letter.contentEn || ''
+                    }
                 });
-                const buffer = await generatePDF(html, browser);
+                const buffer = await PDFRenderer.generate(html);
                 fs.writeFileSync(path.join(baseDir, fileName), buffer);
-            } catch (pdfErr) { logger.error(`PDF error for ${letter.id}:`, pdfErr); }
+            } catch (pdfErr: any) { logger.error(`PDF error for ${letter.id}:`, pdfErr); }
         }
-        await browser.close();
 
         const zipPath = path.join(process.cwd(), 'temp_zips', `${tempDirId}.zip`);
         const output = fs.createWriteStream(zipPath);
@@ -325,9 +381,9 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
         res.download(zipPath, `Dindigul_Letters_${period}.zip`, () => {
             try { fs.rmSync(baseDir, { recursive: true, force: true }); fs.unlinkSync(zipPath); } catch {}
         });
-    } catch (error: any) {
-        logger.error('[bulk-zip] Global error:', error);
-        res.status(500).json({ error: 'Failed to generate ZIP' });
+    } catch (err: any) {
+        logger.error('Bulk zip error:', err);
+        if (!res.headersSent) res.status(500).json({ error: 'Failed to create zip' });
     }
 });
 
@@ -337,7 +393,7 @@ router.get('/exception-summary', authenticateToken, async (req, res) => {
         const date = req.query.date as string;
         if (!date) return res.status(400).json({ error: 'Date is required' });
         
-        const summary = await BusinessSnapshotService.getExceptionSummary(date);
+        const summary = await SnapshotOrchestrator.getExceptionSummary(date);
         res.json(summary);
     } catch (error: any) {
         console.error('Exception summary error:', error);

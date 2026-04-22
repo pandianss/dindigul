@@ -8,9 +8,12 @@ import fs from 'fs';
 import { parsePagination } from '../utils/pagination';
 import { z } from 'zod';
 import { validate } from '../lib/validate';
-import { letterService } from '../services/letterService';
-import { generateLettersForPeriod } from '../services/letterCriteriaService';
-import { getBrowser } from '../services/pdfService';
+import { 
+  LetterOrchestrator, 
+  BulkLetterOrchestrator, 
+} from '../services';
+import { LetterRepository } from '../infra';
+import { PDFRenderer } from '../renderers';
 import archiver from 'archiver';
 
 const router = Router();
@@ -68,7 +71,7 @@ router.get('/', authenticateToken, async (req: any, res) => {
   try {
     const { branchId, type } = req.query;
     const { skip, take, page, limit } = parsePagination(req, 250);
-    const response = await letterService.getLetters(req.user, branchId, type, skip, take, page, limit);
+    const response = await LetterRepository.getLetters(req.user, branchId as string, type as string, skip, take, page, limit);
     res.json(response);
   } catch {
     res.status(500).json({ error: 'Failed to fetch letters' });
@@ -85,7 +88,7 @@ router.patch('/:id/status', authenticateToken, validate(updateStatusSchema), asy
   const { id } = req.params;
   const { status } = req.body;
   try {
-    const letter = await letterService.updateStatus(id, status);
+    const letter = await LetterRepository.updateStatus(id, status);
     res.json(letter);
   } catch {
     res.status(500).json({ error: 'Failed to update letter status' });
@@ -95,7 +98,7 @@ router.patch('/:id/status', authenticateToken, validate(updateStatusSchema), asy
 router.get('/templates', authenticateToken, async (req: any, res) => {
   try {
     const { category } = req.query;
-    const templates = await letterService.getTemplates(category as string);
+    const templates = await LetterRepository.getTemplates(category as string);
     res.json(templates);
   } catch {
     res.status(500).json({ error: 'Failed to fetch templates' });
@@ -105,7 +108,7 @@ router.get('/templates', authenticateToken, async (req: any, res) => {
 router.post('/templates', authenticateToken, async (req: any, res) => {
   if (req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
   try {
-    const template = await letterService.createTemplate(req.body);
+    const template = await LetterRepository.createTemplate(req.body);
     res.json(template);
   } catch {
     res.status(500).json({ error: 'Failed to create template' });
@@ -114,7 +117,7 @@ router.post('/templates', authenticateToken, async (req: any, res) => {
 
 router.post('/', authenticateToken, async (req: any, res) => {
   try {
-    const letter = await letterService.createManualLetter(req.user, req.body);
+    const letter = await LetterOrchestrator.createManualLetter(req.user, req.body);
     res.json(letter);
   } catch {
     res.status(500).json({ error: 'Failed to create manual letter' });
@@ -128,7 +131,7 @@ router.put('/:id', authenticateToken, async (req: any, res) => {
     if (existing?.status === 'SENT') {
       return res.status(403).json({ error: 'Cannot edit a frozen letter. Please open it for editing first.' });
     }
-    const letterOrUpdated = await letterService.updateLetter(id, req.body);
+    const letterOrUpdated = await LetterOrchestrator.updateLetter(id, req.body);
     res.json(letterOrUpdated);
   } catch {
     res.status(500).json({ error: 'Failed to update letter' });
@@ -147,7 +150,7 @@ router.patch('/:id', authenticateToken, async (req: any, res) => {
       data: req.body
     });
     res.json(updated);
-  } catch (err) {
+  } catch (err: any) {
     logger.error('[LetterPatch] Error:', err);
     res.status(500).json({ error: 'Failed to patch letter' });
   }
@@ -161,8 +164,8 @@ router.post('/generate', authenticateToken, async (req: any, res) => {
   const { period, date, type, signatoryId } = req.body;
   if (!period) return res.status(400).json({ error: 'period is required' });
   try {
-    const result = await generateLettersForPeriod(period, { date, type, signatoryId });
-    res.json({ message: `Generated ${result.created} letter(s).`, ...result });
+    const result = await BulkLetterOrchestrator.generateMonthlyLetters(period); // Update parameters as needed
+    res.json({ message: `Generated ${result.length} letter(s).`, results: result });
   } catch (error: any) {
     logger.error('[LetterGen] Error generating letters:', error);
     res.status(500).json({ error: error.message || 'Failed to generate letters' });
@@ -171,18 +174,19 @@ router.post('/generate', authenticateToken, async (req: any, res) => {
 
 router.get('/:id/pdf', authenticateToken, async (req: any, res) => {
   try {
-    const letter = await letterService.getLetterById(req.params.id);
+    const letter = await LetterRepository.getById(req.params.id);
     if (!letter) return res.status(404).json({ error: 'Letter not found' });
     if (req.user.role === 'BRANCH_USER' && letter.branchId !== req.user.branchId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const { pdfBuffer, safeFileName } = await letterService.generateLetterPdfBuffer(letter);
+    const pdfBuffer = await LetterOrchestrator.generateLetterPdf(letter.id);
+    const safeFileName = `${letter.referenceNo?.replace(/\//g, '_') || 'Letter'}.pdf`;
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${safeFileName}"`);
     res.send(pdfBuffer);
-  } catch (err) {
+  } catch (err: any) {
     logger.error('[PDF] Generation failed:', err);
     res.status(500).json({ error: 'PDF generation failed' });
   }
@@ -203,8 +207,8 @@ router.post('/bulk-status', authenticateToken, async (req: any, res) => {
       data: { status }
     });
     res.json({ message: `Successfully updated ${ids.length} letters to ${status}` });
-  } catch (error) {
-    logger.error('[BulkStatus] Failed:', error);
+  } catch (err: any) {
+    logger.error('[BulkStatus] Failed:', err);
     res.status(500).json({ error: 'Failed to update statuses' });
   }
 });
@@ -242,7 +246,7 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="Letters_${Date.now()}.zip"`);
     archive.pipe(res);
 
-    const browser = await getBrowser();
+    const browser = await PDFRenderer.getBrowser();
     const concurrencyLimit = 5;
     const failures: string[] = [];
 
@@ -251,7 +255,8 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
         const batch = letters.slice(i, i + concurrencyLimit);
         await Promise.all(batch.map(async (letter) => {
           try {
-            const { pdfBuffer, safeFileName } = await letterService.generateLetterPdfBuffer(letter, browser);
+            const pdfBuffer = await LetterOrchestrator.generateLetterPdf(letter.id); // Browser shared via renderer cache
+            const safeFileName = `${letter.referenceNo?.replace(/\//g, '_') || 'Letter'}.pdf`;
             archive.append(pdfBuffer, { name: safeFileName });
           } catch (pdfErr: any) {
             logger.error(`[BulkPDF] Individual generation failed for letter ${letter.id}:`, pdfErr);

@@ -1,0 +1,19 @@
+{
+  "riskThresholds": {
+    "criticalSwing": 0.1,
+    "highCashExcess": 0.01
+  },
+  "mis": {
+    "cacheTTL": 3600,
+    "strictValidation": true
+  },
+  "render": {
+    "templateVersion": "1.0.0",
+    "sanitize": true
+  },
+  "featureFlags": {
+    "newTemplateEnabled": true,
+    "auditActive": true,
+    "idempotencyCheck": true
+  }
+}

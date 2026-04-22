@@ -1,14 +1,38 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middleware/auth';
-import * as campaignService from '../services/campaignService';
+import { 
+    LetterOrchestrator,
+    SnapshotOrchestrator,
+    BulkLetterOrchestrator,
+    InternalNoteOrchestrator,
+    BudgetLetterOrchestrator,
+    AnalyticsOrchestrator
+} from '../services';
+import { 
+    CampaignRepository, 
+    CalendarRepository,
+    FactRepository,
+    ExpenditureRepository,
+    LogisticsRepository,
+    MeetingRepository,
+    ReferenceGenerator,
+    NotificationService
+} from '../infra';
+import { CampaignLogic } from '../rules/CampaignLogic';
+import { logger } from '../utils/logger';
+import { 
+    PDFRenderer,
+    MeetingRenderer,
+    TemplateRenderer
+} from '../renderers';
+import { RuleEvaluator } from '../rules/RuleEvaluator';
+
 import { parseCSV } from '../utils/csv';
 import { departmentUpload as upload } from '../middleware/upload';
 import path from 'path';
 import fs from 'fs';
-import { generatePDF, buildMeetingMinutesHtml, getRegionalOfficeData, buildPremiumLayout } from '../services/pdfService';
-import { logger } from '../utils/logger';
-import { syncCalendarDay } from '../utils/calendar';
+// Standard utilities preserved
 
 const requireAdminOrPlanning = (req: any, res: any, next: any) => {
     const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
@@ -58,7 +82,7 @@ calendarRouter.post('/', async (req: any, res) => {
                 }
             });
             // Sync analytical calendar
-            await syncCalendarDay(new Date(date));
+            await CalendarRepository.syncAnalyticalCalendar(new Date(date));
             return res.json(updated);
         }
 
@@ -73,7 +97,7 @@ calendarRouter.post('/', async (req: any, res) => {
         });
 
         // Sync analytical calendar
-        await syncCalendarDay(new Date(date));
+        await CalendarRepository.syncAnalyticalCalendar(new Date(date));
 
         res.json(created);
     } catch (error) {
@@ -99,7 +123,7 @@ calendarRouter.delete('/:id', async (req: any, res) => {
         });
 
         if (holidayDate) {
-            await syncCalendarDay(new Date(holidayDate));
+            await CalendarRepository.syncAnalyticalCalendar(new Date(holidayDate));
         }
 
         res.json({ success: true });
@@ -120,7 +144,7 @@ const campaignRouter = Router();
 
 campaignRouter.get('/', authenticateToken, async (req, res) => {
     try {
-        const campaigns = await campaignService.getCampaigns();
+        const campaigns = await CampaignRepository.getAll();
         res.json(campaigns);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -129,7 +153,7 @@ campaignRouter.get('/', authenticateToken, async (req, res) => {
 
 campaignRouter.post('/', authenticateToken, async (req, res) => {
     try {
-        const campaign = await campaignService.createCampaign(req.body);
+        const campaign = await CampaignRepository.create(req.body);
         res.json(campaign);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -138,7 +162,7 @@ campaignRouter.post('/', authenticateToken, async (req, res) => {
 
 campaignRouter.get('/:id', authenticateToken, async (req, res) => {
     try {
-        const campaign = await campaignService.getCampaignById(req.params.id as string);
+        const campaign = await CampaignRepository.getById(req.params.id as string);
         if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
         res.json(campaign);
     } catch (error: any) {
@@ -149,7 +173,7 @@ campaignRouter.get('/:id', authenticateToken, async (req, res) => {
 campaignRouter.post('/:id/data', authenticateToken, async (req, res) => {
     try {
         const { branchId, date, value } = req.body;
-        const entry = await campaignService.updateCampaignDailyData(req.params.id as string, branchId, new Date(date), value);
+        const entry = await CampaignRepository.updateDailyData(req.params.id as string, branchId, new Date(date), value);
         res.json(entry);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -159,7 +183,7 @@ campaignRouter.post('/:id/data', authenticateToken, async (req, res) => {
 campaignRouter.get('/:id/performance', authenticateToken, async (req, res) => {
     try {
         const date = req.query.date ? new Date(req.query.date as string) : undefined;
-        const rankings = await campaignService.getCampaignRankings(req.params.id as string, date);
+        const rankings = await CampaignLogic.getRankings(req.params.id as string, date);
         res.json(rankings);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -168,7 +192,7 @@ campaignRouter.get('/:id/performance', authenticateToken, async (req, res) => {
 
 campaignRouter.patch('/:id', authenticateToken, async (req, res) => {
     try {
-        const campaign = await campaignService.updateCampaign(req.params.id as string, req.body);
+        const campaign = await CampaignRepository.update(req.params.id as string, req.body);
         res.json(campaign);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -177,7 +201,7 @@ campaignRouter.patch('/:id', authenticateToken, async (req, res) => {
 
 campaignRouter.delete('/:id', authenticateToken, async (req, res) => {
     try {
-        await campaignService.deleteCampaign(req.params.id as string);
+        await CampaignRepository.delete(req.params.id as string);
         res.json({ message: 'Campaign deleted successfully' });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -186,7 +210,7 @@ campaignRouter.delete('/:id', authenticateToken, async (req, res) => {
 
 campaignRouter.delete('/:id/data/:entryId', authenticateToken, async (req, res) => {
     try {
-        await campaignService.deleteCampaignDailyData(req.params.entryId as string);
+        await CampaignRepository.deleteDailyData(req.params.entryId as string);
         res.json({ message: 'Entry deleted successfully' });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -424,13 +448,7 @@ expenditureRouter.use(authenticateToken);
 // Get all budgets for the current financial year
 expenditureRouter.get('/budgets', async (req, res) => {
     try {
-        const budgets = await prisma.budget.findMany({
-            include: {
-                _count: {
-                    select: { sanctions: true }
-                }
-            }
-        });
+        const budgets = await ExpenditureRepository.getBudgets();
         res.json(budgets);
     } catch (error) {
         console.error('Error fetching budgets:', error);
@@ -446,12 +464,9 @@ expenditureRouter.get('/sanctions', async (req, res) => {
         if (section) filters.section = section;
         if (status) filters.status = status;
 
-        const sanctions = await prisma.expenseSanction.findMany({
-            where: filters,
-            include: {
-                budget: true
-            },
-            orderBy: { sanctionDate: 'desc' }
+        const sanctions = await ExpenditureRepository.getSanctions({ 
+            section: section as string, 
+            status: status as string 
         });
         res.json(sanctions);
     } catch (error) {
@@ -464,34 +479,7 @@ expenditureRouter.get('/sanctions', async (req, res) => {
 expenditureRouter.post('/sanctions', async (req, res) => {
     const { title, sanctionDate, amount, section, vendorName, billNo, status, type, budgetId } = req.body;
     try {
-        const result = await prisma.$transaction(async (tx: any) => {
-            // 1. Create the sanction
-            const sanction = await tx.expenseSanction.create({
-                data: {
-                    title,
-                    sanctionDate: sanctionDate ? new Date(sanctionDate) : new Date(),
-                    amount,
-                    section,
-                    vendorName,
-                    billNo,
-                    status,
-                    type,
-                    budgetId
-                }
-            });
-
-            // 2. Update the budget spent amount
-            await tx.budget.update({
-                where: { id: budgetId },
-                data: {
-                    spentAmount: {
-                        increment: amount
-                    }
-                }
-            });
-
-            return sanction;
-        });
+        const result = await ExpenditureRepository.createSanction(req.body);
         res.json(result);
     } catch (error) {
         console.error('Error creating sanction:', error);
@@ -514,17 +502,7 @@ logisticsRouter.use(authenticateToken);
 // Get stock levels
 logisticsRouter.get('/stock', async (req, res) => {
     try {
-        const items = await prisma.stationeryItem.findMany({
-            include: {
-                movements: {
-                    orderBy: { date: 'desc' },
-                    take: 5,
-                    include: {
-                        branch: { select: { nameEn: true } }
-                    }
-                }
-            }
-        });
+        const items = await LogisticsRepository.getStock();
         res.json(items);
     } catch (error) {
         console.error('Error fetching stock:', error);
@@ -537,31 +515,7 @@ logisticsRouter.post('/movement', async (req, res) => {
     const { itemId, branchId, quantity, type, remarks } = req.body;
     try {
         // Use a transaction to ensure atomic update
-        const result = await prisma.$transaction(async (tx: any) => {
-            const movement = await tx.stationeryMovement.create({
-                data: {
-                    itemId,
-                    branchId,
-                    quantity,
-                    type,
-                    remarks,
-                    date: new Date()
-                }
-            });
-
-            const stockChange = type === 'RECEIPT' ? quantity : -quantity;
-
-            await tx.stationeryItem.update({
-                where: { id: itemId },
-                data: {
-                    stockLevel: {
-                        increment: stockChange
-                    }
-                }
-            });
-
-            return movement;
-        });
+        const result = await LogisticsRepository.recordMovement(req.body);
         res.json(result);
     } catch (error) {
         console.error('Error recording movement:', error);
@@ -581,7 +535,7 @@ const organizationRouter = Router();
 // Get organization config merged with RO branch details
 organizationRouter.get('/', authenticateToken, async (req, res) => {
     try {
-        const RO_DATA = await getRegionalOfficeData();
+        const RO_DATA = await FactRepository.getRegionalOfficeConfig();
 
         let config = await prisma.organizationConfig.findUnique({
             where: { id: 'singleton' }
@@ -591,13 +545,13 @@ organizationRouter.get('/', authenticateToken, async (req, res) => {
             config = await prisma.organizationConfig.create({
                 data: {
                     id: 'singleton',
-                    bankNameEn: RO_DATA.bankNameEn,
-                    bankNameTa: RO_DATA.bankNameTa,
-                    bankNameHi: RO_DATA.bankNameHi,
-                    signingAuthEn: RO_DATA.signingAuthEn || "Regional Manager",
-                    signingAuthTa: RO_DATA.signingAuthTa || "மண்டல மேலாளர்",
-                    signingAuthHi: RO_DATA.signingAuthHi || "क्षेत्रीय प्रबंधक",
-                    signatoryName: RO_DATA.signatoryName || "CHANDRA KUMAR P"
+                    bankNameEn: RO_DATA.bankName.en,
+                    bankNameTa: RO_DATA.bankName.ta,
+                    bankNameHi: RO_DATA.bankName.hi,
+                    signingAuthEn: "Regional Manager",
+                    signingAuthTa: "மண்டல மேலாளர்",
+                    signingAuthHi: "क्षेत्रीय प्रबंधक",
+                    signatoryName: "CHANDRA KUMAR P"
                 }
             });
         }
@@ -873,11 +827,9 @@ const meetingRoutesRouter = Router();
 // 1. Get List of Committees
 meetingRoutesRouter.get('/committees', authenticateToken, async (req, res) => {
     try {
-        const committees = await prisma.committee.findMany({
-            orderBy: { nameEn: 'asc' }
-        });
+        const committees = await MeetingRepository.getCommittees();
         res.json(committees);
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ error: 'Failed to fetch committees' });
     }
 });
@@ -885,16 +837,10 @@ meetingRoutesRouter.get('/committees', authenticateToken, async (req, res) => {
 // 2. Get Meetings for a Committee
 meetingRoutesRouter.get('/committee/:id/meetings', authenticateToken, async (req, res) => {
     try {
-        const { id } = req.params;
-        const meetings = await prisma.meeting.findMany({
-            where: id === 'GENERAL' 
-                ? { committeeId: null } 
-                : { committeeId: id as string },
-            orderBy: { date: 'desc' },
-            include: { committee: true }
-        });
+        const committeeId = String(req.params.id || 'GENERAL');
+        const meetings = await MeetingRepository.getMeetings(committeeId);
         res.json(meetings);
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ error: 'Failed to fetch meetings' });
     }
 });
@@ -908,7 +854,7 @@ meetingRoutesRouter.post('/', authenticateToken, async (req: any, res) => {
     const finalDate = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 
     try {
-        const meeting = await prisma.meeting.create({
+        const meeting = await MeetingRepository.createMeeting({
             data: {
                 committeeId: committeeId === 'GENERAL' ? null : (committeeId || null),
                 title: title || (committeeId === 'GENERAL' ? 'Meeting' : null),
@@ -935,18 +881,15 @@ meetingRoutesRouter.post('/', authenticateToken, async (req: any, res) => {
 meetingRoutesRouter.put('/:id', authenticateToken, async (req: any, res) => {
     const { committeeId, date, venue, attendees, signatories, title, minutes, status } = req.body;
     try {
-        const updated = await prisma.meeting.update({
-            where: { id: req.params.id as string },
-            data: {
-                committeeId: committeeId === 'GENERAL' ? null : (committeeId || undefined),
-                title: title !== undefined ? title : undefined,
-                date: date ? new Date(date) : undefined,
-                venue: venue || undefined,
-                attendees: attendees || undefined,
-                signatories: signatories || undefined,
-                status: status || undefined,
-                minutesJson: minutes ? JSON.stringify(minutes) : undefined
-            }
+        const updated = await MeetingRepository.updateMeeting(req.params.id, {
+            committeeId,
+            title,
+            date,
+            venue,
+            attendees,
+            signatories,
+            status,
+            minutes
         });
         res.json(updated);
     } catch (err: any) {
@@ -965,106 +908,14 @@ meetingRoutesRouter.get('/:id/pdf', authenticateToken, async (req, res) => {
 
         if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
 
-        // Helper to resolve staff details (Trilingual) from Name or UUID
-        const resolveMember = async (input: any) => {
-            const identifier = typeof input === 'string' ? input : (input.userId || input.name || '');
-            if (!identifier) return null;
-
-            let user = null;
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-            
-            if (uuidRegex.test(identifier)) {
-                user = await prisma.user.findUnique({ where: { id: identifier } });
-            } else {
-                user = await prisma.user.findFirst({ where: { fullNameEn: identifier } });
-            }
-
-            return {
-                nameEn: user?.fullNameEn || identifier,
-                nameHi: user?.fullNameHi || '',
-                nameTa: user?.fullNameTa || '',
-                designationEn: user?.designationEn || (typeof input !== 'string' ? input.designation : 'Official'),
-                designationHi: user?.designationHi || '',
-                designationTa: user?.designationTa || ''
-            };
-        };
-
-        const resolvedSignatories = (await Promise.all(
-            (Array.isArray(meeting.signatories) ? meeting.signatories : []).map(resolveMember)
-        )).filter(Boolean);
-
-        // Participants can be UUIDs or names. We resolve them into trilingual identities.
-        // Participant Narrative (Typed Description)
-        const participantNarrative = (meeting as any).participantDescription || 'All Participants';
-
-        // Absentees are selected from the dropdown (stored in attendees IDs)
-        const absenteeIds = Array.isArray(meeting.attendees) ? meeting.attendees : [];
-        const resolvedAbsentees = (await Promise.all(
-            absenteeIds.map(id => resolveMember(id))
-        )).filter(Boolean);
-
-        // Signatories (Present)
-        const presentAttendees = resolvedSignatories;
-
-        // Safe JSON Parse for Minutes
-        let minutesData = [];
-        try {
-            if (meeting.minutesJson) {
-                minutesData = JSON.parse(meeting.minutesJson);
-            }
-        } catch (err) {
-            logger.error('Failed to parse meeting minutesJson:', err);
-            // Fallback to treat as raw text if it's not valid JSON
-            minutesData = meeting.minutesJson ? [{ content: meeting.minutesJson }] : [];
-        }
-
-        const roData = await getRegionalOfficeData();
-        
-        logger.info(`Generating Professional Meeting Minutes PDF for: ${meeting.title || 'Untitled'}`);
-
-        const htmlBody = buildMeetingMinutesHtml({
-            committee: meeting.committee?.nameEn || '',
-            title: meeting.title,
-            dateStr: meeting.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.'),
-            venue: meeting.venue,
-            present: participantNarrative, // Pass the typed string here
-            absentees: resolvedAbsentees,
-            minutes: minutesData,
-            resolvedSignatories
-        }, roData);
-
-        const refNo = `RO/DGL/MOM/${new Date(meeting.date).getFullYear()}/${meeting.id.substring(0, 4).toUpperCase()}`;
-
-        const finalHtml = buildPremiumLayout({
-            title: meeting.title || 'MINUTES OF MEETING',
-            subTitle: meeting.committee?.nameEn || 'COMMITTEE PROCEEDINGS',
-            date: meeting.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.'),
-            refNo: refNo,
-            bodyHtml: htmlBody,
-            organization: roData as any,
-            hideHeader: false,
-            isLetter: true, 
-            hideMeta: true, 
-            meetingStatus: meeting.status as any
-        });
-
-        const pdfBuffer = await generatePDF(finalHtml);
+        const pdfBuffer = await PDFRenderer.generate(await MeetingRenderer.renderMinutes(meeting.id));
 
         res.contentType('application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="Minutes_${meeting.id.substring(0, 8)}.pdf"`);
         res.send(pdfBuffer);
     } catch (err: any) {
-        logger.error('CRITICAL: Meeting PDF Generation failed:', {
-            error: err.message,
-            stack: err.stack,
-            meetingId: req.params.id
-        });
-        // TEMPORARY: Return full stack trace to identify the exact cause of 500 error
-        res.status(500).json({ 
-            error: 'Failed to generate PDF', 
-            details: err?.message,
-            stack: err?.stack,
-            hint: 'Check the Network tab response for full details'
-        });
+        logger.error('MOM_GEN_FAILURE', err, { meetingId: req.params.id });
+        res.status(500).json({ error: 'Failed to generate PDF', details: err.message });
     }
 });
 

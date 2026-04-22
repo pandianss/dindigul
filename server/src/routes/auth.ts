@@ -38,7 +38,7 @@ async function recordAudit(event: AuditEvent, username: string, userId: string |
                 metadata: metadata ? JSON.stringify(metadata) : null,
             },
         });
-    } catch (err) {
+    } catch (err: any) {
         logger.error('[Auth] Failed to write audit log:', err);
     }
 }
@@ -182,8 +182,8 @@ router.post('/login', validate(loginSchema), async (req, res) => {
         await recordAudit('LOGIN_SUCCESS', username, user.id, req, { role: finalRole });
 
         res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
-    } catch (error) {
-        logger.error('Login error:', error);
+    } catch (err: any) {
+        logger.error('Login error:', err);
         res.status(500).json({ error: 'An error occurred during login' });
     }
 });
@@ -277,8 +277,8 @@ router.get('/auto-login', async (req, res) => {
         pruneExpiredSessions();
 
         res.json({ token, user: { id: user.id, username: user.username, role: finalRole, fullNameEn: user.fullNameEn, branchId: user.branchId, branch: (user as any).branch ? { code: (user as any).branch.code, nameEn: (user as any).branch.nameEn } : null, section: user.section, departmentId: user.departmentId } });
-    } catch (error) {
-        logger.error('Auto-login error:', error);
+    } catch (err: any) {
+        logger.error('Auto-login error:', err);
         res.status(500).json({ error: 'Auto-login failed' });
     }
 });
@@ -340,7 +340,7 @@ router.get('/audit-log', authenticateToken, async (req: any, res) => {
             prisma.loginAuditLog.count({ where }),
         ]);
         res.json({ logs, total, page: parseInt(page as string), limit: take });
-    } catch (err) {
+    } catch (err: any) {
         logger.error('[Auth] audit-log error:', err);
         res.status(500).json({ error: 'Failed to fetch audit log' });
     }

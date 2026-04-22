@@ -358,6 +358,11 @@ export type DepartmentActivity = $Result.DefaultSelection<Prisma.$DepartmentActi
  * 
  */
 export type BranchVisit = $Result.DefaultSelection<Prisma.$BranchVisitPayload>
+/**
+ * Model GenerationRecord
+ * 
+ */
+export type GenerationRecord = $Result.DefaultSelection<Prisma.$GenerationRecordPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1169,6 +1174,16 @@ export class PrismaClient<
     * ```
     */
   get branchVisit(): Prisma.BranchVisitDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.generationRecord`: Exposes CRUD operations for the **GenerationRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GenerationRecords
+    * const generationRecords = await prisma.generationRecord.findMany()
+    * ```
+    */
+  get generationRecord(): Prisma.GenerationRecordDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1671,7 +1686,8 @@ export namespace Prisma {
     CampaignDailyData: 'CampaignDailyData',
     DepartmentManual: 'DepartmentManual',
     DepartmentActivity: 'DepartmentActivity',
-    BranchVisit: 'BranchVisit'
+    BranchVisit: 'BranchVisit',
+    GenerationRecord: 'GenerationRecord'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1687,7 +1703,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "notice" | "noticeAck" | "stationeryItem" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit"
+      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "notice" | "noticeAck" | "stationeryItem" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit" | "generationRecord"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6797,6 +6813,80 @@ export namespace Prisma {
           }
         }
       }
+      GenerationRecord: {
+        payload: Prisma.$GenerationRecordPayload<ExtArgs>
+        fields: Prisma.GenerationRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GenerationRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GenerationRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.GenerationRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GenerationRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          findMany: {
+            args: Prisma.GenerationRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
+          }
+          create: {
+            args: Prisma.GenerationRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          createMany: {
+            args: Prisma.GenerationRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GenerationRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.GenerationRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          update: {
+            args: Prisma.GenerationRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.GenerationRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GenerationRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GenerationRecordUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
+          }
+          upsert: {
+            args: Prisma.GenerationRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.GenerationRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGenerationRecord>
+          }
+          groupBy: {
+            args: Prisma.GenerationRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GenerationRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GenerationRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<GenerationRecordCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -6974,6 +7064,7 @@ export namespace Prisma {
     departmentManual?: DepartmentManualOmit
     departmentActivity?: DepartmentActivityOmit
     branchVisit?: BranchVisitOmit
+    generationRecord?: GenerationRecordOmit
   }
 
   /* Types for Logging */
@@ -88427,6 +88518,1006 @@ export namespace Prisma {
 
 
   /**
+   * Model GenerationRecord
+   */
+
+  export type AggregateGenerationRecord = {
+    _count: GenerationRecordCountAggregateOutputType | null
+    _min: GenerationRecordMinAggregateOutputType | null
+    _max: GenerationRecordMaxAggregateOutputType | null
+  }
+
+  export type GenerationRecordMinAggregateOutputType = {
+    id: string | null
+    payloadHash: string | null
+    letterId: string | null
+    fileUrl: string | null
+    timestamp: Date | null
+  }
+
+  export type GenerationRecordMaxAggregateOutputType = {
+    id: string | null
+    payloadHash: string | null
+    letterId: string | null
+    fileUrl: string | null
+    timestamp: Date | null
+  }
+
+  export type GenerationRecordCountAggregateOutputType = {
+    id: number
+    payloadHash: number
+    letterId: number
+    fileUrl: number
+    timestamp: number
+    _all: number
+  }
+
+
+  export type GenerationRecordMinAggregateInputType = {
+    id?: true
+    payloadHash?: true
+    letterId?: true
+    fileUrl?: true
+    timestamp?: true
+  }
+
+  export type GenerationRecordMaxAggregateInputType = {
+    id?: true
+    payloadHash?: true
+    letterId?: true
+    fileUrl?: true
+    timestamp?: true
+  }
+
+  export type GenerationRecordCountAggregateInputType = {
+    id?: true
+    payloadHash?: true
+    letterId?: true
+    fileUrl?: true
+    timestamp?: true
+    _all?: true
+  }
+
+  export type GenerationRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GenerationRecord to aggregate.
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationRecords to fetch.
+     */
+    orderBy?: GenerationRecordOrderByWithRelationInput | GenerationRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GenerationRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GenerationRecords
+    **/
+    _count?: true | GenerationRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GenerationRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GenerationRecordMaxAggregateInputType
+  }
+
+  export type GetGenerationRecordAggregateType<T extends GenerationRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateGenerationRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGenerationRecord[P]>
+      : GetScalarType<T[P], AggregateGenerationRecord[P]>
+  }
+
+
+
+
+  export type GenerationRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GenerationRecordWhereInput
+    orderBy?: GenerationRecordOrderByWithAggregationInput | GenerationRecordOrderByWithAggregationInput[]
+    by: GenerationRecordScalarFieldEnum[] | GenerationRecordScalarFieldEnum
+    having?: GenerationRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GenerationRecordCountAggregateInputType | true
+    _min?: GenerationRecordMinAggregateInputType
+    _max?: GenerationRecordMaxAggregateInputType
+  }
+
+  export type GenerationRecordGroupByOutputType = {
+    id: string
+    payloadHash: string
+    letterId: string
+    fileUrl: string
+    timestamp: Date
+    _count: GenerationRecordCountAggregateOutputType | null
+    _min: GenerationRecordMinAggregateOutputType | null
+    _max: GenerationRecordMaxAggregateOutputType | null
+  }
+
+  type GetGenerationRecordGroupByPayload<T extends GenerationRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GenerationRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GenerationRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GenerationRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], GenerationRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GenerationRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payloadHash?: boolean
+    letterId?: boolean
+    fileUrl?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["generationRecord"]>
+
+  export type GenerationRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payloadHash?: boolean
+    letterId?: boolean
+    fileUrl?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["generationRecord"]>
+
+  export type GenerationRecordSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payloadHash?: boolean
+    letterId?: boolean
+    fileUrl?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["generationRecord"]>
+
+  export type GenerationRecordSelectScalar = {
+    id?: boolean
+    payloadHash?: boolean
+    letterId?: boolean
+    fileUrl?: boolean
+    timestamp?: boolean
+  }
+
+  export type GenerationRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "payloadHash" | "letterId" | "fileUrl" | "timestamp", ExtArgs["result"]["generationRecord"]>
+
+  export type $GenerationRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GenerationRecord"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      payloadHash: string
+      letterId: string
+      fileUrl: string
+      timestamp: Date
+    }, ExtArgs["result"]["generationRecord"]>
+    composites: {}
+  }
+
+  type GenerationRecordGetPayload<S extends boolean | null | undefined | GenerationRecordDefaultArgs> = $Result.GetResult<Prisma.$GenerationRecordPayload, S>
+
+  type GenerationRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GenerationRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GenerationRecordCountAggregateInputType | true
+    }
+
+  export interface GenerationRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GenerationRecord'], meta: { name: 'GenerationRecord' } }
+    /**
+     * Find zero or one GenerationRecord that matches the filter.
+     * @param {GenerationRecordFindUniqueArgs} args - Arguments to find a GenerationRecord
+     * @example
+     * // Get one GenerationRecord
+     * const generationRecord = await prisma.generationRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GenerationRecordFindUniqueArgs>(args: SelectSubset<T, GenerationRecordFindUniqueArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GenerationRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GenerationRecordFindUniqueOrThrowArgs} args - Arguments to find a GenerationRecord
+     * @example
+     * // Get one GenerationRecord
+     * const generationRecord = await prisma.generationRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GenerationRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, GenerationRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GenerationRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordFindFirstArgs} args - Arguments to find a GenerationRecord
+     * @example
+     * // Get one GenerationRecord
+     * const generationRecord = await prisma.generationRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GenerationRecordFindFirstArgs>(args?: SelectSubset<T, GenerationRecordFindFirstArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GenerationRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordFindFirstOrThrowArgs} args - Arguments to find a GenerationRecord
+     * @example
+     * // Get one GenerationRecord
+     * const generationRecord = await prisma.generationRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GenerationRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, GenerationRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GenerationRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GenerationRecords
+     * const generationRecords = await prisma.generationRecord.findMany()
+     * 
+     * // Get first 10 GenerationRecords
+     * const generationRecords = await prisma.generationRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const generationRecordWithIdOnly = await prisma.generationRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GenerationRecordFindManyArgs>(args?: SelectSubset<T, GenerationRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GenerationRecord.
+     * @param {GenerationRecordCreateArgs} args - Arguments to create a GenerationRecord.
+     * @example
+     * // Create one GenerationRecord
+     * const GenerationRecord = await prisma.generationRecord.create({
+     *   data: {
+     *     // ... data to create a GenerationRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends GenerationRecordCreateArgs>(args: SelectSubset<T, GenerationRecordCreateArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GenerationRecords.
+     * @param {GenerationRecordCreateManyArgs} args - Arguments to create many GenerationRecords.
+     * @example
+     * // Create many GenerationRecords
+     * const generationRecord = await prisma.generationRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GenerationRecordCreateManyArgs>(args?: SelectSubset<T, GenerationRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GenerationRecords and returns the data saved in the database.
+     * @param {GenerationRecordCreateManyAndReturnArgs} args - Arguments to create many GenerationRecords.
+     * @example
+     * // Create many GenerationRecords
+     * const generationRecord = await prisma.generationRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GenerationRecords and only return the `id`
+     * const generationRecordWithIdOnly = await prisma.generationRecord.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GenerationRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, GenerationRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GenerationRecord.
+     * @param {GenerationRecordDeleteArgs} args - Arguments to delete one GenerationRecord.
+     * @example
+     * // Delete one GenerationRecord
+     * const GenerationRecord = await prisma.generationRecord.delete({
+     *   where: {
+     *     // ... filter to delete one GenerationRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GenerationRecordDeleteArgs>(args: SelectSubset<T, GenerationRecordDeleteArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GenerationRecord.
+     * @param {GenerationRecordUpdateArgs} args - Arguments to update one GenerationRecord.
+     * @example
+     * // Update one GenerationRecord
+     * const generationRecord = await prisma.generationRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GenerationRecordUpdateArgs>(args: SelectSubset<T, GenerationRecordUpdateArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GenerationRecords.
+     * @param {GenerationRecordDeleteManyArgs} args - Arguments to filter GenerationRecords to delete.
+     * @example
+     * // Delete a few GenerationRecords
+     * const { count } = await prisma.generationRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GenerationRecordDeleteManyArgs>(args?: SelectSubset<T, GenerationRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GenerationRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GenerationRecords
+     * const generationRecord = await prisma.generationRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GenerationRecordUpdateManyArgs>(args: SelectSubset<T, GenerationRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GenerationRecords and returns the data updated in the database.
+     * @param {GenerationRecordUpdateManyAndReturnArgs} args - Arguments to update many GenerationRecords.
+     * @example
+     * // Update many GenerationRecords
+     * const generationRecord = await prisma.generationRecord.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GenerationRecords and only return the `id`
+     * const generationRecordWithIdOnly = await prisma.generationRecord.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GenerationRecordUpdateManyAndReturnArgs>(args: SelectSubset<T, GenerationRecordUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GenerationRecord.
+     * @param {GenerationRecordUpsertArgs} args - Arguments to update or create a GenerationRecord.
+     * @example
+     * // Update or create a GenerationRecord
+     * const generationRecord = await prisma.generationRecord.upsert({
+     *   create: {
+     *     // ... data to create a GenerationRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GenerationRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GenerationRecordUpsertArgs>(args: SelectSubset<T, GenerationRecordUpsertArgs<ExtArgs>>): Prisma__GenerationRecordClient<$Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GenerationRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordCountArgs} args - Arguments to filter GenerationRecords to count.
+     * @example
+     * // Count the number of GenerationRecords
+     * const count = await prisma.generationRecord.count({
+     *   where: {
+     *     // ... the filter for the GenerationRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends GenerationRecordCountArgs>(
+      args?: Subset<T, GenerationRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GenerationRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GenerationRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GenerationRecordAggregateArgs>(args: Subset<T, GenerationRecordAggregateArgs>): Prisma.PrismaPromise<GetGenerationRecordAggregateType<T>>
+
+    /**
+     * Group by GenerationRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GenerationRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GenerationRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GenerationRecordGroupByArgs['orderBy'] }
+        : { orderBy?: GenerationRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GenerationRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGenerationRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GenerationRecord model
+   */
+  readonly fields: GenerationRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GenerationRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GenerationRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GenerationRecord model
+   */
+  interface GenerationRecordFieldRefs {
+    readonly id: FieldRef<"GenerationRecord", 'String'>
+    readonly payloadHash: FieldRef<"GenerationRecord", 'String'>
+    readonly letterId: FieldRef<"GenerationRecord", 'String'>
+    readonly fileUrl: FieldRef<"GenerationRecord", 'String'>
+    readonly timestamp: FieldRef<"GenerationRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GenerationRecord findUnique
+   */
+  export type GenerationRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter, which GenerationRecord to fetch.
+     */
+    where: GenerationRecordWhereUniqueInput
+  }
+
+  /**
+   * GenerationRecord findUniqueOrThrow
+   */
+  export type GenerationRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter, which GenerationRecord to fetch.
+     */
+    where: GenerationRecordWhereUniqueInput
+  }
+
+  /**
+   * GenerationRecord findFirst
+   */
+  export type GenerationRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter, which GenerationRecord to fetch.
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationRecords to fetch.
+     */
+    orderBy?: GenerationRecordOrderByWithRelationInput | GenerationRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GenerationRecords.
+     */
+    cursor?: GenerationRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GenerationRecords.
+     */
+    distinct?: GenerationRecordScalarFieldEnum | GenerationRecordScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationRecord findFirstOrThrow
+   */
+  export type GenerationRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter, which GenerationRecord to fetch.
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationRecords to fetch.
+     */
+    orderBy?: GenerationRecordOrderByWithRelationInput | GenerationRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GenerationRecords.
+     */
+    cursor?: GenerationRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GenerationRecords.
+     */
+    distinct?: GenerationRecordScalarFieldEnum | GenerationRecordScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationRecord findMany
+   */
+  export type GenerationRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter, which GenerationRecords to fetch.
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GenerationRecords to fetch.
+     */
+    orderBy?: GenerationRecordOrderByWithRelationInput | GenerationRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GenerationRecords.
+     */
+    cursor?: GenerationRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GenerationRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GenerationRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GenerationRecords.
+     */
+    distinct?: GenerationRecordScalarFieldEnum | GenerationRecordScalarFieldEnum[]
+  }
+
+  /**
+   * GenerationRecord create
+   */
+  export type GenerationRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * The data needed to create a GenerationRecord.
+     */
+    data: XOR<GenerationRecordCreateInput, GenerationRecordUncheckedCreateInput>
+  }
+
+  /**
+   * GenerationRecord createMany
+   */
+  export type GenerationRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GenerationRecords.
+     */
+    data: GenerationRecordCreateManyInput | GenerationRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GenerationRecord createManyAndReturn
+   */
+  export type GenerationRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * The data used to create many GenerationRecords.
+     */
+    data: GenerationRecordCreateManyInput | GenerationRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GenerationRecord update
+   */
+  export type GenerationRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * The data needed to update a GenerationRecord.
+     */
+    data: XOR<GenerationRecordUpdateInput, GenerationRecordUncheckedUpdateInput>
+    /**
+     * Choose, which GenerationRecord to update.
+     */
+    where: GenerationRecordWhereUniqueInput
+  }
+
+  /**
+   * GenerationRecord updateMany
+   */
+  export type GenerationRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GenerationRecords.
+     */
+    data: XOR<GenerationRecordUpdateManyMutationInput, GenerationRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which GenerationRecords to update
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * Limit how many GenerationRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GenerationRecord updateManyAndReturn
+   */
+  export type GenerationRecordUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * The data used to update GenerationRecords.
+     */
+    data: XOR<GenerationRecordUpdateManyMutationInput, GenerationRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which GenerationRecords to update
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * Limit how many GenerationRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GenerationRecord upsert
+   */
+  export type GenerationRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * The filter to search for the GenerationRecord to update in case it exists.
+     */
+    where: GenerationRecordWhereUniqueInput
+    /**
+     * In case the GenerationRecord found by the `where` argument doesn't exist, create a new GenerationRecord with this data.
+     */
+    create: XOR<GenerationRecordCreateInput, GenerationRecordUncheckedCreateInput>
+    /**
+     * In case the GenerationRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GenerationRecordUpdateInput, GenerationRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * GenerationRecord delete
+   */
+  export type GenerationRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+    /**
+     * Filter which GenerationRecord to delete.
+     */
+    where: GenerationRecordWhereUniqueInput
+  }
+
+  /**
+   * GenerationRecord deleteMany
+   */
+  export type GenerationRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GenerationRecords to delete
+     */
+    where?: GenerationRecordWhereInput
+    /**
+     * Limit how many GenerationRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GenerationRecord without action
+   */
+  export type GenerationRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GenerationRecord
+     */
+    select?: GenerationRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GenerationRecord
+     */
+    omit?: GenerationRecordOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -89529,6 +90620,17 @@ export namespace Prisma {
   };
 
   export type BranchVisitScalarFieldEnum = (typeof BranchVisitScalarFieldEnum)[keyof typeof BranchVisitScalarFieldEnum]
+
+
+  export const GenerationRecordScalarFieldEnum: {
+    id: 'id',
+    payloadHash: 'payloadHash',
+    letterId: 'letterId',
+    fileUrl: 'fileUrl',
+    timestamp: 'timestamp'
+  };
+
+  export type GenerationRecordScalarFieldEnum = (typeof GenerationRecordScalarFieldEnum)[keyof typeof GenerationRecordScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -95421,6 +96523,58 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"BranchVisit"> | Date | string
     letterIssued?: BoolWithAggregatesFilter<"BranchVisit"> | boolean
     observations?: StringNullableWithAggregatesFilter<"BranchVisit"> | string | null
+  }
+
+  export type GenerationRecordWhereInput = {
+    AND?: GenerationRecordWhereInput | GenerationRecordWhereInput[]
+    OR?: GenerationRecordWhereInput[]
+    NOT?: GenerationRecordWhereInput | GenerationRecordWhereInput[]
+    id?: StringFilter<"GenerationRecord"> | string
+    payloadHash?: StringFilter<"GenerationRecord"> | string
+    letterId?: StringFilter<"GenerationRecord"> | string
+    fileUrl?: StringFilter<"GenerationRecord"> | string
+    timestamp?: DateTimeFilter<"GenerationRecord"> | Date | string
+  }
+
+  export type GenerationRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    payloadHash?: SortOrder
+    letterId?: SortOrder
+    fileUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type GenerationRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    payloadHash?: string
+    AND?: GenerationRecordWhereInput | GenerationRecordWhereInput[]
+    OR?: GenerationRecordWhereInput[]
+    NOT?: GenerationRecordWhereInput | GenerationRecordWhereInput[]
+    letterId?: StringFilter<"GenerationRecord"> | string
+    fileUrl?: StringFilter<"GenerationRecord"> | string
+    timestamp?: DateTimeFilter<"GenerationRecord"> | Date | string
+  }, "id" | "payloadHash">
+
+  export type GenerationRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    payloadHash?: SortOrder
+    letterId?: SortOrder
+    fileUrl?: SortOrder
+    timestamp?: SortOrder
+    _count?: GenerationRecordCountOrderByAggregateInput
+    _max?: GenerationRecordMaxOrderByAggregateInput
+    _min?: GenerationRecordMinOrderByAggregateInput
+  }
+
+  export type GenerationRecordScalarWhereWithAggregatesInput = {
+    AND?: GenerationRecordScalarWhereWithAggregatesInput | GenerationRecordScalarWhereWithAggregatesInput[]
+    OR?: GenerationRecordScalarWhereWithAggregatesInput[]
+    NOT?: GenerationRecordScalarWhereWithAggregatesInput | GenerationRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GenerationRecord"> | string
+    payloadHash?: StringWithAggregatesFilter<"GenerationRecord"> | string
+    letterId?: StringWithAggregatesFilter<"GenerationRecord"> | string
+    fileUrl?: StringWithAggregatesFilter<"GenerationRecord"> | string
+    timestamp?: DateTimeWithAggregatesFilter<"GenerationRecord"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -101834,6 +102988,62 @@ export namespace Prisma {
     observations?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type GenerationRecordCreateInput = {
+    id?: string
+    payloadHash: string
+    letterId: string
+    fileUrl: string
+    timestamp?: Date | string
+  }
+
+  export type GenerationRecordUncheckedCreateInput = {
+    id?: string
+    payloadHash: string
+    letterId: string
+    fileUrl: string
+    timestamp?: Date | string
+  }
+
+  export type GenerationRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    letterId?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    letterId?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationRecordCreateManyInput = {
+    id?: string
+    payloadHash: string
+    letterId: string
+    fileUrl: string
+    timestamp?: Date | string
+  }
+
+  export type GenerationRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    letterId?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GenerationRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    letterId?: StringFieldUpdateOperationsInput | string
+    fileUrl?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -105794,6 +107004,30 @@ export namespace Prisma {
     updatedAt?: SortOrder
     letterIssued?: SortOrder
     observations?: SortOrder
+  }
+
+  export type GenerationRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    payloadHash?: SortOrder
+    letterId?: SortOrder
+    fileUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type GenerationRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    payloadHash?: SortOrder
+    letterId?: SortOrder
+    fileUrl?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type GenerationRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    payloadHash?: SortOrder
+    letterId?: SortOrder
+    fileUrl?: SortOrder
+    timestamp?: SortOrder
   }
 
   export type BranchRequestCreateNestedManyWithoutUserInput = {

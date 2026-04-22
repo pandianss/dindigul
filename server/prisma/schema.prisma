@@ -727,6 +727,7 @@ model MisInformationPanel {
   val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 4)
   val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 4)
   snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  registry          MisParameterRegistry @relation(fields: [parameter], references: [parameterName])
 
   @@map("mis_information_panels")
 }
@@ -1189,4 +1190,16 @@ model BranchVisit {
   visitor         User     @relation(fields: [visitorId], references: [id])
 
   @@map("branch_visits")
+}
+
+model GenerationRecord {
+  id           String   @id @default(uuid())
+  payloadHash  String   @unique
+  letterId     String
+  fileUrl      String
+  timestamp    DateTime @default(now())
+  
+  @@index([payloadHash])
+  @@index([letterId])
+  @@map("generation_records")
 }

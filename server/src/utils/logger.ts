@@ -1,27 +1,49 @@
 /**
- * Centrialized logging utility for the Dindigul server.
- * This ensures consistent log formats and allows for easy integration 
- * with external logging services in the future.
+ * Production-grade Structured Logger.
+ * Ensures auditability and high observability via JSON-compatible output.
  */
 
-type LogArgs = any[];
-
 export const logger = {
-    info: (message: string, ...args: LogArgs) => {
-        console.log(`[INFO] [${new Date().toISOString()}] ${message}`, ...args);
+    info: (event: string, metadata: Record<string, any> = {}) => {
+        const log = {
+            level: 'INFO',
+            timestamp: new Date().toISOString(),
+            event,
+            ...metadata
+        };
+        console.log(JSON.stringify(log));
     },
     
-    error: (message: string, error?: any, ...args: LogArgs) => {
-        console.error(`[ERROR] [${new Date().toISOString()}] ${message}`, error || '', ...args);
+    error: (event: string, error?: Error | string, metadata: Record<string, any> = {}) => {
+        const log = {
+            level: 'ERROR',
+            timestamp: new Date().toISOString(),
+            event,
+            error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+            ...metadata
+        };
+        console.error(JSON.stringify(log));
     },
     
-    warn: (message: string, ...args: LogArgs) => {
-        console.warn(`[WARN] [${new Date().toISOString()}] ${message}`, ...args);
+    warn: (event: string, metadata: Record<string, any> = {}) => {
+        const log = {
+            level: 'WARN',
+            timestamp: new Date().toISOString(),
+            event,
+            ...metadata
+        };
+        console.warn(JSON.stringify(log));
     },
     
-    debug: (message: string, ...args: LogArgs) => {
+    debug: (event: string, metadata: Record<string, any> = {}) => {
         if (process.env.NODE_ENV !== 'production') {
-            console.debug(`[DEBUG] [${new Date().toISOString()}] ${message}`, ...args);
+            const log = {
+                level: 'DEBUG',
+                timestamp: new Date().toISOString(),
+                event,
+                ...metadata
+            };
+            console.debug(JSON.stringify(log));
         }
     }
 };

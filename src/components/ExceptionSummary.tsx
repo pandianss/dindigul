@@ -46,7 +46,7 @@ const ExceptionSummary: React.FC<ExceptionSummaryProps> = ({ selectedDate, onSel
             const res = await axios.get(`${API_URL}/mis/exception-summary?date=${selectedDate}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setSummary(res.data);
+            setSummary(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Failed to fetch exception summary:', err);
         } finally {

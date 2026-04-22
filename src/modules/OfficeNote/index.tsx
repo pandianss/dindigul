@@ -41,6 +41,8 @@ const OfficeNoteManager: React.FC = () => {
     const [formData, setFormData] = useState<OfficeNoteFormState>(INITIAL_FORM);
     const [selectedDept, setSelectedDept] = useState<string>('');
     const [initiators, setInitiators] = useState<any[]>([]);
+    const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
+    const [availableApprovers, setAvailableApprovers] = useState<any[]>([]);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summaryConfig, setSummaryConfig] = useState({ period: 'weekly', date: format(new Date(), 'yyyy-MM-dd') });
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -66,16 +68,16 @@ const OfficeNoteManager: React.FC = () => {
             .catch(err => console.error('Error fetching departments'));
     }, []);
 
-    const fetchInitiators = useCallback(() => {
-        api.get('/office-notes/initiators')
-            .then((res: any) => setInitiators(res.data))
-            .catch(err => console.error('Error fetching initiators'));
+    const fetchSignatoryOptions = useCallback(() => {
+        api.get('/office-notes/initiators').then((res: any) => setInitiators(res.data)).catch(e => console.error(e));
+        api.get('/office-notes/reviewers').then((res: any) => setAvailableReviewers(res.data)).catch(e => console.error(e));
+        api.get('/office-notes/approvers').then((res: any) => setAvailableApprovers(res.data)).catch(e => console.error(e));
     }, []);
 
     useEffect(() => {
         fetchNotes();
         fetchDepartments();
-        fetchInitiators();
+        fetchSignatoryOptions();
         const user = authUser || {} as any;
         if (user.department?.nameEn) {
             setSelectedDept(user.department.nameEn);
@@ -84,7 +86,7 @@ const OfficeNoteManager: React.FC = () => {
         if (!editingId && !formData.preparerId) {
             setFormData(prev => ({ ...prev, preparerId: user.id }));
         }
-    }, [authUser, editingId, fetchNotes, fetchDepartments, fetchInitiators, formData.preparerId]);
+    }, [authUser, editingId, fetchNotes, fetchDepartments, fetchSignatoryOptions, formData.preparerId]);
 
     // Suggest reference when department or date changes
     useEffect(() => {
@@ -196,7 +198,9 @@ const OfficeNoteManager: React.FC = () => {
             deptName: initialDept,
             referenceNo: note.referenceNo || '',
             contentJson: content,
-            preparerId: note.preparerId
+            preparerId: note.preparerId,
+            approverId: note.approverId || '',
+            reviewerIds: content.reviewerIds || []
         });
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -451,6 +455,50 @@ const OfficeNoteManager: React.FC = () => {
                             </div>
                         </div>
 
+                        <div className="bg-bank-teal/5 p-8 rounded-3xl border-2 border-bank-teal/10 shadow-sm space-y-6">
+                            <div className="flex items-center space-x-3 mb-2">
+                                <Award className="text-bank-teal" size={24} />
+                                <h4 className="text-lg font-bold text-bank-navy">Signatory & Workflow Management</h4>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Workflow Reviewers</label>
+                                    <select 
+                                        multiple
+                                        className="w-full px-5 py-4 border-2 border-white rounded-2xl font-bold bg-white focus:border-bank-teal h-40 shadow-sm transition-all focus:ring-4 focus:ring-bank-teal/10"
+                                        value={formData.reviewerIds}
+                                        onChange={(e) => {
+                                            const values = Array.from(e.target.selectedOptions, option => option.value);
+                                            setFormData({ ...formData, reviewerIds: values });
+                                        }}
+                                    >
+                                        {availableReviewers.length > 0 ? availableReviewers.map(u => (
+                                            <option key={u.id} value={u.id}>{u.fullNameEn} — {u.designation?.nameEn || u.designationEn}</option>
+                                        )) : <option disabled>Loading or no reviewers available...</option>}
+                                    </select>
+                                    <div className="flex items-center space-x-2 mt-3 text-bank-navy/60">
+                                        <AlertTriangle size={14} className="text-orange-500" />
+                                        <p className="text-[10px] font-bold italic">Hold Ctrl/Cmd to select multiple reviewers (Chief Managers)</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Final Approving Authority</label>
+                                    <select 
+                                        className="w-full px-5 py-5 border-2 border-white rounded-2xl font-bold bg-white focus:border-bank-teal shadow-sm transition-all focus:ring-4 focus:ring-bank-teal/10"
+                                        value={formData.approverId}
+                                        onChange={(e) => setFormData({ ...formData, approverId: e.target.value })}
+                                    >
+                                        <option value="">Select Approving Authority (RM/AGM/DGM)</option>
+                                        {availableApprovers.map(u => (
+                                            <option key={u.id} value={u.id}>{u.fullNameEn} — {u.designation?.nameEn || u.designationEn}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-[10px] text-gray-400 mt-3 font-medium italic pl-1">Approver will be placed in the final signature block.</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Subject (English)</label>
@@ -471,6 +519,8 @@ const OfficeNoteManager: React.FC = () => {
                                 />
                             </div>
                         </div>
+
+
 
                         {/* Sub-form Injection */}
                         <div className="mt-8 transition-all">
