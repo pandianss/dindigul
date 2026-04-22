@@ -11,9 +11,10 @@ import {
     endOfYear,
     isBefore
 } from 'date-fns';
+import prisma from '../lib/prisma';
 
 export interface Holiday {
-    date: Date;
+    date: Date | string;
     type: string;
 }
 
@@ -23,7 +24,10 @@ export interface Holiday {
 export const isWorkingDay = (date: Date, holidays: Holiday[]): boolean => {
     // Check custom holiday list first for overrides
     const dateStr = format(date, 'yyyy-MM-dd');
-    const holiday = holidays.find(h => format(h.date, 'yyyy-MM-dd') === dateStr);
+    const holiday = holidays.find(h => {
+        const hDate = typeof h.date === 'string' ? h.date : format(h.date, 'yyyy-MM-dd');
+        return hDate === dateStr;
+    });
 
     if (holiday) {
         if (holiday.type === 'WORKING_DAY') return true;
@@ -50,7 +54,10 @@ export const isWorkingDay = (date: Date, holidays: Holiday[]): boolean => {
  */
 export const getWorkingDayWeight = (date: Date, holidays: Holiday[]): number => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const holiday = holidays.find(h => format(h.date, 'yyyy-MM-dd') === dateStr);
+    const holiday = holidays.find(h => {
+        const hDate = typeof h.date === 'string' ? h.date : format(h.date, 'yyyy-MM-dd');
+        return hDate === dateStr;
+    });
 
     if (holiday) {
         if (holiday.type === 'WORKING_DAY') return 1;
@@ -136,4 +143,75 @@ export function getFYMetrics(date: Date = new Date(), holidays: Holiday[] = []):
         monthPct: Math.round((elapsedMonthWD / totalMonthWD) * 100),
         daysToFYEnd: Math.max(0, Math.floor((end.getTime() - d.getTime()) / 86400000))
     };
+}
+
+/**
+ * Synchronizes a single date's working status in CalendarMaster based on Holiday table and default rules.
+ */
+export async function syncCalendarDay(date: Date) {
+    const startOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    const endOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59));
+
+    // 1. Get all holiday entries for this date
+    const holidays = await prisma.holiday.findMany({
+        where: {
+            date: {
+                gte: startOfDay,
+                lte: endOfDay
+            }
+        }
+    });
+
+    // 2. Determine working status
+    let working = true;
+    let holidayFlag = false;
+
+    if (holidays.length > 0) {
+        holidayFlag = true;
+        // Priority logic: If any entry says it's a working day, it is. Otherwise if any entry says non-working, it's a holiday.
+        const hasWorkingOverride = holidays.some(h => h.type === 'WORKING_DAY' || h.type === 'HALF_DAY');
+        if (hasWorkingOverride) {
+            working = true;
+        } else {
+            working = false;
+        }
+    } else {
+        // Use default rules
+        working = isWorkingDay(date, []); // Passing empty array to use defaults (Sunday / Sat rules)
+        holidayFlag = !working;
+    }
+
+    // 3. Update CalendarMaster
+    const fy = getFYBoundaries(date);
+    const monthKey = format(date, 'yyyy-MM');
+
+    await prisma.calendarMaster.upsert({
+        where: { calDate: startOfDay },
+        update: {
+            isWorkingDay: working,
+            holidayFlag,
+            monthKey,
+            financialPeriod: fy.label
+        },
+        create: {
+            calDate: startOfDay,
+            isWorkingDay: working,
+            holidayFlag,
+            monthKey,
+            financialPeriod: fy.label
+        }
+    });
+}
+
+/**
+ * Synchronizes the entire financial year's calendar status.
+ * Useful for bulk updates or ensuring data integrity.
+ */
+export async function syncFullCalendar() {
+    const { start, end } = getFYBoundaries(new Date());
+    const days = eachDayOfInterval({ start, end });
+    
+    for (const day of days) {
+        await syncCalendarDay(day);
+    }
 }

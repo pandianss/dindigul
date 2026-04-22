@@ -10,11 +10,11 @@ import { ThemeProvider } from './components/ThemeProvider';
 const PortalLanding = lazy(() => import('./modules/PortalLanding'));
 const NoticeBoard = lazy(() => import('./modules/NoticeBoard'));
 const BusinessSnapshot = lazy(() => import('./modules/BusinessSnapshot'));
-const OfficeNoteManager = lazy(() => import('./modules/OfficeNoteManager'));
-const SettingsManager = lazy(() => import('./modules/SettingsManager'));
+const OfficeNoteManager = lazy(() => import('./modules/OfficeNote'));
+const SettingsManager = lazy(() => import('./modules/Settings'));
 const Dashboard = lazy(() => import('./modules/Dashboard'));
 const GuestLanding = lazy(() => import('./modules/GuestLanding'));
-const PlanningAnalytics = lazy(() => import('./modules/PlanningAnalytics'));
+const AccountAnalytics = lazy(() => import('./modules/AccountAnalytics'));
 const ExpenditureManager = lazy(() => import('./modules/ExpenditureManager'));
 const MagazineGenerator = lazy(() => import('./modules/MagazineGenerator'));
 const RequestManager = lazy(() => import('./modules/RequestManager'));
@@ -24,7 +24,7 @@ const Campaigns = lazy(() => import('./modules/CampaignSystem'));
 const DepartmentManuals = lazy(() => import('./modules/DepartmentManuals'));
 const ReturnsManager = lazy(() => import('./modules/ReturnsManager'));
 const MeetingHub = lazy(() => import('./modules/MeetingHub'));
-
+const LetterComposer = lazy(() => import('./modules/LetterComposer'));
 
 // Loading fallback component
 const ModuleLoader = () => (
@@ -90,7 +90,6 @@ function App() {
     }
 
     const renderModule = () => {
-
         switch (activeView) {
             case 'dashboard':
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Dashboard onNav={setActiveView} /></Suspense></ErrorBoundary>;
@@ -114,8 +113,8 @@ function App() {
                 return <ErrorBoundary><Suspense fallback={<ModuleLoader />}><MagazineGenerator /></Suspense></ErrorBoundary>;
             case 'requests':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><RequestManager /></Suspense></ErrorBoundary> : null;
-            case 'planning':
-                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><PlanningAnalytics /></Suspense></ErrorBoundary> : null;
+            case 'account-analytics':
+                return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><AccountAnalytics /></Suspense></ErrorBoundary> : null;
             case 'campaigns':
                 return portalMode === 'region' ? <ErrorBoundary><Suspense fallback={<ModuleLoader />}><Campaigns /></Suspense></ErrorBoundary> : null;
             case 'returns':

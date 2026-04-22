@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useAuth } from '../context/AuthContext';
-import ChatPanel from '../ui/chat/ChatPanel';
+import ChatPanel from '../modules/Chat/ChatPanel';
 
 interface SidebarItemProps {
     icon: React.ElementType;
@@ -95,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({
             items: [
                 { icon: LayoutDashboard, label: t('nav.dashboard'), key: 'dashboard' },
                 { icon: BarChart3, label: t('nav.mis'), key: 'mis', restricted: true },
-                { icon: BarChart3, label: t('nav.planning') || 'Planning Analytics', key: 'planning', restricted: true },
+                { icon: BarChart3, label: t('nav.planning') || 'CASA Hub', key: 'account-analytics', restricted: true },
                 { icon: Flag, label: t('nav.campaigns') || 'Campaigns', key: 'campaigns', restricted: true },
                 { icon: ClipboardCheck, label: t('nav.returns') || 'Regional Returns', key: 'returns', restricted: true },
                 { icon: Users, label: t('nav.meetings') || 'Meeting Hub', key: 'meetings', restricted: true },

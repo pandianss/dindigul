@@ -244,7 +244,6 @@ exports.Prisma.LetterScalarFieldEnum = {
   titleTa: 'titleTa',
   contentTa: 'contentTa',
   branchId: 'branchId',
-  parameterId: 'parameterId',
   valueAtTime: 'valueAtTime',
   budgetAtTime: 'budgetAtTime',
   period: 'period',
@@ -341,27 +340,6 @@ exports.Prisma.HolidayScalarFieldEnum = {
   description: 'description',
   createdAt: 'createdAt',
   venue: 'venue'
-};
-
-exports.Prisma.ParameterScalarFieldEnum = {
-  id: 'id',
-  code: 'code',
-  nameEn: 'nameEn',
-  nameTa: 'nameTa',
-  nameHi: 'nameHi',
-  category: 'category',
-  unit: 'unit'
-};
-
-exports.Prisma.SnapshotScalarFieldEnum = {
-  id: 'id',
-  date: 'date',
-  parameterId: 'parameterId',
-  branchId: 'branchId',
-  value: 'value',
-  budget: 'budget',
-  status: 'status',
-  createdAt: 'createdAt'
 };
 
 exports.Prisma.NoticeScalarFieldEnum = {
@@ -729,29 +707,6 @@ exports.Prisma.CalendarMasterScalarFieldEnum = {
   financialPeriod: 'financialPeriod'
 };
 
-exports.Prisma.FactSbDailyBranchScalarFieldEnum = {
-  id: 'id',
-  solId: 'solId',
-  openDay: 'openDay',
-  netSbOpened: 'netSbOpened',
-  workingDayFlag: 'workingDayFlag',
-  qualifiedCount: 'qualifiedCount',
-  dataQualityFlag: 'dataQualityFlag',
-  createdAt: 'createdAt',
-  sbClosed: 'sbClosed'
-};
-
-exports.Prisma.FactCdMonthlyBranchScalarFieldEnum = {
-  id: 'id',
-  solId: 'solId',
-  monthKey: 'monthKey',
-  netCdOpened: 'netCdOpened',
-  qualifiedCount: 'qualifiedCount',
-  dataQualityFlag: 'dataQualityFlag',
-  createdAt: 'createdAt',
-  cdClosed: 'cdClosed'
-};
-
 exports.Prisma.ProductAdoptionSchemeScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -895,7 +850,8 @@ exports.Prisma.MeetingScalarFieldEnum = {
   minutesJson: 'minutesJson',
   signatories: 'signatories',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  title: 'title'
 };
 
 exports.Prisma.ActionPointScalarFieldEnum = {
@@ -1094,8 +1050,6 @@ exports.Prisma.ModelName = {
   Comment: 'Comment',
   Photo: 'Photo',
   Holiday: 'Holiday',
-  Parameter: 'Parameter',
-  Snapshot: 'Snapshot',
   Notice: 'Notice',
   NoticeAck: 'NoticeAck',
   StationeryItem: 'StationeryItem',
@@ -1125,8 +1079,6 @@ exports.Prisma.ModelName = {
   AccountOpening: 'AccountOpening',
   AccountClosure: 'AccountClosure',
   CalendarMaster: 'CalendarMaster',
-  FactSbDailyBranch: 'FactSbDailyBranch',
-  FactCdMonthlyBranch: 'FactCdMonthlyBranch',
   ProductAdoptionScheme: 'ProductAdoptionScheme',
   SystemConfig: 'SystemConfig',
   Notification: 'Notification',

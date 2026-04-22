@@ -141,7 +141,8 @@ export function imageToBase64(assetRelPath: string): string {
 const templateCache: Record<string, handlebars.TemplateDelegate> = {};
 
 export async function renderTemplate(templateName: string, data: any): Promise<string> {
-    if (templateCache[templateName]) return templateCache[templateName](data);
+    // Cache disabled for iterative development to ensure template changes reflect immediately
+    // if (templateCache[templateName]) return templateCache[templateName](data);
 
     const pathsToTry = [
         path.join(SERVER_DIR, 'src', 'templates', `${templateName}.hbs`),
@@ -241,9 +242,9 @@ export async function getRegionalOfficeData() {
         bankNameEn: orgConfig?.bankNameEn || 'Indian Overseas Bank',
         bankNameHi: orgConfig?.bankNameHi || 'इंडियन ओवरसीज बैंक',
         bankNameTa: orgConfig?.bankNameTa || 'இந்தியன் ஓவர்சீஸ் வங்கி',
-        officeNameEn: ro?.nameEn || 'Regional Office, Dindigul',
-        officeNameHi: ro?.nameHi || 'क्षेत्रीय कार्यालय, डिंडीगुल',
-        officeNameTa: ro?.nameTa || 'மண்டல அலுவலகம், திண்டுக்கல்',
+        officeNameEn: ro?.nameEn || 'Dindigul',
+        officeNameHi: ro?.nameHi || 'डिंडीगुल',
+        officeNameTa: ro?.nameTa || 'திண்டுக்கல்',
         addressEn: ro?.address || '',
         addressHi: ro?.addressHi || '',
         addressTa: ro?.addressTa || '',
@@ -265,6 +266,7 @@ export interface PremiumLayoutData {
     date: string;
     refNo?: string;
     subTitle?: string;
+    letterCategory?: 'APPRECIATION' | 'EXPLANATION' | string;
     bodyHtml: string;
     watermarkText?: string;
     signatoryName?: string;
@@ -301,6 +303,7 @@ export interface PremiumLayoutData {
     };
     isAdvisory?: boolean;
     isBudget?: boolean;
+    isLetter?: boolean;
     hideHeader?: boolean;
     hideMeta?: boolean;
     hideTitle?: boolean;
@@ -310,536 +313,392 @@ export interface PremiumLayoutData {
     approver?: { name: string, nameTa?: string, nameHi?: string, titleEn: string, titleTa?: string, titleHi?: string };
     orgMeta?: any;
     cashData?: any[];
+    meetingStatus?: 'DRAFT' | 'FINAL';
 }
 
 export function buildPremiumLayout(data: PremiumLayoutData): string {
-    const isAdvisory = data.isAdvisory || false;
-    const org = data.organization || {
-        bankNameEn: 'Indian Overseas Bank',
-        bankNameHi: 'इंडियन ओवरसीज बैंक',
-        bankNameTa: 'இந்தியன் ஓவர்சீஸ் வங்கி',
-        officeNameEn: 'Regional Office, Dindigul',
-        officeNameHi: 'क्षेत्रीय कार्यालय, डिंडीगुल',
-        officeNameTa: 'மண்டல அலுவலகம், திண்டுக்கல்',
-        addressEn: 'Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu',
-        addressHi: 'क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु',
-        addressTa: 'மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு',
-        phone: '+91 451 2420000',
-        email: 'ro.dindigul@bank.com'
-    };
+    try {
+        const isAdvisory = data.isAdvisory || false;
+        const org = data.organization || {
+            bankNameEn: 'Indian Overseas Bank', bankNameHi: 'इंडियन ओवरसीज बैंक', bankNameTa: 'இந்தியன் ஓவர்சீஸ் வங்கி',
+            officeNameEn: 'Regional Office, Dindigul', officeNameHi: 'क्षेत्रीय कार्यालय, डिंडीगुल', officeNameTa: 'மண்டல அலுவலகம், திண்டுக்கல்',
+            addressEn: 'Regional Office, 123 Madurai Road, Dindigul - 624001, Tamil Nadu',
+            addressHi: 'क्षेत्रीय कार्यालय, 123 मदुरै रोड, डिंडीगुल - 624001, तमिलनाडु',
+            addressTa: 'மண்டல அலுவலகம், 123 மதுரை ரோடு, திண்டுக்கல் - 624001, தமிழ்நாடு',
+            phone: '+91 451 2420000', email: 'ro.dindigul@bank.com'
+        };
 
-    const interRegular = fontToBase64('inter-400.ttf');
-    const interBold = fontToBase64('inter-700.ttf');
-    const notoHindi400 = fontToBase64('noto-hindi-400.ttf');
-    const notoHindi700 = fontToBase64('noto-hindi-700.ttf');
-    const notoTamil400 = fontToBase64('noto-tamil-400.ttf');
-    const notoTamil700 = fontToBase64('noto-tamil-700.ttf');
+        const interRegular = fontToBase64('inter-400.ttf') || '';
+        const interBold = fontToBase64('inter-700.ttf') || '';
+        const notoHindi400 = fontToBase64('noto-hindi-400.ttf') || '';
+        const notoHindi700 = fontToBase64('noto-hindi-700.ttf') || '';
+        const notoTamil400 = fontToBase64('noto-tamil-400.ttf') || '';
+        const notoTamil700 = fontToBase64('noto-tamil-700.ttf') || '';
 
-    const emblemSrc = imageToBase64('assets/logo_center.svg');
-    const watermarkSrc = imageToBase64('assets/logo_center.svg');
+        const emblemSrc = imageToBase64('assets/logo_center.svg') || '';
 
-    // Simple Markdown implementation: **Bold**
-    // ONLY apply newline to <br/> if the content doesn't already contain block-level HTML tags
-    const hasHtml = /<(p|div|table|br)/i.test(data.bodyHtml);
-    
-    const htmlContent = data.bodyHtml
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n\n/g, hasHtml ? '\n\n' : '<br/><br/>')
-        .replace(/\n/g, hasHtml ? '\n' : '<br/>');
-    
-    // CASH MANAGEMENT TABLE BLOCK (Handlebars Partial Style)
-    // DISABLED FOR ADVISORY LETTERS (isAdvisory) to avoid redundancy with the body-injected table
-    let cashTableHtml = '';
-    if (!isAdvisory && data.cashData && data.cashData.length > 0) {
-        const fmt = (n: any) => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        cashTableHtml = `
-            <div style="margin:20px 0; page-break-inside: avoid;">
-                <div style="font-weight:700; font-size:12px; margin-bottom:10px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 4px;">CASH MANAGEMENT SUMMARY</div>
-                <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:center;">
-                    <tr style="background:#f1f5f9;font-weight:700;">
-                        <th style="border:1px solid #94a3b8;padding:8px;text-align:left;">PARAMETER</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">${(() => {
-                            const prev = data.orgMeta?.compareDates?.yesterday || data.orgMeta?.previousDate;
-                            if (prev) return formatDate(prev);
-                            const curr = data.orgMeta?.businessDate || data.orgMeta?.date || data.date;
-                            if (curr) {
-                                const d = new Date(curr);
-                                return formatDate(new Date(d.getTime() - 86400000));
-                            }
-                            return 'N/A';
-                        })()}</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">${formatDate(data.orgMeta?.businessDate || data.orgMeta?.date || data.date)}</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">BUDGET / CRL</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">VARIANCE</th>
-                        <th style="border:1px solid #94a3b8;padding:8px;">STATUS</th>
-                    </tr>
-                    ${data.cashData.map((m: any) => {
-                        const val = Number(m.val_current || 0);
-                        const prev = Number(m.val_y_eod || 0);
-                        const budget = Number(m.budget_month || 0);
-                        const varVal = val - budget;
-                        const isExcess = ['CASH_TOTAL', 'CASH_EXCESS'].includes(m.parameter) && val > budget;
-                        const color = isExcess ? '#b91c1c' : '#15803d';
-                        return `
-                        <tr>
-                            <td style="border:1px solid #94a3b8;padding:8px;text-align:left;font-weight:700;">${cleanLabel(m.metadata?.displayName || m.parameter)}</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(prev)} Cr</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;font-weight:700;">₹ ${fmt(val)} Cr</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;">₹ ${fmt(budget)} Cr</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${varVal >= 0 ? '+' : ''}${fmt(varVal)} Cr</td>
-                            <td style="border:1px solid #94a3b8;padding:8px;color:${color};font-weight:700;">${isExcess ? 'BREACH' : 'OK'}</td>
-                        </tr>`;
-                    }).join('')}
-                </table>
-            </div>`;
-    }
-
-    // Perform sanitization to allow custom styling while protecting hyphens in text nodes
-    const sanitizedBody = sanitizeHtmlForPrint(DOMPurify.sanitize(htmlContent, { 
-        ADD_ATTR: ['style', 'cellspacing', 'cellpadding'],
-        ADD_TAGS: ['table', 'tbody', 'tr', 'td', 'span', 'b', 'strong', 'i', 'p', 'br', 'div']
-    }));
-
-    const pdfStyles = `<style>
-        @font-face { font-family:'Inter'; font-weight:400; src:url('data:font/truetype;base64,${interRegular}') format('truetype'); }
-        @font-face { font-family:'Inter'; font-weight:700; src:url('data:font/truetype;base64,${interBold}') format('truetype'); }
-        @font-face { font-family:'NotoHindi'; font-weight:400; src:url('data:font/truetype;base64,${notoHindi400}') format('truetype'); }
-        @font-face { font-family:'NotoHindi'; font-weight:700; src:url('data:font/truetype;base64,${notoHindi700}') format('truetype'); }
-        @font-face { font-family:'NotoTamil'; font-weight:400; src:url('data:font/truetype;base64,${notoTamil400}') format('truetype'); }
-        @font-face { font-family:'NotoTamil'; font-weight:700; src:url('data:font/truetype;base64,${notoTamil700}') format('truetype'); }
-
-        @page { size: A4; margin: 15.5mm 12.7mm; }
-        * { margin: 0; padding: 0; box-sizing: border-box !important; }
-        body { font-family: 'Inter', Arial, sans-serif; font-size: 13px; color: #1e293b; background: white; line-height: 1.5; -webkit-print-color-adjust: exact; }
+        const rawBody = data.bodyHtml || '';
+        const hasHtml = /<(p|div|table|br)/i.test(rawBody);
         
-        .hindi { font-family: 'NotoHindi', sans-serif; line-height: 1.6; }
-        .tamil { font-family: 'NotoTamil', sans-serif; line-height: 1.4; font-size: 10px !important; }
-
-        body { background: #fff; }
-        .page { width: 100%; position: relative; padding: 0; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; pointer-events: none; z-index: -1; }
-        .watermark img { width: 420px; }
-        .content { position: relative; z-index: 1; display: block; ${isAdvisory ? 'padding-top: 15px;' : ''} }
-
-        .header { width: 100%; border-bottom: 0.2pt solid #254aa0 !important; padding-bottom: 8px; margin-bottom: 12px; }
-        .header-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .header-top img { height: 55px; width: 55px; object-fit: contain; }
-        .bank-names { padding-top: 5px; }
-        .bank-names h1 { color: #254aa0; line-height: 1.4; font-weight: 700; font-size: 16.5px; }
-
-        .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #800000; margin-top: 8px; align-items: stretch; }
-        .col { display: flex; flex-direction: column; align-items: center; padding: 0 8px; text-align: center; }
-        .col + .col { border-left: 1px solid rgba(128,0,0,0.15); }
-        .col-name { font-weight: 700; font-size: 10.5px; line-height: 1.4; }
-        .col-name.tamil { font-size: 10.5px !important; }
-        .col-addr.tamil { font-size: 8.8px !important; line-height: 1.3; }
-        .col-addr { font-size: 9.5px; line-height: 1.4; opacity: 0.95; }
-        .col-addr.hindi { font-size: 9.5px; }
-        .col-name.hindi { font-size: 10.5px; }
-
-        .contact-row { display: flex; justify-content: center; gap: 30px; font-size: 12px; font-weight: 700; color: #800000; margin-top: 8px; padding-top: 5px; border-top: 1px solid rgba(128,0,0,0.08); width: 100%; }
-
-        .meta-info { display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: 700; font-size: 12px; width: 100%; }
-        .ref-no { color: #254aa0; }
+        const htmlContent = rawBody
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n\n/g, hasHtml ? '\n\n' : '<br/><br/>')
+            .replace(/\n/g, hasHtml ? '\n' : '<br/>');
         
-        .subject { text-align: center; font-weight: 700; font-size: 18px; text-transform: uppercase; margin: 4px 0; line-height: 1.2; color: black; }
-        
-        .body { font-size: 15.5px; line-height: 1.4; text-align: left; }
-        .body p { margin-bottom: 8px; overflow-wrap: break-word; }
-        .body ul, .body ol { padding-left: 20px; margin-bottom: 10px; }
-        .body li { margin-bottom: 4px; overflow-wrap: break-word; }
-        .body * { word-break: normal; }
-        
-        .body table { width: 100% !important; table-layout: fixed; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
-        .body th, .body td { border: 1px solid #cbd5e1; padding: 3px 6px; vertical-align: top; overflow-wrap: break-word; line-height: 1.25; }
-        .body th { background: #f8fafc; font-weight: 700; color: #254aa0; }
+        // CRITICAL: Allow 'style' tag so meeting minutes CSS works
+        const sanitizedBody = sanitizeHtmlForPrint(DOMPurify.sanitize(htmlContent, { 
+            ADD_ATTR: ['style', 'cellspacing', 'cellpadding'],
+            ADD_TAGS: ['table', 'tbody', 'tr', 'td', 'span', 'b', 'strong', 'i', 'p', 'br', 'div', 'style']
+        }));
 
-        .signatures-container { margin-top: 10px; page-break-inside: avoid; display: block; position: relative; width: 100%; }
-        .sig-row { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
-        .sig-block { width: 240px; text-align: center; position: relative; padding-top: 35px; }
-        .sig-line { border-top: 0.5pt solid #9ca3af; margin-bottom: 4px; }
-        .sig-name { font-weight: 700; color: #254aa0; font-size: 11.5px; margin-bottom: 2px; }
-        .sig-titles { font-size: 10px; line-height: 1.4; color: #1e293b; }
-        .sig-block p { margin: 0 !important; }
-        .sig-block .hindi { font-size: 11.5px !important; line-height: 1.7; }
-        .sig-block .tamil { font-size: 9px !important; }
-        
-        .signing-space { height: 15px; }
-        .dept-seal { position: absolute; width: 155px; height: 155px; opacity: 0.35; pointer-events: none; z-index: 100; transform: rotate(-12deg); filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.1)); }
-        .dept-seal img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1)); }
-        .approved-status { position: absolute; top: -15px; left: 0; right: 0; font-weight: 700; color: #254aa0; font-size: 10.2px; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.3; }
+        const pdfStyles = `<style>
+            @font-face { font-family:'Inter'; font-weight:400; src:url('data:font/truetype;base64,${interRegular}') format('truetype'); }
+            @font-face { font-family:'Inter'; font-weight:700; src:url('data:font/truetype;base64,${interBold}') format('truetype'); }
+            @font-face { font-family:'NotoHindi'; font-weight:400; src:url('data:font/truetype;base64,${notoHindi400}') format('truetype'); }
+            @font-face { font-family:'NotoHindi'; font-weight:700; src:url('data:font/truetype;base64,${notoHindi700}') format('truetype'); }
+            @font-face { font-family:'NotoTamil'; font-weight:400; src:url('data:font/truetype;base64,${notoTamil400}') format('truetype'); }
+            @font-face { font-family:'NotoTamil'; font-weight:700; src:url('data:font/truetype;base64,${notoTamil700}') format('truetype'); }
 
-        .advisory-band { display: none !important; }
-        .advisory-badge { position: absolute; top: 10px; right: 10px; background: #fee2e2; border: 1.5px solid #dc2626; color: #dc2626; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 10px; z-index: 101; }
-        
-        .budget-band { display: none !important; }
-        .budget-badge { position: absolute; top: 10px; right: 10px; background: #eff6ff; border: 1.5px solid #254aa0; color: #254aa0; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 10px; z-index: 101; }
-        
-        .recipient-block { font-size: 14.5px; line-height: 1.6 !important; margin: 0 0 10px 0 !important; color: #1e293b; font-weight: 700; width: 100%; border-collapse: collapse !important; border-spacing: 0 !important; }
-        .recipient-block td { padding: 0 !important; margin: 0 !important; border: none !important; vertical-align: top !important; line-height: 1.6 !important; }
-    </style>`;
+            @page { size: A4; margin: 15.5mm 12.7mm; }
+            * { margin: 0; padding: 0; box-sizing: border-box !important; }
+            body { font-family: 'Inter', Arial, sans-serif; font-size: 13.5px; color: #111827; background: white; line-height: 1.5; -webkit-print-color-adjust: exact; }
+            
+            .content { position: relative; z-index: 1; display: block; ${isAdvisory ? 'padding-top: 5px;' : ''} ${data.isLetter ? 'padding-top: 15px;' : ''} }
+            .header { width: 100%; border-bottom: 1.8pt solid #1e3a8a !important; padding-bottom: 10px; margin-bottom: 15px; }
+            .header-top { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; }
+            .header-top img { height: 82px; width: 82px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+            .bank-names h1 { color: #1e3a8a; line-height: 1.15; font-weight: 900; font-size: 22px; margin: 0; letter-spacing: -0.2px; }
+            .hindi { font-family: 'NotoHindi', sans-serif; font-weight: 800; font-size: 19px; }
+            .tamil { font-family: 'NotoTamil', sans-serif; font-size: 17px; font-weight: 800; }
 
-    const addrEn = org.addressEn.replace('Pensioner Street,', 'Pensioner Street,<br />').replace(',,', ',');
-    const addrHi = org.addressHi.replace('पेंशनर स्ट्रीट,', 'पेंशनर स्ट्रीट,<br />').replace(',,', ',');
-    const addrTa = org.addressTa.replace('பென்ஷனர் தெரு,', 'பென்ஷனர் தெரு,<br />').replace(',,', ',');
-    return `<!DOCTYPE html>
+            .col-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; color: #334155; margin-top: 15px; border-top: 0.8pt solid #e2e8f0; padding-top: 12px; }
+            .col { padding: 0 8px; border-left: 0.8pt solid #e2e8f0; text-align: center; }
+            .col:first-child { border-left: none; padding-left: 0; }
+            .col-name { font-weight: 900; font-size: 11.5px; color: #0f172a; margin-bottom: 6px; text-transform: uppercase; white-space: nowrap; letter-spacing: 0.3px; }
+            .col-addr { font-size: 10px; line-height: 1.45; color: #475569; font-weight: 500; }
+
+            .contact-row { display: flex; justify-content: center; gap: 25px; width: 100%; margin-top: 15px; padding-top: 12px; border-top: 0.5pt dashed #cbd5e1; font-size: 13px; color: #0f172a; }
+            .contact-item { display: flex; items-center: center; gap: 6px; }
+            .contact-label { font-weight: 900; color: #1e3a8a; font-size: 13px; }
+
+            .meta-info { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 800; font-size: 13px; color: #1e293b; padding: 0 2px; }
+            .subject { text-align: center; font-weight: 900; font-size: 18.5px; text-transform: uppercase; margin: 10px 0 15px 0; color: #000; border-bottom: 2pt solid #000; display: block; padding-bottom: 4px; letter-spacing: 0.5px; }
+            
+            .signatures-container { margin-top: 10px; page-break-inside: avoid; width: 100%; border-top: 1pt solid #1e3a8a; padding-top: 15px; }
+            
+            /* Status Seals - High Fidelity Glossy Style */
+            .status-seal-container { position: absolute; top: 25px; right: 25px; width: 85px; height: 85px; z-index: 100; }
+            .status-seal { 
+                width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center; font-weight: 900; color: #fff; font-size: 11px; border: 3px solid rgba(255,255,255,0.7); 
+                box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(0,0,0,0.1); 
+                text-transform: uppercase; line-height: 1.1; border-radius: 50%; outline: 1px solid rgba(0,0,0,0.1);
+            }
+            .seal-appreciation { 
+                background: radial-gradient(circle at 30% 30%, #22c55e, #14532d); 
+                border-color: #fcd34d;
+                box-shadow: 0 0 0 1.5pt #14532d, 0 15px 35px -5px rgba(20, 83, 45, 0.4);
+            }
+            .seal-explanation { 
+                background: radial-gradient(circle at 30% 30%, #ef4444, #7f1d1d);
+                border-color: #fecaca;
+                box-shadow: 0 0 0 1.5pt #7f1d1d, 0 15px 35px -5px rgba(127, 29, 29, 0.4);
+            }
+            .seal-icon { font-size: 28px; margin-bottom: 4px; line-height: 1; display: flex; align-items: center; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+            .seal-text { font-size: 8px; font-weight: 950; letter-spacing: 0.8px; opacity: 1; margin-top: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+            
+            .alert-symbol { width: 5px; height: 20px; background: #fff; border-radius: 4px; position: relative; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .alert-symbol::after { content: ''; position: absolute; bottom: -7px; left: 0; width: 5px; height: 5px; background: #fff; border-radius: 50%; }
+        </style>`;
+
+        const addrEn = (org.addressEn || '').replace('Pensioner Street,', 'Pensioner Street,<br/>');
+        const addrHi = (org.addressHi || '').replace('पेंशनर स्ट्रीट,', 'पेंशनर स्ट्रीट,<br/>');
+        const addrTa = (org.addressTa || '').replace('பென்ஷனர் தெரு,', 'பென்ஷனர் தெரு,<br/>');
+
+        return `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8">
     ${pdfStyles}
 </head>
 <body>
-    <div class="watermark"><img src="${watermarkSrc}" alt=""/></div>
-<div class="page">
-    ${isAdvisory ? '<div class="advisory-band"></div>' : ''}
-    ${isAdvisory ? '<div class="advisory-badge"><span>⚠️</span> RISK ADVISORY</div>' : ''}
-    ${data.isBudget ? '<div class="budget-band"></div>' : ''}
-    ${data.isBudget ? '<div class="budget-badge"><span>📊</span> BUDGET ALLOTMENT</div>' : ''}
-    <div class="content">
-        ${!data.hideHeader ? `
-        <div class="header">
-            <div class="header-top">
-                <img src="${emblemSrc}" alt="Logo"/>
-                <div class="bank-names">
-                    <h1 class="hindi">${org.bankNameHi}</h1>
-                    <h1 class="tamil" style="font-size:13.5px !important;">${org.bankNameTa}</h1>
-                    <h1 style="font-size:17px;">${org.bankNameEn}</h1>
+    <div class="page">
+        <div class="content">
+            ${(data.letterCategory || data.meetingStatus) ? `
+                <div class="status-seal-container">
+                    ${data.letterCategory === 'APPRECIATION' ? `
+                        <div class="status-seal seal-appreciation">
+                            <div class="seal-icon">🏆</div>
+                            <div class="seal-text">EXCELLENCE</div>
+                        </div>
+                    ` : data.letterCategory === 'EXPLANATION' ? `
+                        <div class="status-seal seal-explanation">
+                            <div class="seal-icon"><div class="alert-symbol"></div></div>
+                            <div class="seal-text">ATTN REQD</div>
+                        </div>
+                    ` : data.meetingStatus === 'FINAL' ? `
+                        <div class="status-seal seal-appreciation" style="background: radial-gradient(circle at 30% 30%, #1e3a8a, #1e1b4b); border-color: #cbd5e1;">
+                            <div class="seal-icon">📜</div>
+                            <div class="seal-text">MINUTES FINALIZED</div>
+                        </div>
+                    ` : ''}
                 </div>
-            </div>
-            <div class="col-grid">
-                <div class="col"><p class="col-name hindi">${org.officeNameHi}</p><p class="col-addr hindi">${addrHi}</p></div>
-                <div class="col"><p class="col-name tamil">${org.officeNameTa}</p><p class="col-addr tamil">${addrTa}</p></div>
-                <div class="col"><p class="col-name">${org.officeNameEn}</p><p class="col-addr">${addrEn}</p></div>
-            </div>
-            <div class="contact-row">
-                <span>Phone: ${org.phone}</span>
-                <span>Email: ${org.email}</span>
-            </div>
-        </div>` : ''}
-
-        ${!data.hideMeta ? `
-        <div class="meta-info">
-            <div class="ref-no">${data.refNo ? `Ref No: ${data.refNo}` : ''}</div>
-            <div style="text-align: right; font-weight: 700;">
-                <span class="hindi" style="font-size:12px;">दिनांक</span> / <span class="tamil" style="font-size:9px !important;">தேதி</span> / Date: ${(data as any).orgMeta?.letterDate || data.date}
-            </div>
-        </div>` : ''}
-
-        <div class="body">
-            ${data.recipient ? `
-            <table class="recipient-block" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border-spacing: 0; margin-bottom: 12px;">
-                <tr><td style="line-height:1.6;">To,</td></tr>
-                ${data.recipient.name ? `
-                    <tr><td style="line-height:1.6;">
-                        ${data.recipient.nameHi ? `<span class="hindi" style="font-size:13.5px; line-height:1.6;">${data.recipient.nameHi} / </span>` : ''}
-                        ${data.recipient.nameTa ? `<span class="tamil" style="font-size:11.5px; line-height:1.6;">${data.recipient.nameTa} / </span>` : ''}
-                        <span>${data.recipient.name}</span>
-                    </td></tr>
-                ` : ''}
-                ${data.recipient.designation ? `
-                    <tr><td style="line-height:1.6;">
-                        ${data.recipient.designationHi ? `<span class="hindi" style="font-size:13.5px; line-height:1.6;">${data.recipient.designationHi} / </span>` : ''}
-                        ${data.recipient.designationTa ? `<span class="tamil" style="font-size:11.5px; line-height:1.6;">${data.recipient.designationTa} / </span>` : ''}
-                        <span>${data.recipient.designation}</span>
-                    </td></tr>
-                ` : `<tr><td style="line-height:1.6;">The Branch Manager</td></tr>`}
-                <tr><td style="line-height:1.6;">${data.recipient.bankName || 'Indian Overseas Bank'}</td></tr>
-                <tr><td style="line-height:1.6;">Branch: ${data.recipient.branchName || 'Branch'}</td></tr>
-                <tr><td style="line-height:1.6;">Branch Code: ${data.recipient.branchCode || ''}</td></tr>
-            </table>` : ''}
-
-            ${!data.hideTitle ? `
-            <div class="subject">
-                <p>${data.title}</p>
-                ${data.titleHi ? `<p class="hindi" style="font-size:13.5px; margin-top:2px; color:black;">${data.titleHi}</p>` : ''}
-                ${data.titleTa ? `<p class="tamil" style="font-size:10.5px !important; margin-top:2px; color:black;">${data.titleTa}</p>` : ''}
-                ${data.subTitle ? `<p style="font-size:14px; color:#1e3a5f; margin-top:4px; font-weight:700;">${data.subTitle}</p>` : ''}
-            </div>` : ''}
-
-            ${data.salutation ? `<p style="margin-bottom: 15px; font-weight: 700;">${data.salutation}</p>` : ''}
-
-            ${sanitizedBody}
-
-            ${cashTableHtml}
-        </div>
-
-        ${(data.initiator || data.reviewers || data.approver || data.signatoryName) ? `
-        <div class="signatures-container">
-            ${data.initiator ? `
-            <div class="sig-row">
-                <div class="sig-block preparer">
-                    <div class="signing-space"></div>
-                    <div class="sig-line"></div>
-                    <div class="sig-name">
-                        ${data.initiator.nameHi ? `<span class="hindi">(${data.initiator.nameHi})</span> ` : ''}
-                        ${data.initiator.nameTa ? `<span class="tamil">(${data.initiator.nameTa})</span> ` : ''}
-                        <span>(${data.initiator.name})</span>
-                    </div>
-                    <div class="sig-titles">
-                        ${data.initiator.titleHi ? `<span class="hindi">${data.initiator.titleHi}</span> / ` : ''}
-                        ${data.initiator.titleTa ? `<span class="tamil">${data.initiator.titleTa}</span> / ` : ''}
-                        <span>${data.initiator.titleEn}</span>
+            ` : ''}
+            ${data.hideHeader ? '' : `
+            <div class="header">
+                <div class="header-top">
+                    <img src="${emblemSrc}" alt="Logo"/>
+                    <div class="bank-names">
+                        <h1 class="hindi">${org.bankNameHi}</h1>
+                        <h1 class="tamil">${org.bankNameTa}</h1>
+                        <h1>${org.bankNameEn}</h1>
                     </div>
                 </div>
-                <div style="flex:2"></div>
-            </div>` : ''}
+                <div class="col-grid">
+                    <div class="col">
+                        <div class="col-name hindi">${org.officeNameHi}</div>
+                        <div class="col-addr hindi">${addrHi}</div>
+                    </div>
+                    <div class="col">
+                        <div class="col-name tamil">${org.officeNameTa}</div>
+                        <div class="col-addr tamil">${addrTa}</div>
+                    </div>
+                    <div class="col">
+                        <div class="col-name">${org.officeNameEn}</div>
+                        <div class="col-addr">${addrEn}</div>
+                    </div>
+                </div>
+                <div class="contact-row">
+                    <div class="contact-item"><span class="contact-label">Email:</span> ${org.email}</div>
+                    <div class="contact-item"><span class="contact-label">Phone:</span> ${org.phone}</div>
+                    <div class="contact-item"><span class="contact-label">Website:</span> www.iob.in</div>
+                </div>
+            </div>`}
 
-            <div class="sig-row">
-                ${(data.reviewers && data.reviewers.length > 0) 
-                    ? (data.reviewers || []).map((rev: any) => `
+            <div class="meta-info" style="margin-top: 15px;">
+                <div>Ref No: ${data.refNo || ''}</div>
+                <div>Date: ${data.date || ''}</div>
+            </div>
+
+            <div class="body">
+                ${sanitizedBody}
+            </div>
+
+            ${!data.hideMeta ? `
+            <div class="signatures-container">
+                <div class="sig-row">
+                    ${data.initiator ? `<div class="sig-block">
+                        <div class="sig-titles" style="text-transform:uppercase;margin-bottom:15px;">
+                            <span class="hindi" style="font-size: 8px;">आरंभकर्ता</span> / <span class="tamil" style="font-size: 8px;">தொடங்கியவர்</span> / Initiated By
+                        </div>
+                        <div class="sig-name">Sd/-</div><div class="sig-line"></div>
+                        <div class="sig-name">
+                            <span class="hindi" style="font-size: 10px;">(${data.initiator.nameHi || ''})</span> 
+                            / <span class="tamil" style="font-size: 9px;">(${data.initiator.nameTa || ''})</span> 
+                            <br/>
+                            (${data.initiator.name || ''})
+                        </div>
+                        <div class="sig-titles">
+                            <span class="hindi" style="font-size: 9px;">${data.initiator.titleHi || ''}</span> 
+                            / <span class="tamil" style="font-size: 8px;">${data.initiator.titleTa || ''}</span> 
+                            <br/>
+                            ${data.initiator.titleEn || ''}
+                        </div>
+                    </div>` : ''}
+                    
+                    ${(data.reviewers || []).map(rev => `
                         <div class="sig-block">
-                            <div class="signing-space"></div>
-                            <p style="font-size: 10px; color: #64748b; margin-bottom: 4px;">Sd/-</p>
-                            <div class="sig-line"></div>
+                            <div class="sig-titles" style="text-transform:uppercase;margin-bottom:15px;">
+                                <span class="hindi" style="font-size: 8px;">समीक्षित</span> / <span class="tamil" style="font-size: 8px;">மதிப்பாய்வு செய்யப்பட்டது</span> / Reviewed By
+                            </div>
+                            <div class="sig-name">Sd/-</div><div class="sig-line"></div>
                             <div class="sig-name">
-                                ${rev.nameHi ? `<span class="hindi">(${rev.nameHi})</span> ` : ''}
-                                ${rev.nameTa ? `<span class="tamil">(${rev.nameTa})</span> ` : ''}
-                                <span>(${rev.name})</span>
+                                <span class="hindi" style="font-size: 10px;">(${rev.nameHi || ''})</span> 
+                                / <span class="tamil" style="font-size: 9px;">(${rev.nameTa || ''})</span> 
+                                <br/>
+                                (${rev.name || ''})
                             </div>
                             <div class="sig-titles">
-                                ${rev.titleHi ? `<span class="hindi">${rev.titleHi}</span> / ` : ''}
-                                ${rev.titleTa ? `<span class="tamil">${rev.titleTa}</span> / ` : ''}
-                                <span>${rev.titleEn}</span>
+                                <span class="hindi" style="font-size: 9px;">${rev.titleHi || ''}</span> 
+                                / <span class="tamil" style="font-size: 8px;">${rev.titleTa || ''}</span> 
+                                <br/>
+                                ${rev.titleEn || ''}
                             </div>
-                        </div>`).join('') 
-                    : '<div style="flex:1"></div>'
-                }
+                        </div>`).join('')}
 
-                <div class="sig-block">
-                    ${(data.isBudget || data.hideApprovedStatus) ? '' : `<p class="approved-status"><span class="hindi">अनुमोदित</span> / <span class="tamil">ஒப்புதல் அளிக்கப்பட்டது</span> / Approved</p>`}
-                    <div class="signing-space"></div>
-                    <p style="font-size: 10px; color: #64748b; margin-bottom: 4px;">Sd/-</p>
-                    <div class="sig-line"></div>
-                    <div class="sig-name">
-                        ${(data.approver?.nameHi || data.signatoryNameHi) ? `<span class="hindi">(${data.approver?.nameHi || data.signatoryNameHi})</span> ` : ''}
-                        ${(data.approver?.nameTa || data.signatoryNameTa) ? `<span class="tamil">(${data.approver?.nameTa || data.signatoryNameTa})</span> ` : ''}
-                        <span>(${data.approver?.name || data.signatoryName || '-'})</span>
-                    </div>
-                    <div class="sig-titles">
-                        ${(data.approver?.titleHi || data.signatoryTitleHi) ? `<span class="hindi">${data.approver?.titleHi || data.signatoryTitleHi}</span> / ` : ''}
-                        ${(data.approver?.titleTa || data.signatoryTitleTa) ? `<span class="tamil">${data.approver?.titleTa || data.signatoryTitleTa}</span> / ` : ''}
-                        ${(data.approver?.titleEn || data.signatoryTitleEn) ? `<span>${data.approver?.titleEn || data.signatoryTitleEn}</span>` : ''}
+                    <div class="sig-block">
+                        ${(data.isBudget || data.hideApprovedStatus) ? '' : `<div style="color:#1e3a8a;font-weight:800;font-size:10px;margin-bottom:20px;">अनुमोदित / Approved</div>`}
+                        <div class="sig-name">Sd/-</div><div class="sig-line"></div>
+                        <div class="sig-name">
+                            <span class="hindi" style="font-size: 10px;">(${data.approver?.nameHi || data.signatoryNameHi || ''})</span> 
+                            / <span class="tamil" style="font-size: 9px;">(${data.approver?.nameTa || data.signatoryNameTa || ''})</span> 
+                            <br/>
+                            (${data.approver?.name || data.signatoryName || '-'})
+                        </div>
+                        <div class="sig-titles">
+                            <span class="hindi" style="font-size: 9px;">${data.approver?.titleHi || data.signatoryTitleHi || ''}</span> 
+                            / <span class="tamil" style="font-size: 8px;">${data.approver?.titleTa || data.signatoryTitleTa || ''}</span> 
+                            <br/>
+                            ${data.approver?.titleEn || data.signatoryTitleEn || ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-            ${data.deptSealSrc ? `<div class="dept-seal" style="left: ${(data as any).orgMeta?.sealX || 0}%; top: ${(data as any).orgMeta?.sealY || 30}%;"><img src="${data.deptSealSrc}" alt="Seal"/></div>` : ''}
-        </div>` : ''}
+            </div>` : ''}
+        </div>
     </div>
-</div>
 </body>
 </html>`;
+    } catch (err: any) {
+        console.error('[PDF] buildPremiumLayout CRASH:', err);
+        return `<html><body><h1>Layout Generation Failed</h1><pre>${err.message}</pre></body></html>`;
+    }
 }
 
 export async function getBrowser() {
-    if (_browser && _browser.connected) {
-        return _browser;
-    }
-    
-    console.log(`[Browser] Launching Puppeteer... (Executable: ${process.env.PUPPETEER_EXECUTABLE_PATH || 'default'})`);
-    
-    // Launch a new singleton instance
+    if (_browser && _browser.connected) { return _browser; }
     _browser = await puppeteer.launch({
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
         headless: 'new' as any,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--font-render-hinting=none',
-            '--disable-web-security',
-            '--autoplay-policy=user-gesture-required',
-            '--disable-background-networking',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-breakpad',
-            '--disable-client-side-phishing-detection',
-            '--disable-component-update',
-            '--disable-default-apps',
-            '--disable-domain-reliability',
-            '--disable-extensions',
-            '--disable-features=AudioServiceOutOfProcess',
-            '--disable-hang-monitor',
-            '--disable-ipc-flooding-protection',
-            '--disable-notifications',
-            '--disable-offer-store-unmasked-wallet-cards',
-            '--disable-popup-blocking',
-            '--disable-print-preview',
-            '--disable-prompt-on-repost',
-            '--disable-renderer-backgrounding',
-            '--disable-speech-api',
-            '--disable-sync',
-            '--hide-scrollbars',
-            '--ignore-gpu-blacklist',
-            '--metrics-recording-only',
-            '--mute-audio',
-            '--no-default-browser-check',
-            '--no-first-run',
-            '--no-pings',
-            '--password-store=basic',
-            '--use-gl=swiftshader',
-            '--use-mock-keychain'
-        ],
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--font-render-hinting=none'],
         timeout: 60000
     });
-
-    console.log(`[Browser] Puppeteer launched successfully.`);
-
-    // Cleanup singleton on disconnect
-    _browser.on('disconnected', () => {
-        _browser = null;
-    });
-
     return _browser;
 }
 
 export async function generatePDF(html: string, existingBrowser?: any, refNo?: string): Promise<Buffer> {
     const browser = existingBrowser || await getBrowser();
     let page = null;
-
     try {
         page = await browser.newPage();
-        await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-        // Add timeout to prevent hanging on individual letters
         await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
-        
-        // CRITICAL: Wait for all fonts (Inter, Noto Hindi, Tamil) to be fully rendered 
-        // before capturing the PDF. This fixes "unreadable" or "scrambled" text in Chrome.
         await page.evaluateHandle('document.fonts.ready');
-        
         await page.emulateMediaType('print');
-        
         const pdf = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            displayHeaderFooter: true,
-            headerTemplate: `
-                <div style="font-family: sans-serif; font-size: 9px; width: 100%; margin: 0 12.7mm; padding-top: 5mm; display: flex; justify-content: flex-end; color: #64748b; opacity: 0.6;">
-                    <span>${refNo || ''} &nbsp; | &nbsp; Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
-                </div>`,
-            footerTemplate: '<div style="font-size: 1px;"></div>',
-            preferCSSPageSize: true,
-            margin: {
-                top: '15.5mm',
-                right: '12.7mm',
-                bottom: '15.5mm',
-                left: '12.7mm'
-            }
+            format: 'A4', printBackground: true, displayHeaderFooter: true,
+            headerTemplate: `<div style="font-size:9px;width:100%;text-align:right;margin-right:12.7mm;margin-top:5mm;color:#64748b;">${refNo || ''} | Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>`,
+            footerTemplate: '<div style="font-size:1px;"></div>',
+            margin: { top: '15.5mm', right: '12.7mm', bottom: '15.5mm', left: '12.7mm' }
         });
-
         return Buffer.from(pdf);
     } finally {
         if (page) await page.close();
-        // NEVER close the singleton browser automatically
     }
 }
 
-/**
- * Generates structured HTML for Meeting Minutes (MoM).
- * Features a 5-column table and a 3-per-row signature grid.
- */
 export function buildMeetingMinutesHtml(data: any, roData: any): string {
-    const { committee, dateStr, venue, attendees, minutes, resolvedSignatories } = data;
+    const { committee, title, dateStr, venue, absentees, present, minutes, resolvedSignatories } = data;
     
-    const attendeesList = Array.isArray(attendees) 
-        ? attendees.map((a: any) => typeof a === 'string' ? a : `${a.name} (${a.designation || ''})`).join(', ')
+    // Combine trilingual names for employees
+    const formatStaff = (s: any) => {
+        if (typeof s === 'string') return s;
+        return `${s.nameEn}${s.designationEn ? ` (${s.designationEn})` : ''}`;
+    };
+
+    const absenteesList = Array.isArray(absentees) && absentees.length > 0 
+        ? absentees.map(formatStaff).join('; ') 
         : 'Nil';
 
+    // Linkify Venue
+    const linkify = (text: string) => {
+        if (!text) return '-';
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, (url) => `<a href="${url}" style="color: #1e3a8a; text-decoration: underline; font-weight: 700;">${url}</a>`);
+    };
+
     let minutesHtml = '';
-    if (typeof minutes === 'string') {
-        minutesHtml = minutes;
-    } else if (Array.isArray(minutes)) {
-        minutesHtml = minutes.map((m: any) => `
-            <div style="margin-bottom: 20px;">
-                ${m.content || m.discussion || ''}
+    if (Array.isArray(minutes)) {
+        minutesHtml = minutes.map((m: any, idx: number) => `
+            <div style="margin-bottom: 25px; page-break-inside: avoid;">
+                <div style="font-size: 14px; font-weight: 900; color: #1e3a8a; border-bottom: 1pt solid #e2e8f0; padding-bottom: 5px; margin-bottom: 10px; display: flex;">
+                    <span style="min-width: 25px; color: #64748b;">${idx + 1}.</span>
+                    <span style="text-transform: uppercase; letter-spacing: 0.5px;">${(m.topic || 'General Discussion')}</span>
+                </div>
+                <div style="padding-left: 25px; text-align: justify; line-height: 1.6; font-size: 13px; color: #111827;">
+                    ${(m.content || m.discussion || '').split('\n').filter((p: string) => p.trim()).map((p: string) => `
+                        <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                            <span style="color: #1e3a8a; font-weight: 900; opacity: 0.5;">•</span>
+                            <span>${p.trim()}</span>
+                        </div>
+                    `).join('')}
+                    
+                    ${m.decision ? `<div style="margin-top: 10px; padding: 10px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #10b981;">
+                        <span style="font-weight: 900; color: #064e3b; font-size: 10px; text-transform: uppercase;">Outcome:</span>
+                        <div style="font-size: 12.5px; margin-top: 2px; font-weight: 700;">${m.decision}</div>
+                    </div>` : ''}
+                </div>
             </div>
         `).join('');
+    } else {
+        minutesHtml = `<div style="line-height: 1.7; font-size: 13px;">${typeof minutes === 'string' ? minutes : 'No narrative proceedings recorded.'}</div>`;
     }
 
     const sigRows = [];
-    for (let i = 0; i < resolvedSignatories.length; i += 3) {
-        sigRows.push(resolvedSignatories.slice(i, i + 3));
-    }
+    const sigList = resolvedSignatories || [];
+    for (let i = 0; i < sigList.length; i += 3) { sigRows.push(sigList.slice(i, i + 3)); }
 
     const sigGridHtml = sigRows.map(row => `
-        <div style="display: flex; justify-content: space-between; gap: 40px; margin-bottom: 40px; page-break-inside: avoid;">
-            ${row.map((sig: any) => `
-                <div style="flex: 1; text-align: center;">
-                    <div style="height: 60px; border-bottom: 1px solid #000; margin-bottom: 8px;"></div>
-                    <div style="font-size: 11px; font-weight: 800; color: #000; text-transform: uppercase;">${sig.name}</div>
-                    <div style="font-size: 9px; color: #475569; margin-top: 2px;">${sig.designation || ''}</div>
-                </div>
-            `).join('')}
-            ${row.length < 3 ? `<div style="flex: ${3 - row.length};"></div>` : ''}
-        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; page-break-inside: avoid;">
+            <tr>
+                ${row.map((sig: any) => `
+                    <td style="width: 33.33%; text-align: center; vertical-align: bottom; padding: 15px;">
+                        <div style="height: 45px;"></div>
+                        <div style="border-top: 1.2pt solid #1e3a8a; padding-top: 10px;">
+                            <div style="font-size: 9px; color: #1e3a8a; font-weight: 700; margin-bottom: 4px;">
+                                <span class="hindi" style="font-size: 10px;">(${sig.nameHi || ''})</span> / 
+                                <span class="tamil" style="font-size: 9px;">(${sig.nameTa || ''})</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 800; color: #000; text-transform: uppercase; margin-bottom: 6px;">(${sig.nameEn || 'Signatory'})</div>
+                            
+                            <div style="font-size: 10px; color: #4b5563; line-height: 1.4;">
+                                <div class="hindi" style="font-size: 10px;">${sig.designationHi || ''}</div>
+                                <div class="tamil" style="font-size: 9px; margin: 3px 0;">${sig.designationTa || ''}</div>
+                                <div style="font-weight: 700; text-transform: uppercase; color: #1e3a8a;">${sig.designationEn || 'Official'}</div>
+                            </div>
+                        </div>
+                    </td>
+                `).join('')}
+                ${row.length < 3 ? `<td style="width: ${33.33 * (3 - row.length)}%;"></td>` : ''}
+            </tr>
+        </table>
     `).join('');
 
     return `
-        <style>
-            .mom-container { font-family: 'Century Gothic', 'Futura', sans-serif; color: #09090b; }
-            .mom-header { border-bottom: 2px solid #254aa0; padding-bottom: 15px; margin-bottom: 25px; }
-            .mom-meta-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; font-size: 13px; margin-bottom: 20px; }
-            .mom-meta-item { border-left: 3px solid #254aa0; padding-left: 10px; }
-            
-            .proceedings-container { 
-                margin-top: 25px; 
-                line-height: 1.6; 
-                font-size: 13.5px; 
-                text-align: justify;
-                color: #1e293b;
-            }
-            .proceedings-container p { margin-bottom: 12px; }
-            .proceedings-container ul, .proceedings-container ol { margin-left: 20px; margin-bottom: 15px; }
+        <div style="font-family: 'Inter', sans-serif;">
+            <div style="margin-bottom: 25px; border-bottom: 2pt solid #1e3a8a; padding-bottom: 15px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 60%; vertical-align: top;">
+                            <div style="font-size: 11px; font-weight: 950; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Subject / Proceedings:</div>
+                            <div style="font-size: 18px; font-weight: 900; color: #000; line-height: 1.2;">${(title || 'Meeting Record').toUpperCase()}</div>
+                        </td>
+                        <td style="width: 40%; vertical-align: top; text-align: right; border-left: 1pt solid #e2e8f0; padding-left: 20px;">
+                            <div style="font-size: 12px; font-weight: 800; color: #475569;">
+                                <div>VENUE: <span style="color: #000; font-size: 10px;">${linkify(venue || '')}</span></div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-            .attendees-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin: 15px 0; font-size: 12.5px; }
-        </style>
-
-        <div class="mom-container">
-            <div class="formal-header">
-                <div class="header-content">
-                    <div class="bank-info">
-                        <div class="bank-name-ta">${roData.bankNameTa}</div>
-                        <div class="bank-name-hi">${roData.bankNameHi}</div>
-                        <div class="bank-name-en">${roData.bankNameEn}</div>
-                        <div class="office-info">
-                            ${roData.officeNameEn} / ${roData.officeNameTa}<br>
-                            ${roData.addressEn} | Ph: ${roData.phone}<br>
-                            Email: ${roData.email}
-                        </div>
-                    </div>
-                    <div>
-                        <img src="${imageToBase64('assets/2025_new_logo.svg')}" style="height: 65px;" />
-                    </div>
+            <div style="margin-bottom: 30px; font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                    <span style="font-weight: 900; color: #1e3a8a; text-transform: uppercase;" font-size: 11px;">PARTICIPANTS:</span>
+                    <span style="font-weight: 700; color: #111827; margin-left: 5px;">${present}</span>
                 </div>
+                
+                ${absenteesList !== 'Nil' ? `
+                <div>
+                    <span style="font-weight: 900; color: #991b1b; text-transform: uppercase;" font-size: 11px;">LEAVE OF ABSENCE:</span>
+                    <span style="font-weight: 700; color: #7f1d1d; margin-left: 5px;">${absenteesList}</span>
+                </div>` : ''}
             </div>
 
-            <div class="mom-title-box">
-                <div class="mom-title">MINUTES OF MEETING (PROCEEDINGS)</div>
-                <div class="committee-title">${committee?.nameEn || 'COMMITTEE MEETING'}</div>
-            </div>
-
-            <div class="mom-meta-grid">
-                <div class="meta-item"><strong>DATE:</strong> ${dateStr}</div>
-                <div class="meta-item"><strong>VENUE:</strong> ${venue || 'Regional Office'}</div>
-            </div>
-
-            <div class="attendees-box">
-                <div style="font-weight: 900; text-decoration: underline; margin-bottom: 5px;">OFFICIALS PRESENT:</div>
-                ${attendeesList}
-            </div>
-
-            <div class="proceedings-container">
-                <div style="font-weight: 900; text-decoration: underline; margin-bottom: 15px;">THE BRIEF / PROCEEDINGS:</div>
+            <div style="margin-top: 30px;">
+                <div style="font-weight: 900; color: #1e3a8a; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 1pt solid #e2e8f0; padding-bottom: 5px;">Narrative Proceedings & Deliberations</div>
                 ${minutesHtml}
             </div>
 
-            <div style="margin-top: 60px; page-break-inside: avoid;">
-                <div style="font-size: 11px; font-weight: 900; margin-bottom: 25px; border-bottom: 1.5px solid #000; padding-bottom: 5px;">SIGNATURES:</div>
+            <div style="margin-top: 50px; page-break-inside: avoid;">
                 ${sigGridHtml}
-            </div>
-            
-            <div style="margin-top: 40px; font-size: 8px; color: #94a3b8; text-align: center;">
-                --- Confirmed Regional Record (Computer Generated) ---
             </div>
         </div>
     `;
@@ -852,14 +711,12 @@ export function buildMeetingMinutesHtml(data: any, roData: any): string {
 export function buildDDRequestFormHtml(content: any, branch: any, roData: any, date: string): string {
     const fmt = (n: any) => Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     
-    const formatDate = (dStr: any) => {
+    const formatDateForm = (dStr: any) => {
         if (!dStr) return '-';
         const d = new Date(dStr);
         if (isNaN(d.getTime())) return '-';
         return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
     };
-
-    const amountInWords = content.amount ? `[Amount in Words: Rupee ${content.amount}]` : '';
 
     return `
         <style>
@@ -884,7 +741,7 @@ export function buildDDRequestFormHtml(content: any, branch: any, roData: any, d
         <div class="dd-form-container">
             <div class="request-header">
                 <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-                    <img src="${imageToBase64('assets/2025_new_logo.svg')}" style="height: 52px;" />
+                    <img src="${imageToBase64('assets/logo_center.svg')}" style="height: 52px;" />
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div class="letterhead-info">
@@ -896,7 +753,7 @@ export function buildDDRequestFormHtml(content: any, branch: any, roData: any, d
                         <div style="font-weight: 800;">To,</div>
                         <div style="font-weight: 700;">The Chief Manager,</div>
                         <div style="font-weight: 800; color: #21357f;">Planning Department</div>
-                        <div>Regional Office Dindigul</div>
+                        <div>Dindigul</div>
                     </div>
                 </div>
             </div>
@@ -919,7 +776,7 @@ export function buildDDRequestFormHtml(content: any, branch: any, roData: any, d
                 <tr><td class="label">Purpose of Transaction</td><td class="value">${content.purpose || ''}</td></tr>
                 <tr><td class="label">Compliance of KYC Norms</td><td class="value">${content.kycCompliance || 'YES'}</td></tr>
                 <tr><td class="label">Transaction ID (Finacle)</td><td class="value">${content.transactionId || ''}</td></tr>
-                <tr><td class="label">Proposed Date of Issue</td><td class="value">${content.dateOfIssue ? formatDate(content.dateOfIssue) : ''}</td></tr>
+                <tr><td class="label">Proposed Date of Issue</td><td class="value">${content.dateOfIssue ? formatDateForm(content.dateOfIssue) : ''}</td></tr>
             </table>
 
             <div class="declaration">
@@ -956,14 +813,13 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
     // Filter out the "Dear Sir/Madam" and "To," if they are manually placed at the start of content
     const cleanedContent = contentEn
         .replace(/^To,?\s*/gi, '')
-        .replace(/^The Branch Manager[\s\S]*?\n\n/gi, '') // Prune legacy address blocks
+        .replace(/^The Branch Manager[\s\S]*?\n\n/gi, '')
         .replace(/^Dear (Sir|Madam|Sir\/Madam),?\s*/gi, '')
         .trim();
 
     const paragraphs = cleanedContent.split('\n\n').map(p => p.trim()).filter(p => p.length > 0);
     let bodyHtml = '';
     
-    // 1. Add Trilingual Body Blocks for Manual/Custom Letters
     if (letter?.contentHi) {
         bodyHtml += `<div class="hindi" style="font-size: 13.5px; margin-bottom: 12px; text-align: justify;">${letter.contentHi.replace(/\n/g, '<br/>')}</div>`;
     }
@@ -979,35 +835,21 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
         if (para.trim() === '[PERFORMANCE_TABLE]') {
             if (dataList.length === 0) continue;
 
+            const firstItem = dataList[0];
+            const obDate = formatDate(firstItem.march31stDate);
+            const latestDate = formatDate(firstItem.latestDate);
+
+            let tableRows = '';
             for (const item of dataList) {
                 const isPercent = item.unit === '%' || item.unit === 'Ratio' || (item.parameter || '').includes('%');
                 const forceInverted = ['NPA', 'SMA', 'OVERDUE'].some(k => (item.parameter || '').toUpperCase().includes(k)) || item.isInverted === true;
                 const isAchieved = forceInverted ? (item.latest <= item.budget) : (item.latest >= item.budget);
-                const gapLabel = forceInverted ? (item.latest <= item.budget ? 'Reduction' : 'Overrun') : (item.latest >= item.budget ? 'Surplus' : 'Shortfall');
                 const showCurrency = (item.unit === 'Cr' || item.unit === 'Lakhs' || (!isPercent && item.unit !== 'Accounts'));
                 
-                // UNIFIED SCALING LOGIC
-                // Standard: DB stores Crores.
-                // RO sees Crores (scale 1). Branches see Lakhs (scale 100).
-                const baseScale = (!isRegional && showCurrency) ? 100 : 1;
                 const unitLabel = showCurrency ? (isRegional ? 'Cr' : 'L') : (item.unit || '');
-
-                const getScaledVal = (val: number) => {
-                    if (!showCurrency) return val;
-                    // Heuristic: If it's a branch and value is already > 250, 
-                    // it is highly likely already in Lakhs (mis-ingested budget or legacy data).
-                    // We don't scale it further to avoid ridiculous figures like 500,000 Lakhs.
-                    if (!isRegional && Math.abs(val) > 250) return val;
-                    return val * baseScale;
-                };
-
                 const fyGrowth = (item.latest || 0) - (item.march31st || 0);
                 const gapColor = isAchieved ? '#15803d' : '#b91c1c';
 
-                // REVISED STATUS LOGIC:
-                // 1. SURPASSED if target achieved.
-                // 2. POSITIVE if not achieved but showing positive growth vs FY Start.
-                // 3. NEGATIVE if not achieved and showing decline/negative movement vs FY Start.
                 let statusLabel = 'NEGATIVE';
                 let statusColor = '#b91c1c';
 
@@ -1025,49 +867,35 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                     }
                 }
 
-                bodyHtml += `
-                <div style="margin:20px 0; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px;">
-                    <div style="font-weight:700; font-size:13.5px; margin-bottom:10px; color:#254aa0; text-transform:uppercase;">KPI: ${item.parameter || 'Performance Metric'}</div>
-                    <table style="width:100%;border-collapse:collapse;font-size:12.5px;text-align:center;">
-                        <tr style="background:#f1f5f9;font-weight:700;">
-                            <th style="border:1px solid #94a3b8;padding:4px;">OB (${formatDate(item.march31stDate)})</th>
-                            <th style="border:1px solid #94a3b8;padding:4px;">Latest (${formatDate(item.latestDate)})</th>
-                            <th style="border:1px solid #94a3b8;padding:4px;">FY Growth</th>
-                            <th style="border:1px solid #94a3b8;padding:4px;">Target Budget</th>
-                            <th style="border:1px solid #94a3b8;padding:4px;">Gap to Budget</th>
-                            <th style="border:1px solid #94a3b8;padding:4px;">Status</th>
-                        </tr>
-                        <tr>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;">${showCurrency ? '₹ ' : ''}${fmt(getScaledVal(item.march31st))} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;font-weight:700;color:#1e293b;">${showCurrency ? '₹ ' : ''}${fmt(getScaledVal(item.latest))} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;font-weight:700;color:${forceInverted ? (fyGrowth <= 0 ? '#15803d' : '#b91c1c') : (fyGrowth >= 0 ? '#15803d' : '#b91c1c')}">${fyGrowth > 0 ? '+' : ''}${showCurrency ? '₹ ' : ''}${fmt(getScaledVal(fyGrowth))} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;">${showCurrency ? '₹ ' : ''}${fmt(getScaledVal(item.budget))} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;font-weight:700;color:${gapColor}">${item.gap >= 0 ? '+' : ''}${showCurrency ? '₹ ' : ''}${fmt(Math.abs(getScaledVal(item.gap)))} ${unitLabel}</td>
-                            <td style="border:1px solid #94a3b8;padding:4px 6px;font-weight:700;color:${statusColor};font-size:10px;">${statusLabel}</td>
-                        </tr>
-                    </table>
-                </div>`;
+                tableRows += `
+                <tr>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;text-align:left;font-weight:700;color:#254aa0;">${item.parameter || 'Metric'}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;text-align:right;">${showCurrency ? '₹ ' : ''}${fmt(item.march31st)} ${unitLabel}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;text-align:right;font-weight:700;">${showCurrency ? '₹ ' : ''}${fmt(item.latest)} ${unitLabel}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;text-align:right;font-weight:700;color:${forceInverted ? (fyGrowth <= 0 ? '#15803d' : '#b91c1c') : (fyGrowth >= 0 ? '#15803d' : '#b91c1c')}">${fyGrowth > 0 ? '+' : ''}${showCurrency ? '₹ ' : ''}${fmt(fyGrowth)} ${unitLabel}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;text-align:right;">${showCurrency ? '₹ ' : ''}${fmt(item.budget)} ${unitLabel}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;font-weight:700;color:${gapColor}">${item.gap >= 0 ? '+' : ''}${showCurrency ? '₹ ' : ''}${fmt(Math.abs(item.gap))} ${unitLabel}</td>
+                    <td style="border:1px solid #cbd5e1;padding:4px 6px;font-weight:700;color:${statusColor};font-size:10px;text-align:center;">${statusLabel}</td>
+                </tr>`;
             }
-        } else if (para.includes('[EXCEPTION_TABLE]') && org.exceptions) {
+
             bodyHtml += `
-            <div style="margin:25px 0;">
-                <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
-                    <tr style="background:#f1f5f9;font-weight:700;">
-                        <th style="border:1px solid #94a3b8;padding:6px;width:130px;">RULE ID</th>
-                        <th style="border:1px solid #94a3b8;padding:6px;width:140px;">PARAMETER</th>
-                        <th style="border:1px solid #94a3b8;padding:6px;">OBSERVATION / EXCEPTION</th>
-                    </tr>
-                    ${(org.exceptions || []).length > 0 ? (org.exceptions || []).map((ex: any) => `
-                    <tr>
-                        <td style="border:1px solid #94a3b8;padding:4px 6px;font-family:monospace;font-size:10px;">${ex.ruleId || 'N/A'}</td>
-                        <td style="border:1px solid #94a3b8;padding:4px 6px;font-weight:700;">${ex.parameter || 'N/A'}</td>
-                        <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:justify;">${ex.message || 'N/A'}</td>
-                    </tr>`).join('') : `
-                    <tr>
-                        <td colspan="3" style="border:1px solid #94a3b8;padding:8px;text-align:center;font-style:italic;color:#64748b;">
-                            NIL - No significant operational risk exceptions flagged for the period.
-                        </td>
-                    </tr>`}
+            <div style="margin:15px 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;">
+                <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+                    <thead style="background:#f1f5f9;font-weight:800;color:#1e293b;">
+                        <tr>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">KPI Parameter</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">OB (${obDate})</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">Latest (${latestDate})</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">FY Growth</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">Target Budget</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">Gap to Budget</th>
+                            <th style="border:1px solid #cbd5e1;padding:6px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
                 </table>
             </div>`;
         } else if (para.includes('[MOVEMENT_TABLE]') && org.dailyMovement) {
@@ -1079,7 +907,6 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
 
             const categories = [
                 { id: 'KBP', label: 'TREND POSITION: KEY BUSINESS PARAMETERS' },
-                { id: 'DEPOSITS', label: 'TREND POSITION: DEPOSITS ENTRUSTMENT' },
                 { id: 'CORE', label: 'TREND POSITION: CORE ADVANCES AND GOLD LOANS' },
                 { id: 'ASSET_QUALITY', label: 'TREND POSITION: ASSET QUALITY' },
                 { id: 'PROFITABILITY', label: 'TREND POSITION: PROFITABILITY AND EFFICIENCY' },
@@ -1094,7 +921,8 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                 if (cat.id === 'KBP') {
                     if (profit) {
                         const breached = !!profit.breached;
-                        const color = breached ? '#b91c1c' : '#1d4ed8'; // Blue for positive profit
+                        const isFavorable = profit.latestValue >= 0;
+                        const color = isFavorable ? '#254aa0' : '#b91c1c'; // Use Bank Navy for favorable profit, never red.
                         const label = profit.latestValue >= 0 ? 'NET PROFIT' : 'NET LOSS';
                         const icon = profit.latestValue >= 0 ? '✓' : '⚠';
 
@@ -1112,7 +940,7 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                         if (cdr < minTarget) {
                             cdrStatus = 'BELOW TARGET';
                             cdrColor = '#b91c1c';
-                        } else if (cdr > 85) {
+                        } else if (cdr > 75) {
                             cdrStatus = 'SATURATION RISK';
                             cdrColor = '#b91c1c';
                         } else if (cdr >= healthyMin && cdr <= healthyMax) {
@@ -1120,16 +948,23 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                             cdrColor = '#15803d';
                         }
 
+                        const isRisk = cdrStatus === 'SATURATION RISK' || cdrStatus === 'BELOW TARGET';
+                        const cdrBg = isRisk ? '#fff1f2' : '#f8fafc';
+                        const cdrBorder = isRisk ? '#fda4af' : '#e2e8f0';
+                        const cdrIcon = isRisk ? '⚠️ ' : '';
+
                         const targetLabel = isRuralSemi ? 'Policy Target: 60%+' : 'Target: 70%+';
                         const industryNote = 'Industry Healthy: 70-80%';
 
                         bodyHtml += `
                         <div style="display:flex; gap:12px; margin-bottom:15px;">
-                            <div style="flex:1; border:1px solid #e2e8f0; border-radius:8px; padding:10px; background:#f8fafc;">
+                            <div style="flex:1; border:1px solid ${cdrBorder}; border-radius:8px; padding:10px; background:${cdrBg};">
                                 <div style="font-size:10px; color:#64748b; text-transform:uppercase; margin-bottom:4px; font-weight:700;">Liquidity Risk Summary (CD Ratio)</div>
-                                <div style="font-size:17px; font-weight:700; color:#1e293b; line-height:1;">${fmt(cdr)}%</div>
+                                <div style="font-size:17px; font-weight:700; color:#1e293b; line-height:1;">${cdrIcon}${fmt(cdr)}%</div>
                                 <div style="font-size:9px; color:#64748b; margin-top:4px;">${targetLabel} | Status: <span style="color:${cdrColor}; font-weight:700;">${cdrStatus}</span></div>
-                                <div style="font-size:8px; color:#94a3b8; margin-top:2px;">${industryNote} / No RBI Statutory Mandate</div>
+                                <div style="font-size:8.5px; color:#475569; margin-top:6px; border-top:1px dashed ${cdrBorder}; padding-top:4px; font-style:italic;">
+                                    The CD Ratio (Credit-to-Deposit) indicates the percentage of deposits utilized for lending; levels >75% signal potential liquidity strain.
+                                </div>
                             </div>
                             <div style="flex:1; border:1px solid ${profit.latestValue >= 0 ? '#e2e8f0' : '#fda4af'}; border-radius:8px; padding:10px; background:${profit.latestValue >= 0 ? '#f0f9ff' : '#fff1f2'};">
                                 <div style="font-size:10px; color:#64748b; text-transform:uppercase; margin-bottom:4px; font-weight:700;">Profitability Position (${label})</div>
@@ -1147,14 +982,14 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                 const catMovements = (otherMovements || []).filter((m: any) => m.category === cat.id);
                 if (catMovements.length === 0) continue;
 
-                const pageBreak = ''; // Removed forced page-break-before: always to prevent blank page 2
+                const pageBreak = cat.id === 'KBP' ? 'page-break-before: always;' : 'margin-top: 12px;';
                 bodyHtml += `
-                <div style="margin:25px 0; ${pageBreak}">
-                    <div style="font-weight:700; font-size:14px; margin-bottom:12px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 6px;">${cat.label}</div>
+                <div style="margin:5px 0; ${pageBreak}">
+                    <div style="font-weight:700; font-size:14px; margin-bottom:8px; color:#254aa0; border-bottom: 2px solid #254aa0; padding-bottom: 4px;">${cat.label}</div>
                     <table style="width:100%;border-collapse:collapse;font-size:12.5px;text-align:center;">
                         <tr style="background:#f1f5f9;font-weight:700;font-size:11.5px;">
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;text-align:left;white-space:nowrap;">KBP</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;white-space:nowrap;">${(() => {
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;text-align:left;white-space:nowrap;">KBP</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;white-space:nowrap;">${(() => {
                                 if (cat.id === 'CASH') return 'AUTHORIZED CRL';
                                 const prev = org.compareDates?.yesterday || org.previousDate;
                                 if (prev) return formatDate(prev);
@@ -1166,11 +1001,11 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
                                 }
                                 return 'N/A';
                             })()}</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;white-space:nowrap;">${formatDate(org.compareDates?.latest || org.businessDate || org.date)}</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;white-space:nowrap;">${cat.id === 'CASH' ? 'EXCESS / (SHORTFALL)' : 'MOVEMENT'}</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;">% CHANGE</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;">THRESHOLD</th>
-                            <th style="border:1px solid #94a3b8;padding:4px 6px;">STATUS</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;white-space:nowrap;">${formatDate(org.compareDates?.latest || org.businessDate || org.date)}</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;white-space:nowrap;">${cat.id === 'CASH' ? 'EXCESS / (SHORTFALL)' : 'MOVEMENT'}</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;">% CHANGE</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;">THRESHOLD</th>
+                            <th style="border:1px solid #cbd5e1;padding:3px 5px;">STATUS</th>
                         </tr>
                         ${catMovements.map((m: any) => {
                             const breached = !!m.breached;
@@ -1192,13 +1027,13 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
 
                             return `
                             <tr>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:left;font-weight:700;">${displayName}</td>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;">${prevDisp}</td>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;font-weight:700;">${latestDisp}</td>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;color:${color};font-weight:700;">${moveDisp}</td>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;color:${color};font-weight:700;">${pctDisp}</td>
-                                <td style="border:1px solid #94a3b8;padding:4px 6px;text-align:right;font-weight:700;">${thresholdLabel}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; text-align: center; font-weight: 700; color: ${breached ? '#b91c1c' : '#166534'}; font-size: 9px; white-space: nowrap;">${breached ? 'BREACH' : 'WITHIN LIMIT'}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:left;font-weight:700;">${displayName}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:right;">${prevDisp}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:right;font-weight:700;">${latestDisp}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:right;color:${color};font-weight:700;">${moveDisp}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:right;color:${color};font-weight:700;">${pctDisp}</td>
+                                <td style="border:1px solid #cbd5e1;padding:3px 5px;text-align:right;font-weight:700;">${thresholdLabel}</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 2px 5px; text-align: center; font-weight: 700; color: ${breached ? '#b91c1c' : '#166534'}; font-size: 8.5px; white-space: nowrap;">${breached ? 'BREACH' : 'WITHIN LIMIT'}</td>
                             </tr>`;
                         }).join('')}
                     </table>
@@ -1207,7 +1042,7 @@ export function buildLetterBodyHtml(contentEn: string, org: any, letter?: any): 
         } else if (para.trim().startsWith('<') || para.trim().includes('</table>') || para.trim().includes('</div>')) {
             bodyHtml += para;
         } else {
-            bodyHtml += `<p style="margin-bottom:8px;text-align:justify;">${para.replace(/\n/g, '<br/>')}</p>`;
+            bodyHtml += `<div style="font-size: 13.5px; line-height: 1.5; margin-bottom: 12px; text-align: justify; color: #334155;">${para}</div>`;
         }
     }
 

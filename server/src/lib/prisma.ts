@@ -4,8 +4,17 @@ import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Ensure environment variables are loaded from the root .env
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+// Ensure environment variables are loaded from the root .env or server .env
+const envPaths = [
+    path.join(process.cwd(), '.env'),
+    path.join(process.cwd(), 'server', '.env'),
+    path.join(__dirname, '../../.env'),
+    path.join(__dirname, '../../../../.env')
+];
+
+for (const p of envPaths) {
+    dotenv.config({ path: p });
+}
 
 const dbUrl = process.env.DATABASE_URL || '';
 // Manually parse connection string to ensure all credentials are strings

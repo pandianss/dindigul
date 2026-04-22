@@ -331,4 +331,18 @@ router.get('/letters/bulk-zip', authenticateToken, async (req: any, res) => {
     }
 });
 
+// Get Summary of Exceptions for multiple branches
+router.get('/exception-summary', authenticateToken, async (req, res) => {
+    try {
+        const date = req.query.date as string;
+        if (!date) return res.status(400).json({ error: 'Date is required' });
+        
+        const summary = await BusinessSnapshotService.getExceptionSummary(date);
+        res.json(summary);
+    } catch (error: any) {
+        console.error('Exception summary error:', error);
+        res.status(500).json({ error: 'Failed to fetch exception summary' });
+    }
+});
+
 export default router;

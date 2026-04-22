@@ -12,15 +12,21 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('echarts') || id.includes('recharts')) return 'charts';
+          if (id.includes('recharts')) return 'charts';
           if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
+          if (id.includes('jspdf')) return 'pdf';
+          if (id.includes('lucide-react')) return 'icons';
+          if (id.includes('node_modules')) {
+             if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) return 'react-core';
+             if (id.includes('axios') || id.includes('date-fns') || id.includes('uuid')) return 'vendor-utils';
+             return 'vendor';
+          }
         }
       }
     }
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'recharts'],
-    exclude: ['echarts']
   },
   cacheDir: 'node_modules/.vite',
   server: {

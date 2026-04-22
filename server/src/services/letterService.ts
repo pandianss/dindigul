@@ -307,10 +307,12 @@ export const letterService = {
                 nameHi: head?.fullNameHi ? `${head.gender === 'F' ? 'श्रीमती. ' : 'श्री. '}${head.fullNameHi}` : undefined,
                 nameTa: head?.fullNameTa ? `${head.gender === 'F' ? 'திருமதி. ' : 'திரு. '}${head.fullNameTa}` : undefined,
                 designation: head?.designation?.nameEn ? toTitleCase(head.designation.nameEn) : (letter.branch ? 'The Branch Manager' : undefined),
-                designationHi: head?.designation?.nameHi || undefined,
-                designationTa: head?.designation?.nameTa || undefined,
+                designationHi: head?.designation?.nameHi || (letter.branch ? 'शाखा प्रबंधक' : undefined),
+                designationTa: head?.designation?.nameTa || (letter.branch ? 'கிளை மேலாளர்' : undefined),
                 bankName: RO_DATA.bankNameEn,
                 branchName: letter.branch ? toTitleCase(letter.branch.nameEn) : undefined,
+                branchNameHi: letter.branch?.nameHi ? letter.branch.nameHi : undefined,
+                branchNameTa: letter.branch?.nameTa ? letter.branch.nameTa : undefined,
                 branchCode: letter.branch?.code
             };
 
@@ -324,7 +326,47 @@ export const letterService = {
             `
             : '';
 
-        const bodyHtml = `${externalRecipientHtml}${buildLetterBodyHtml(letter.contentEn || '', org, letter)}`;
+        const internalRecipientHtml = !letter.isExternal && (recipient.name || recipient.branchName)
+            ? `
+                <div class="to-address" style="margin: 15px 0 20px 0; font-size: 14px; line-height: 1.4; color: #1e293b; border-left: 3px solid #21357f; padding-left: 12px;">
+                    <div class="to-label" style="font-weight: 800; color: #1e3a8a; margin-bottom: 4px; text-transform: uppercase; font-size: 11px;">To,</div>
+                    
+                    <!-- 1. Name Row -->
+                    <div class="to-row" style="font-weight: 700; margin-bottom: 2px;">
+                        <span class="hindi" style="font-size: 11.5px;">${recipient.nameHi || ''}</span> 
+                        ${recipient.nameHi && recipient.nameTa ? ' / ' : ''}
+                        <span class="tamil" style="font-size: 10px;">${recipient.nameTa || ''}</span>
+                        ${(recipient.nameHi || recipient.nameTa) ? '<br/>' : ''}
+                        ${recipient.name || ''}
+                    </div>
+
+                    <!-- 2. Title/Designation Row -->
+                    <div class="to-row" style="font-weight: 700; margin-bottom: 2px; color: #334155;">
+                        <span class="hindi" style="font-size: 11px;">${recipient.designationHi || ''}</span>
+                        ${recipient.designationHi && recipient.designationTa ? ' / ' : ''}
+                        <span class="tamil" style="font-size: 9px;">${recipient.designationTa || ''}</span>
+                        <br/>
+                        ${recipient.designation || ''}
+                    </div>
+
+                    <!-- 3. Branch Row -->
+                    <div class="to-row" style="font-weight: 700; margin-top: 4px;">
+                        <span class="hindi" style="font-size: 11.5px;">${recipient.branchNameHi || ''} शाखा</span> / 
+                        <span class="tamil" style="font-size: 10px;">${recipient.branchNameTa || ''} கிளை</span>
+                        <br/>
+                        ${recipient.branchName || ''} Branch (${recipient.branchCode || ''}).
+                    </div>
+                </div>
+            `
+            : '';
+
+        const subjectEn = org.title || letter.titleEn || '';
+        const subjectHtml = subjectEn ? `
+            <div class="subject" style="text-align: center; font-weight: 800; font-size: 18px; text-transform: uppercase; margin: 15px 0 20px 0; color: #000; text-decoration: underline;">
+                ${subjectEn}
+            </div>` : '';
+
+        const bodyHtml = `${externalRecipientHtml}${internalRecipientHtml}${subjectHtml}${buildLetterBodyHtml(letter.contentEn || '', org, letter)}`;
         const refNo = letter.referenceNo || `RO/ADMIN/${new Date(letter.createdAt).getFullYear()}/${letter.id.slice(-4).toUpperCase()}`;
         const letterDate = resolveLetterDate(letter, org);
         const cashData = org.cashData || [];
@@ -335,6 +377,7 @@ export const letterService = {
             titleTa: letter.titleTa || undefined,
             refNo,
             date: letterDate,
+            letterCategory: letter.type,
             bodyHtml,
             signatoryName,
             signatoryNameHi,
@@ -353,19 +396,29 @@ export const letterService = {
             salutation: letter.salutation || 'Dear Sir/Madam,'
         });
 
-        const baseName = letter.isExternal
-            ? (letter.recipientName || letter.titleEn || 'Letter')
-            : `${letter.branch?.code || '0000'}_${letter.branch?.nameEn || letter.titleEn || 'Letter'}`;
-        const safeFileName = baseName
-            .replace(/\s+/g, '_')
-            .replace(/[^a-zA-Z0-9_\-.]/g, '')
-            .replace(/_+/g, '_') || `letter_${letter.id}`;
+        let safeFileName = '';
+        if (isOpRisk) {
+            const [d, m, y] = letterDate.split('.');
+            const yyyymmdd = `${y}${m}${d}`;
+            const sol = letter.branch?.code || '0000';
+            safeFileName = `${sol}_OA_${yyyymmdd}.pdf`;
+        } else {
+            const baseName = letter.isExternal
+                ? (letter.recipientName || letter.titleEn || 'Letter')
+                : `${letter.branch?.code || '0000'}_${letter.branch?.nameEn || letter.titleEn || 'Letter'}`;
+            
+            safeFileName = baseName
+                .replace(/\s+/g, '_')
+                .replace(/[^a-zA-Z0-9_\-.]/g, '')
+                .replace(/_+/g, '_') || `letter_${letter.id}`;
+            safeFileName = `${safeFileName}.pdf`;
+        }
 
         return {
             letter,
             html,
             refNo,
-            safeFileName: `${safeFileName}.pdf`,
+            safeFileName,
         };
     },
 

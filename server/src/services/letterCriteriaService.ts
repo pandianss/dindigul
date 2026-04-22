@@ -232,11 +232,13 @@ function normalizeMovementKey(value: string) {
     return (value || '').toUpperCase().replace(/[\s_]/g, '');
 }
 
-function inferMetricUnit(metricName: string) {
-    const normalized = normalizeMetricName(metricName);
+function inferMetricUnit(metricName: string, isRegional: boolean = false) {
+    const normalized = (metricName || '').toUpperCase().replace(/[\s_]/g, '');
     if (normalized.includes('PCT') || normalized.includes('RATIO')) return '%';
     if (normalized.includes('OPENINGS')) return 'Accounts';
-    return 'Cr';
+    
+    // PER USER DIRECTIVE: Regional Office (3933) is Cr, all others are Lakhs for all parameters.
+    return isRegional ? 'Cr' : 'Lakhs';
 }
 
 function buildMetricHighlights(items: PerformanceStat[]): string {
@@ -272,7 +274,7 @@ function buildAppreciationContent(
 
     return `${salutation}
 
-The performance of ${branchName} Branch under ${bucketLabel} for the review period ${period} has been examined at the Regional Office, and we are pleased to place on record our appreciation for the results delivered under your leadership as ${headDesignation}.
+The performance of ${branchName} Branch under ${bucketLabel} for the review period ${period} has been examined, and we are pleased to place on record our appreciation for the results delivered under your leadership as ${headDesignation}.
 
 Your branch has registered commendable performance across ${paramList}${summary ? `, with particularly notable contribution in ${summary}` : ''}. The comparative position against the benchmark and the financial year opening baseline is furnished below for ready reference.
 
@@ -282,8 +284,7 @@ The above outcome reflects focused monitoring, timely follow-up, and committed e
 
 You are requested to sustain the same momentum in the coming review periods and continue to consolidate the gains already achieved.
 
-With compliments,
-Regional Office`;
+With Compliments,`;
 }
 
 function buildExplanationContent(
@@ -308,15 +309,16 @@ The comparative position of actuals, benchmark, and financial year opening level
 
 The present level of achievement is not commensurate with the potential of the branch and calls for close managerial attention. As ${headDesignation}, you are requested to examine the reasons for the shortfall parameter-wise and identify business sourcing gaps, recovery constraints, monitoring lapses, and remedial measures required.
 
-You may submit a concise and time-bound action plan to the Regional Office within 7 working days, indicating branch-level responsibility, review milestones, and the likely timeline for closing the gaps.
+You may submit a concise and time-bound action plan to our office within 7 working days, indicating branch-level responsibility, review milestones, and the likely timeline for closing the gaps.
 
-This matter may be accorded top priority and monitored personally until measurable improvement becomes visible in the subsequent review cycle.`;
+This matter may be accorded top priority and monitored personally until measurable improvement becomes visible in the subsequent review cycle.
+
+With Compliments,`;
 }
 
 function buildOpRiskContent(branchName: string, designation: string, period: string, count: number, movements: any[], salutation: string = 'Dear Sir/Madam,') {
     let content = `${salutation}\n\n`;
     content += `Based on our daily operational risk monitoring for the period ended ${period}, we have identified ${count} significant exceptions for your branch requiring immediate attention and mitigation.\n\n`;
-    content += `[EXCEPTION_TABLE]\n\n`;
 
     // Cash Summary Text Generation (Hardened)
     const movementsLower = movements.map(m => ({ ...m, k: (m.metricKey || '').toLowerCase().replace(/_/g, '') }));
@@ -333,11 +335,11 @@ function buildOpRiskContent(branchName: string, designation: string, period: str
         const excessAmt = (Number(cashTotal?.latestValue || 0) - Number(cashCRL?.latestValue || 0));
         const excessStatus = excessAmt >= 0 ? 'Excess' : 'Shortfall';
 
-        content += `<p style="margin-bottom: 4px;">The current cash management position of the branch is summarized below:</p>
+        content += `<p style="margin-bottom: 4px; font-weight: 700; color: #21357f;">The current cash management position of the branch is summarized below:</p>
 <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.3; margin-bottom: 15px;">
     <tr style="background: #f1f5f9; font-weight: 700; color: #1e293b;">
-        <th style="border: 1px solid #94a3b8; padding: 6px 12px; text-align: left;">CASH MANAGEMENT SUMMARY</th>
-        <th style="border: 1px solid #94a3b8; padding: 6px 12px; text-align: right;">POSSESSION (₹ L)</th>
+        <th style="border: 1px solid #cbd5e1; padding: 6px 12px; text-align: left;">CASH MANAGEMENT SUMMARY</th>
+        <th style="border: 1px solid #cbd5e1; padding: 6px 12px; text-align: right;">POSSESSION (₹ L)</th>
     </tr>
     <tr>
         <td style="border: 1px solid #cbd5e1; padding: 4px 12px; font-weight: 600;">Authorized Cash Retention Limit (CRL)</td>
@@ -364,10 +366,10 @@ function buildOpRiskContent(branchName: string, designation: string, period: str
         <td style="border: 1px solid #cbd5e1; padding: 2px 12px; text-align: right; color: #475569;">${fmt(cashBNA?.latestValue || 0)}</td>
     </tr>
     <tr style="background: ${excessAmt > 0.01 ? '#fff1f2' : '#f0fdf4'};">
-        <td style="border: 1px solid #94a3b8; padding: 6px 12px; font-weight: 700; color: ${excessAmt > 0.01 ? '#9f1239' : '#166534'};">
+        <td style="border: 1px solid #cbd5e1; padding: 6px 12px; font-weight: 700; color: ${excessAmt > 0.01 ? '#9f1239' : '#166534'};">
             ${excessStatus.toUpperCase()} OVER AUTHORIZED CRL
         </td>
-        <td style="border: 1px solid #94a3b8; padding: 6px 12px; text-align: right; font-weight: 800; color: ${excessAmt > 0.01 ? '#9f1239' : '#166534'};">
+        <td style="border: 1px solid #cbd5e1; padding: 6px 12px; text-align: right; font-weight: 800; color: ${excessAmt > 0.01 ? '#9f1239' : '#166534'};">
             ${fmt(Math.abs(excessAmt))}
         </td>
     </tr>
@@ -377,7 +379,7 @@ Effective monitoring of cash holdings within authorized limits across all points
 
     content += `In addition, a review of the recent business movement of the branch indicates the following trend position which should be monitored to ensure consistency and stability in business growth:\n\n[MOVEMENT_TABLE]\n\n`;
     content += `The above exceptions require immediate verification at the branch level. You are advised to review the root cause of each observation, complete the necessary control rectification, and strengthen branch-level monitoring so that recurrence is avoided.\n\n`;
-    content += `As Branch Head, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.`;
+    content += `As Branch Head, you may ensure that the observations are diarised, tracked to closure, and discussed with the concerned officials. This communication is issued for your information and corrective action.\n\nWith Compliments,`;
     
     return content;
 }
@@ -402,19 +404,30 @@ function createPerformanceStat(
     latestDate: Date,
     baselineDate: Date,
     context: BucketContext,
+    isRegional: boolean,
     exceptions: PerformanceStat['exceptions'] = []
 ): PerformanceStat {
     const isInverted = ['NPA', 'SMA', 'OVERDUE'].some((k) => normalizeMetricName(metricName).includes(k));
+    const unit = inferMetricUnit(metricName, isRegional);
+    const isCurrency = unit === 'Cr' || unit === 'Lakhs';
+    
+    // Standard Scaling: 
+    // Per user, branch data is already in Lakhs (Scale 1).
+    // However, if we detect data that was ingested in Crores (like 15.01 for Total Business),
+    // we must normalize it to Lakhs (Scale 100) to keep the report consistent.
+    const needsScaling = !isRegional && isCurrency && Math.abs(actual) < 25 && Math.abs(benchmark) < 25;
+    const scale = needsScaling ? 100 : 1;
+
     return {
         parameter: metricName,
         displayName: prettifyParameterName(metricName),
-        latest: actual,
-        budget: benchmark,
-        march31st: baseline,
+        latest: actual * scale,
+        budget: benchmark * scale,
+        march31st: baseline * scale,
         latestDate,
         march31stDate: baselineDate,
-        gap: actual - benchmark,
-        unit: inferMetricUnit(metricName),
+        gap: (actual - benchmark) * scale,
+        unit: unit,
         isInverted,
         achievement: achievementPct(actual, benchmark, isInverted),
         branchCode: context.branchCode,
@@ -431,11 +444,11 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
         { code: 'SB_DEPOSITS', mis: ['SB', 'SB_DEPOSITS'], name: 'SB', shortName: 'SB', thresholdPct: 10, category: 'KBP' },
         { code: 'CD_DEPOSITS', mis: ['CD', 'CD_DEPOSITS'], name: 'CD', shortName: 'CD', thresholdPct: 20, category: 'KBP' },
         { code: 'CASA', mis: ['CASA'], name: 'CASA (SB+CD)', shortName: 'CASA', thresholdPct: 10, category: 'KBP' },
-        { code: 'TD_DEPOSITS', mis: ['TD', 'TD_DEPOSITS'], name: 'TD', shortName: 'TD', thresholdPct: 10, category: 'KBP' },
-        { code: 'RET_TD', mis: ['RET_TD', 'RTDS', 'RTD'], name: 'Retail TD', shortName: 'RetTD', thresholdPct: 10, category: 'DEPOSITS' },
-        { code: 'BULK_DEPOSIT', mis: ['BULK_DEP', 'BULK_DEPOSITS'], name: 'Bulk Deposits', shortName: 'BulkDep', thresholdPct: 15, category: 'DEPOSITS' },
+        { code: 'RET_TD', mis: ['RET_TD', 'RTDS', 'RTD', 'Ret_TD', 'Retail TD'], name: 'Retail TD', shortName: 'RetTD', thresholdPct: 10, category: 'KBP' },
+        { code: 'BULK_DEPOSIT', mis: ['BULK_DEP', 'BULK_DEPOSITS', 'Bulk Deposits'], name: 'Bulk Deposits', shortName: 'BulkDep', thresholdPct: 15, category: 'KBP' },
+        { code: 'TD_DEPOSITS', mis: ['TD', 'TD_DEPOSITS', 'Term Deposits'], name: 'TD', shortName: 'TD', thresholdPct: 10, category: 'KBP' },
         { code: 'TOTAL_DEPOSITS', mis: ['Total Dep', 'DEPOSIT_TOTAL', 'TOTAL_DEPOSITS', 'Deposits'], name: 'Total Dep (CASA + TD)', shortName: 'TotDep', thresholdPct: 5, category: 'KBP' },
-        { code: 'TOTAL_ADVANCES', mis: ['Adv', 'TOTAL_ADVANCES', 'ADVANCES', 'Advance'], name: 'ADV', shortName: 'Adv', thresholdPct: 5, category: 'KBP' },
+        { code: 'ADV', mis: ['ADV', 'TOTAL_ADVANCES', 'Adv', 'ADVANCES', 'Advance', 'Total Adv'], name: 'ADV', shortName: 'Adv', thresholdPct: 5, category: 'KBP' },
         { code: 'BUSINESS_TOTAL', mis: ['Bus', 'BUSINESS_TOTAL', 'TOTAL_BUSINESS', 'Business'], name: 'Business (Tot Dep + Adv)', shortName: 'Business', thresholdPct: 5, category: 'KBP' },
         { code: 'BRANCH_PL', mis: ['BRANCH_PL', 'PROFIT', 'Profit', 'NET_PROFIT', 'PL'], name: 'Operating Profit (Loss)', shortName: 'Profit', thresholdPct: 10, category: 'PROFITABILITY' },
         { code: 'CORE_RETAIL', mis: ['Core Ret', 'CORE_RETAIL', 'RETAIL'], name: 'Retail', shortName: 'Retail', thresholdPct: 5, category: 'CORE' },
@@ -561,8 +574,9 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
     const lSB = getVal(['SB', 'SB_DEPOSITS'], refUTC);
     const lCD = getVal(['CD', 'CD_DEPOSITS'], refUTC);
     const lTD = getVal(['TD', 'TD_DEPOSITS'], refUTC);
-    const lAdv = getVal(['TOTAL_ADVANCES', 'ADVANCES', 'ADV'], refUTC);
+    const lAdv = getVal(['ADV', 'TOTAL_ADVANCES', 'ADVANCES', 'Adv', 'Total Adv'], refUTC);
     const lAgri = getVal(['CORE_AGRI'], refUTC) + getVal(['AGRI_JL'], refUTC);
+    const lGold = getVal(['GOLD', 'Ret-Gold', 'Gold', 'Adv-Gold'], refUTC);
     const lCRL = getVal(['CASH_CRL', 'CRL'], refUTC);
     const lHand = getVal(['CASH_HAND'], refUTC);
     const lATM = getVal(['CASH_ATM'], refUTC);
@@ -572,8 +586,9 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
     const ySB = getVal(['SB', 'SB_DEPOSITS'], yestUTC);
     const yCD = getVal(['CD', 'CD_DEPOSITS'], yestUTC);
     const yTD = getVal(['TD', 'TD_DEPOSITS'], yestUTC);
-    const yAdv = getVal(['TOTAL_ADVANCES', 'ADVANCES', 'ADV'], yestUTC);
+    const yAdv = getVal(['ADV', 'TOTAL_ADVANCES', 'ADVANCES', 'Adv', 'Total Adv'], yestUTC);
     const yAgri = getVal(['CORE_AGRI'], yestUTC) + getVal(['AGRI_JL'], yestUTC);
+    const yGold = getVal(['GOLD', 'Ret-Gold', 'Gold', 'Adv-Gold'], yestUTC);
 
     for (const p of params) {
         let latest = 0, previous = 0, movement = 0, pct = 0;
@@ -623,6 +638,25 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
             previous = yAgri;
             movement = latest - previous;
             dataFound = true;
+        } else if (p.code === 'GOLD' && (lGold !== 0 || yGold !== 0)) {
+            latest = lGold;
+            previous = yGold;
+            movement = latest - previous;
+            dataFound = true;
+        } else if (p.code === 'ADV' && (lAdv !== 0 || yAdv !== 0)) {
+            latest = lAdv;
+            previous = yAdv;
+            movement = latest - previous;
+            dataFound = true;
+        } else if (p.code === 'RET_TD') {
+            const currentRetTD = getVal(['RET_TD', 'Ret_TD', 'RET_TD'], refUTC);
+            const prevRetTD = getVal(['RET_TD', 'Ret_TD', 'RET_TD'], yestUTC);
+            if (currentRetTD !== 0 || prevRetTD !== 0) {
+                latest = currentRetTD;
+                previous = prevRetTD;
+                movement = latest - previous;
+                dataFound = true;
+            }
         } else if (p.code === 'CD_RATIO' && hasLatestComponents) {
                 const lDep = lSB + lCD + lTD;
                 const yDep = ySB + yCD + yTD;
@@ -668,8 +702,8 @@ async function getDailyMovement(branchId: string, referenceDate: Date) {
                 pct,
                 thresholdPct: p.thresholdPct,
                 breached: p.category === 'CASH' 
-                    ? (p.code === 'CASH_EXCESS' ? latest > 0.01 : (p.code === 'CASH_TOTAL' ? latest > lCRL + 0.01 : false))
-                    : (p.code === 'CD_RATIO' ? latest > 85 : Math.abs(pct) > p.thresholdPct),
+                    ? (p.code === 'CASH_EXCESS' ? latest > 0.01 : false)
+                    : (p.code === 'CD_RATIO' ? latest > 75 : (Math.abs(pct) > p.thresholdPct || (p.code === 'BRANCH_PL' && latest < 0))),
                 category: p.category
             });
         }
@@ -739,6 +773,7 @@ async function buildPerformanceBucketsForDate(period: string, businessDate: Date
             panel.snapshot.businessDate,
             fyStartDate,
             context,
+            ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch?.type?.toUpperCase() || ''),
             (panel.snapshot.exceptions || [])
                 .filter((e: any) => !(e.ruleId === 'RULE-LIQ-01' || (e.ruleId === 'RULE-OP-RISK' && ['CASA%', 'CD_Ratio'].includes(e.parameter))))
                 .map((e: any) => ({
@@ -815,7 +850,8 @@ async function buildPerformanceBucketsForDate(period: string, businessDate: Date
                                     Number(baseline?.value || 0),
                                     businessDate,
                                     fyStartDate,
-                                    record.context
+                                    record.context,
+                                    ['RO', 'LPC', 'REGIONAL OFFICE'].includes(record.context.branchType?.toUpperCase() || '')
                                 )
                             );
                         }
@@ -930,10 +966,10 @@ async function buildAccountOpeningBuckets(businessDate: Date): Promise<BucketRec
         };
 
         const stats = [
-            createPerformanceStat('QUALIFIED_SB_OPENINGS', row.sbQualified, row.benchmarkSbQualified, row.benchmarkSbQualified, businessDate, lastMonthEnd, context),
-            createPerformanceStat('TOTAL_SB_OPENINGS', row.sbTotal, row.benchmarkSbTotal, row.benchmarkSbTotal, businessDate, lastMonthEnd, context),
-            createPerformanceStat('QUALIFIED_CD_OPENINGS', row.cdQualified, row.benchmarkCdQualified, row.benchmarkCdQualified, businessDate, lastMonthEnd, context),
-            createPerformanceStat('TOTAL_CD_OPENINGS', row.cdTotal, row.benchmarkCdTotal, row.benchmarkCdTotal, businessDate, lastMonthEnd, context)
+            createPerformanceStat('QUALIFIED_SB_OPENINGS', row.sbQualified, row.benchmarkSbQualified, row.benchmarkSbQualified, businessDate, lastMonthEnd, context, false),
+            createPerformanceStat('TOTAL_SB_OPENINGS', row.sbTotal, row.benchmarkSbTotal, row.benchmarkSbTotal, businessDate, lastMonthEnd, context, false),
+            createPerformanceStat('QUALIFIED_CD_OPENINGS', row.cdQualified, row.benchmarkCdQualified, row.benchmarkCdQualified, businessDate, lastMonthEnd, context, false),
+            createPerformanceStat('TOTAL_CD_OPENINGS', row.cdTotal, row.benchmarkCdTotal, row.benchmarkCdTotal, businessDate, lastMonthEnd, context, false)
         ].filter((stat) => stat.latest > 0 || stat.budget > 0);
 
         if (stats.length === 0) continue;
@@ -988,9 +1024,11 @@ export async function generateLettersForPeriod(
         signingAuthTa: resolvedSignatory.designationTa || (resolvedSignatory as any).designation?.nameTa || undefined,
     } : {};
 
+    const [y, m, d] = date?.split('-').map(Number) || [new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()];
+    const businessDateGlobal = new Date(Date.UTC(y, m - 1, d));
+
     if (type === 'ALL' || type === 'PERFORMANCE') {
-        const [y, m, d] = date?.split('-').map(Number) || [new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()];
-        const businessDate = new Date(Date.UTC(y, m - 1, d));
+        const businessDate = businessDateGlobal;
 
         await (prisma as any).letter.deleteMany({
             where: { type: { in: ['APPRECIATION', 'EXPLANATION'] }, status: 'DRAFT', period }
@@ -1054,7 +1092,7 @@ export async function generateLettersForPeriod(
                 await (prisma as any).letter.create({
                     data: {
                         type: letterKind,
-                        titleEn: `${record.bucketLabel} ${letterKind === 'APPRECIATION' ? 'Performance Appreciation' : 'Performance Review'} - ${period}`,
+                        titleEn: `${record.bucketLabel} PERFORMANCE ${letterKind === 'APPRECIATION' ? 'APPRECIATION LETTER' : 'EXPLANATION LETTER'} - ${period}`,
                         contentEn: (letterKind === 'APPRECIATION' ? buildAppreciationContent : buildExplanationContent)(
                             record.context.branchName,
                             record.context.headDesignation,
@@ -1096,9 +1134,43 @@ export async function generateLettersForPeriod(
     }
 
     if ((type === 'ALL' || type === 'OP_RISK') && criteria.opRiskFromExceptions) {
-        const [y, m, d] = date?.split('-').map(Number) || [new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()];
-        const businessDate = new Date(Date.UTC(y, m - 1, d));
-        const displayPeriod = date ? `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${String(y).slice(-2)}` : period;
+        const businessDate = businessDateGlobal;
+        const displayPeriod = date ? `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${String(y)}` : period;
+
+        // --- NEW: Account Opening Analytics for OpRisk ---
+        const monthStart = startOfMonth(businessDate);
+        const lastMonthStart = startOfMonth(subMonths(businessDate, 1));
+        const lastMonthEnd = endOfMonth(subMonths(businessDate, 1));
+
+        const sbMetrics = ['PLAN_SB_OPEN', 'PLAN_SB_QUAL'];
+        const cdMetrics = ['PLAN_CD_OPEN', 'PLAN_CD_QUAL'];
+
+        const [currSbAccs, prevSbAccs, currCdAccs, prevCdAccs, currWorkingDays, prevWorkingDays] = await Promise.all([
+            prisma.fact.groupBy({ by: ['unitId', 'metric'], where: { date: { gte: monthStart, lte: businessDate }, metric: { in: sbMetrics } }, _sum: { value: true } }),
+            prisma.fact.groupBy({ by: ['unitId', 'metric'], where: { date: { gte: lastMonthStart, lte: lastMonthEnd }, metric: { in: sbMetrics } }, _sum: { value: true } }),
+            prisma.fact.groupBy({ by: ['unitId', 'metric'], where: { date: { gte: monthStart, lte: businessDate }, metric: { in: cdMetrics } }, _sum: { value: true } }),
+            prisma.fact.groupBy({ by: ['unitId', 'metric'], where: { date: { gte: lastMonthStart, lte: lastMonthEnd }, metric: { in: cdMetrics } }, _sum: { value: true } }),
+            prisma.calendarMaster.count({ where: { calDate: { gte: monthStart, lte: businessDate }, isWorkingDay: true } }),
+            prisma.calendarMaster.count({ where: { calDate: { gte: lastMonthStart, lte: lastMonthEnd }, isWorkingDay: true } })
+        ]);
+
+        const progressFactor = prevWorkingDays > 0 ? currWorkingDays / prevWorkingDays : 1;
+        const buildAccMap = (data: any[]) => {
+            const map = new Map<string, any>();
+            data.forEach(f => {
+                if (!map.has(f.unitId)) map.set(f.unitId, { total: 0, qualified: 0 });
+                const entry = map.get(f.unitId);
+                if (f.metric.includes('_OPEN')) entry.total += Number(f._sum.value || 0);
+                if (f.metric.includes('_QUAL')) entry.qualified += Number(f._sum.value || 0);
+            });
+            return map;
+        };
+
+        const currSbMap = buildAccMap(currSbAccs);
+        const prevSbMap = buildAccMap(prevSbAccs);
+        const currCdMap = buildAccMap(currCdAccs);
+        const prevCdMap = buildAccMap(prevCdAccs);
+        // --- END: Account Opening Analytics ---
 
         await (prisma as any).letter.deleteMany({ where: { type: 'OP_RISK', status: 'DRAFT' } });
 
@@ -1213,7 +1285,7 @@ export async function generateLettersForPeriod(
                     }
                 }
                 const listedExceptions = Array.from(exceptionsByParameter.values());
-                const finalCount = listedExceptions.length;
+                const finalCount = movements.filter(m => m.breached).length;
 
                 if (finalCount === 0 && movements.length === 0) continue; // Skip if absolutely no data and no exceptions
 
@@ -1239,12 +1311,25 @@ export async function generateLettersForPeriod(
                             ...signatoryMeta,
                             businessDate: format(businessDate, 'yyyy-MM-dd'),
                             compareDates,
-                            letterDate: format(new Date(), 'dd.MM.yy'),
+                            letterDate: format(businessDate, 'dd.MM.yyyy'),
                             reportingPeriod: displayPeriod,
                             hideApprovedStatus: true,
                             exceptions: listedExceptions,
                             dailyMovement: movements,
-                            cashData: snapshot?.cashData?.length ? snapshot.cashData : deriveCashData(movements)
+                            cashData: snapshot?.cashData?.length ? snapshot.cashData : deriveCashData(movements),
+                            // Injected Account Opening Analytics
+                            accountAnalytics: {
+                                sb: {
+                                    actual: currSbMap.get(unitId)?.qualified || 0,
+                                    benchmark: Math.round((prevSbMap.get(unitId)?.qualified || 0) * progressFactor),
+                                    total: currSbMap.get(unitId)?.total || 0
+                                },
+                                cd: {
+                                    actual: currCdMap.get(unitId)?.qualified || 0,
+                                    benchmark: Math.round((prevCdMap.get(unitId)?.qualified || 0) * progressFactor),
+                                    total: currCdMap.get(unitId)?.total || 0
+                                }
+                            }
                         }
                     }
                 });

@@ -30,13 +30,14 @@ import unitRoutes from './routes/unit';
 import chatRoutes from './routes/chat';
 import dashboardRoutes from './routes/dashboard';
 import atmRoutes from './routes/atms';
-import planningRoutes from './routes/planning';
+import accountAnalyticsRoutes from './routes/accountAnalytics';
 import budgetRoutes from './routes/budgetRoutes';
 import parameterRoutes from './routes/parameterRoutes';
 import internalNoteRoutes from './routes/internalNote';
 import publicRoutes from './routes/public';
 import returnsRoutes from './routes/returns';
 import systemRoutes from './routes/systemRoutes';
+import manualsRoutes from './routes/manuals';
 import prisma from './lib/prisma';
 
 import { initScheduler } from './services/schedulerService';
@@ -51,6 +52,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // Security Headers
 app.use(helmet());
+
+// Runtime Environment Diagnostic
+const dbUrl = process.env.DATABASE_URL || 'NOT_SET';
+const maskedUrl = dbUrl.replace(/:([^@]+)@/, ':****@');
+logger.info(`[System] Runtime DATABASE_URL: ${maskedUrl}`);
+if (dbUrl === 'NOT_SET') {
+    logger.warn('[System] WARNING: DATABASE_URL is not set. Using default Prisma behavior.');
+}
 
 // CORS Configuration - Lockdown to specific origin
 app.use(cors({
@@ -76,6 +85,24 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
+app.get('/api/health/db', async (req, res) => {
+    try {
+        const count = await prisma.branch.count();
+        res.json({ 
+            status: 'connected', 
+            count,
+            database: 'dindigul_db',
+            timestamp: new Date().toISOString()
+        });
+    } catch (err: any) {
+        res.status(503).json({ 
+            status: 'disconnected', 
+            error: err.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Serve static uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
@@ -90,12 +117,14 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/atms', atmRoutes);
 app.use('/api/branches', unitRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/planning', planningRoutes);
+app.use('/api/account-analytics', accountAnalyticsRoutes);
+app.use('/api/planning', accountAnalyticsRoutes); // Alias for legacy/mis-mapped frontend calls
 app.use('/api/budget', budgetRoutes);
 app.use('/api/parameters', parameterRoutes);
 app.use('/api/internal-notes', internalNoteRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/returns', returnsRoutes);
+app.use('/api/manuals', manualsRoutes);
 
 // Unified System Routes (Merging 11 previous files)
 app.use('/api', systemRoutes);

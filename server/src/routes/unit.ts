@@ -34,6 +34,15 @@ router.get('/', authenticateToken, async (req: any, res) => {
         const units = await prisma.branch.findMany({
             orderBy: { code: 'asc' }
         });
+        
+        // Diagnostic Logging
+        console.log(`[API/Branches] Found ${units.length} units in database.`);
+        if (units.length > 0) {
+            console.log(`[API/Branches] Sample Unit: ${units[0].code} - ${units[0].nameEn}`);
+        } else {
+            console.warn(`[API/Branches] WARNING: Table 'branch' appears empty in this query context.`);
+        }
+
         res.json(units);
     } catch (error) {
         console.error('Failed to fetch units:', error);

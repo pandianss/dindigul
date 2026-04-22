@@ -84,16 +84,6 @@ export type Photo = $Result.DefaultSelection<Prisma.$PhotoPayload>
  */
 export type Holiday = $Result.DefaultSelection<Prisma.$HolidayPayload>
 /**
- * Model Parameter
- * 
- */
-export type Parameter = $Result.DefaultSelection<Prisma.$ParameterPayload>
-/**
- * Model Snapshot
- * 
- */
-export type Snapshot = $Result.DefaultSelection<Prisma.$SnapshotPayload>
-/**
  * Model Notice
  * 
  */
@@ -238,16 +228,6 @@ export type AccountClosure = $Result.DefaultSelection<Prisma.$AccountClosurePayl
  * 
  */
 export type CalendarMaster = $Result.DefaultSelection<Prisma.$CalendarMasterPayload>
-/**
- * Model FactSbDailyBranch
- * 
- */
-export type FactSbDailyBranch = $Result.DefaultSelection<Prisma.$FactSbDailyBranchPayload>
-/**
- * Model FactCdMonthlyBranch
- * 
- */
-export type FactCdMonthlyBranch = $Result.DefaultSelection<Prisma.$FactCdMonthlyBranchPayload>
 /**
  * Model ProductAdoptionScheme
  * 
@@ -641,26 +621,6 @@ export class PrismaClient<
   get holiday(): Prisma.HolidayDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.parameter`: Exposes CRUD operations for the **Parameter** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Parameters
-    * const parameters = await prisma.parameter.findMany()
-    * ```
-    */
-  get parameter(): Prisma.ParameterDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.snapshot`: Exposes CRUD operations for the **Snapshot** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Snapshots
-    * const snapshots = await prisma.snapshot.findMany()
-    * ```
-    */
-  get snapshot(): Prisma.SnapshotDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.notice`: Exposes CRUD operations for the **Notice** model.
     * Example usage:
     * ```ts
@@ -949,26 +909,6 @@ export class PrismaClient<
     * ```
     */
   get calendarMaster(): Prisma.CalendarMasterDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.factSbDailyBranch`: Exposes CRUD operations for the **FactSbDailyBranch** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more FactSbDailyBranches
-    * const factSbDailyBranches = await prisma.factSbDailyBranch.findMany()
-    * ```
-    */
-  get factSbDailyBranch(): Prisma.FactSbDailyBranchDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.factCdMonthlyBranch`: Exposes CRUD operations for the **FactCdMonthlyBranch** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more FactCdMonthlyBranches
-    * const factCdMonthlyBranches = await prisma.factCdMonthlyBranch.findMany()
-    * ```
-    */
-  get factCdMonthlyBranch(): Prisma.FactCdMonthlyBranchDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productAdoptionScheme`: Exposes CRUD operations for the **ProductAdoptionScheme** model.
@@ -1677,8 +1617,6 @@ export namespace Prisma {
     Comment: 'Comment',
     Photo: 'Photo',
     Holiday: 'Holiday',
-    Parameter: 'Parameter',
-    Snapshot: 'Snapshot',
     Notice: 'Notice',
     NoticeAck: 'NoticeAck',
     StationeryItem: 'StationeryItem',
@@ -1708,8 +1646,6 @@ export namespace Prisma {
     AccountOpening: 'AccountOpening',
     AccountClosure: 'AccountClosure',
     CalendarMaster: 'CalendarMaster',
-    FactSbDailyBranch: 'FactSbDailyBranch',
-    FactCdMonthlyBranch: 'FactCdMonthlyBranch',
     ProductAdoptionScheme: 'ProductAdoptionScheme',
     SystemConfig: 'SystemConfig',
     Notification: 'Notification',
@@ -1751,7 +1687,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "parameter" | "snapshot" | "notice" | "noticeAck" | "stationeryItem" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "factSbDailyBranch" | "factCdMonthlyBranch" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit"
+      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "notice" | "noticeAck" | "stationeryItem" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2788,154 +2724,6 @@ export namespace Prisma {
           count: {
             args: Prisma.HolidayCountArgs<ExtArgs>
             result: $Utils.Optional<HolidayCountAggregateOutputType> | number
-          }
-        }
-      }
-      Parameter: {
-        payload: Prisma.$ParameterPayload<ExtArgs>
-        fields: Prisma.ParameterFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ParameterFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ParameterFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          findFirst: {
-            args: Prisma.ParameterFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ParameterFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          findMany: {
-            args: Prisma.ParameterFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>[]
-          }
-          create: {
-            args: Prisma.ParameterCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          createMany: {
-            args: Prisma.ParameterCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ParameterCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>[]
-          }
-          delete: {
-            args: Prisma.ParameterDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          update: {
-            args: Prisma.ParameterUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          deleteMany: {
-            args: Prisma.ParameterDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ParameterUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.ParameterUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>[]
-          }
-          upsert: {
-            args: Prisma.ParameterUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ParameterPayload>
-          }
-          aggregate: {
-            args: Prisma.ParameterAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateParameter>
-          }
-          groupBy: {
-            args: Prisma.ParameterGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ParameterGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ParameterCountArgs<ExtArgs>
-            result: $Utils.Optional<ParameterCountAggregateOutputType> | number
-          }
-        }
-      }
-      Snapshot: {
-        payload: Prisma.$SnapshotPayload<ExtArgs>
-        fields: Prisma.SnapshotFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.SnapshotFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.SnapshotFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          findFirst: {
-            args: Prisma.SnapshotFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.SnapshotFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          findMany: {
-            args: Prisma.SnapshotFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>[]
-          }
-          create: {
-            args: Prisma.SnapshotCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          createMany: {
-            args: Prisma.SnapshotCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.SnapshotCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>[]
-          }
-          delete: {
-            args: Prisma.SnapshotDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          update: {
-            args: Prisma.SnapshotUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          deleteMany: {
-            args: Prisma.SnapshotDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.SnapshotUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SnapshotUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>[]
-          }
-          upsert: {
-            args: Prisma.SnapshotUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SnapshotPayload>
-          }
-          aggregate: {
-            args: Prisma.SnapshotAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSnapshot>
-          }
-          groupBy: {
-            args: Prisma.SnapshotGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SnapshotGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.SnapshotCountArgs<ExtArgs>
-            result: $Utils.Optional<SnapshotCountAggregateOutputType> | number
           }
         }
       }
@@ -5085,154 +4873,6 @@ export namespace Prisma {
           }
         }
       }
-      FactSbDailyBranch: {
-        payload: Prisma.$FactSbDailyBranchPayload<ExtArgs>
-        fields: Prisma.FactSbDailyBranchFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FactSbDailyBranchFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FactSbDailyBranchFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          findFirst: {
-            args: Prisma.FactSbDailyBranchFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FactSbDailyBranchFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          findMany: {
-            args: Prisma.FactSbDailyBranchFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>[]
-          }
-          create: {
-            args: Prisma.FactSbDailyBranchCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          createMany: {
-            args: Prisma.FactSbDailyBranchCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.FactSbDailyBranchCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>[]
-          }
-          delete: {
-            args: Prisma.FactSbDailyBranchDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          update: {
-            args: Prisma.FactSbDailyBranchUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          deleteMany: {
-            args: Prisma.FactSbDailyBranchDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FactSbDailyBranchUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.FactSbDailyBranchUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>[]
-          }
-          upsert: {
-            args: Prisma.FactSbDailyBranchUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactSbDailyBranchPayload>
-          }
-          aggregate: {
-            args: Prisma.FactSbDailyBranchAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFactSbDailyBranch>
-          }
-          groupBy: {
-            args: Prisma.FactSbDailyBranchGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FactSbDailyBranchGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FactSbDailyBranchCountArgs<ExtArgs>
-            result: $Utils.Optional<FactSbDailyBranchCountAggregateOutputType> | number
-          }
-        }
-      }
-      FactCdMonthlyBranch: {
-        payload: Prisma.$FactCdMonthlyBranchPayload<ExtArgs>
-        fields: Prisma.FactCdMonthlyBranchFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FactCdMonthlyBranchFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FactCdMonthlyBranchFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          findFirst: {
-            args: Prisma.FactCdMonthlyBranchFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FactCdMonthlyBranchFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          findMany: {
-            args: Prisma.FactCdMonthlyBranchFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>[]
-          }
-          create: {
-            args: Prisma.FactCdMonthlyBranchCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          createMany: {
-            args: Prisma.FactCdMonthlyBranchCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.FactCdMonthlyBranchCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>[]
-          }
-          delete: {
-            args: Prisma.FactCdMonthlyBranchDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          update: {
-            args: Prisma.FactCdMonthlyBranchUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          deleteMany: {
-            args: Prisma.FactCdMonthlyBranchDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FactCdMonthlyBranchUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.FactCdMonthlyBranchUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>[]
-          }
-          upsert: {
-            args: Prisma.FactCdMonthlyBranchUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$FactCdMonthlyBranchPayload>
-          }
-          aggregate: {
-            args: Prisma.FactCdMonthlyBranchAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateFactCdMonthlyBranch>
-          }
-          groupBy: {
-            args: Prisma.FactCdMonthlyBranchGroupByArgs<ExtArgs>
-            result: $Utils.Optional<FactCdMonthlyBranchGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FactCdMonthlyBranchCountArgs<ExtArgs>
-            result: $Utils.Optional<FactCdMonthlyBranchCountAggregateOutputType> | number
-          }
-        }
-      }
       ProductAdoptionScheme: {
         payload: Prisma.$ProductAdoptionSchemePayload<ExtArgs>
         fields: Prisma.ProductAdoptionSchemeFieldRefs
@@ -7279,8 +6919,6 @@ export namespace Prisma {
     comment?: CommentOmit
     photo?: PhotoOmit
     holiday?: HolidayOmit
-    parameter?: ParameterOmit
-    snapshot?: SnapshotOmit
     notice?: NoticeOmit
     noticeAck?: NoticeAckOmit
     stationeryItem?: StationeryItemOmit
@@ -7310,8 +6948,6 @@ export namespace Prisma {
     accountOpening?: AccountOpeningOmit
     accountClosure?: AccountClosureOmit
     calendarMaster?: CalendarMasterOmit
-    factSbDailyBranch?: FactSbDailyBranchOmit
-    factCdMonthlyBranch?: FactCdMonthlyBranchOmit
     productAdoptionScheme?: ProductAdoptionSchemeOmit
     systemConfig?: SystemConfigOmit
     notification?: NotificationOmit
@@ -7649,7 +7285,6 @@ export namespace Prisma {
     postingHistory: number
     recoveryActions: number
     regionalAssets: number
-    snapshots: number
     stationeryMovements: number
     users: number
   }
@@ -7675,7 +7310,6 @@ export namespace Prisma {
     postingHistory?: boolean | BranchCountOutputTypeCountPostingHistoryArgs
     recoveryActions?: boolean | BranchCountOutputTypeCountRecoveryActionsArgs
     regionalAssets?: boolean | BranchCountOutputTypeCountRegionalAssetsArgs
-    snapshots?: boolean | BranchCountOutputTypeCountSnapshotsArgs
     stationeryMovements?: boolean | BranchCountOutputTypeCountStationeryMovementsArgs
     users?: boolean | BranchCountOutputTypeCountUsersArgs
   }
@@ -7829,13 +7463,6 @@ export namespace Prisma {
    */
   export type BranchCountOutputTypeCountRegionalAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RegionalAssetWhereInput
-  }
-
-  /**
-   * BranchCountOutputType without action
-   */
-  export type BranchCountOutputTypeCountSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SnapshotWhereInput
   }
 
   /**
@@ -8081,46 +7708,6 @@ export namespace Prisma {
    */
   export type PhotoCountOutputTypeCountUserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
-  }
-
-
-  /**
-   * Count Type ParameterCountOutputType
-   */
-
-  export type ParameterCountOutputType = {
-    letters: number
-    snapshots: number
-  }
-
-  export type ParameterCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    letters?: boolean | ParameterCountOutputTypeCountLettersArgs
-    snapshots?: boolean | ParameterCountOutputTypeCountSnapshotsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * ParameterCountOutputType without action
-   */
-  export type ParameterCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ParameterCountOutputType
-     */
-    select?: ParameterCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * ParameterCountOutputType without action
-   */
-  export type ParameterCountOutputTypeCountLettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: LetterWhereInput
-  }
-
-  /**
-   * ParameterCountOutputType without action
-   */
-  export type ParameterCountOutputTypeCountSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SnapshotWhereInput
   }
 
 
@@ -13357,7 +12944,6 @@ export namespace Prisma {
     postingHistory?: boolean | Branch$postingHistoryArgs<ExtArgs>
     recoveryActions?: boolean | Branch$recoveryActionsArgs<ExtArgs>
     regionalAssets?: boolean | Branch$regionalAssetsArgs<ExtArgs>
-    snapshots?: boolean | Branch$snapshotsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
@@ -13478,7 +13064,6 @@ export namespace Prisma {
     postingHistory?: boolean | Branch$postingHistoryArgs<ExtArgs>
     recoveryActions?: boolean | Branch$recoveryActionsArgs<ExtArgs>
     regionalAssets?: boolean | Branch$regionalAssetsArgs<ExtArgs>
-    snapshots?: boolean | Branch$snapshotsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
@@ -13517,7 +13102,6 @@ export namespace Prisma {
       postingHistory: Prisma.$PostingHistoryPayload<ExtArgs>[]
       recoveryActions: Prisma.$RecoveryActionPayload<ExtArgs>[]
       regionalAssets: Prisma.$RegionalAssetPayload<ExtArgs>[]
-      snapshots: Prisma.$SnapshotPayload<ExtArgs>[]
       stationeryMovements: Prisma.$StationeryMovementPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
     }
@@ -13964,7 +13548,6 @@ export namespace Prisma {
     postingHistory<T extends Branch$postingHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Branch$postingHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostingHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     recoveryActions<T extends Branch$recoveryActionsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$recoveryActionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RecoveryActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     regionalAssets<T extends Branch$regionalAssetsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$regionalAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegionalAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    snapshots<T extends Branch$snapshotsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stationeryMovements<T extends Branch$stationeryMovementsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$stationeryMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StationeryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     users<T extends Branch$usersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -14938,30 +14521,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RegionalAssetScalarFieldEnum | RegionalAssetScalarFieldEnum[]
-  }
-
-  /**
-   * Branch.snapshots
-   */
-  export type Branch$snapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    where?: SnapshotWhereInput
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    cursor?: SnapshotWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SnapshotScalarFieldEnum | SnapshotScalarFieldEnum[]
   }
 
   /**
@@ -18527,7 +18086,6 @@ export namespace Prisma {
     titleTa: string | null
     contentTa: string | null
     branchId: string | null
-    parameterId: string | null
     valueAtTime: Decimal | null
     budgetAtTime: Decimal | null
     period: string | null
@@ -18556,7 +18114,6 @@ export namespace Prisma {
     titleTa: string | null
     contentTa: string | null
     branchId: string | null
-    parameterId: string | null
     valueAtTime: Decimal | null
     budgetAtTime: Decimal | null
     period: string | null
@@ -18585,7 +18142,6 @@ export namespace Prisma {
     titleTa: number
     contentTa: number
     branchId: number
-    parameterId: number
     valueAtTime: number
     budgetAtTime: number
     period: number
@@ -18629,7 +18185,6 @@ export namespace Prisma {
     titleTa?: true
     contentTa?: true
     branchId?: true
-    parameterId?: true
     valueAtTime?: true
     budgetAtTime?: true
     period?: true
@@ -18658,7 +18213,6 @@ export namespace Prisma {
     titleTa?: true
     contentTa?: true
     branchId?: true
-    parameterId?: true
     valueAtTime?: true
     budgetAtTime?: true
     period?: true
@@ -18687,7 +18241,6 @@ export namespace Prisma {
     titleTa?: true
     contentTa?: true
     branchId?: true
-    parameterId?: true
     valueAtTime?: true
     budgetAtTime?: true
     period?: true
@@ -18804,7 +18357,6 @@ export namespace Prisma {
     titleTa: string | null
     contentTa: string | null
     branchId: string
-    parameterId: string | null
     valueAtTime: Decimal | null
     budgetAtTime: Decimal | null
     period: string | null
@@ -18853,7 +18405,6 @@ export namespace Prisma {
     titleTa?: boolean
     contentTa?: boolean
     branchId?: boolean
-    parameterId?: boolean
     valueAtTime?: boolean
     budgetAtTime?: boolean
     period?: boolean
@@ -18874,7 +18425,6 @@ export namespace Prisma {
     signatoryId?: boolean
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     nextVersions?: boolean | Letter$nextVersionsArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
@@ -18890,7 +18440,6 @@ export namespace Prisma {
     titleTa?: boolean
     contentTa?: boolean
     branchId?: boolean
-    parameterId?: boolean
     valueAtTime?: boolean
     budgetAtTime?: boolean
     period?: boolean
@@ -18911,7 +18460,6 @@ export namespace Prisma {
     signatoryId?: boolean
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
   }, ExtArgs["result"]["letter"]>
@@ -18925,7 +18473,6 @@ export namespace Prisma {
     titleTa?: boolean
     contentTa?: boolean
     branchId?: boolean
-    parameterId?: boolean
     valueAtTime?: boolean
     budgetAtTime?: boolean
     period?: boolean
@@ -18946,7 +18493,6 @@ export namespace Prisma {
     signatoryId?: boolean
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
   }, ExtArgs["result"]["letter"]>
@@ -18960,7 +18506,6 @@ export namespace Prisma {
     titleTa?: boolean
     contentTa?: boolean
     branchId?: boolean
-    parameterId?: boolean
     valueAtTime?: boolean
     budgetAtTime?: boolean
     period?: boolean
@@ -18981,11 +18526,10 @@ export namespace Prisma {
     signatoryId?: boolean
   }
 
-  export type LetterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "titleEn" | "contentEn" | "titleTa" | "contentTa" | "branchId" | "parameterId" | "valueAtTime" | "budgetAtTime" | "period" | "createdAt" | "updatedAt" | "previousVersionId" | "version" | "orgMeta" | "scannedCopyUrl" | "referenceNo" | "titleHi" | "contentHi" | "isExternal" | "recipientName" | "recipientAddress" | "salutation" | "authorId" | "signatoryId", ExtArgs["result"]["letter"]>
+  export type LetterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "titleEn" | "contentEn" | "titleTa" | "contentTa" | "branchId" | "valueAtTime" | "budgetAtTime" | "period" | "createdAt" | "updatedAt" | "previousVersionId" | "version" | "orgMeta" | "scannedCopyUrl" | "referenceNo" | "titleHi" | "contentHi" | "isExternal" | "recipientName" | "recipientAddress" | "salutation" | "authorId" | "signatoryId", ExtArgs["result"]["letter"]>
   export type LetterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     nextVersions?: boolean | Letter$nextVersionsArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
@@ -18994,14 +18538,12 @@ export namespace Prisma {
   export type LetterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
   }
   export type LetterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | Letter$authorArgs<ExtArgs>
     branch?: boolean | BranchDefaultArgs<ExtArgs>
-    parameter?: boolean | Letter$parameterArgs<ExtArgs>
     previousVersion?: boolean | Letter$previousVersionArgs<ExtArgs>
     signatory?: boolean | Letter$signatoryArgs<ExtArgs>
   }
@@ -19011,7 +18553,6 @@ export namespace Prisma {
     objects: {
       author: Prisma.$UserPayload<ExtArgs> | null
       branch: Prisma.$BranchPayload<ExtArgs>
-      parameter: Prisma.$ParameterPayload<ExtArgs> | null
       previousVersion: Prisma.$LetterPayload<ExtArgs> | null
       nextVersions: Prisma.$LetterPayload<ExtArgs>[]
       signatory: Prisma.$UserPayload<ExtArgs> | null
@@ -19025,7 +18566,6 @@ export namespace Prisma {
       titleTa: string | null
       contentTa: string | null
       branchId: string
-      parameterId: string | null
       valueAtTime: Prisma.Decimal | null
       budgetAtTime: Prisma.Decimal | null
       period: string | null
@@ -19440,7 +18980,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     author<T extends Letter$authorArgs<ExtArgs> = {}>(args?: Subset<T, Letter$authorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    parameter<T extends Letter$parameterArgs<ExtArgs> = {}>(args?: Subset<T, Letter$parameterArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     previousVersion<T extends Letter$previousVersionArgs<ExtArgs> = {}>(args?: Subset<T, Letter$previousVersionArgs<ExtArgs>>): Prisma__LetterClient<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     nextVersions<T extends Letter$nextVersionsArgs<ExtArgs> = {}>(args?: Subset<T, Letter$nextVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     signatory<T extends Letter$signatoryArgs<ExtArgs> = {}>(args?: Subset<T, Letter$signatoryArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -19481,7 +19020,6 @@ export namespace Prisma {
     readonly titleTa: FieldRef<"Letter", 'String'>
     readonly contentTa: FieldRef<"Letter", 'String'>
     readonly branchId: FieldRef<"Letter", 'String'>
-    readonly parameterId: FieldRef<"Letter", 'String'>
     readonly valueAtTime: FieldRef<"Letter", 'Decimal'>
     readonly budgetAtTime: FieldRef<"Letter", 'Decimal'>
     readonly period: FieldRef<"Letter", 'String'>
@@ -19917,25 +19455,6 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
-  }
-
-  /**
-   * Letter.parameter
-   */
-  export type Letter$parameterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    where?: ParameterWhereInput
   }
 
   /**
@@ -26858,2302 +26377,6 @@ export namespace Prisma {
      * Omit specific fields from the Holiday
      */
     omit?: HolidayOmit<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Parameter
-   */
-
-  export type AggregateParameter = {
-    _count: ParameterCountAggregateOutputType | null
-    _min: ParameterMinAggregateOutputType | null
-    _max: ParameterMaxAggregateOutputType | null
-  }
-
-  export type ParameterMinAggregateOutputType = {
-    id: string | null
-    code: string | null
-    nameEn: string | null
-    nameTa: string | null
-    nameHi: string | null
-    category: string | null
-    unit: string | null
-  }
-
-  export type ParameterMaxAggregateOutputType = {
-    id: string | null
-    code: string | null
-    nameEn: string | null
-    nameTa: string | null
-    nameHi: string | null
-    category: string | null
-    unit: string | null
-  }
-
-  export type ParameterCountAggregateOutputType = {
-    id: number
-    code: number
-    nameEn: number
-    nameTa: number
-    nameHi: number
-    category: number
-    unit: number
-    _all: number
-  }
-
-
-  export type ParameterMinAggregateInputType = {
-    id?: true
-    code?: true
-    nameEn?: true
-    nameTa?: true
-    nameHi?: true
-    category?: true
-    unit?: true
-  }
-
-  export type ParameterMaxAggregateInputType = {
-    id?: true
-    code?: true
-    nameEn?: true
-    nameTa?: true
-    nameHi?: true
-    category?: true
-    unit?: true
-  }
-
-  export type ParameterCountAggregateInputType = {
-    id?: true
-    code?: true
-    nameEn?: true
-    nameTa?: true
-    nameHi?: true
-    category?: true
-    unit?: true
-    _all?: true
-  }
-
-  export type ParameterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Parameter to aggregate.
-     */
-    where?: ParameterWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Parameters to fetch.
-     */
-    orderBy?: ParameterOrderByWithRelationInput | ParameterOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ParameterWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Parameters from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Parameters.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Parameters
-    **/
-    _count?: true | ParameterCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ParameterMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ParameterMaxAggregateInputType
-  }
-
-  export type GetParameterAggregateType<T extends ParameterAggregateArgs> = {
-        [P in keyof T & keyof AggregateParameter]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateParameter[P]>
-      : GetScalarType<T[P], AggregateParameter[P]>
-  }
-
-
-
-
-  export type ParameterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ParameterWhereInput
-    orderBy?: ParameterOrderByWithAggregationInput | ParameterOrderByWithAggregationInput[]
-    by: ParameterScalarFieldEnum[] | ParameterScalarFieldEnum
-    having?: ParameterScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ParameterCountAggregateInputType | true
-    _min?: ParameterMinAggregateInputType
-    _max?: ParameterMaxAggregateInputType
-  }
-
-  export type ParameterGroupByOutputType = {
-    id: string
-    code: string
-    nameEn: string
-    nameTa: string | null
-    nameHi: string | null
-    category: string
-    unit: string
-    _count: ParameterCountAggregateOutputType | null
-    _min: ParameterMinAggregateOutputType | null
-    _max: ParameterMaxAggregateOutputType | null
-  }
-
-  type GetParameterGroupByPayload<T extends ParameterGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ParameterGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ParameterGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ParameterGroupByOutputType[P]>
-            : GetScalarType<T[P], ParameterGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ParameterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    code?: boolean
-    nameEn?: boolean
-    nameTa?: boolean
-    nameHi?: boolean
-    category?: boolean
-    unit?: boolean
-    letters?: boolean | Parameter$lettersArgs<ExtArgs>
-    snapshots?: boolean | Parameter$snapshotsArgs<ExtArgs>
-    _count?: boolean | ParameterCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["parameter"]>
-
-  export type ParameterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    code?: boolean
-    nameEn?: boolean
-    nameTa?: boolean
-    nameHi?: boolean
-    category?: boolean
-    unit?: boolean
-  }, ExtArgs["result"]["parameter"]>
-
-  export type ParameterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    code?: boolean
-    nameEn?: boolean
-    nameTa?: boolean
-    nameHi?: boolean
-    category?: boolean
-    unit?: boolean
-  }, ExtArgs["result"]["parameter"]>
-
-  export type ParameterSelectScalar = {
-    id?: boolean
-    code?: boolean
-    nameEn?: boolean
-    nameTa?: boolean
-    nameHi?: boolean
-    category?: boolean
-    unit?: boolean
-  }
-
-  export type ParameterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "nameEn" | "nameTa" | "nameHi" | "category" | "unit", ExtArgs["result"]["parameter"]>
-  export type ParameterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    letters?: boolean | Parameter$lettersArgs<ExtArgs>
-    snapshots?: boolean | Parameter$snapshotsArgs<ExtArgs>
-    _count?: boolean | ParameterCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type ParameterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type ParameterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-
-  export type $ParameterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Parameter"
-    objects: {
-      letters: Prisma.$LetterPayload<ExtArgs>[]
-      snapshots: Prisma.$SnapshotPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      code: string
-      nameEn: string
-      nameTa: string | null
-      nameHi: string | null
-      category: string
-      unit: string
-    }, ExtArgs["result"]["parameter"]>
-    composites: {}
-  }
-
-  type ParameterGetPayload<S extends boolean | null | undefined | ParameterDefaultArgs> = $Result.GetResult<Prisma.$ParameterPayload, S>
-
-  type ParameterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ParameterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ParameterCountAggregateInputType | true
-    }
-
-  export interface ParameterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Parameter'], meta: { name: 'Parameter' } }
-    /**
-     * Find zero or one Parameter that matches the filter.
-     * @param {ParameterFindUniqueArgs} args - Arguments to find a Parameter
-     * @example
-     * // Get one Parameter
-     * const parameter = await prisma.parameter.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ParameterFindUniqueArgs>(args: SelectSubset<T, ParameterFindUniqueArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Parameter that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {ParameterFindUniqueOrThrowArgs} args - Arguments to find a Parameter
-     * @example
-     * // Get one Parameter
-     * const parameter = await prisma.parameter.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ParameterFindUniqueOrThrowArgs>(args: SelectSubset<T, ParameterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Parameter that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterFindFirstArgs} args - Arguments to find a Parameter
-     * @example
-     * // Get one Parameter
-     * const parameter = await prisma.parameter.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ParameterFindFirstArgs>(args?: SelectSubset<T, ParameterFindFirstArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Parameter that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterFindFirstOrThrowArgs} args - Arguments to find a Parameter
-     * @example
-     * // Get one Parameter
-     * const parameter = await prisma.parameter.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ParameterFindFirstOrThrowArgs>(args?: SelectSubset<T, ParameterFindFirstOrThrowArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Parameters that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Parameters
-     * const parameters = await prisma.parameter.findMany()
-     * 
-     * // Get first 10 Parameters
-     * const parameters = await prisma.parameter.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const parameterWithIdOnly = await prisma.parameter.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ParameterFindManyArgs>(args?: SelectSubset<T, ParameterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Parameter.
-     * @param {ParameterCreateArgs} args - Arguments to create a Parameter.
-     * @example
-     * // Create one Parameter
-     * const Parameter = await prisma.parameter.create({
-     *   data: {
-     *     // ... data to create a Parameter
-     *   }
-     * })
-     * 
-     */
-    create<T extends ParameterCreateArgs>(args: SelectSubset<T, ParameterCreateArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Parameters.
-     * @param {ParameterCreateManyArgs} args - Arguments to create many Parameters.
-     * @example
-     * // Create many Parameters
-     * const parameter = await prisma.parameter.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ParameterCreateManyArgs>(args?: SelectSubset<T, ParameterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Parameters and returns the data saved in the database.
-     * @param {ParameterCreateManyAndReturnArgs} args - Arguments to create many Parameters.
-     * @example
-     * // Create many Parameters
-     * const parameter = await prisma.parameter.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Parameters and only return the `id`
-     * const parameterWithIdOnly = await prisma.parameter.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ParameterCreateManyAndReturnArgs>(args?: SelectSubset<T, ParameterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Parameter.
-     * @param {ParameterDeleteArgs} args - Arguments to delete one Parameter.
-     * @example
-     * // Delete one Parameter
-     * const Parameter = await prisma.parameter.delete({
-     *   where: {
-     *     // ... filter to delete one Parameter
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ParameterDeleteArgs>(args: SelectSubset<T, ParameterDeleteArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Parameter.
-     * @param {ParameterUpdateArgs} args - Arguments to update one Parameter.
-     * @example
-     * // Update one Parameter
-     * const parameter = await prisma.parameter.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ParameterUpdateArgs>(args: SelectSubset<T, ParameterUpdateArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Parameters.
-     * @param {ParameterDeleteManyArgs} args - Arguments to filter Parameters to delete.
-     * @example
-     * // Delete a few Parameters
-     * const { count } = await prisma.parameter.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ParameterDeleteManyArgs>(args?: SelectSubset<T, ParameterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Parameters.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Parameters
-     * const parameter = await prisma.parameter.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ParameterUpdateManyArgs>(args: SelectSubset<T, ParameterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Parameters and returns the data updated in the database.
-     * @param {ParameterUpdateManyAndReturnArgs} args - Arguments to update many Parameters.
-     * @example
-     * // Update many Parameters
-     * const parameter = await prisma.parameter.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Parameters and only return the `id`
-     * const parameterWithIdOnly = await prisma.parameter.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends ParameterUpdateManyAndReturnArgs>(args: SelectSubset<T, ParameterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Parameter.
-     * @param {ParameterUpsertArgs} args - Arguments to update or create a Parameter.
-     * @example
-     * // Update or create a Parameter
-     * const parameter = await prisma.parameter.upsert({
-     *   create: {
-     *     // ... data to create a Parameter
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Parameter we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ParameterUpsertArgs>(args: SelectSubset<T, ParameterUpsertArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Parameters.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterCountArgs} args - Arguments to filter Parameters to count.
-     * @example
-     * // Count the number of Parameters
-     * const count = await prisma.parameter.count({
-     *   where: {
-     *     // ... the filter for the Parameters we want to count
-     *   }
-     * })
-    **/
-    count<T extends ParameterCountArgs>(
-      args?: Subset<T, ParameterCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ParameterCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Parameter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ParameterAggregateArgs>(args: Subset<T, ParameterAggregateArgs>): Prisma.PrismaPromise<GetParameterAggregateType<T>>
-
-    /**
-     * Group by Parameter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ParameterGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ParameterGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ParameterGroupByArgs['orderBy'] }
-        : { orderBy?: ParameterGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ParameterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetParameterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Parameter model
-   */
-  readonly fields: ParameterFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Parameter.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ParameterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    letters<T extends Parameter$lettersArgs<ExtArgs> = {}>(args?: Subset<T, Parameter$lettersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LetterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    snapshots<T extends Parameter$snapshotsArgs<ExtArgs> = {}>(args?: Subset<T, Parameter$snapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Parameter model
-   */
-  interface ParameterFieldRefs {
-    readonly id: FieldRef<"Parameter", 'String'>
-    readonly code: FieldRef<"Parameter", 'String'>
-    readonly nameEn: FieldRef<"Parameter", 'String'>
-    readonly nameTa: FieldRef<"Parameter", 'String'>
-    readonly nameHi: FieldRef<"Parameter", 'String'>
-    readonly category: FieldRef<"Parameter", 'String'>
-    readonly unit: FieldRef<"Parameter", 'String'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Parameter findUnique
-   */
-  export type ParameterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter, which Parameter to fetch.
-     */
-    where: ParameterWhereUniqueInput
-  }
-
-  /**
-   * Parameter findUniqueOrThrow
-   */
-  export type ParameterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter, which Parameter to fetch.
-     */
-    where: ParameterWhereUniqueInput
-  }
-
-  /**
-   * Parameter findFirst
-   */
-  export type ParameterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter, which Parameter to fetch.
-     */
-    where?: ParameterWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Parameters to fetch.
-     */
-    orderBy?: ParameterOrderByWithRelationInput | ParameterOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Parameters.
-     */
-    cursor?: ParameterWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Parameters from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Parameters.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Parameters.
-     */
-    distinct?: ParameterScalarFieldEnum | ParameterScalarFieldEnum[]
-  }
-
-  /**
-   * Parameter findFirstOrThrow
-   */
-  export type ParameterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter, which Parameter to fetch.
-     */
-    where?: ParameterWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Parameters to fetch.
-     */
-    orderBy?: ParameterOrderByWithRelationInput | ParameterOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Parameters.
-     */
-    cursor?: ParameterWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Parameters from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Parameters.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Parameters.
-     */
-    distinct?: ParameterScalarFieldEnum | ParameterScalarFieldEnum[]
-  }
-
-  /**
-   * Parameter findMany
-   */
-  export type ParameterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter, which Parameters to fetch.
-     */
-    where?: ParameterWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Parameters to fetch.
-     */
-    orderBy?: ParameterOrderByWithRelationInput | ParameterOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Parameters.
-     */
-    cursor?: ParameterWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Parameters from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Parameters.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Parameters.
-     */
-    distinct?: ParameterScalarFieldEnum | ParameterScalarFieldEnum[]
-  }
-
-  /**
-   * Parameter create
-   */
-  export type ParameterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Parameter.
-     */
-    data: XOR<ParameterCreateInput, ParameterUncheckedCreateInput>
-  }
-
-  /**
-   * Parameter createMany
-   */
-  export type ParameterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Parameters.
-     */
-    data: ParameterCreateManyInput | ParameterCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Parameter createManyAndReturn
-   */
-  export type ParameterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * The data used to create many Parameters.
-     */
-    data: ParameterCreateManyInput | ParameterCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Parameter update
-   */
-  export type ParameterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Parameter.
-     */
-    data: XOR<ParameterUpdateInput, ParameterUncheckedUpdateInput>
-    /**
-     * Choose, which Parameter to update.
-     */
-    where: ParameterWhereUniqueInput
-  }
-
-  /**
-   * Parameter updateMany
-   */
-  export type ParameterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Parameters.
-     */
-    data: XOR<ParameterUpdateManyMutationInput, ParameterUncheckedUpdateManyInput>
-    /**
-     * Filter which Parameters to update
-     */
-    where?: ParameterWhereInput
-    /**
-     * Limit how many Parameters to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Parameter updateManyAndReturn
-   */
-  export type ParameterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * The data used to update Parameters.
-     */
-    data: XOR<ParameterUpdateManyMutationInput, ParameterUncheckedUpdateManyInput>
-    /**
-     * Filter which Parameters to update
-     */
-    where?: ParameterWhereInput
-    /**
-     * Limit how many Parameters to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Parameter upsert
-   */
-  export type ParameterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Parameter to update in case it exists.
-     */
-    where: ParameterWhereUniqueInput
-    /**
-     * In case the Parameter found by the `where` argument doesn't exist, create a new Parameter with this data.
-     */
-    create: XOR<ParameterCreateInput, ParameterUncheckedCreateInput>
-    /**
-     * In case the Parameter was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ParameterUpdateInput, ParameterUncheckedUpdateInput>
-  }
-
-  /**
-   * Parameter delete
-   */
-  export type ParameterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-    /**
-     * Filter which Parameter to delete.
-     */
-    where: ParameterWhereUniqueInput
-  }
-
-  /**
-   * Parameter deleteMany
-   */
-  export type ParameterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Parameters to delete
-     */
-    where?: ParameterWhereInput
-    /**
-     * Limit how many Parameters to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Parameter.letters
-   */
-  export type Parameter$lettersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Letter
-     */
-    select?: LetterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Letter
-     */
-    omit?: LetterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: LetterInclude<ExtArgs> | null
-    where?: LetterWhereInput
-    orderBy?: LetterOrderByWithRelationInput | LetterOrderByWithRelationInput[]
-    cursor?: LetterWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: LetterScalarFieldEnum | LetterScalarFieldEnum[]
-  }
-
-  /**
-   * Parameter.snapshots
-   */
-  export type Parameter$snapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    where?: SnapshotWhereInput
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    cursor?: SnapshotWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SnapshotScalarFieldEnum | SnapshotScalarFieldEnum[]
-  }
-
-  /**
-   * Parameter without action
-   */
-  export type ParameterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Parameter
-     */
-    select?: ParameterSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Parameter
-     */
-    omit?: ParameterOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ParameterInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Snapshot
-   */
-
-  export type AggregateSnapshot = {
-    _count: SnapshotCountAggregateOutputType | null
-    _avg: SnapshotAvgAggregateOutputType | null
-    _sum: SnapshotSumAggregateOutputType | null
-    _min: SnapshotMinAggregateOutputType | null
-    _max: SnapshotMaxAggregateOutputType | null
-  }
-
-  export type SnapshotAvgAggregateOutputType = {
-    value: Decimal | null
-    budget: Decimal | null
-  }
-
-  export type SnapshotSumAggregateOutputType = {
-    value: Decimal | null
-    budget: Decimal | null
-  }
-
-  export type SnapshotMinAggregateOutputType = {
-    id: string | null
-    date: Date | null
-    parameterId: string | null
-    branchId: string | null
-    value: Decimal | null
-    budget: Decimal | null
-    status: string | null
-    createdAt: Date | null
-  }
-
-  export type SnapshotMaxAggregateOutputType = {
-    id: string | null
-    date: Date | null
-    parameterId: string | null
-    branchId: string | null
-    value: Decimal | null
-    budget: Decimal | null
-    status: string | null
-    createdAt: Date | null
-  }
-
-  export type SnapshotCountAggregateOutputType = {
-    id: number
-    date: number
-    parameterId: number
-    branchId: number
-    value: number
-    budget: number
-    status: number
-    createdAt: number
-    _all: number
-  }
-
-
-  export type SnapshotAvgAggregateInputType = {
-    value?: true
-    budget?: true
-  }
-
-  export type SnapshotSumAggregateInputType = {
-    value?: true
-    budget?: true
-  }
-
-  export type SnapshotMinAggregateInputType = {
-    id?: true
-    date?: true
-    parameterId?: true
-    branchId?: true
-    value?: true
-    budget?: true
-    status?: true
-    createdAt?: true
-  }
-
-  export type SnapshotMaxAggregateInputType = {
-    id?: true
-    date?: true
-    parameterId?: true
-    branchId?: true
-    value?: true
-    budget?: true
-    status?: true
-    createdAt?: true
-  }
-
-  export type SnapshotCountAggregateInputType = {
-    id?: true
-    date?: true
-    parameterId?: true
-    branchId?: true
-    value?: true
-    budget?: true
-    status?: true
-    createdAt?: true
-    _all?: true
-  }
-
-  export type SnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Snapshot to aggregate.
-     */
-    where?: SnapshotWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Snapshots to fetch.
-     */
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: SnapshotWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Snapshots from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Snapshots.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Snapshots
-    **/
-    _count?: true | SnapshotCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: SnapshotAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: SnapshotSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: SnapshotMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: SnapshotMaxAggregateInputType
-  }
-
-  export type GetSnapshotAggregateType<T extends SnapshotAggregateArgs> = {
-        [P in keyof T & keyof AggregateSnapshot]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateSnapshot[P]>
-      : GetScalarType<T[P], AggregateSnapshot[P]>
-  }
-
-
-
-
-  export type SnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SnapshotWhereInput
-    orderBy?: SnapshotOrderByWithAggregationInput | SnapshotOrderByWithAggregationInput[]
-    by: SnapshotScalarFieldEnum[] | SnapshotScalarFieldEnum
-    having?: SnapshotScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: SnapshotCountAggregateInputType | true
-    _avg?: SnapshotAvgAggregateInputType
-    _sum?: SnapshotSumAggregateInputType
-    _min?: SnapshotMinAggregateInputType
-    _max?: SnapshotMaxAggregateInputType
-  }
-
-  export type SnapshotGroupByOutputType = {
-    id: string
-    date: Date
-    parameterId: string
-    branchId: string | null
-    value: Decimal
-    budget: Decimal | null
-    status: string | null
-    createdAt: Date
-    _count: SnapshotCountAggregateOutputType | null
-    _avg: SnapshotAvgAggregateOutputType | null
-    _sum: SnapshotSumAggregateOutputType | null
-    _min: SnapshotMinAggregateOutputType | null
-    _max: SnapshotMaxAggregateOutputType | null
-  }
-
-  type GetSnapshotGroupByPayload<T extends SnapshotGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<SnapshotGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof SnapshotGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], SnapshotGroupByOutputType[P]>
-            : GetScalarType<T[P], SnapshotGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type SnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    date?: boolean
-    parameterId?: boolean
-    branchId?: boolean
-    value?: boolean
-    budget?: boolean
-    status?: boolean
-    createdAt?: boolean
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["snapshot"]>
-
-  export type SnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    date?: boolean
-    parameterId?: boolean
-    branchId?: boolean
-    value?: boolean
-    budget?: boolean
-    status?: boolean
-    createdAt?: boolean
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["snapshot"]>
-
-  export type SnapshotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    date?: boolean
-    parameterId?: boolean
-    branchId?: boolean
-    value?: boolean
-    budget?: boolean
-    status?: boolean
-    createdAt?: boolean
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["snapshot"]>
-
-  export type SnapshotSelectScalar = {
-    id?: boolean
-    date?: boolean
-    parameterId?: boolean
-    branchId?: boolean
-    value?: boolean
-    budget?: boolean
-    status?: boolean
-    createdAt?: boolean
-  }
-
-  export type SnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "parameterId" | "branchId" | "value" | "budget" | "status" | "createdAt", ExtArgs["result"]["snapshot"]>
-  export type SnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }
-  export type SnapshotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }
-  export type SnapshotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    branch?: boolean | Snapshot$branchArgs<ExtArgs>
-    parameter?: boolean | ParameterDefaultArgs<ExtArgs>
-  }
-
-  export type $SnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Snapshot"
-    objects: {
-      branch: Prisma.$BranchPayload<ExtArgs> | null
-      parameter: Prisma.$ParameterPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      date: Date
-      parameterId: string
-      branchId: string | null
-      value: Prisma.Decimal
-      budget: Prisma.Decimal | null
-      status: string | null
-      createdAt: Date
-    }, ExtArgs["result"]["snapshot"]>
-    composites: {}
-  }
-
-  type SnapshotGetPayload<S extends boolean | null | undefined | SnapshotDefaultArgs> = $Result.GetResult<Prisma.$SnapshotPayload, S>
-
-  type SnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SnapshotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: SnapshotCountAggregateInputType | true
-    }
-
-  export interface SnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Snapshot'], meta: { name: 'Snapshot' } }
-    /**
-     * Find zero or one Snapshot that matches the filter.
-     * @param {SnapshotFindUniqueArgs} args - Arguments to find a Snapshot
-     * @example
-     * // Get one Snapshot
-     * const snapshot = await prisma.snapshot.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends SnapshotFindUniqueArgs>(args: SelectSubset<T, SnapshotFindUniqueArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Snapshot that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {SnapshotFindUniqueOrThrowArgs} args - Arguments to find a Snapshot
-     * @example
-     * // Get one Snapshot
-     * const snapshot = await prisma.snapshot.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends SnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, SnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Snapshot that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotFindFirstArgs} args - Arguments to find a Snapshot
-     * @example
-     * // Get one Snapshot
-     * const snapshot = await prisma.snapshot.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends SnapshotFindFirstArgs>(args?: SelectSubset<T, SnapshotFindFirstArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Snapshot that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotFindFirstOrThrowArgs} args - Arguments to find a Snapshot
-     * @example
-     * // Get one Snapshot
-     * const snapshot = await prisma.snapshot.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends SnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, SnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Snapshots that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Snapshots
-     * const snapshots = await prisma.snapshot.findMany()
-     * 
-     * // Get first 10 Snapshots
-     * const snapshots = await prisma.snapshot.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const snapshotWithIdOnly = await prisma.snapshot.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends SnapshotFindManyArgs>(args?: SelectSubset<T, SnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Snapshot.
-     * @param {SnapshotCreateArgs} args - Arguments to create a Snapshot.
-     * @example
-     * // Create one Snapshot
-     * const Snapshot = await prisma.snapshot.create({
-     *   data: {
-     *     // ... data to create a Snapshot
-     *   }
-     * })
-     * 
-     */
-    create<T extends SnapshotCreateArgs>(args: SelectSubset<T, SnapshotCreateArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Snapshots.
-     * @param {SnapshotCreateManyArgs} args - Arguments to create many Snapshots.
-     * @example
-     * // Create many Snapshots
-     * const snapshot = await prisma.snapshot.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends SnapshotCreateManyArgs>(args?: SelectSubset<T, SnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Snapshots and returns the data saved in the database.
-     * @param {SnapshotCreateManyAndReturnArgs} args - Arguments to create many Snapshots.
-     * @example
-     * // Create many Snapshots
-     * const snapshot = await prisma.snapshot.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Snapshots and only return the `id`
-     * const snapshotWithIdOnly = await prisma.snapshot.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends SnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, SnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Snapshot.
-     * @param {SnapshotDeleteArgs} args - Arguments to delete one Snapshot.
-     * @example
-     * // Delete one Snapshot
-     * const Snapshot = await prisma.snapshot.delete({
-     *   where: {
-     *     // ... filter to delete one Snapshot
-     *   }
-     * })
-     * 
-     */
-    delete<T extends SnapshotDeleteArgs>(args: SelectSubset<T, SnapshotDeleteArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Snapshot.
-     * @param {SnapshotUpdateArgs} args - Arguments to update one Snapshot.
-     * @example
-     * // Update one Snapshot
-     * const snapshot = await prisma.snapshot.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends SnapshotUpdateArgs>(args: SelectSubset<T, SnapshotUpdateArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Snapshots.
-     * @param {SnapshotDeleteManyArgs} args - Arguments to filter Snapshots to delete.
-     * @example
-     * // Delete a few Snapshots
-     * const { count } = await prisma.snapshot.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends SnapshotDeleteManyArgs>(args?: SelectSubset<T, SnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Snapshots.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Snapshots
-     * const snapshot = await prisma.snapshot.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends SnapshotUpdateManyArgs>(args: SelectSubset<T, SnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Snapshots and returns the data updated in the database.
-     * @param {SnapshotUpdateManyAndReturnArgs} args - Arguments to update many Snapshots.
-     * @example
-     * // Update many Snapshots
-     * const snapshot = await prisma.snapshot.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Snapshots and only return the `id`
-     * const snapshotWithIdOnly = await prisma.snapshot.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends SnapshotUpdateManyAndReturnArgs>(args: SelectSubset<T, SnapshotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Snapshot.
-     * @param {SnapshotUpsertArgs} args - Arguments to update or create a Snapshot.
-     * @example
-     * // Update or create a Snapshot
-     * const snapshot = await prisma.snapshot.upsert({
-     *   create: {
-     *     // ... data to create a Snapshot
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Snapshot we want to update
-     *   }
-     * })
-     */
-    upsert<T extends SnapshotUpsertArgs>(args: SelectSubset<T, SnapshotUpsertArgs<ExtArgs>>): Prisma__SnapshotClient<$Result.GetResult<Prisma.$SnapshotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Snapshots.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotCountArgs} args - Arguments to filter Snapshots to count.
-     * @example
-     * // Count the number of Snapshots
-     * const count = await prisma.snapshot.count({
-     *   where: {
-     *     // ... the filter for the Snapshots we want to count
-     *   }
-     * })
-    **/
-    count<T extends SnapshotCountArgs>(
-      args?: Subset<T, SnapshotCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], SnapshotCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Snapshot.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends SnapshotAggregateArgs>(args: Subset<T, SnapshotAggregateArgs>): Prisma.PrismaPromise<GetSnapshotAggregateType<T>>
-
-    /**
-     * Group by Snapshot.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SnapshotGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends SnapshotGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SnapshotGroupByArgs['orderBy'] }
-        : { orderBy?: SnapshotGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, SnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Snapshot model
-   */
-  readonly fields: SnapshotFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Snapshot.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__SnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    branch<T extends Snapshot$branchArgs<ExtArgs> = {}>(args?: Subset<T, Snapshot$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    parameter<T extends ParameterDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ParameterDefaultArgs<ExtArgs>>): Prisma__ParameterClient<$Result.GetResult<Prisma.$ParameterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Snapshot model
-   */
-  interface SnapshotFieldRefs {
-    readonly id: FieldRef<"Snapshot", 'String'>
-    readonly date: FieldRef<"Snapshot", 'DateTime'>
-    readonly parameterId: FieldRef<"Snapshot", 'String'>
-    readonly branchId: FieldRef<"Snapshot", 'String'>
-    readonly value: FieldRef<"Snapshot", 'Decimal'>
-    readonly budget: FieldRef<"Snapshot", 'Decimal'>
-    readonly status: FieldRef<"Snapshot", 'String'>
-    readonly createdAt: FieldRef<"Snapshot", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Snapshot findUnique
-   */
-  export type SnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter, which Snapshot to fetch.
-     */
-    where: SnapshotWhereUniqueInput
-  }
-
-  /**
-   * Snapshot findUniqueOrThrow
-   */
-  export type SnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter, which Snapshot to fetch.
-     */
-    where: SnapshotWhereUniqueInput
-  }
-
-  /**
-   * Snapshot findFirst
-   */
-  export type SnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter, which Snapshot to fetch.
-     */
-    where?: SnapshotWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Snapshots to fetch.
-     */
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Snapshots.
-     */
-    cursor?: SnapshotWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Snapshots from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Snapshots.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Snapshots.
-     */
-    distinct?: SnapshotScalarFieldEnum | SnapshotScalarFieldEnum[]
-  }
-
-  /**
-   * Snapshot findFirstOrThrow
-   */
-  export type SnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter, which Snapshot to fetch.
-     */
-    where?: SnapshotWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Snapshots to fetch.
-     */
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Snapshots.
-     */
-    cursor?: SnapshotWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Snapshots from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Snapshots.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Snapshots.
-     */
-    distinct?: SnapshotScalarFieldEnum | SnapshotScalarFieldEnum[]
-  }
-
-  /**
-   * Snapshot findMany
-   */
-  export type SnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter, which Snapshots to fetch.
-     */
-    where?: SnapshotWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Snapshots to fetch.
-     */
-    orderBy?: SnapshotOrderByWithRelationInput | SnapshotOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Snapshots.
-     */
-    cursor?: SnapshotWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Snapshots from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Snapshots.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Snapshots.
-     */
-    distinct?: SnapshotScalarFieldEnum | SnapshotScalarFieldEnum[]
-  }
-
-  /**
-   * Snapshot create
-   */
-  export type SnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Snapshot.
-     */
-    data: XOR<SnapshotCreateInput, SnapshotUncheckedCreateInput>
-  }
-
-  /**
-   * Snapshot createMany
-   */
-  export type SnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Snapshots.
-     */
-    data: SnapshotCreateManyInput | SnapshotCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Snapshot createManyAndReturn
-   */
-  export type SnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * The data used to create many Snapshots.
-     */
-    data: SnapshotCreateManyInput | SnapshotCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Snapshot update
-   */
-  export type SnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Snapshot.
-     */
-    data: XOR<SnapshotUpdateInput, SnapshotUncheckedUpdateInput>
-    /**
-     * Choose, which Snapshot to update.
-     */
-    where: SnapshotWhereUniqueInput
-  }
-
-  /**
-   * Snapshot updateMany
-   */
-  export type SnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Snapshots.
-     */
-    data: XOR<SnapshotUpdateManyMutationInput, SnapshotUncheckedUpdateManyInput>
-    /**
-     * Filter which Snapshots to update
-     */
-    where?: SnapshotWhereInput
-    /**
-     * Limit how many Snapshots to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Snapshot updateManyAndReturn
-   */
-  export type SnapshotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * The data used to update Snapshots.
-     */
-    data: XOR<SnapshotUpdateManyMutationInput, SnapshotUncheckedUpdateManyInput>
-    /**
-     * Filter which Snapshots to update
-     */
-    where?: SnapshotWhereInput
-    /**
-     * Limit how many Snapshots to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Snapshot upsert
-   */
-  export type SnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Snapshot to update in case it exists.
-     */
-    where: SnapshotWhereUniqueInput
-    /**
-     * In case the Snapshot found by the `where` argument doesn't exist, create a new Snapshot with this data.
-     */
-    create: XOR<SnapshotCreateInput, SnapshotUncheckedCreateInput>
-    /**
-     * In case the Snapshot was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<SnapshotUpdateInput, SnapshotUncheckedUpdateInput>
-  }
-
-  /**
-   * Snapshot delete
-   */
-  export type SnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
-    /**
-     * Filter which Snapshot to delete.
-     */
-    where: SnapshotWhereUniqueInput
-  }
-
-  /**
-   * Snapshot deleteMany
-   */
-  export type SnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Snapshots to delete
-     */
-    where?: SnapshotWhereInput
-    /**
-     * Limit how many Snapshots to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Snapshot.branch
-   */
-  export type Snapshot$branchArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Branch
-     */
-    select?: BranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Branch
-     */
-    omit?: BranchOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BranchInclude<ExtArgs> | null
-    where?: BranchWhereInput
-  }
-
-  /**
-   * Snapshot without action
-   */
-  export type SnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Snapshot
-     */
-    select?: SnapshotSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Snapshot
-     */
-    omit?: SnapshotOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SnapshotInclude<ExtArgs> | null
   }
 
 
@@ -62228,2181 +59451,6 @@ export namespace Prisma {
 
 
   /**
-   * Model FactSbDailyBranch
-   */
-
-  export type AggregateFactSbDailyBranch = {
-    _count: FactSbDailyBranchCountAggregateOutputType | null
-    _avg: FactSbDailyBranchAvgAggregateOutputType | null
-    _sum: FactSbDailyBranchSumAggregateOutputType | null
-    _min: FactSbDailyBranchMinAggregateOutputType | null
-    _max: FactSbDailyBranchMaxAggregateOutputType | null
-  }
-
-  export type FactSbDailyBranchAvgAggregateOutputType = {
-    netSbOpened: number | null
-    qualifiedCount: number | null
-    sbClosed: number | null
-  }
-
-  export type FactSbDailyBranchSumAggregateOutputType = {
-    netSbOpened: number | null
-    qualifiedCount: number | null
-    sbClosed: number | null
-  }
-
-  export type FactSbDailyBranchMinAggregateOutputType = {
-    id: string | null
-    solId: string | null
-    openDay: Date | null
-    netSbOpened: number | null
-    workingDayFlag: boolean | null
-    qualifiedCount: number | null
-    dataQualityFlag: string | null
-    createdAt: Date | null
-    sbClosed: number | null
-  }
-
-  export type FactSbDailyBranchMaxAggregateOutputType = {
-    id: string | null
-    solId: string | null
-    openDay: Date | null
-    netSbOpened: number | null
-    workingDayFlag: boolean | null
-    qualifiedCount: number | null
-    dataQualityFlag: string | null
-    createdAt: Date | null
-    sbClosed: number | null
-  }
-
-  export type FactSbDailyBranchCountAggregateOutputType = {
-    id: number
-    solId: number
-    openDay: number
-    netSbOpened: number
-    workingDayFlag: number
-    qualifiedCount: number
-    dataQualityFlag: number
-    createdAt: number
-    sbClosed: number
-    _all: number
-  }
-
-
-  export type FactSbDailyBranchAvgAggregateInputType = {
-    netSbOpened?: true
-    qualifiedCount?: true
-    sbClosed?: true
-  }
-
-  export type FactSbDailyBranchSumAggregateInputType = {
-    netSbOpened?: true
-    qualifiedCount?: true
-    sbClosed?: true
-  }
-
-  export type FactSbDailyBranchMinAggregateInputType = {
-    id?: true
-    solId?: true
-    openDay?: true
-    netSbOpened?: true
-    workingDayFlag?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    sbClosed?: true
-  }
-
-  export type FactSbDailyBranchMaxAggregateInputType = {
-    id?: true
-    solId?: true
-    openDay?: true
-    netSbOpened?: true
-    workingDayFlag?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    sbClosed?: true
-  }
-
-  export type FactSbDailyBranchCountAggregateInputType = {
-    id?: true
-    solId?: true
-    openDay?: true
-    netSbOpened?: true
-    workingDayFlag?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    sbClosed?: true
-    _all?: true
-  }
-
-  export type FactSbDailyBranchAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FactSbDailyBranch to aggregate.
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactSbDailyBranches to fetch.
-     */
-    orderBy?: FactSbDailyBranchOrderByWithRelationInput | FactSbDailyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: FactSbDailyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactSbDailyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactSbDailyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned FactSbDailyBranches
-    **/
-    _count?: true | FactSbDailyBranchCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: FactSbDailyBranchAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: FactSbDailyBranchSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: FactSbDailyBranchMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: FactSbDailyBranchMaxAggregateInputType
-  }
-
-  export type GetFactSbDailyBranchAggregateType<T extends FactSbDailyBranchAggregateArgs> = {
-        [P in keyof T & keyof AggregateFactSbDailyBranch]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateFactSbDailyBranch[P]>
-      : GetScalarType<T[P], AggregateFactSbDailyBranch[P]>
-  }
-
-
-
-
-  export type FactSbDailyBranchGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FactSbDailyBranchWhereInput
-    orderBy?: FactSbDailyBranchOrderByWithAggregationInput | FactSbDailyBranchOrderByWithAggregationInput[]
-    by: FactSbDailyBranchScalarFieldEnum[] | FactSbDailyBranchScalarFieldEnum
-    having?: FactSbDailyBranchScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: FactSbDailyBranchCountAggregateInputType | true
-    _avg?: FactSbDailyBranchAvgAggregateInputType
-    _sum?: FactSbDailyBranchSumAggregateInputType
-    _min?: FactSbDailyBranchMinAggregateInputType
-    _max?: FactSbDailyBranchMaxAggregateInputType
-  }
-
-  export type FactSbDailyBranchGroupByOutputType = {
-    id: string
-    solId: string
-    openDay: Date
-    netSbOpened: number
-    workingDayFlag: boolean
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt: Date
-    sbClosed: number
-    _count: FactSbDailyBranchCountAggregateOutputType | null
-    _avg: FactSbDailyBranchAvgAggregateOutputType | null
-    _sum: FactSbDailyBranchSumAggregateOutputType | null
-    _min: FactSbDailyBranchMinAggregateOutputType | null
-    _max: FactSbDailyBranchMaxAggregateOutputType | null
-  }
-
-  type GetFactSbDailyBranchGroupByPayload<T extends FactSbDailyBranchGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<FactSbDailyBranchGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof FactSbDailyBranchGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], FactSbDailyBranchGroupByOutputType[P]>
-            : GetScalarType<T[P], FactSbDailyBranchGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type FactSbDailyBranchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    openDay?: boolean
-    netSbOpened?: boolean
-    workingDayFlag?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    sbClosed?: boolean
-  }, ExtArgs["result"]["factSbDailyBranch"]>
-
-  export type FactSbDailyBranchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    openDay?: boolean
-    netSbOpened?: boolean
-    workingDayFlag?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    sbClosed?: boolean
-  }, ExtArgs["result"]["factSbDailyBranch"]>
-
-  export type FactSbDailyBranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    openDay?: boolean
-    netSbOpened?: boolean
-    workingDayFlag?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    sbClosed?: boolean
-  }, ExtArgs["result"]["factSbDailyBranch"]>
-
-  export type FactSbDailyBranchSelectScalar = {
-    id?: boolean
-    solId?: boolean
-    openDay?: boolean
-    netSbOpened?: boolean
-    workingDayFlag?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    sbClosed?: boolean
-  }
-
-  export type FactSbDailyBranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "solId" | "openDay" | "netSbOpened" | "workingDayFlag" | "qualifiedCount" | "dataQualityFlag" | "createdAt" | "sbClosed", ExtArgs["result"]["factSbDailyBranch"]>
-
-  export type $FactSbDailyBranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FactSbDailyBranch"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      solId: string
-      openDay: Date
-      netSbOpened: number
-      workingDayFlag: boolean
-      qualifiedCount: number
-      dataQualityFlag: string
-      createdAt: Date
-      sbClosed: number
-    }, ExtArgs["result"]["factSbDailyBranch"]>
-    composites: {}
-  }
-
-  type FactSbDailyBranchGetPayload<S extends boolean | null | undefined | FactSbDailyBranchDefaultArgs> = $Result.GetResult<Prisma.$FactSbDailyBranchPayload, S>
-
-  type FactSbDailyBranchCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<FactSbDailyBranchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: FactSbDailyBranchCountAggregateInputType | true
-    }
-
-  export interface FactSbDailyBranchDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FactSbDailyBranch'], meta: { name: 'FactSbDailyBranch' } }
-    /**
-     * Find zero or one FactSbDailyBranch that matches the filter.
-     * @param {FactSbDailyBranchFindUniqueArgs} args - Arguments to find a FactSbDailyBranch
-     * @example
-     * // Get one FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends FactSbDailyBranchFindUniqueArgs>(args: SelectSubset<T, FactSbDailyBranchFindUniqueArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one FactSbDailyBranch that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {FactSbDailyBranchFindUniqueOrThrowArgs} args - Arguments to find a FactSbDailyBranch
-     * @example
-     * // Get one FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends FactSbDailyBranchFindUniqueOrThrowArgs>(args: SelectSubset<T, FactSbDailyBranchFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FactSbDailyBranch that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchFindFirstArgs} args - Arguments to find a FactSbDailyBranch
-     * @example
-     * // Get one FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends FactSbDailyBranchFindFirstArgs>(args?: SelectSubset<T, FactSbDailyBranchFindFirstArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FactSbDailyBranch that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchFindFirstOrThrowArgs} args - Arguments to find a FactSbDailyBranch
-     * @example
-     * // Get one FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends FactSbDailyBranchFindFirstOrThrowArgs>(args?: SelectSubset<T, FactSbDailyBranchFindFirstOrThrowArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more FactSbDailyBranches that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all FactSbDailyBranches
-     * const factSbDailyBranches = await prisma.factSbDailyBranch.findMany()
-     * 
-     * // Get first 10 FactSbDailyBranches
-     * const factSbDailyBranches = await prisma.factSbDailyBranch.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const factSbDailyBranchWithIdOnly = await prisma.factSbDailyBranch.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends FactSbDailyBranchFindManyArgs>(args?: SelectSubset<T, FactSbDailyBranchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a FactSbDailyBranch.
-     * @param {FactSbDailyBranchCreateArgs} args - Arguments to create a FactSbDailyBranch.
-     * @example
-     * // Create one FactSbDailyBranch
-     * const FactSbDailyBranch = await prisma.factSbDailyBranch.create({
-     *   data: {
-     *     // ... data to create a FactSbDailyBranch
-     *   }
-     * })
-     * 
-     */
-    create<T extends FactSbDailyBranchCreateArgs>(args: SelectSubset<T, FactSbDailyBranchCreateArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many FactSbDailyBranches.
-     * @param {FactSbDailyBranchCreateManyArgs} args - Arguments to create many FactSbDailyBranches.
-     * @example
-     * // Create many FactSbDailyBranches
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends FactSbDailyBranchCreateManyArgs>(args?: SelectSubset<T, FactSbDailyBranchCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many FactSbDailyBranches and returns the data saved in the database.
-     * @param {FactSbDailyBranchCreateManyAndReturnArgs} args - Arguments to create many FactSbDailyBranches.
-     * @example
-     * // Create many FactSbDailyBranches
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many FactSbDailyBranches and only return the `id`
-     * const factSbDailyBranchWithIdOnly = await prisma.factSbDailyBranch.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends FactSbDailyBranchCreateManyAndReturnArgs>(args?: SelectSubset<T, FactSbDailyBranchCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a FactSbDailyBranch.
-     * @param {FactSbDailyBranchDeleteArgs} args - Arguments to delete one FactSbDailyBranch.
-     * @example
-     * // Delete one FactSbDailyBranch
-     * const FactSbDailyBranch = await prisma.factSbDailyBranch.delete({
-     *   where: {
-     *     // ... filter to delete one FactSbDailyBranch
-     *   }
-     * })
-     * 
-     */
-    delete<T extends FactSbDailyBranchDeleteArgs>(args: SelectSubset<T, FactSbDailyBranchDeleteArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one FactSbDailyBranch.
-     * @param {FactSbDailyBranchUpdateArgs} args - Arguments to update one FactSbDailyBranch.
-     * @example
-     * // Update one FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends FactSbDailyBranchUpdateArgs>(args: SelectSubset<T, FactSbDailyBranchUpdateArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more FactSbDailyBranches.
-     * @param {FactSbDailyBranchDeleteManyArgs} args - Arguments to filter FactSbDailyBranches to delete.
-     * @example
-     * // Delete a few FactSbDailyBranches
-     * const { count } = await prisma.factSbDailyBranch.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends FactSbDailyBranchDeleteManyArgs>(args?: SelectSubset<T, FactSbDailyBranchDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FactSbDailyBranches.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many FactSbDailyBranches
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends FactSbDailyBranchUpdateManyArgs>(args: SelectSubset<T, FactSbDailyBranchUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FactSbDailyBranches and returns the data updated in the database.
-     * @param {FactSbDailyBranchUpdateManyAndReturnArgs} args - Arguments to update many FactSbDailyBranches.
-     * @example
-     * // Update many FactSbDailyBranches
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more FactSbDailyBranches and only return the `id`
-     * const factSbDailyBranchWithIdOnly = await prisma.factSbDailyBranch.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends FactSbDailyBranchUpdateManyAndReturnArgs>(args: SelectSubset<T, FactSbDailyBranchUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one FactSbDailyBranch.
-     * @param {FactSbDailyBranchUpsertArgs} args - Arguments to update or create a FactSbDailyBranch.
-     * @example
-     * // Update or create a FactSbDailyBranch
-     * const factSbDailyBranch = await prisma.factSbDailyBranch.upsert({
-     *   create: {
-     *     // ... data to create a FactSbDailyBranch
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the FactSbDailyBranch we want to update
-     *   }
-     * })
-     */
-    upsert<T extends FactSbDailyBranchUpsertArgs>(args: SelectSubset<T, FactSbDailyBranchUpsertArgs<ExtArgs>>): Prisma__FactSbDailyBranchClient<$Result.GetResult<Prisma.$FactSbDailyBranchPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of FactSbDailyBranches.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchCountArgs} args - Arguments to filter FactSbDailyBranches to count.
-     * @example
-     * // Count the number of FactSbDailyBranches
-     * const count = await prisma.factSbDailyBranch.count({
-     *   where: {
-     *     // ... the filter for the FactSbDailyBranches we want to count
-     *   }
-     * })
-    **/
-    count<T extends FactSbDailyBranchCountArgs>(
-      args?: Subset<T, FactSbDailyBranchCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], FactSbDailyBranchCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a FactSbDailyBranch.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends FactSbDailyBranchAggregateArgs>(args: Subset<T, FactSbDailyBranchAggregateArgs>): Prisma.PrismaPromise<GetFactSbDailyBranchAggregateType<T>>
-
-    /**
-     * Group by FactSbDailyBranch.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactSbDailyBranchGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends FactSbDailyBranchGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FactSbDailyBranchGroupByArgs['orderBy'] }
-        : { orderBy?: FactSbDailyBranchGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, FactSbDailyBranchGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFactSbDailyBranchGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the FactSbDailyBranch model
-   */
-  readonly fields: FactSbDailyBranchFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for FactSbDailyBranch.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__FactSbDailyBranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the FactSbDailyBranch model
-   */
-  interface FactSbDailyBranchFieldRefs {
-    readonly id: FieldRef<"FactSbDailyBranch", 'String'>
-    readonly solId: FieldRef<"FactSbDailyBranch", 'String'>
-    readonly openDay: FieldRef<"FactSbDailyBranch", 'DateTime'>
-    readonly netSbOpened: FieldRef<"FactSbDailyBranch", 'Int'>
-    readonly workingDayFlag: FieldRef<"FactSbDailyBranch", 'Boolean'>
-    readonly qualifiedCount: FieldRef<"FactSbDailyBranch", 'Int'>
-    readonly dataQualityFlag: FieldRef<"FactSbDailyBranch", 'String'>
-    readonly createdAt: FieldRef<"FactSbDailyBranch", 'DateTime'>
-    readonly sbClosed: FieldRef<"FactSbDailyBranch", 'Int'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * FactSbDailyBranch findUnique
-   */
-  export type FactSbDailyBranchFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactSbDailyBranch to fetch.
-     */
-    where: FactSbDailyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactSbDailyBranch findUniqueOrThrow
-   */
-  export type FactSbDailyBranchFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactSbDailyBranch to fetch.
-     */
-    where: FactSbDailyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactSbDailyBranch findFirst
-   */
-  export type FactSbDailyBranchFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactSbDailyBranch to fetch.
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactSbDailyBranches to fetch.
-     */
-    orderBy?: FactSbDailyBranchOrderByWithRelationInput | FactSbDailyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FactSbDailyBranches.
-     */
-    cursor?: FactSbDailyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactSbDailyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactSbDailyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactSbDailyBranches.
-     */
-    distinct?: FactSbDailyBranchScalarFieldEnum | FactSbDailyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactSbDailyBranch findFirstOrThrow
-   */
-  export type FactSbDailyBranchFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactSbDailyBranch to fetch.
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactSbDailyBranches to fetch.
-     */
-    orderBy?: FactSbDailyBranchOrderByWithRelationInput | FactSbDailyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FactSbDailyBranches.
-     */
-    cursor?: FactSbDailyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactSbDailyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactSbDailyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactSbDailyBranches.
-     */
-    distinct?: FactSbDailyBranchScalarFieldEnum | FactSbDailyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactSbDailyBranch findMany
-   */
-  export type FactSbDailyBranchFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactSbDailyBranches to fetch.
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactSbDailyBranches to fetch.
-     */
-    orderBy?: FactSbDailyBranchOrderByWithRelationInput | FactSbDailyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing FactSbDailyBranches.
-     */
-    cursor?: FactSbDailyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactSbDailyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactSbDailyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactSbDailyBranches.
-     */
-    distinct?: FactSbDailyBranchScalarFieldEnum | FactSbDailyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactSbDailyBranch create
-   */
-  export type FactSbDailyBranchCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * The data needed to create a FactSbDailyBranch.
-     */
-    data: XOR<FactSbDailyBranchCreateInput, FactSbDailyBranchUncheckedCreateInput>
-  }
-
-  /**
-   * FactSbDailyBranch createMany
-   */
-  export type FactSbDailyBranchCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many FactSbDailyBranches.
-     */
-    data: FactSbDailyBranchCreateManyInput | FactSbDailyBranchCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FactSbDailyBranch createManyAndReturn
-   */
-  export type FactSbDailyBranchCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * The data used to create many FactSbDailyBranches.
-     */
-    data: FactSbDailyBranchCreateManyInput | FactSbDailyBranchCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FactSbDailyBranch update
-   */
-  export type FactSbDailyBranchUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * The data needed to update a FactSbDailyBranch.
-     */
-    data: XOR<FactSbDailyBranchUpdateInput, FactSbDailyBranchUncheckedUpdateInput>
-    /**
-     * Choose, which FactSbDailyBranch to update.
-     */
-    where: FactSbDailyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactSbDailyBranch updateMany
-   */
-  export type FactSbDailyBranchUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update FactSbDailyBranches.
-     */
-    data: XOR<FactSbDailyBranchUpdateManyMutationInput, FactSbDailyBranchUncheckedUpdateManyInput>
-    /**
-     * Filter which FactSbDailyBranches to update
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * Limit how many FactSbDailyBranches to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactSbDailyBranch updateManyAndReturn
-   */
-  export type FactSbDailyBranchUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * The data used to update FactSbDailyBranches.
-     */
-    data: XOR<FactSbDailyBranchUpdateManyMutationInput, FactSbDailyBranchUncheckedUpdateManyInput>
-    /**
-     * Filter which FactSbDailyBranches to update
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * Limit how many FactSbDailyBranches to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactSbDailyBranch upsert
-   */
-  export type FactSbDailyBranchUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * The filter to search for the FactSbDailyBranch to update in case it exists.
-     */
-    where: FactSbDailyBranchWhereUniqueInput
-    /**
-     * In case the FactSbDailyBranch found by the `where` argument doesn't exist, create a new FactSbDailyBranch with this data.
-     */
-    create: XOR<FactSbDailyBranchCreateInput, FactSbDailyBranchUncheckedCreateInput>
-    /**
-     * In case the FactSbDailyBranch was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<FactSbDailyBranchUpdateInput, FactSbDailyBranchUncheckedUpdateInput>
-  }
-
-  /**
-   * FactSbDailyBranch delete
-   */
-  export type FactSbDailyBranchDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-    /**
-     * Filter which FactSbDailyBranch to delete.
-     */
-    where: FactSbDailyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactSbDailyBranch deleteMany
-   */
-  export type FactSbDailyBranchDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FactSbDailyBranches to delete
-     */
-    where?: FactSbDailyBranchWhereInput
-    /**
-     * Limit how many FactSbDailyBranches to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactSbDailyBranch without action
-   */
-  export type FactSbDailyBranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactSbDailyBranch
-     */
-    select?: FactSbDailyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactSbDailyBranch
-     */
-    omit?: FactSbDailyBranchOmit<ExtArgs> | null
-  }
-
-
-  /**
-   * Model FactCdMonthlyBranch
-   */
-
-  export type AggregateFactCdMonthlyBranch = {
-    _count: FactCdMonthlyBranchCountAggregateOutputType | null
-    _avg: FactCdMonthlyBranchAvgAggregateOutputType | null
-    _sum: FactCdMonthlyBranchSumAggregateOutputType | null
-    _min: FactCdMonthlyBranchMinAggregateOutputType | null
-    _max: FactCdMonthlyBranchMaxAggregateOutputType | null
-  }
-
-  export type FactCdMonthlyBranchAvgAggregateOutputType = {
-    netCdOpened: number | null
-    qualifiedCount: number | null
-    cdClosed: number | null
-  }
-
-  export type FactCdMonthlyBranchSumAggregateOutputType = {
-    netCdOpened: number | null
-    qualifiedCount: number | null
-    cdClosed: number | null
-  }
-
-  export type FactCdMonthlyBranchMinAggregateOutputType = {
-    id: string | null
-    solId: string | null
-    monthKey: string | null
-    netCdOpened: number | null
-    qualifiedCount: number | null
-    dataQualityFlag: string | null
-    createdAt: Date | null
-    cdClosed: number | null
-  }
-
-  export type FactCdMonthlyBranchMaxAggregateOutputType = {
-    id: string | null
-    solId: string | null
-    monthKey: string | null
-    netCdOpened: number | null
-    qualifiedCount: number | null
-    dataQualityFlag: string | null
-    createdAt: Date | null
-    cdClosed: number | null
-  }
-
-  export type FactCdMonthlyBranchCountAggregateOutputType = {
-    id: number
-    solId: number
-    monthKey: number
-    netCdOpened: number
-    qualifiedCount: number
-    dataQualityFlag: number
-    createdAt: number
-    cdClosed: number
-    _all: number
-  }
-
-
-  export type FactCdMonthlyBranchAvgAggregateInputType = {
-    netCdOpened?: true
-    qualifiedCount?: true
-    cdClosed?: true
-  }
-
-  export type FactCdMonthlyBranchSumAggregateInputType = {
-    netCdOpened?: true
-    qualifiedCount?: true
-    cdClosed?: true
-  }
-
-  export type FactCdMonthlyBranchMinAggregateInputType = {
-    id?: true
-    solId?: true
-    monthKey?: true
-    netCdOpened?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    cdClosed?: true
-  }
-
-  export type FactCdMonthlyBranchMaxAggregateInputType = {
-    id?: true
-    solId?: true
-    monthKey?: true
-    netCdOpened?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    cdClosed?: true
-  }
-
-  export type FactCdMonthlyBranchCountAggregateInputType = {
-    id?: true
-    solId?: true
-    monthKey?: true
-    netCdOpened?: true
-    qualifiedCount?: true
-    dataQualityFlag?: true
-    createdAt?: true
-    cdClosed?: true
-    _all?: true
-  }
-
-  export type FactCdMonthlyBranchAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FactCdMonthlyBranch to aggregate.
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactCdMonthlyBranches to fetch.
-     */
-    orderBy?: FactCdMonthlyBranchOrderByWithRelationInput | FactCdMonthlyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: FactCdMonthlyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactCdMonthlyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactCdMonthlyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned FactCdMonthlyBranches
-    **/
-    _count?: true | FactCdMonthlyBranchCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: FactCdMonthlyBranchAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: FactCdMonthlyBranchSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: FactCdMonthlyBranchMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: FactCdMonthlyBranchMaxAggregateInputType
-  }
-
-  export type GetFactCdMonthlyBranchAggregateType<T extends FactCdMonthlyBranchAggregateArgs> = {
-        [P in keyof T & keyof AggregateFactCdMonthlyBranch]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateFactCdMonthlyBranch[P]>
-      : GetScalarType<T[P], AggregateFactCdMonthlyBranch[P]>
-  }
-
-
-
-
-  export type FactCdMonthlyBranchGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: FactCdMonthlyBranchWhereInput
-    orderBy?: FactCdMonthlyBranchOrderByWithAggregationInput | FactCdMonthlyBranchOrderByWithAggregationInput[]
-    by: FactCdMonthlyBranchScalarFieldEnum[] | FactCdMonthlyBranchScalarFieldEnum
-    having?: FactCdMonthlyBranchScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: FactCdMonthlyBranchCountAggregateInputType | true
-    _avg?: FactCdMonthlyBranchAvgAggregateInputType
-    _sum?: FactCdMonthlyBranchSumAggregateInputType
-    _min?: FactCdMonthlyBranchMinAggregateInputType
-    _max?: FactCdMonthlyBranchMaxAggregateInputType
-  }
-
-  export type FactCdMonthlyBranchGroupByOutputType = {
-    id: string
-    solId: string
-    monthKey: string
-    netCdOpened: number
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt: Date
-    cdClosed: number
-    _count: FactCdMonthlyBranchCountAggregateOutputType | null
-    _avg: FactCdMonthlyBranchAvgAggregateOutputType | null
-    _sum: FactCdMonthlyBranchSumAggregateOutputType | null
-    _min: FactCdMonthlyBranchMinAggregateOutputType | null
-    _max: FactCdMonthlyBranchMaxAggregateOutputType | null
-  }
-
-  type GetFactCdMonthlyBranchGroupByPayload<T extends FactCdMonthlyBranchGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<FactCdMonthlyBranchGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof FactCdMonthlyBranchGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], FactCdMonthlyBranchGroupByOutputType[P]>
-            : GetScalarType<T[P], FactCdMonthlyBranchGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type FactCdMonthlyBranchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    monthKey?: boolean
-    netCdOpened?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    cdClosed?: boolean
-  }, ExtArgs["result"]["factCdMonthlyBranch"]>
-
-  export type FactCdMonthlyBranchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    monthKey?: boolean
-    netCdOpened?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    cdClosed?: boolean
-  }, ExtArgs["result"]["factCdMonthlyBranch"]>
-
-  export type FactCdMonthlyBranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    solId?: boolean
-    monthKey?: boolean
-    netCdOpened?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    cdClosed?: boolean
-  }, ExtArgs["result"]["factCdMonthlyBranch"]>
-
-  export type FactCdMonthlyBranchSelectScalar = {
-    id?: boolean
-    solId?: boolean
-    monthKey?: boolean
-    netCdOpened?: boolean
-    qualifiedCount?: boolean
-    dataQualityFlag?: boolean
-    createdAt?: boolean
-    cdClosed?: boolean
-  }
-
-  export type FactCdMonthlyBranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "solId" | "monthKey" | "netCdOpened" | "qualifiedCount" | "dataQualityFlag" | "createdAt" | "cdClosed", ExtArgs["result"]["factCdMonthlyBranch"]>
-
-  export type $FactCdMonthlyBranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "FactCdMonthlyBranch"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      solId: string
-      monthKey: string
-      netCdOpened: number
-      qualifiedCount: number
-      dataQualityFlag: string
-      createdAt: Date
-      cdClosed: number
-    }, ExtArgs["result"]["factCdMonthlyBranch"]>
-    composites: {}
-  }
-
-  type FactCdMonthlyBranchGetPayload<S extends boolean | null | undefined | FactCdMonthlyBranchDefaultArgs> = $Result.GetResult<Prisma.$FactCdMonthlyBranchPayload, S>
-
-  type FactCdMonthlyBranchCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<FactCdMonthlyBranchFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: FactCdMonthlyBranchCountAggregateInputType | true
-    }
-
-  export interface FactCdMonthlyBranchDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FactCdMonthlyBranch'], meta: { name: 'FactCdMonthlyBranch' } }
-    /**
-     * Find zero or one FactCdMonthlyBranch that matches the filter.
-     * @param {FactCdMonthlyBranchFindUniqueArgs} args - Arguments to find a FactCdMonthlyBranch
-     * @example
-     * // Get one FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends FactCdMonthlyBranchFindUniqueArgs>(args: SelectSubset<T, FactCdMonthlyBranchFindUniqueArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one FactCdMonthlyBranch that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {FactCdMonthlyBranchFindUniqueOrThrowArgs} args - Arguments to find a FactCdMonthlyBranch
-     * @example
-     * // Get one FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends FactCdMonthlyBranchFindUniqueOrThrowArgs>(args: SelectSubset<T, FactCdMonthlyBranchFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FactCdMonthlyBranch that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchFindFirstArgs} args - Arguments to find a FactCdMonthlyBranch
-     * @example
-     * // Get one FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends FactCdMonthlyBranchFindFirstArgs>(args?: SelectSubset<T, FactCdMonthlyBranchFindFirstArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first FactCdMonthlyBranch that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchFindFirstOrThrowArgs} args - Arguments to find a FactCdMonthlyBranch
-     * @example
-     * // Get one FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends FactCdMonthlyBranchFindFirstOrThrowArgs>(args?: SelectSubset<T, FactCdMonthlyBranchFindFirstOrThrowArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more FactCdMonthlyBranches that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all FactCdMonthlyBranches
-     * const factCdMonthlyBranches = await prisma.factCdMonthlyBranch.findMany()
-     * 
-     * // Get first 10 FactCdMonthlyBranches
-     * const factCdMonthlyBranches = await prisma.factCdMonthlyBranch.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const factCdMonthlyBranchWithIdOnly = await prisma.factCdMonthlyBranch.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends FactCdMonthlyBranchFindManyArgs>(args?: SelectSubset<T, FactCdMonthlyBranchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a FactCdMonthlyBranch.
-     * @param {FactCdMonthlyBranchCreateArgs} args - Arguments to create a FactCdMonthlyBranch.
-     * @example
-     * // Create one FactCdMonthlyBranch
-     * const FactCdMonthlyBranch = await prisma.factCdMonthlyBranch.create({
-     *   data: {
-     *     // ... data to create a FactCdMonthlyBranch
-     *   }
-     * })
-     * 
-     */
-    create<T extends FactCdMonthlyBranchCreateArgs>(args: SelectSubset<T, FactCdMonthlyBranchCreateArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many FactCdMonthlyBranches.
-     * @param {FactCdMonthlyBranchCreateManyArgs} args - Arguments to create many FactCdMonthlyBranches.
-     * @example
-     * // Create many FactCdMonthlyBranches
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends FactCdMonthlyBranchCreateManyArgs>(args?: SelectSubset<T, FactCdMonthlyBranchCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many FactCdMonthlyBranches and returns the data saved in the database.
-     * @param {FactCdMonthlyBranchCreateManyAndReturnArgs} args - Arguments to create many FactCdMonthlyBranches.
-     * @example
-     * // Create many FactCdMonthlyBranches
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many FactCdMonthlyBranches and only return the `id`
-     * const factCdMonthlyBranchWithIdOnly = await prisma.factCdMonthlyBranch.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends FactCdMonthlyBranchCreateManyAndReturnArgs>(args?: SelectSubset<T, FactCdMonthlyBranchCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a FactCdMonthlyBranch.
-     * @param {FactCdMonthlyBranchDeleteArgs} args - Arguments to delete one FactCdMonthlyBranch.
-     * @example
-     * // Delete one FactCdMonthlyBranch
-     * const FactCdMonthlyBranch = await prisma.factCdMonthlyBranch.delete({
-     *   where: {
-     *     // ... filter to delete one FactCdMonthlyBranch
-     *   }
-     * })
-     * 
-     */
-    delete<T extends FactCdMonthlyBranchDeleteArgs>(args: SelectSubset<T, FactCdMonthlyBranchDeleteArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one FactCdMonthlyBranch.
-     * @param {FactCdMonthlyBranchUpdateArgs} args - Arguments to update one FactCdMonthlyBranch.
-     * @example
-     * // Update one FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends FactCdMonthlyBranchUpdateArgs>(args: SelectSubset<T, FactCdMonthlyBranchUpdateArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more FactCdMonthlyBranches.
-     * @param {FactCdMonthlyBranchDeleteManyArgs} args - Arguments to filter FactCdMonthlyBranches to delete.
-     * @example
-     * // Delete a few FactCdMonthlyBranches
-     * const { count } = await prisma.factCdMonthlyBranch.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends FactCdMonthlyBranchDeleteManyArgs>(args?: SelectSubset<T, FactCdMonthlyBranchDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FactCdMonthlyBranches.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many FactCdMonthlyBranches
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends FactCdMonthlyBranchUpdateManyArgs>(args: SelectSubset<T, FactCdMonthlyBranchUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more FactCdMonthlyBranches and returns the data updated in the database.
-     * @param {FactCdMonthlyBranchUpdateManyAndReturnArgs} args - Arguments to update many FactCdMonthlyBranches.
-     * @example
-     * // Update many FactCdMonthlyBranches
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more FactCdMonthlyBranches and only return the `id`
-     * const factCdMonthlyBranchWithIdOnly = await prisma.factCdMonthlyBranch.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends FactCdMonthlyBranchUpdateManyAndReturnArgs>(args: SelectSubset<T, FactCdMonthlyBranchUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one FactCdMonthlyBranch.
-     * @param {FactCdMonthlyBranchUpsertArgs} args - Arguments to update or create a FactCdMonthlyBranch.
-     * @example
-     * // Update or create a FactCdMonthlyBranch
-     * const factCdMonthlyBranch = await prisma.factCdMonthlyBranch.upsert({
-     *   create: {
-     *     // ... data to create a FactCdMonthlyBranch
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the FactCdMonthlyBranch we want to update
-     *   }
-     * })
-     */
-    upsert<T extends FactCdMonthlyBranchUpsertArgs>(args: SelectSubset<T, FactCdMonthlyBranchUpsertArgs<ExtArgs>>): Prisma__FactCdMonthlyBranchClient<$Result.GetResult<Prisma.$FactCdMonthlyBranchPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of FactCdMonthlyBranches.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchCountArgs} args - Arguments to filter FactCdMonthlyBranches to count.
-     * @example
-     * // Count the number of FactCdMonthlyBranches
-     * const count = await prisma.factCdMonthlyBranch.count({
-     *   where: {
-     *     // ... the filter for the FactCdMonthlyBranches we want to count
-     *   }
-     * })
-    **/
-    count<T extends FactCdMonthlyBranchCountArgs>(
-      args?: Subset<T, FactCdMonthlyBranchCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], FactCdMonthlyBranchCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a FactCdMonthlyBranch.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends FactCdMonthlyBranchAggregateArgs>(args: Subset<T, FactCdMonthlyBranchAggregateArgs>): Prisma.PrismaPromise<GetFactCdMonthlyBranchAggregateType<T>>
-
-    /**
-     * Group by FactCdMonthlyBranch.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FactCdMonthlyBranchGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends FactCdMonthlyBranchGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: FactCdMonthlyBranchGroupByArgs['orderBy'] }
-        : { orderBy?: FactCdMonthlyBranchGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, FactCdMonthlyBranchGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFactCdMonthlyBranchGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the FactCdMonthlyBranch model
-   */
-  readonly fields: FactCdMonthlyBranchFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for FactCdMonthlyBranch.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__FactCdMonthlyBranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the FactCdMonthlyBranch model
-   */
-  interface FactCdMonthlyBranchFieldRefs {
-    readonly id: FieldRef<"FactCdMonthlyBranch", 'String'>
-    readonly solId: FieldRef<"FactCdMonthlyBranch", 'String'>
-    readonly monthKey: FieldRef<"FactCdMonthlyBranch", 'String'>
-    readonly netCdOpened: FieldRef<"FactCdMonthlyBranch", 'Int'>
-    readonly qualifiedCount: FieldRef<"FactCdMonthlyBranch", 'Int'>
-    readonly dataQualityFlag: FieldRef<"FactCdMonthlyBranch", 'String'>
-    readonly createdAt: FieldRef<"FactCdMonthlyBranch", 'DateTime'>
-    readonly cdClosed: FieldRef<"FactCdMonthlyBranch", 'Int'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * FactCdMonthlyBranch findUnique
-   */
-  export type FactCdMonthlyBranchFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactCdMonthlyBranch to fetch.
-     */
-    where: FactCdMonthlyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactCdMonthlyBranch findUniqueOrThrow
-   */
-  export type FactCdMonthlyBranchFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactCdMonthlyBranch to fetch.
-     */
-    where: FactCdMonthlyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactCdMonthlyBranch findFirst
-   */
-  export type FactCdMonthlyBranchFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactCdMonthlyBranch to fetch.
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactCdMonthlyBranches to fetch.
-     */
-    orderBy?: FactCdMonthlyBranchOrderByWithRelationInput | FactCdMonthlyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FactCdMonthlyBranches.
-     */
-    cursor?: FactCdMonthlyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactCdMonthlyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactCdMonthlyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactCdMonthlyBranches.
-     */
-    distinct?: FactCdMonthlyBranchScalarFieldEnum | FactCdMonthlyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactCdMonthlyBranch findFirstOrThrow
-   */
-  export type FactCdMonthlyBranchFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactCdMonthlyBranch to fetch.
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactCdMonthlyBranches to fetch.
-     */
-    orderBy?: FactCdMonthlyBranchOrderByWithRelationInput | FactCdMonthlyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for FactCdMonthlyBranches.
-     */
-    cursor?: FactCdMonthlyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactCdMonthlyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactCdMonthlyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactCdMonthlyBranches.
-     */
-    distinct?: FactCdMonthlyBranchScalarFieldEnum | FactCdMonthlyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactCdMonthlyBranch findMany
-   */
-  export type FactCdMonthlyBranchFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter, which FactCdMonthlyBranches to fetch.
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of FactCdMonthlyBranches to fetch.
-     */
-    orderBy?: FactCdMonthlyBranchOrderByWithRelationInput | FactCdMonthlyBranchOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing FactCdMonthlyBranches.
-     */
-    cursor?: FactCdMonthlyBranchWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` FactCdMonthlyBranches from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` FactCdMonthlyBranches.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of FactCdMonthlyBranches.
-     */
-    distinct?: FactCdMonthlyBranchScalarFieldEnum | FactCdMonthlyBranchScalarFieldEnum[]
-  }
-
-  /**
-   * FactCdMonthlyBranch create
-   */
-  export type FactCdMonthlyBranchCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * The data needed to create a FactCdMonthlyBranch.
-     */
-    data: XOR<FactCdMonthlyBranchCreateInput, FactCdMonthlyBranchUncheckedCreateInput>
-  }
-
-  /**
-   * FactCdMonthlyBranch createMany
-   */
-  export type FactCdMonthlyBranchCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many FactCdMonthlyBranches.
-     */
-    data: FactCdMonthlyBranchCreateManyInput | FactCdMonthlyBranchCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FactCdMonthlyBranch createManyAndReturn
-   */
-  export type FactCdMonthlyBranchCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * The data used to create many FactCdMonthlyBranches.
-     */
-    data: FactCdMonthlyBranchCreateManyInput | FactCdMonthlyBranchCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * FactCdMonthlyBranch update
-   */
-  export type FactCdMonthlyBranchUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * The data needed to update a FactCdMonthlyBranch.
-     */
-    data: XOR<FactCdMonthlyBranchUpdateInput, FactCdMonthlyBranchUncheckedUpdateInput>
-    /**
-     * Choose, which FactCdMonthlyBranch to update.
-     */
-    where: FactCdMonthlyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactCdMonthlyBranch updateMany
-   */
-  export type FactCdMonthlyBranchUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update FactCdMonthlyBranches.
-     */
-    data: XOR<FactCdMonthlyBranchUpdateManyMutationInput, FactCdMonthlyBranchUncheckedUpdateManyInput>
-    /**
-     * Filter which FactCdMonthlyBranches to update
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * Limit how many FactCdMonthlyBranches to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactCdMonthlyBranch updateManyAndReturn
-   */
-  export type FactCdMonthlyBranchUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * The data used to update FactCdMonthlyBranches.
-     */
-    data: XOR<FactCdMonthlyBranchUpdateManyMutationInput, FactCdMonthlyBranchUncheckedUpdateManyInput>
-    /**
-     * Filter which FactCdMonthlyBranches to update
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * Limit how many FactCdMonthlyBranches to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactCdMonthlyBranch upsert
-   */
-  export type FactCdMonthlyBranchUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * The filter to search for the FactCdMonthlyBranch to update in case it exists.
-     */
-    where: FactCdMonthlyBranchWhereUniqueInput
-    /**
-     * In case the FactCdMonthlyBranch found by the `where` argument doesn't exist, create a new FactCdMonthlyBranch with this data.
-     */
-    create: XOR<FactCdMonthlyBranchCreateInput, FactCdMonthlyBranchUncheckedCreateInput>
-    /**
-     * In case the FactCdMonthlyBranch was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<FactCdMonthlyBranchUpdateInput, FactCdMonthlyBranchUncheckedUpdateInput>
-  }
-
-  /**
-   * FactCdMonthlyBranch delete
-   */
-  export type FactCdMonthlyBranchDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-    /**
-     * Filter which FactCdMonthlyBranch to delete.
-     */
-    where: FactCdMonthlyBranchWhereUniqueInput
-  }
-
-  /**
-   * FactCdMonthlyBranch deleteMany
-   */
-  export type FactCdMonthlyBranchDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which FactCdMonthlyBranches to delete
-     */
-    where?: FactCdMonthlyBranchWhereInput
-    /**
-     * Limit how many FactCdMonthlyBranches to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * FactCdMonthlyBranch without action
-   */
-  export type FactCdMonthlyBranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the FactCdMonthlyBranch
-     */
-    select?: FactCdMonthlyBranchSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the FactCdMonthlyBranch
-     */
-    omit?: FactCdMonthlyBranchOmit<ExtArgs> | null
-  }
-
-
-  /**
    * Model ProductAdoptionScheme
    */
 
@@ -77569,6 +72617,7 @@ export namespace Prisma {
     minutesJson: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    title: string | null
   }
 
   export type MeetingMaxAggregateOutputType = {
@@ -77580,6 +72629,7 @@ export namespace Prisma {
     minutesJson: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    title: string | null
   }
 
   export type MeetingCountAggregateOutputType = {
@@ -77593,6 +72643,7 @@ export namespace Prisma {
     signatories: number
     createdAt: number
     updatedAt: number
+    title: number
     _all: number
   }
 
@@ -77606,6 +72657,7 @@ export namespace Prisma {
     minutesJson?: true
     createdAt?: true
     updatedAt?: true
+    title?: true
   }
 
   export type MeetingMaxAggregateInputType = {
@@ -77617,6 +72669,7 @@ export namespace Prisma {
     minutesJson?: true
     createdAt?: true
     updatedAt?: true
+    title?: true
   }
 
   export type MeetingCountAggregateInputType = {
@@ -77630,6 +72683,7 @@ export namespace Prisma {
     signatories?: true
     createdAt?: true
     updatedAt?: true
+    title?: true
     _all?: true
   }
 
@@ -77707,7 +72761,7 @@ export namespace Prisma {
 
   export type MeetingGroupByOutputType = {
     id: string
-    committeeId: string
+    committeeId: string | null
     date: Date
     venue: string | null
     status: string
@@ -77716,6 +72770,7 @@ export namespace Prisma {
     signatories: JsonValue | null
     createdAt: Date
     updatedAt: Date
+    title: string | null
     _count: MeetingCountAggregateOutputType | null
     _min: MeetingMinAggregateOutputType | null
     _max: MeetingMaxAggregateOutputType | null
@@ -77746,8 +72801,9 @@ export namespace Prisma {
     signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    title?: boolean
     actionPoints?: boolean | Meeting$actionPointsArgs<ExtArgs>
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
     _count?: boolean | MeetingCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["meeting"]>
 
@@ -77762,7 +72818,8 @@ export namespace Prisma {
     signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    title?: boolean
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
   }, ExtArgs["result"]["meeting"]>
 
   export type MeetingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -77776,7 +72833,8 @@ export namespace Prisma {
     signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    title?: boolean
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
   }, ExtArgs["result"]["meeting"]>
 
   export type MeetingSelectScalar = {
@@ -77790,30 +72848,31 @@ export namespace Prisma {
     signatories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    title?: boolean
   }
 
-  export type MeetingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "committeeId" | "date" | "venue" | "status" | "attendees" | "minutesJson" | "signatories" | "createdAt" | "updatedAt", ExtArgs["result"]["meeting"]>
+  export type MeetingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "committeeId" | "date" | "venue" | "status" | "attendees" | "minutesJson" | "signatories" | "createdAt" | "updatedAt" | "title", ExtArgs["result"]["meeting"]>
   export type MeetingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     actionPoints?: boolean | Meeting$actionPointsArgs<ExtArgs>
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
     _count?: boolean | MeetingCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MeetingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
   }
   export type MeetingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    committee?: boolean | CommitteeDefaultArgs<ExtArgs>
+    committee?: boolean | Meeting$committeeArgs<ExtArgs>
   }
 
   export type $MeetingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Meeting"
     objects: {
       actionPoints: Prisma.$ActionPointPayload<ExtArgs>[]
-      committee: Prisma.$CommitteePayload<ExtArgs>
+      committee: Prisma.$CommitteePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      committeeId: string
+      committeeId: string | null
       date: Date
       venue: string | null
       status: string
@@ -77822,6 +72881,7 @@ export namespace Prisma {
       signatories: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
+      title: string | null
     }, ExtArgs["result"]["meeting"]>
     composites: {}
   }
@@ -78217,7 +73277,7 @@ export namespace Prisma {
   export interface Prisma__MeetingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     actionPoints<T extends Meeting$actionPointsArgs<ExtArgs> = {}>(args?: Subset<T, Meeting$actionPointsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActionPointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    committee<T extends CommitteeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CommitteeDefaultArgs<ExtArgs>>): Prisma__CommitteeClient<$Result.GetResult<Prisma.$CommitteePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    committee<T extends Meeting$committeeArgs<ExtArgs> = {}>(args?: Subset<T, Meeting$committeeArgs<ExtArgs>>): Prisma__CommitteeClient<$Result.GetResult<Prisma.$CommitteePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -78257,6 +73317,7 @@ export namespace Prisma {
     readonly signatories: FieldRef<"Meeting", 'Json'>
     readonly createdAt: FieldRef<"Meeting", 'DateTime'>
     readonly updatedAt: FieldRef<"Meeting", 'DateTime'>
+    readonly title: FieldRef<"Meeting", 'String'>
   }
     
 
@@ -78679,6 +73740,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ActionPointScalarFieldEnum | ActionPointScalarFieldEnum[]
+  }
+
+  /**
+   * Meeting.committee
+   */
+  export type Meeting$committeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Committee
+     */
+    select?: CommitteeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Committee
+     */
+    omit?: CommitteeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CommitteeInclude<ExtArgs> | null
+    where?: CommitteeWhereInput
   }
 
   /**
@@ -93505,7 +88585,6 @@ export namespace Prisma {
     titleTa: 'titleTa',
     contentTa: 'contentTa',
     branchId: 'branchId',
-    parameterId: 'parameterId',
     valueAtTime: 'valueAtTime',
     budgetAtTime: 'budgetAtTime',
     period: 'period',
@@ -93623,33 +88702,6 @@ export namespace Prisma {
   };
 
   export type HolidayScalarFieldEnum = (typeof HolidayScalarFieldEnum)[keyof typeof HolidayScalarFieldEnum]
-
-
-  export const ParameterScalarFieldEnum: {
-    id: 'id',
-    code: 'code',
-    nameEn: 'nameEn',
-    nameTa: 'nameTa',
-    nameHi: 'nameHi',
-    category: 'category',
-    unit: 'unit'
-  };
-
-  export type ParameterScalarFieldEnum = (typeof ParameterScalarFieldEnum)[keyof typeof ParameterScalarFieldEnum]
-
-
-  export const SnapshotScalarFieldEnum: {
-    id: 'id',
-    date: 'date',
-    parameterId: 'parameterId',
-    branchId: 'branchId',
-    value: 'value',
-    budget: 'budget',
-    status: 'status',
-    createdAt: 'createdAt'
-  };
-
-  export type SnapshotScalarFieldEnum = (typeof SnapshotScalarFieldEnum)[keyof typeof SnapshotScalarFieldEnum]
 
 
   export const NoticeScalarFieldEnum: {
@@ -94104,35 +89156,6 @@ export namespace Prisma {
   export type CalendarMasterScalarFieldEnum = (typeof CalendarMasterScalarFieldEnum)[keyof typeof CalendarMasterScalarFieldEnum]
 
 
-  export const FactSbDailyBranchScalarFieldEnum: {
-    id: 'id',
-    solId: 'solId',
-    openDay: 'openDay',
-    netSbOpened: 'netSbOpened',
-    workingDayFlag: 'workingDayFlag',
-    qualifiedCount: 'qualifiedCount',
-    dataQualityFlag: 'dataQualityFlag',
-    createdAt: 'createdAt',
-    sbClosed: 'sbClosed'
-  };
-
-  export type FactSbDailyBranchScalarFieldEnum = (typeof FactSbDailyBranchScalarFieldEnum)[keyof typeof FactSbDailyBranchScalarFieldEnum]
-
-
-  export const FactCdMonthlyBranchScalarFieldEnum: {
-    id: 'id',
-    solId: 'solId',
-    monthKey: 'monthKey',
-    netCdOpened: 'netCdOpened',
-    qualifiedCount: 'qualifiedCount',
-    dataQualityFlag: 'dataQualityFlag',
-    createdAt: 'createdAt',
-    cdClosed: 'cdClosed'
-  };
-
-  export type FactCdMonthlyBranchScalarFieldEnum = (typeof FactCdMonthlyBranchScalarFieldEnum)[keyof typeof FactCdMonthlyBranchScalarFieldEnum]
-
-
   export const ProductAdoptionSchemeScalarFieldEnum: {
     id: 'id',
     code: 'code',
@@ -94312,7 +89335,8 @@ export namespace Prisma {
     minutesJson: 'minutesJson',
     signatories: 'signatories',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    title: 'title'
   };
 
   export type MeetingScalarFieldEnum = (typeof MeetingScalarFieldEnum)[keyof typeof MeetingScalarFieldEnum]
@@ -95101,7 +90125,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryListRelationFilter
     recoveryActions?: RecoveryActionListRelationFilter
     regionalAssets?: RegionalAssetListRelationFilter
-    snapshots?: SnapshotListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
   }
@@ -95155,7 +90178,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryOrderByRelationAggregateInput
     recoveryActions?: RecoveryActionOrderByRelationAggregateInput
     regionalAssets?: RegionalAssetOrderByRelationAggregateInput
-    snapshots?: SnapshotOrderByRelationAggregateInput
     stationeryMovements?: StationeryMovementOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
   }
@@ -95212,7 +90234,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryListRelationFilter
     recoveryActions?: RecoveryActionListRelationFilter
     regionalAssets?: RegionalAssetListRelationFilter
-    snapshots?: SnapshotListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
   }, "id" | "code" | "headUserId" | "secondLineUserId">
@@ -95514,7 +90535,6 @@ export namespace Prisma {
     titleTa?: StringNullableFilter<"Letter"> | string | null
     contentTa?: StringNullableFilter<"Letter"> | string | null
     branchId?: StringFilter<"Letter"> | string
-    parameterId?: StringNullableFilter<"Letter"> | string | null
     valueAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     period?: StringNullableFilter<"Letter"> | string | null
@@ -95535,7 +90555,6 @@ export namespace Prisma {
     signatoryId?: StringNullableFilter<"Letter"> | string | null
     author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
-    parameter?: XOR<ParameterNullableScalarRelationFilter, ParameterWhereInput> | null
     previousVersion?: XOR<LetterNullableScalarRelationFilter, LetterWhereInput> | null
     nextVersions?: LetterListRelationFilter
     signatory?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -95550,7 +90569,6 @@ export namespace Prisma {
     titleTa?: SortOrderInput | SortOrder
     contentTa?: SortOrderInput | SortOrder
     branchId?: SortOrder
-    parameterId?: SortOrderInput | SortOrder
     valueAtTime?: SortOrderInput | SortOrder
     budgetAtTime?: SortOrderInput | SortOrder
     period?: SortOrderInput | SortOrder
@@ -95571,7 +90589,6 @@ export namespace Prisma {
     signatoryId?: SortOrderInput | SortOrder
     author?: UserOrderByWithRelationInput
     branch?: BranchOrderByWithRelationInput
-    parameter?: ParameterOrderByWithRelationInput
     previousVersion?: LetterOrderByWithRelationInput
     nextVersions?: LetterOrderByRelationAggregateInput
     signatory?: UserOrderByWithRelationInput
@@ -95590,7 +90607,6 @@ export namespace Prisma {
     titleTa?: StringNullableFilter<"Letter"> | string | null
     contentTa?: StringNullableFilter<"Letter"> | string | null
     branchId?: StringFilter<"Letter"> | string
-    parameterId?: StringNullableFilter<"Letter"> | string | null
     valueAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     period?: StringNullableFilter<"Letter"> | string | null
@@ -95610,7 +90626,6 @@ export namespace Prisma {
     signatoryId?: StringNullableFilter<"Letter"> | string | null
     author?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
-    parameter?: XOR<ParameterNullableScalarRelationFilter, ParameterWhereInput> | null
     previousVersion?: XOR<LetterNullableScalarRelationFilter, LetterWhereInput> | null
     nextVersions?: LetterListRelationFilter
     signatory?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
@@ -95625,7 +90640,6 @@ export namespace Prisma {
     titleTa?: SortOrderInput | SortOrder
     contentTa?: SortOrderInput | SortOrder
     branchId?: SortOrder
-    parameterId?: SortOrderInput | SortOrder
     valueAtTime?: SortOrderInput | SortOrder
     budgetAtTime?: SortOrderInput | SortOrder
     period?: SortOrderInput | SortOrder
@@ -95663,7 +90677,6 @@ export namespace Prisma {
     titleTa?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     contentTa?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     branchId?: StringWithAggregatesFilter<"Letter"> | string
-    parameterId?: StringNullableWithAggregatesFilter<"Letter"> | string | null
     valueAtTime?: DecimalNullableWithAggregatesFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: DecimalNullableWithAggregatesFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     period?: StringNullableWithAggregatesFilter<"Letter"> | string | null
@@ -96179,149 +91192,6 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Holiday"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Holiday"> | Date | string
     venue?: StringNullableWithAggregatesFilter<"Holiday"> | string | null
-  }
-
-  export type ParameterWhereInput = {
-    AND?: ParameterWhereInput | ParameterWhereInput[]
-    OR?: ParameterWhereInput[]
-    NOT?: ParameterWhereInput | ParameterWhereInput[]
-    id?: StringFilter<"Parameter"> | string
-    code?: StringFilter<"Parameter"> | string
-    nameEn?: StringFilter<"Parameter"> | string
-    nameTa?: StringNullableFilter<"Parameter"> | string | null
-    nameHi?: StringNullableFilter<"Parameter"> | string | null
-    category?: StringFilter<"Parameter"> | string
-    unit?: StringFilter<"Parameter"> | string
-    letters?: LetterListRelationFilter
-    snapshots?: SnapshotListRelationFilter
-  }
-
-  export type ParameterOrderByWithRelationInput = {
-    id?: SortOrder
-    code?: SortOrder
-    nameEn?: SortOrder
-    nameTa?: SortOrderInput | SortOrder
-    nameHi?: SortOrderInput | SortOrder
-    category?: SortOrder
-    unit?: SortOrder
-    letters?: LetterOrderByRelationAggregateInput
-    snapshots?: SnapshotOrderByRelationAggregateInput
-  }
-
-  export type ParameterWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    code?: string
-    AND?: ParameterWhereInput | ParameterWhereInput[]
-    OR?: ParameterWhereInput[]
-    NOT?: ParameterWhereInput | ParameterWhereInput[]
-    nameEn?: StringFilter<"Parameter"> | string
-    nameTa?: StringNullableFilter<"Parameter"> | string | null
-    nameHi?: StringNullableFilter<"Parameter"> | string | null
-    category?: StringFilter<"Parameter"> | string
-    unit?: StringFilter<"Parameter"> | string
-    letters?: LetterListRelationFilter
-    snapshots?: SnapshotListRelationFilter
-  }, "id" | "code">
-
-  export type ParameterOrderByWithAggregationInput = {
-    id?: SortOrder
-    code?: SortOrder
-    nameEn?: SortOrder
-    nameTa?: SortOrderInput | SortOrder
-    nameHi?: SortOrderInput | SortOrder
-    category?: SortOrder
-    unit?: SortOrder
-    _count?: ParameterCountOrderByAggregateInput
-    _max?: ParameterMaxOrderByAggregateInput
-    _min?: ParameterMinOrderByAggregateInput
-  }
-
-  export type ParameterScalarWhereWithAggregatesInput = {
-    AND?: ParameterScalarWhereWithAggregatesInput | ParameterScalarWhereWithAggregatesInput[]
-    OR?: ParameterScalarWhereWithAggregatesInput[]
-    NOT?: ParameterScalarWhereWithAggregatesInput | ParameterScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Parameter"> | string
-    code?: StringWithAggregatesFilter<"Parameter"> | string
-    nameEn?: StringWithAggregatesFilter<"Parameter"> | string
-    nameTa?: StringNullableWithAggregatesFilter<"Parameter"> | string | null
-    nameHi?: StringNullableWithAggregatesFilter<"Parameter"> | string | null
-    category?: StringWithAggregatesFilter<"Parameter"> | string
-    unit?: StringWithAggregatesFilter<"Parameter"> | string
-  }
-
-  export type SnapshotWhereInput = {
-    AND?: SnapshotWhereInput | SnapshotWhereInput[]
-    OR?: SnapshotWhereInput[]
-    NOT?: SnapshotWhereInput | SnapshotWhereInput[]
-    id?: StringFilter<"Snapshot"> | string
-    date?: DateTimeFilter<"Snapshot"> | Date | string
-    parameterId?: StringFilter<"Snapshot"> | string
-    branchId?: StringNullableFilter<"Snapshot"> | string | null
-    value?: DecimalFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string
-    budget?: DecimalNullableFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string | null
-    status?: StringNullableFilter<"Snapshot"> | string | null
-    createdAt?: DateTimeFilter<"Snapshot"> | Date | string
-    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
-    parameter?: XOR<ParameterScalarRelationFilter, ParameterWhereInput>
-  }
-
-  export type SnapshotOrderByWithRelationInput = {
-    id?: SortOrder
-    date?: SortOrder
-    parameterId?: SortOrder
-    branchId?: SortOrderInput | SortOrder
-    value?: SortOrder
-    budget?: SortOrderInput | SortOrder
-    status?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    branch?: BranchOrderByWithRelationInput
-    parameter?: ParameterOrderByWithRelationInput
-  }
-
-  export type SnapshotWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: SnapshotWhereInput | SnapshotWhereInput[]
-    OR?: SnapshotWhereInput[]
-    NOT?: SnapshotWhereInput | SnapshotWhereInput[]
-    date?: DateTimeFilter<"Snapshot"> | Date | string
-    parameterId?: StringFilter<"Snapshot"> | string
-    branchId?: StringNullableFilter<"Snapshot"> | string | null
-    value?: DecimalFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string
-    budget?: DecimalNullableFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string | null
-    status?: StringNullableFilter<"Snapshot"> | string | null
-    createdAt?: DateTimeFilter<"Snapshot"> | Date | string
-    branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
-    parameter?: XOR<ParameterScalarRelationFilter, ParameterWhereInput>
-  }, "id">
-
-  export type SnapshotOrderByWithAggregationInput = {
-    id?: SortOrder
-    date?: SortOrder
-    parameterId?: SortOrder
-    branchId?: SortOrderInput | SortOrder
-    value?: SortOrder
-    budget?: SortOrderInput | SortOrder
-    status?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    _count?: SnapshotCountOrderByAggregateInput
-    _avg?: SnapshotAvgOrderByAggregateInput
-    _max?: SnapshotMaxOrderByAggregateInput
-    _min?: SnapshotMinOrderByAggregateInput
-    _sum?: SnapshotSumOrderByAggregateInput
-  }
-
-  export type SnapshotScalarWhereWithAggregatesInput = {
-    AND?: SnapshotScalarWhereWithAggregatesInput | SnapshotScalarWhereWithAggregatesInput[]
-    OR?: SnapshotScalarWhereWithAggregatesInput[]
-    NOT?: SnapshotScalarWhereWithAggregatesInput | SnapshotScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Snapshot"> | string
-    date?: DateTimeWithAggregatesFilter<"Snapshot"> | Date | string
-    parameterId?: StringWithAggregatesFilter<"Snapshot"> | string
-    branchId?: StringNullableWithAggregatesFilter<"Snapshot"> | string | null
-    value?: DecimalWithAggregatesFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string
-    budget?: DecimalNullableWithAggregatesFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string | null
-    status?: StringNullableWithAggregatesFilter<"Snapshot"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"Snapshot"> | Date | string
   }
 
   export type NoticeWhereInput = {
@@ -98648,151 +93518,6 @@ export namespace Prisma {
     financialPeriod?: StringNullableWithAggregatesFilter<"CalendarMaster"> | string | null
   }
 
-  export type FactSbDailyBranchWhereInput = {
-    AND?: FactSbDailyBranchWhereInput | FactSbDailyBranchWhereInput[]
-    OR?: FactSbDailyBranchWhereInput[]
-    NOT?: FactSbDailyBranchWhereInput | FactSbDailyBranchWhereInput[]
-    id?: StringFilter<"FactSbDailyBranch"> | string
-    solId?: StringFilter<"FactSbDailyBranch"> | string
-    openDay?: DateTimeFilter<"FactSbDailyBranch"> | Date | string
-    netSbOpened?: IntFilter<"FactSbDailyBranch"> | number
-    workingDayFlag?: BoolFilter<"FactSbDailyBranch"> | boolean
-    qualifiedCount?: IntFilter<"FactSbDailyBranch"> | number
-    dataQualityFlag?: StringFilter<"FactSbDailyBranch"> | string
-    createdAt?: DateTimeFilter<"FactSbDailyBranch"> | Date | string
-    sbClosed?: IntFilter<"FactSbDailyBranch"> | number
-  }
-
-  export type FactSbDailyBranchOrderByWithRelationInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    openDay?: SortOrder
-    netSbOpened?: SortOrder
-    workingDayFlag?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactSbDailyBranchWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    solId_openDay?: FactSbDailyBranchSolIdOpenDayCompoundUniqueInput
-    AND?: FactSbDailyBranchWhereInput | FactSbDailyBranchWhereInput[]
-    OR?: FactSbDailyBranchWhereInput[]
-    NOT?: FactSbDailyBranchWhereInput | FactSbDailyBranchWhereInput[]
-    solId?: StringFilter<"FactSbDailyBranch"> | string
-    openDay?: DateTimeFilter<"FactSbDailyBranch"> | Date | string
-    netSbOpened?: IntFilter<"FactSbDailyBranch"> | number
-    workingDayFlag?: BoolFilter<"FactSbDailyBranch"> | boolean
-    qualifiedCount?: IntFilter<"FactSbDailyBranch"> | number
-    dataQualityFlag?: StringFilter<"FactSbDailyBranch"> | string
-    createdAt?: DateTimeFilter<"FactSbDailyBranch"> | Date | string
-    sbClosed?: IntFilter<"FactSbDailyBranch"> | number
-  }, "id" | "solId_openDay">
-
-  export type FactSbDailyBranchOrderByWithAggregationInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    openDay?: SortOrder
-    netSbOpened?: SortOrder
-    workingDayFlag?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    sbClosed?: SortOrder
-    _count?: FactSbDailyBranchCountOrderByAggregateInput
-    _avg?: FactSbDailyBranchAvgOrderByAggregateInput
-    _max?: FactSbDailyBranchMaxOrderByAggregateInput
-    _min?: FactSbDailyBranchMinOrderByAggregateInput
-    _sum?: FactSbDailyBranchSumOrderByAggregateInput
-  }
-
-  export type FactSbDailyBranchScalarWhereWithAggregatesInput = {
-    AND?: FactSbDailyBranchScalarWhereWithAggregatesInput | FactSbDailyBranchScalarWhereWithAggregatesInput[]
-    OR?: FactSbDailyBranchScalarWhereWithAggregatesInput[]
-    NOT?: FactSbDailyBranchScalarWhereWithAggregatesInput | FactSbDailyBranchScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FactSbDailyBranch"> | string
-    solId?: StringWithAggregatesFilter<"FactSbDailyBranch"> | string
-    openDay?: DateTimeWithAggregatesFilter<"FactSbDailyBranch"> | Date | string
-    netSbOpened?: IntWithAggregatesFilter<"FactSbDailyBranch"> | number
-    workingDayFlag?: BoolWithAggregatesFilter<"FactSbDailyBranch"> | boolean
-    qualifiedCount?: IntWithAggregatesFilter<"FactSbDailyBranch"> | number
-    dataQualityFlag?: StringWithAggregatesFilter<"FactSbDailyBranch"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"FactSbDailyBranch"> | Date | string
-    sbClosed?: IntWithAggregatesFilter<"FactSbDailyBranch"> | number
-  }
-
-  export type FactCdMonthlyBranchWhereInput = {
-    AND?: FactCdMonthlyBranchWhereInput | FactCdMonthlyBranchWhereInput[]
-    OR?: FactCdMonthlyBranchWhereInput[]
-    NOT?: FactCdMonthlyBranchWhereInput | FactCdMonthlyBranchWhereInput[]
-    id?: StringFilter<"FactCdMonthlyBranch"> | string
-    solId?: StringFilter<"FactCdMonthlyBranch"> | string
-    monthKey?: StringFilter<"FactCdMonthlyBranch"> | string
-    netCdOpened?: IntFilter<"FactCdMonthlyBranch"> | number
-    qualifiedCount?: IntFilter<"FactCdMonthlyBranch"> | number
-    dataQualityFlag?: StringFilter<"FactCdMonthlyBranch"> | string
-    createdAt?: DateTimeFilter<"FactCdMonthlyBranch"> | Date | string
-    cdClosed?: IntFilter<"FactCdMonthlyBranch"> | number
-  }
-
-  export type FactCdMonthlyBranchOrderByWithRelationInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    monthKey?: SortOrder
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    cdClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    solId_monthKey?: FactCdMonthlyBranchSolIdMonthKeyCompoundUniqueInput
-    AND?: FactCdMonthlyBranchWhereInput | FactCdMonthlyBranchWhereInput[]
-    OR?: FactCdMonthlyBranchWhereInput[]
-    NOT?: FactCdMonthlyBranchWhereInput | FactCdMonthlyBranchWhereInput[]
-    solId?: StringFilter<"FactCdMonthlyBranch"> | string
-    monthKey?: StringFilter<"FactCdMonthlyBranch"> | string
-    netCdOpened?: IntFilter<"FactCdMonthlyBranch"> | number
-    qualifiedCount?: IntFilter<"FactCdMonthlyBranch"> | number
-    dataQualityFlag?: StringFilter<"FactCdMonthlyBranch"> | string
-    createdAt?: DateTimeFilter<"FactCdMonthlyBranch"> | Date | string
-    cdClosed?: IntFilter<"FactCdMonthlyBranch"> | number
-  }, "id" | "solId_monthKey">
-
-  export type FactCdMonthlyBranchOrderByWithAggregationInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    monthKey?: SortOrder
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    cdClosed?: SortOrder
-    _count?: FactCdMonthlyBranchCountOrderByAggregateInput
-    _avg?: FactCdMonthlyBranchAvgOrderByAggregateInput
-    _max?: FactCdMonthlyBranchMaxOrderByAggregateInput
-    _min?: FactCdMonthlyBranchMinOrderByAggregateInput
-    _sum?: FactCdMonthlyBranchSumOrderByAggregateInput
-  }
-
-  export type FactCdMonthlyBranchScalarWhereWithAggregatesInput = {
-    AND?: FactCdMonthlyBranchScalarWhereWithAggregatesInput | FactCdMonthlyBranchScalarWhereWithAggregatesInput[]
-    OR?: FactCdMonthlyBranchScalarWhereWithAggregatesInput[]
-    NOT?: FactCdMonthlyBranchScalarWhereWithAggregatesInput | FactCdMonthlyBranchScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FactCdMonthlyBranch"> | string
-    solId?: StringWithAggregatesFilter<"FactCdMonthlyBranch"> | string
-    monthKey?: StringWithAggregatesFilter<"FactCdMonthlyBranch"> | string
-    netCdOpened?: IntWithAggregatesFilter<"FactCdMonthlyBranch"> | number
-    qualifiedCount?: IntWithAggregatesFilter<"FactCdMonthlyBranch"> | number
-    dataQualityFlag?: StringWithAggregatesFilter<"FactCdMonthlyBranch"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"FactCdMonthlyBranch"> | Date | string
-    cdClosed?: IntWithAggregatesFilter<"FactCdMonthlyBranch"> | number
-  }
-
   export type ProductAdoptionSchemeWhereInput = {
     AND?: ProductAdoptionSchemeWhereInput | ProductAdoptionSchemeWhereInput[]
     OR?: ProductAdoptionSchemeWhereInput[]
@@ -99642,7 +94367,7 @@ export namespace Prisma {
     OR?: MeetingWhereInput[]
     NOT?: MeetingWhereInput | MeetingWhereInput[]
     id?: StringFilter<"Meeting"> | string
-    committeeId?: StringFilter<"Meeting"> | string
+    committeeId?: StringNullableFilter<"Meeting"> | string | null
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
@@ -99651,13 +94376,14 @@ export namespace Prisma {
     signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
+    title?: StringNullableFilter<"Meeting"> | string | null
     actionPoints?: ActionPointListRelationFilter
-    committee?: XOR<CommitteeScalarRelationFilter, CommitteeWhereInput>
+    committee?: XOR<CommitteeNullableScalarRelationFilter, CommitteeWhereInput> | null
   }
 
   export type MeetingOrderByWithRelationInput = {
     id?: SortOrder
-    committeeId?: SortOrder
+    committeeId?: SortOrderInput | SortOrder
     date?: SortOrder
     venue?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -99666,6 +94392,7 @@ export namespace Prisma {
     signatories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    title?: SortOrderInput | SortOrder
     actionPoints?: ActionPointOrderByRelationAggregateInput
     committee?: CommitteeOrderByWithRelationInput
   }
@@ -99675,7 +94402,7 @@ export namespace Prisma {
     AND?: MeetingWhereInput | MeetingWhereInput[]
     OR?: MeetingWhereInput[]
     NOT?: MeetingWhereInput | MeetingWhereInput[]
-    committeeId?: StringFilter<"Meeting"> | string
+    committeeId?: StringNullableFilter<"Meeting"> | string | null
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
@@ -99684,13 +94411,14 @@ export namespace Prisma {
     signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
+    title?: StringNullableFilter<"Meeting"> | string | null
     actionPoints?: ActionPointListRelationFilter
-    committee?: XOR<CommitteeScalarRelationFilter, CommitteeWhereInput>
+    committee?: XOR<CommitteeNullableScalarRelationFilter, CommitteeWhereInput> | null
   }, "id">
 
   export type MeetingOrderByWithAggregationInput = {
     id?: SortOrder
-    committeeId?: SortOrder
+    committeeId?: SortOrderInput | SortOrder
     date?: SortOrder
     venue?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -99699,6 +94427,7 @@ export namespace Prisma {
     signatories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    title?: SortOrderInput | SortOrder
     _count?: MeetingCountOrderByAggregateInput
     _max?: MeetingMaxOrderByAggregateInput
     _min?: MeetingMinOrderByAggregateInput
@@ -99709,7 +94438,7 @@ export namespace Prisma {
     OR?: MeetingScalarWhereWithAggregatesInput[]
     NOT?: MeetingScalarWhereWithAggregatesInput | MeetingScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Meeting"> | string
-    committeeId?: StringWithAggregatesFilter<"Meeting"> | string
+    committeeId?: StringNullableWithAggregatesFilter<"Meeting"> | string | null
     date?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
     venue?: StringNullableWithAggregatesFilter<"Meeting"> | string | null
     status?: StringWithAggregatesFilter<"Meeting"> | string
@@ -99718,6 +94447,7 @@ export namespace Prisma {
     signatories?: JsonNullableWithAggregatesFilter<"Meeting">
     createdAt?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Meeting"> | Date | string
+    title?: StringNullableWithAggregatesFilter<"Meeting"> | string | null
   }
 
   export type ActionPointWhereInput = {
@@ -101204,7 +95934,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -101256,7 +95985,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -101308,7 +96036,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -101360,7 +96087,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -101722,7 +96448,6 @@ export namespace Prisma {
     salutation?: string | null
     author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
@@ -101737,7 +96462,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -101784,7 +96508,6 @@ export namespace Prisma {
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
@@ -101799,7 +96522,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -101830,7 +96552,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -101885,7 +96606,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -102459,159 +97179,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type ParameterCreateInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    letters?: LetterCreateNestedManyWithoutParameterInput
-    snapshots?: SnapshotCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterUncheckedCreateInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    letters?: LetterUncheckedCreateNestedManyWithoutParameterInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    letters?: LetterUpdateManyWithoutParameterNestedInput
-    snapshots?: SnapshotUpdateManyWithoutParameterNestedInput
-  }
-
-  export type ParameterUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    letters?: LetterUncheckedUpdateManyWithoutParameterNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutParameterNestedInput
-  }
-
-  export type ParameterCreateManyInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-  }
-
-  export type ParameterUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type ParameterUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type SnapshotCreateInput = {
-    id?: string
-    date: Date | string
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-    branch?: BranchCreateNestedOneWithoutSnapshotsInput
-    parameter: ParameterCreateNestedOneWithoutSnapshotsInput
-  }
-
-  export type SnapshotUncheckedCreateInput = {
-    id?: string
-    date: Date | string
-    parameterId: string
-    branchId?: string | null
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-  }
-
-  export type SnapshotUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    branch?: BranchUpdateOneWithoutSnapshotsNestedInput
-    parameter?: ParameterUpdateOneRequiredWithoutSnapshotsNestedInput
-  }
-
-  export type SnapshotUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    parameterId?: StringFieldUpdateOperationsInput | string
-    branchId?: NullableStringFieldUpdateOperationsInput | string | null
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SnapshotCreateManyInput = {
-    id?: string
-    date: Date | string
-    parameterId: string
-    branchId?: string | null
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-  }
-
-  export type SnapshotUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SnapshotUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    parameterId?: StringFieldUpdateOperationsInput | string
-    branchId?: NullableStringFieldUpdateOperationsInput | string | null
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NoticeCreateInput = {
@@ -105175,167 +99742,6 @@ export namespace Prisma {
     financialPeriod?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type FactSbDailyBranchCreateInput = {
-    id?: string
-    solId: string
-    openDay: Date | string
-    netSbOpened: number
-    workingDayFlag: boolean
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    sbClosed?: number
-  }
-
-  export type FactSbDailyBranchUncheckedCreateInput = {
-    id?: string
-    solId: string
-    openDay: Date | string
-    netSbOpened: number
-    workingDayFlag: boolean
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    sbClosed?: number
-  }
-
-  export type FactSbDailyBranchUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    openDay?: DateTimeFieldUpdateOperationsInput | Date | string
-    netSbOpened?: IntFieldUpdateOperationsInput | number
-    workingDayFlag?: BoolFieldUpdateOperationsInput | boolean
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sbClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactSbDailyBranchUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    openDay?: DateTimeFieldUpdateOperationsInput | Date | string
-    netSbOpened?: IntFieldUpdateOperationsInput | number
-    workingDayFlag?: BoolFieldUpdateOperationsInput | boolean
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sbClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactSbDailyBranchCreateManyInput = {
-    id?: string
-    solId: string
-    openDay: Date | string
-    netSbOpened: number
-    workingDayFlag: boolean
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    sbClosed?: number
-  }
-
-  export type FactSbDailyBranchUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    openDay?: DateTimeFieldUpdateOperationsInput | Date | string
-    netSbOpened?: IntFieldUpdateOperationsInput | number
-    workingDayFlag?: BoolFieldUpdateOperationsInput | boolean
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sbClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactSbDailyBranchUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    openDay?: DateTimeFieldUpdateOperationsInput | Date | string
-    netSbOpened?: IntFieldUpdateOperationsInput | number
-    workingDayFlag?: BoolFieldUpdateOperationsInput | boolean
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sbClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactCdMonthlyBranchCreateInput = {
-    id?: string
-    solId: string
-    monthKey: string
-    netCdOpened: number
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    cdClosed?: number
-  }
-
-  export type FactCdMonthlyBranchUncheckedCreateInput = {
-    id?: string
-    solId: string
-    monthKey: string
-    netCdOpened: number
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    cdClosed?: number
-  }
-
-  export type FactCdMonthlyBranchUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    monthKey?: StringFieldUpdateOperationsInput | string
-    netCdOpened?: IntFieldUpdateOperationsInput | number
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    cdClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactCdMonthlyBranchUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    monthKey?: StringFieldUpdateOperationsInput | string
-    netCdOpened?: IntFieldUpdateOperationsInput | number
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    cdClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactCdMonthlyBranchCreateManyInput = {
-    id?: string
-    solId: string
-    monthKey: string
-    netCdOpened: number
-    qualifiedCount: number
-    dataQualityFlag: string
-    createdAt?: Date | string
-    cdClosed?: number
-  }
-
-  export type FactCdMonthlyBranchUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    monthKey?: StringFieldUpdateOperationsInput | string
-    netCdOpened?: IntFieldUpdateOperationsInput | number
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    cdClosed?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type FactCdMonthlyBranchUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    solId?: StringFieldUpdateOperationsInput | string
-    monthKey?: StringFieldUpdateOperationsInput | string
-    netCdOpened?: IntFieldUpdateOperationsInput | number
-    qualifiedCount?: IntFieldUpdateOperationsInput | number
-    dataQualityFlag?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    cdClosed?: IntFieldUpdateOperationsInput | number
-  }
-
   export type ProductAdoptionSchemeCreateInput = {
     id?: string
     code: string
@@ -106285,13 +100691,14 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
     actionPoints?: ActionPointCreateNestedManyWithoutMeetingInput
-    committee: CommitteeCreateNestedOneWithoutMeetingsInput
+    committee?: CommitteeCreateNestedOneWithoutMeetingsInput
   }
 
   export type MeetingUncheckedCreateInput = {
     id?: string
-    committeeId: string
+    committeeId?: string | null
     date: Date | string
     venue?: string | null
     status?: string
@@ -106300,6 +100707,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
     actionPoints?: ActionPointUncheckedCreateNestedManyWithoutMeetingInput
   }
 
@@ -106313,13 +100721,14 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
     actionPoints?: ActionPointUpdateManyWithoutMeetingNestedInput
-    committee?: CommitteeUpdateOneRequiredWithoutMeetingsNestedInput
+    committee?: CommitteeUpdateOneWithoutMeetingsNestedInput
   }
 
   export type MeetingUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    committeeId?: StringFieldUpdateOperationsInput | string
+    committeeId?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -106328,12 +100737,13 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
     actionPoints?: ActionPointUncheckedUpdateManyWithoutMeetingNestedInput
   }
 
   export type MeetingCreateManyInput = {
     id?: string
-    committeeId: string
+    committeeId?: string | null
     date: Date | string
     venue?: string | null
     status?: string
@@ -106342,6 +100752,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
   }
 
   export type MeetingUpdateManyMutationInput = {
@@ -106354,11 +100765,12 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MeetingUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    committeeId?: StringFieldUpdateOperationsInput | string
+    committeeId?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -106367,6 +100779,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionPointCreateInput = {
@@ -108074,12 +102487,6 @@ export namespace Prisma {
     none?: RegionalAssetWhereInput
   }
 
-  export type SnapshotListRelationFilter = {
-    every?: SnapshotWhereInput
-    some?: SnapshotWhereInput
-    none?: SnapshotWhereInput
-  }
-
   export type StationeryMovementListRelationFilter = {
     every?: StationeryMovementWhereInput
     some?: StationeryMovementWhereInput
@@ -108149,10 +102556,6 @@ export namespace Prisma {
   }
 
   export type RegionalAssetOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type SnapshotOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -108450,11 +102853,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type ParameterNullableScalarRelationFilter = {
-    is?: ParameterWhereInput | null
-    isNot?: ParameterWhereInput | null
-  }
-
   export type LetterNullableScalarRelationFilter = {
     is?: LetterWhereInput | null
     isNot?: LetterWhereInput | null
@@ -108469,7 +102867,6 @@ export namespace Prisma {
     titleTa?: SortOrder
     contentTa?: SortOrder
     branchId?: SortOrder
-    parameterId?: SortOrder
     valueAtTime?: SortOrder
     budgetAtTime?: SortOrder
     period?: SortOrder
@@ -108505,7 +102902,6 @@ export namespace Prisma {
     titleTa?: SortOrder
     contentTa?: SortOrder
     branchId?: SortOrder
-    parameterId?: SortOrder
     valueAtTime?: SortOrder
     budgetAtTime?: SortOrder
     period?: SortOrder
@@ -108534,7 +102930,6 @@ export namespace Prisma {
     titleTa?: SortOrder
     contentTa?: SortOrder
     branchId?: SortOrder
-    parameterId?: SortOrder
     valueAtTime?: SortOrder
     budgetAtTime?: SortOrder
     period?: SortOrder
@@ -108850,111 +103245,6 @@ export namespace Prisma {
     description?: SortOrder
     createdAt?: SortOrder
     venue?: SortOrder
-  }
-
-  export type ParameterCountOrderByAggregateInput = {
-    id?: SortOrder
-    code?: SortOrder
-    nameEn?: SortOrder
-    nameTa?: SortOrder
-    nameHi?: SortOrder
-    category?: SortOrder
-    unit?: SortOrder
-  }
-
-  export type ParameterMaxOrderByAggregateInput = {
-    id?: SortOrder
-    code?: SortOrder
-    nameEn?: SortOrder
-    nameTa?: SortOrder
-    nameHi?: SortOrder
-    category?: SortOrder
-    unit?: SortOrder
-  }
-
-  export type ParameterMinOrderByAggregateInput = {
-    id?: SortOrder
-    code?: SortOrder
-    nameEn?: SortOrder
-    nameTa?: SortOrder
-    nameHi?: SortOrder
-    category?: SortOrder
-    unit?: SortOrder
-  }
-
-  export type DecimalFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-  }
-
-  export type ParameterScalarRelationFilter = {
-    is?: ParameterWhereInput
-    isNot?: ParameterWhereInput
-  }
-
-  export type SnapshotCountOrderByAggregateInput = {
-    id?: SortOrder
-    date?: SortOrder
-    parameterId?: SortOrder
-    branchId?: SortOrder
-    value?: SortOrder
-    budget?: SortOrder
-    status?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type SnapshotAvgOrderByAggregateInput = {
-    value?: SortOrder
-    budget?: SortOrder
-  }
-
-  export type SnapshotMaxOrderByAggregateInput = {
-    id?: SortOrder
-    date?: SortOrder
-    parameterId?: SortOrder
-    branchId?: SortOrder
-    value?: SortOrder
-    budget?: SortOrder
-    status?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type SnapshotMinOrderByAggregateInput = {
-    id?: SortOrder
-    date?: SortOrder
-    parameterId?: SortOrder
-    branchId?: SortOrder
-    value?: SortOrder
-    budget?: SortOrder
-    status?: SortOrder
-    createdAt?: SortOrder
-  }
-
-  export type SnapshotSumOrderByAggregateInput = {
-    value?: SortOrder
-    budget?: SortOrder
-  }
-
-  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedDecimalFilter<$PrismaModel>
-    _sum?: NestedDecimalFilter<$PrismaModel>
-    _min?: NestedDecimalFilter<$PrismaModel>
-    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type NoticeCountOrderByAggregateInput = {
@@ -109400,6 +103690,17 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
   export type AtmCountOrderByAggregateInput = {
     id?: SortOrder
     atmId?: SortOrder
@@ -109436,6 +103737,22 @@ export namespace Prisma {
 
   export type AtmSumOrderByAggregateInput = {
     balance?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type PostingHistoryCountOrderByAggregateInput = {
@@ -110341,109 +104658,6 @@ export namespace Prisma {
     financialPeriod?: SortOrder
   }
 
-  export type FactSbDailyBranchSolIdOpenDayCompoundUniqueInput = {
-    solId: string
-    openDay: Date | string
-  }
-
-  export type FactSbDailyBranchCountOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    openDay?: SortOrder
-    netSbOpened?: SortOrder
-    workingDayFlag?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactSbDailyBranchAvgOrderByAggregateInput = {
-    netSbOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactSbDailyBranchMaxOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    openDay?: SortOrder
-    netSbOpened?: SortOrder
-    workingDayFlag?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactSbDailyBranchMinOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    openDay?: SortOrder
-    netSbOpened?: SortOrder
-    workingDayFlag?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactSbDailyBranchSumOrderByAggregateInput = {
-    netSbOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    sbClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchSolIdMonthKeyCompoundUniqueInput = {
-    solId: string
-    monthKey: string
-  }
-
-  export type FactCdMonthlyBranchCountOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    monthKey?: SortOrder
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    cdClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchAvgOrderByAggregateInput = {
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    cdClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchMaxOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    monthKey?: SortOrder
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    cdClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchMinOrderByAggregateInput = {
-    id?: SortOrder
-    solId?: SortOrder
-    monthKey?: SortOrder
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    dataQualityFlag?: SortOrder
-    createdAt?: SortOrder
-    cdClosed?: SortOrder
-  }
-
-  export type FactCdMonthlyBranchSumOrderByAggregateInput = {
-    netCdOpened?: SortOrder
-    qualifiedCount?: SortOrder
-    cdClosed?: SortOrder
-  }
-
   export type ProductAdoptionSchemeCountOrderByAggregateInput = {
     id?: SortOrder
     code?: SortOrder
@@ -110990,9 +105204,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type CommitteeScalarRelationFilter = {
-    is?: CommitteeWhereInput
-    isNot?: CommitteeWhereInput
+  export type CommitteeNullableScalarRelationFilter = {
+    is?: CommitteeWhereInput | null
+    isNot?: CommitteeWhereInput | null
   }
 
   export type MeetingCountOrderByAggregateInput = {
@@ -111006,6 +105220,7 @@ export namespace Prisma {
     signatories?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    title?: SortOrder
   }
 
   export type MeetingMaxOrderByAggregateInput = {
@@ -111017,6 +105232,7 @@ export namespace Prisma {
     minutesJson?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    title?: SortOrder
   }
 
   export type MeetingMinOrderByAggregateInput = {
@@ -111028,6 +105244,7 @@ export namespace Prisma {
     minutesJson?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    title?: SortOrder
   }
 
   export type MeetingScalarRelationFilter = {
@@ -112791,13 +107008,6 @@ export namespace Prisma {
     connect?: RegionalAssetWhereUniqueInput | RegionalAssetWhereUniqueInput[]
   }
 
-  export type SnapshotCreateNestedManyWithoutBranchInput = {
-    create?: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput> | SnapshotCreateWithoutBranchInput[] | SnapshotUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutBranchInput | SnapshotCreateOrConnectWithoutBranchInput[]
-    createMany?: SnapshotCreateManyBranchInputEnvelope
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-  }
-
   export type StationeryMovementCreateNestedManyWithoutBranchInput = {
     create?: XOR<StationeryMovementCreateWithoutBranchInput, StationeryMovementUncheckedCreateWithoutBranchInput> | StationeryMovementCreateWithoutBranchInput[] | StationeryMovementUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: StationeryMovementCreateOrConnectWithoutBranchInput | StationeryMovementCreateOrConnectWithoutBranchInput[]
@@ -112950,13 +107160,6 @@ export namespace Prisma {
     connectOrCreate?: RegionalAssetCreateOrConnectWithoutBranchInput | RegionalAssetCreateOrConnectWithoutBranchInput[]
     createMany?: RegionalAssetCreateManyBranchInputEnvelope
     connect?: RegionalAssetWhereUniqueInput | RegionalAssetWhereUniqueInput[]
-  }
-
-  export type SnapshotUncheckedCreateNestedManyWithoutBranchInput = {
-    create?: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput> | SnapshotCreateWithoutBranchInput[] | SnapshotUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutBranchInput | SnapshotCreateOrConnectWithoutBranchInput[]
-    createMany?: SnapshotCreateManyBranchInputEnvelope
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
   }
 
   export type StationeryMovementUncheckedCreateNestedManyWithoutBranchInput = {
@@ -113289,20 +107492,6 @@ export namespace Prisma {
     deleteMany?: RegionalAssetScalarWhereInput | RegionalAssetScalarWhereInput[]
   }
 
-  export type SnapshotUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput> | SnapshotCreateWithoutBranchInput[] | SnapshotUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutBranchInput | SnapshotCreateOrConnectWithoutBranchInput[]
-    upsert?: SnapshotUpsertWithWhereUniqueWithoutBranchInput | SnapshotUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: SnapshotCreateManyBranchInputEnvelope
-    set?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    disconnect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    delete?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    update?: SnapshotUpdateWithWhereUniqueWithoutBranchInput | SnapshotUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: SnapshotUpdateManyWithWhereWithoutBranchInput | SnapshotUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-  }
-
   export type StationeryMovementUpdateManyWithoutBranchNestedInput = {
     create?: XOR<StationeryMovementCreateWithoutBranchInput, StationeryMovementUncheckedCreateWithoutBranchInput> | StationeryMovementCreateWithoutBranchInput[] | StationeryMovementUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: StationeryMovementCreateOrConnectWithoutBranchInput | StationeryMovementCreateOrConnectWithoutBranchInput[]
@@ -113611,20 +107800,6 @@ export namespace Prisma {
     deleteMany?: RegionalAssetScalarWhereInput | RegionalAssetScalarWhereInput[]
   }
 
-  export type SnapshotUncheckedUpdateManyWithoutBranchNestedInput = {
-    create?: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput> | SnapshotCreateWithoutBranchInput[] | SnapshotUncheckedCreateWithoutBranchInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutBranchInput | SnapshotCreateOrConnectWithoutBranchInput[]
-    upsert?: SnapshotUpsertWithWhereUniqueWithoutBranchInput | SnapshotUpsertWithWhereUniqueWithoutBranchInput[]
-    createMany?: SnapshotCreateManyBranchInputEnvelope
-    set?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    disconnect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    delete?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    update?: SnapshotUpdateWithWhereUniqueWithoutBranchInput | SnapshotUpdateWithWhereUniqueWithoutBranchInput[]
-    updateMany?: SnapshotUpdateManyWithWhereWithoutBranchInput | SnapshotUpdateManyWithWhereWithoutBranchInput[]
-    deleteMany?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-  }
-
   export type StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput = {
     create?: XOR<StationeryMovementCreateWithoutBranchInput, StationeryMovementUncheckedCreateWithoutBranchInput> | StationeryMovementCreateWithoutBranchInput[] | StationeryMovementUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: StationeryMovementCreateOrConnectWithoutBranchInput | StationeryMovementCreateOrConnectWithoutBranchInput[]
@@ -113923,12 +108098,6 @@ export namespace Prisma {
     connect?: BranchWhereUniqueInput
   }
 
-  export type ParameterCreateNestedOneWithoutLettersInput = {
-    create?: XOR<ParameterCreateWithoutLettersInput, ParameterUncheckedCreateWithoutLettersInput>
-    connectOrCreate?: ParameterCreateOrConnectWithoutLettersInput
-    connect?: ParameterWhereUniqueInput
-  }
-
   export type LetterCreateNestedOneWithoutNextVersionsInput = {
     create?: XOR<LetterCreateWithoutNextVersionsInput, LetterUncheckedCreateWithoutNextVersionsInput>
     connectOrCreate?: LetterCreateOrConnectWithoutNextVersionsInput
@@ -113979,16 +108148,6 @@ export namespace Prisma {
     upsert?: BranchUpsertWithoutLettersInput
     connect?: BranchWhereUniqueInput
     update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutLettersInput, BranchUpdateWithoutLettersInput>, BranchUncheckedUpdateWithoutLettersInput>
-  }
-
-  export type ParameterUpdateOneWithoutLettersNestedInput = {
-    create?: XOR<ParameterCreateWithoutLettersInput, ParameterUncheckedCreateWithoutLettersInput>
-    connectOrCreate?: ParameterCreateOrConnectWithoutLettersInput
-    upsert?: ParameterUpsertWithoutLettersInput
-    disconnect?: ParameterWhereInput | boolean
-    delete?: ParameterWhereInput | boolean
-    connect?: ParameterWhereUniqueInput
-    update?: XOR<XOR<ParameterUpdateToOneWithWhereWithoutLettersInput, ParameterUpdateWithoutLettersInput>, ParameterUncheckedUpdateWithoutLettersInput>
   }
 
   export type LetterUpdateOneWithoutNextVersionsNestedInput = {
@@ -114309,128 +108468,6 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
-  export type LetterCreateNestedManyWithoutParameterInput = {
-    create?: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput> | LetterCreateWithoutParameterInput[] | LetterUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutParameterInput | LetterCreateOrConnectWithoutParameterInput[]
-    createMany?: LetterCreateManyParameterInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type SnapshotCreateNestedManyWithoutParameterInput = {
-    create?: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput> | SnapshotCreateWithoutParameterInput[] | SnapshotUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutParameterInput | SnapshotCreateOrConnectWithoutParameterInput[]
-    createMany?: SnapshotCreateManyParameterInputEnvelope
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-  }
-
-  export type LetterUncheckedCreateNestedManyWithoutParameterInput = {
-    create?: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput> | LetterCreateWithoutParameterInput[] | LetterUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutParameterInput | LetterCreateOrConnectWithoutParameterInput[]
-    createMany?: LetterCreateManyParameterInputEnvelope
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-  }
-
-  export type SnapshotUncheckedCreateNestedManyWithoutParameterInput = {
-    create?: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput> | SnapshotCreateWithoutParameterInput[] | SnapshotUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutParameterInput | SnapshotCreateOrConnectWithoutParameterInput[]
-    createMany?: SnapshotCreateManyParameterInputEnvelope
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-  }
-
-  export type LetterUpdateManyWithoutParameterNestedInput = {
-    create?: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput> | LetterCreateWithoutParameterInput[] | LetterUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutParameterInput | LetterCreateOrConnectWithoutParameterInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutParameterInput | LetterUpsertWithWhereUniqueWithoutParameterInput[]
-    createMany?: LetterCreateManyParameterInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutParameterInput | LetterUpdateWithWhereUniqueWithoutParameterInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutParameterInput | LetterUpdateManyWithWhereWithoutParameterInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type SnapshotUpdateManyWithoutParameterNestedInput = {
-    create?: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput> | SnapshotCreateWithoutParameterInput[] | SnapshotUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutParameterInput | SnapshotCreateOrConnectWithoutParameterInput[]
-    upsert?: SnapshotUpsertWithWhereUniqueWithoutParameterInput | SnapshotUpsertWithWhereUniqueWithoutParameterInput[]
-    createMany?: SnapshotCreateManyParameterInputEnvelope
-    set?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    disconnect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    delete?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    update?: SnapshotUpdateWithWhereUniqueWithoutParameterInput | SnapshotUpdateWithWhereUniqueWithoutParameterInput[]
-    updateMany?: SnapshotUpdateManyWithWhereWithoutParameterInput | SnapshotUpdateManyWithWhereWithoutParameterInput[]
-    deleteMany?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-  }
-
-  export type LetterUncheckedUpdateManyWithoutParameterNestedInput = {
-    create?: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput> | LetterCreateWithoutParameterInput[] | LetterUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: LetterCreateOrConnectWithoutParameterInput | LetterCreateOrConnectWithoutParameterInput[]
-    upsert?: LetterUpsertWithWhereUniqueWithoutParameterInput | LetterUpsertWithWhereUniqueWithoutParameterInput[]
-    createMany?: LetterCreateManyParameterInputEnvelope
-    set?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    disconnect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    delete?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    connect?: LetterWhereUniqueInput | LetterWhereUniqueInput[]
-    update?: LetterUpdateWithWhereUniqueWithoutParameterInput | LetterUpdateWithWhereUniqueWithoutParameterInput[]
-    updateMany?: LetterUpdateManyWithWhereWithoutParameterInput | LetterUpdateManyWithWhereWithoutParameterInput[]
-    deleteMany?: LetterScalarWhereInput | LetterScalarWhereInput[]
-  }
-
-  export type SnapshotUncheckedUpdateManyWithoutParameterNestedInput = {
-    create?: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput> | SnapshotCreateWithoutParameterInput[] | SnapshotUncheckedCreateWithoutParameterInput[]
-    connectOrCreate?: SnapshotCreateOrConnectWithoutParameterInput | SnapshotCreateOrConnectWithoutParameterInput[]
-    upsert?: SnapshotUpsertWithWhereUniqueWithoutParameterInput | SnapshotUpsertWithWhereUniqueWithoutParameterInput[]
-    createMany?: SnapshotCreateManyParameterInputEnvelope
-    set?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    disconnect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    delete?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    connect?: SnapshotWhereUniqueInput | SnapshotWhereUniqueInput[]
-    update?: SnapshotUpdateWithWhereUniqueWithoutParameterInput | SnapshotUpdateWithWhereUniqueWithoutParameterInput[]
-    updateMany?: SnapshotUpdateManyWithWhereWithoutParameterInput | SnapshotUpdateManyWithWhereWithoutParameterInput[]
-    deleteMany?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-  }
-
-  export type BranchCreateNestedOneWithoutSnapshotsInput = {
-    create?: XOR<BranchCreateWithoutSnapshotsInput, BranchUncheckedCreateWithoutSnapshotsInput>
-    connectOrCreate?: BranchCreateOrConnectWithoutSnapshotsInput
-    connect?: BranchWhereUniqueInput
-  }
-
-  export type ParameterCreateNestedOneWithoutSnapshotsInput = {
-    create?: XOR<ParameterCreateWithoutSnapshotsInput, ParameterUncheckedCreateWithoutSnapshotsInput>
-    connectOrCreate?: ParameterCreateOrConnectWithoutSnapshotsInput
-    connect?: ParameterWhereUniqueInput
-  }
-
-  export type DecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
-  }
-
-  export type BranchUpdateOneWithoutSnapshotsNestedInput = {
-    create?: XOR<BranchCreateWithoutSnapshotsInput, BranchUncheckedCreateWithoutSnapshotsInput>
-    connectOrCreate?: BranchCreateOrConnectWithoutSnapshotsInput
-    upsert?: BranchUpsertWithoutSnapshotsInput
-    disconnect?: BranchWhereInput | boolean
-    delete?: BranchWhereInput | boolean
-    connect?: BranchWhereUniqueInput
-    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutSnapshotsInput, BranchUpdateWithoutSnapshotsInput>, BranchUncheckedUpdateWithoutSnapshotsInput>
-  }
-
-  export type ParameterUpdateOneRequiredWithoutSnapshotsNestedInput = {
-    create?: XOR<ParameterCreateWithoutSnapshotsInput, ParameterUncheckedCreateWithoutSnapshotsInput>
-    connectOrCreate?: ParameterCreateOrConnectWithoutSnapshotsInput
-    upsert?: ParameterUpsertWithoutSnapshotsInput
-    connect?: ParameterWhereUniqueInput
-    update?: XOR<XOR<ParameterUpdateToOneWithWhereWithoutSnapshotsInput, ParameterUpdateWithoutSnapshotsInput>, ParameterUncheckedUpdateWithoutSnapshotsInput>
-  }
-
   export type NoticeAckCreateNestedManyWithoutNoticeInput = {
     create?: XOR<NoticeAckCreateWithoutNoticeInput, NoticeAckUncheckedCreateWithoutNoticeInput> | NoticeAckCreateWithoutNoticeInput[] | NoticeAckUncheckedCreateWithoutNoticeInput[]
     connectOrCreate?: NoticeAckCreateOrConnectWithoutNoticeInput | NoticeAckCreateOrConnectWithoutNoticeInput[]
@@ -114687,6 +108724,14 @@ export namespace Prisma {
     create?: XOR<BranchCreateWithoutAtmsInput, BranchUncheckedCreateWithoutAtmsInput>
     connectOrCreate?: BranchCreateOrConnectWithoutAtmsInput
     connect?: BranchWhereUniqueInput
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type BranchUpdateOneRequiredWithoutAtmsNestedInput = {
@@ -115482,10 +109527,12 @@ export namespace Prisma {
     deleteMany?: ActionPointScalarWhereInput | ActionPointScalarWhereInput[]
   }
 
-  export type CommitteeUpdateOneRequiredWithoutMeetingsNestedInput = {
+  export type CommitteeUpdateOneWithoutMeetingsNestedInput = {
     create?: XOR<CommitteeCreateWithoutMeetingsInput, CommitteeUncheckedCreateWithoutMeetingsInput>
     connectOrCreate?: CommitteeCreateOrConnectWithoutMeetingsInput
     upsert?: CommitteeUpsertWithoutMeetingsInput
+    disconnect?: CommitteeWhereInput | boolean
+    delete?: CommitteeWhereInput | boolean
     connect?: CommitteeWhereUniqueInput
     update?: XOR<XOR<CommitteeUpdateToOneWithWhereWithoutMeetingsInput, CommitteeUpdateWithoutMeetingsInput>, CommitteeUncheckedUpdateWithoutMeetingsInput>
   }
@@ -116137,6 +110184,22 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -116162,22 +110225,6 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
-  }
-
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -116331,7 +110378,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -116382,7 +110428,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -116438,7 +110483,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -116489,7 +110533,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -116701,7 +110744,6 @@ export namespace Prisma {
     recipientAddress?: string | null
     salutation?: string | null
     branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
@@ -116716,7 +110758,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -116772,7 +110813,6 @@ export namespace Prisma {
     salutation?: string | null
     author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
   }
@@ -116786,7 +110826,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -117158,7 +111197,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
   }
 
@@ -117209,7 +111247,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -117496,7 +111533,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -117547,7 +111583,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -117609,7 +111644,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -117660,7 +111694,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -117869,7 +111902,6 @@ export namespace Prisma {
     titleTa?: StringNullableFilter<"Letter"> | string | null
     contentTa?: StringNullableFilter<"Letter"> | string | null
     branchId?: StringFilter<"Letter"> | string
-    parameterId?: StringNullableFilter<"Letter"> | string | null
     valueAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: DecimalNullableFilter<"Letter"> | Decimal | DecimalJsLike | number | string | null
     period?: StringNullableFilter<"Letter"> | string | null
@@ -118225,7 +112257,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
   }
 
@@ -118276,7 +112307,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -119497,7 +113527,6 @@ export namespace Prisma {
     recipientAddress?: string | null
     salutation?: string | null
     author?: UserCreateNestedOneWithoutAuthoredLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
@@ -119511,7 +113540,6 @@ export namespace Prisma {
     contentEn: string
     titleTa?: string | null
     contentTa?: string | null
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -119810,36 +113838,6 @@ export namespace Prisma {
 
   export type RegionalAssetCreateManyBranchInputEnvelope = {
     data: RegionalAssetCreateManyBranchInput | RegionalAssetCreateManyBranchInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SnapshotCreateWithoutBranchInput = {
-    id?: string
-    date: Date | string
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-    parameter: ParameterCreateNestedOneWithoutSnapshotsInput
-  }
-
-  export type SnapshotUncheckedCreateWithoutBranchInput = {
-    id?: string
-    date: Date | string
-    parameterId: string
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-  }
-
-  export type SnapshotCreateOrConnectWithoutBranchInput = {
-    where: SnapshotWhereUniqueInput
-    create: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput>
-  }
-
-  export type SnapshotCreateManyBranchInputEnvelope = {
-    data: SnapshotCreateManyBranchInput | SnapshotCreateManyBranchInput[]
     skipDuplicates?: boolean
   }
 
@@ -120774,36 +114772,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"RegionalAsset"> | Date | string
   }
 
-  export type SnapshotUpsertWithWhereUniqueWithoutBranchInput = {
-    where: SnapshotWhereUniqueInput
-    update: XOR<SnapshotUpdateWithoutBranchInput, SnapshotUncheckedUpdateWithoutBranchInput>
-    create: XOR<SnapshotCreateWithoutBranchInput, SnapshotUncheckedCreateWithoutBranchInput>
-  }
-
-  export type SnapshotUpdateWithWhereUniqueWithoutBranchInput = {
-    where: SnapshotWhereUniqueInput
-    data: XOR<SnapshotUpdateWithoutBranchInput, SnapshotUncheckedUpdateWithoutBranchInput>
-  }
-
-  export type SnapshotUpdateManyWithWhereWithoutBranchInput = {
-    where: SnapshotScalarWhereInput
-    data: XOR<SnapshotUpdateManyMutationInput, SnapshotUncheckedUpdateManyWithoutBranchInput>
-  }
-
-  export type SnapshotScalarWhereInput = {
-    AND?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-    OR?: SnapshotScalarWhereInput[]
-    NOT?: SnapshotScalarWhereInput | SnapshotScalarWhereInput[]
-    id?: StringFilter<"Snapshot"> | string
-    date?: DateTimeFilter<"Snapshot"> | Date | string
-    parameterId?: StringFilter<"Snapshot"> | string
-    branchId?: StringNullableFilter<"Snapshot"> | string | null
-    value?: DecimalFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string
-    budget?: DecimalNullableFilter<"Snapshot"> | Decimal | DecimalJsLike | number | string | null
-    status?: StringNullableFilter<"Snapshot"> | string | null
-    createdAt?: DateTimeFilter<"Snapshot"> | Date | string
-  }
-
   export type StationeryMovementUpsertWithWhereUniqueWithoutBranchInput = {
     where: StationeryMovementWhereUniqueInput
     update: XOR<StationeryMovementUpdateWithoutBranchInput, StationeryMovementUncheckedUpdateWithoutBranchInput>
@@ -121550,7 +115518,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -121601,7 +115568,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -121668,7 +115634,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -121719,7 +115684,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -121879,7 +115843,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -121930,7 +115893,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -121938,33 +115900,6 @@ export namespace Prisma {
   export type BranchCreateOrConnectWithoutLettersInput = {
     where: BranchWhereUniqueInput
     create: XOR<BranchCreateWithoutLettersInput, BranchUncheckedCreateWithoutLettersInput>
-  }
-
-  export type ParameterCreateWithoutLettersInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    snapshots?: SnapshotCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterUncheckedCreateWithoutLettersInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterCreateOrConnectWithoutLettersInput = {
-    where: ParameterWhereUniqueInput
-    create: XOR<ParameterCreateWithoutLettersInput, ParameterUncheckedCreateWithoutLettersInput>
   }
 
   export type LetterCreateWithoutNextVersionsInput = {
@@ -121992,7 +115927,6 @@ export namespace Prisma {
     salutation?: string | null
     author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
   }
@@ -122006,7 +115940,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -122057,7 +115990,6 @@ export namespace Prisma {
     salutation?: string | null
     author?: UserCreateNestedOneWithoutAuthoredLettersInput
     branch: BranchCreateNestedOneWithoutLettersInput
-    parameter?: ParameterCreateNestedOneWithoutLettersInput
     nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
     signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
   }
@@ -122071,7 +116003,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -122383,7 +116314,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -122434,42 +116364,8 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-  }
-
-  export type ParameterUpsertWithoutLettersInput = {
-    update: XOR<ParameterUpdateWithoutLettersInput, ParameterUncheckedUpdateWithoutLettersInput>
-    create: XOR<ParameterCreateWithoutLettersInput, ParameterUncheckedCreateWithoutLettersInput>
-    where?: ParameterWhereInput
-  }
-
-  export type ParameterUpdateToOneWithWhereWithoutLettersInput = {
-    where?: ParameterWhereInput
-    data: XOR<ParameterUpdateWithoutLettersInput, ParameterUncheckedUpdateWithoutLettersInput>
-  }
-
-  export type ParameterUpdateWithoutLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    snapshots?: SnapshotUpdateManyWithoutParameterNestedInput
-  }
-
-  export type ParameterUncheckedUpdateWithoutLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    snapshots?: SnapshotUncheckedUpdateManyWithoutParameterNestedInput
   }
 
   export type LetterUpsertWithoutNextVersionsInput = {
@@ -122508,7 +116404,6 @@ export namespace Prisma {
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
   }
@@ -122522,7 +116417,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -123306,7 +117200,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -123357,7 +117250,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -123557,7 +117449,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -123608,7 +117499,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -124254,418 +118144,6 @@ export namespace Prisma {
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutPhotoInput>
   }
 
-  export type LetterCreateWithoutParameterInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    author?: UserCreateNestedOneWithoutAuthoredLettersInput
-    branch: BranchCreateNestedOneWithoutLettersInput
-    previousVersion?: LetterCreateNestedOneWithoutNextVersionsInput
-    nextVersions?: LetterCreateNestedManyWithoutPreviousVersionInput
-    signatory?: UserCreateNestedOneWithoutSignatoryLettersInput
-  }
-
-  export type LetterUncheckedCreateWithoutParameterInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    authorId?: string | null
-    signatoryId?: string | null
-    nextVersions?: LetterUncheckedCreateNestedManyWithoutPreviousVersionInput
-  }
-
-  export type LetterCreateOrConnectWithoutParameterInput = {
-    where: LetterWhereUniqueInput
-    create: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput>
-  }
-
-  export type LetterCreateManyParameterInputEnvelope = {
-    data: LetterCreateManyParameterInput | LetterCreateManyParameterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type SnapshotCreateWithoutParameterInput = {
-    id?: string
-    date: Date | string
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-    branch?: BranchCreateNestedOneWithoutSnapshotsInput
-  }
-
-  export type SnapshotUncheckedCreateWithoutParameterInput = {
-    id?: string
-    date: Date | string
-    branchId?: string | null
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-  }
-
-  export type SnapshotCreateOrConnectWithoutParameterInput = {
-    where: SnapshotWhereUniqueInput
-    create: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput>
-  }
-
-  export type SnapshotCreateManyParameterInputEnvelope = {
-    data: SnapshotCreateManyParameterInput | SnapshotCreateManyParameterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type LetterUpsertWithWhereUniqueWithoutParameterInput = {
-    where: LetterWhereUniqueInput
-    update: XOR<LetterUpdateWithoutParameterInput, LetterUncheckedUpdateWithoutParameterInput>
-    create: XOR<LetterCreateWithoutParameterInput, LetterUncheckedCreateWithoutParameterInput>
-  }
-
-  export type LetterUpdateWithWhereUniqueWithoutParameterInput = {
-    where: LetterWhereUniqueInput
-    data: XOR<LetterUpdateWithoutParameterInput, LetterUncheckedUpdateWithoutParameterInput>
-  }
-
-  export type LetterUpdateManyWithWhereWithoutParameterInput = {
-    where: LetterScalarWhereInput
-    data: XOR<LetterUpdateManyMutationInput, LetterUncheckedUpdateManyWithoutParameterInput>
-  }
-
-  export type SnapshotUpsertWithWhereUniqueWithoutParameterInput = {
-    where: SnapshotWhereUniqueInput
-    update: XOR<SnapshotUpdateWithoutParameterInput, SnapshotUncheckedUpdateWithoutParameterInput>
-    create: XOR<SnapshotCreateWithoutParameterInput, SnapshotUncheckedCreateWithoutParameterInput>
-  }
-
-  export type SnapshotUpdateWithWhereUniqueWithoutParameterInput = {
-    where: SnapshotWhereUniqueInput
-    data: XOR<SnapshotUpdateWithoutParameterInput, SnapshotUncheckedUpdateWithoutParameterInput>
-  }
-
-  export type SnapshotUpdateManyWithWhereWithoutParameterInput = {
-    where: SnapshotScalarWhereInput
-    data: XOR<SnapshotUpdateManyMutationInput, SnapshotUncheckedUpdateManyWithoutParameterInput>
-  }
-
-  export type BranchCreateWithoutSnapshotsInput = {
-    id?: string
-    sNo?: number | null
-    code: string
-    officeId?: number | null
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    type: string
-    openDate?: string | null
-    district?: string | null
-    populationGroup?: string | null
-    riskCategory?: string | null
-    riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
-    ifsc?: string | null
-    address?: string | null
-    latitude?: number | null
-    longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
-    accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
-    accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
-    atms?: AtmCreateNestedManyWithoutBranchInput
-    auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
-    history?: BranchHistoryCreateNestedManyWithoutBranchInput
-    requests?: BranchRequestCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitCreateNestedManyWithoutBranchInput
-    headUser?: UserCreateNestedOneWithoutHeadedBranchInput
-    secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
-    budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
-    campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
-    campaignTargets?: CampaignTargetCreateNestedManyWithoutBranchInput
-    ingestionLogs?: IngestionLogCreateNestedManyWithoutBranchInput
-    letters?: LetterCreateNestedManyWithoutBranchInput
-    misExceptions?: MisExceptionCreateNestedManyWithoutBranchInput
-    facts?: FactCreateNestedManyWithoutBranchInput
-    misSnapshots?: MisSnapshotCreateNestedManyWithoutBranchInput
-    noticeAcks?: NoticeAckCreateNestedManyWithoutBranchInput
-    notices?: NoticeCreateNestedManyWithoutBranchInput
-    postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
-    recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
-    regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
-    users?: UserCreateNestedManyWithoutBranchInput
-  }
-
-  export type BranchUncheckedCreateWithoutSnapshotsInput = {
-    id?: string
-    sNo?: number | null
-    code: string
-    officeId?: number | null
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    type: string
-    openDate?: string | null
-    district?: string | null
-    populationGroup?: string | null
-    riskCategory?: string | null
-    riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
-    ifsc?: string | null
-    address?: string | null
-    latitude?: number | null
-    longitude?: number | null
-    pincode?: string | null
-    headUserId?: string | null
-    secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
-    accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
-    accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
-    atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
-    auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
-    history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
-    requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
-    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
-    budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
-    campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
-    campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
-    ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
-    letters?: LetterUncheckedCreateNestedManyWithoutBranchInput
-    misExceptions?: MisExceptionUncheckedCreateNestedManyWithoutBranchInput
-    facts?: FactUncheckedCreateNestedManyWithoutBranchInput
-    misSnapshots?: MisSnapshotUncheckedCreateNestedManyWithoutBranchInput
-    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutBranchInput
-    notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
-    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
-    recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
-    regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
-    users?: UserUncheckedCreateNestedManyWithoutBranchInput
-  }
-
-  export type BranchCreateOrConnectWithoutSnapshotsInput = {
-    where: BranchWhereUniqueInput
-    create: XOR<BranchCreateWithoutSnapshotsInput, BranchUncheckedCreateWithoutSnapshotsInput>
-  }
-
-  export type ParameterCreateWithoutSnapshotsInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    letters?: LetterCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterUncheckedCreateWithoutSnapshotsInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    category: string
-    unit?: string
-    letters?: LetterUncheckedCreateNestedManyWithoutParameterInput
-  }
-
-  export type ParameterCreateOrConnectWithoutSnapshotsInput = {
-    where: ParameterWhereUniqueInput
-    create: XOR<ParameterCreateWithoutSnapshotsInput, ParameterUncheckedCreateWithoutSnapshotsInput>
-  }
-
-  export type BranchUpsertWithoutSnapshotsInput = {
-    update: XOR<BranchUpdateWithoutSnapshotsInput, BranchUncheckedUpdateWithoutSnapshotsInput>
-    create: XOR<BranchCreateWithoutSnapshotsInput, BranchUncheckedCreateWithoutSnapshotsInput>
-    where?: BranchWhereInput
-  }
-
-  export type BranchUpdateToOneWithWhereWithoutSnapshotsInput = {
-    where?: BranchWhereInput
-    data: XOR<BranchUpdateWithoutSnapshotsInput, BranchUncheckedUpdateWithoutSnapshotsInput>
-  }
-
-  export type BranchUpdateWithoutSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
-    code?: StringFieldUpdateOperationsInput | string
-    officeId?: NullableIntFieldUpdateOperationsInput | number | null
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: StringFieldUpdateOperationsInput | string
-    openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
-    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
-    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
-    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
-    accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
-    accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
-    atms?: AtmUpdateManyWithoutBranchNestedInput
-    auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
-    history?: BranchHistoryUpdateManyWithoutBranchNestedInput
-    requests?: BranchRequestUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
-    headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
-    secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
-    budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
-    campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
-    campaignTargets?: CampaignTargetUpdateManyWithoutBranchNestedInput
-    ingestionLogs?: IngestionLogUpdateManyWithoutBranchNestedInput
-    letters?: LetterUpdateManyWithoutBranchNestedInput
-    misExceptions?: MisExceptionUpdateManyWithoutBranchNestedInput
-    facts?: FactUpdateManyWithoutBranchNestedInput
-    misSnapshots?: MisSnapshotUpdateManyWithoutBranchNestedInput
-    noticeAcks?: NoticeAckUpdateManyWithoutBranchNestedInput
-    notices?: NoticeUpdateManyWithoutBranchNestedInput
-    postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
-    recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
-    regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
-    users?: UserUpdateManyWithoutBranchNestedInput
-  }
-
-  export type BranchUncheckedUpdateWithoutSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
-    code?: StringFieldUpdateOperationsInput | string
-    officeId?: NullableIntFieldUpdateOperationsInput | number | null
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    type?: StringFieldUpdateOperationsInput | string
-    openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
-    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
-    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
-    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
-    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
-    accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
-    accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
-    atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
-    auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
-    history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
-    requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
-    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
-    budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
-    campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
-    campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
-    ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
-    letters?: LetterUncheckedUpdateManyWithoutBranchNestedInput
-    misExceptions?: MisExceptionUncheckedUpdateManyWithoutBranchNestedInput
-    facts?: FactUncheckedUpdateManyWithoutBranchNestedInput
-    misSnapshots?: MisSnapshotUncheckedUpdateManyWithoutBranchNestedInput
-    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutBranchNestedInput
-    notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
-    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
-    recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
-    regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
-    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
-  }
-
-  export type ParameterUpsertWithoutSnapshotsInput = {
-    update: XOR<ParameterUpdateWithoutSnapshotsInput, ParameterUncheckedUpdateWithoutSnapshotsInput>
-    create: XOR<ParameterCreateWithoutSnapshotsInput, ParameterUncheckedCreateWithoutSnapshotsInput>
-    where?: ParameterWhereInput
-  }
-
-  export type ParameterUpdateToOneWithWhereWithoutSnapshotsInput = {
-    where?: ParameterWhereInput
-    data: XOR<ParameterUpdateWithoutSnapshotsInput, ParameterUncheckedUpdateWithoutSnapshotsInput>
-  }
-
-  export type ParameterUpdateWithoutSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    letters?: LetterUpdateManyWithoutParameterNestedInput
-  }
-
-  export type ParameterUncheckedUpdateWithoutSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    category?: StringFieldUpdateOperationsInput | string
-    unit?: StringFieldUpdateOperationsInput | string
-    letters?: LetterUncheckedUpdateManyWithoutParameterNestedInput
-  }
-
   export type NoticeAckCreateWithoutNoticeInput = {
     id?: string
     createdAt?: Date | string
@@ -124736,7 +118214,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -124787,7 +118264,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -124893,7 +118369,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -124944,7 +118419,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -125024,7 +118498,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -125075,7 +118548,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -125294,7 +118766,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -125345,7 +118816,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -125609,7 +119079,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
 
@@ -125660,7 +119129,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
 
@@ -125748,7 +119216,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
 
@@ -125799,7 +119266,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
 
@@ -126004,7 +119470,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -126055,7 +119520,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -126122,7 +119586,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -126173,7 +119636,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -126224,7 +119686,6 @@ export namespace Prisma {
     notices?: NoticeCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -126275,7 +119736,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -126480,7 +119940,6 @@ export namespace Prisma {
     notices?: NoticeUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -126531,7 +119990,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -128215,7 +121673,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -128266,7 +121723,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -128392,7 +121848,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -128443,7 +121898,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -128535,7 +121989,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -128586,7 +122039,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -128684,7 +122136,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -128735,7 +122186,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -128880,7 +122330,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -128931,7 +122380,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -129056,7 +122504,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -129107,7 +122554,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -129245,7 +122691,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -129296,7 +122741,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -129396,7 +122840,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -129447,7 +122890,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -129498,7 +122940,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -129549,7 +122990,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -129616,7 +123056,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -129667,7 +123106,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -129718,7 +123156,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -129769,7 +123206,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -129836,7 +123272,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -129887,7 +123322,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -130162,7 +123596,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -130213,7 +123646,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -130280,7 +123712,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -130331,7 +123762,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -130745,6 +124175,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
     actionPoints?: ActionPointCreateNestedManyWithoutMeetingInput
   }
 
@@ -130758,6 +124189,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
     actionPoints?: ActionPointUncheckedCreateNestedManyWithoutMeetingInput
   }
 
@@ -130792,7 +124224,7 @@ export namespace Prisma {
     OR?: MeetingScalarWhereInput[]
     NOT?: MeetingScalarWhereInput | MeetingScalarWhereInput[]
     id?: StringFilter<"Meeting"> | string
-    committeeId?: StringFilter<"Meeting"> | string
+    committeeId?: StringNullableFilter<"Meeting"> | string | null
     date?: DateTimeFilter<"Meeting"> | Date | string
     venue?: StringNullableFilter<"Meeting"> | string | null
     status?: StringFilter<"Meeting"> | string
@@ -130801,6 +124233,7 @@ export namespace Prisma {
     signatories?: JsonNullableFilter<"Meeting">
     createdAt?: DateTimeFilter<"Meeting"> | Date | string
     updatedAt?: DateTimeFilter<"Meeting"> | Date | string
+    title?: StringNullableFilter<"Meeting"> | string | null
   }
 
   export type ActionPointCreateWithoutMeetingInput = {
@@ -131018,12 +124451,13 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    committee: CommitteeCreateNestedOneWithoutMeetingsInput
+    title?: string | null
+    committee?: CommitteeCreateNestedOneWithoutMeetingsInput
   }
 
   export type MeetingUncheckedCreateWithoutActionPointsInput = {
     id?: string
-    committeeId: string
+    committeeId?: string | null
     date: Date | string
     venue?: string | null
     status?: string
@@ -131032,6 +124466,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
   }
 
   export type MeetingCreateOrConnectWithoutActionPointsInput = {
@@ -131175,12 +124610,13 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    committee?: CommitteeUpdateOneRequiredWithoutMeetingsNestedInput
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    committee?: CommitteeUpdateOneWithoutMeetingsNestedInput
   }
 
   export type MeetingUncheckedUpdateWithoutActionPointsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    committeeId?: StringFieldUpdateOperationsInput | string
+    committeeId?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     venue?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -131189,6 +124625,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BranchCreateWithoutRecoveryActionsInput = {
@@ -131237,7 +124674,6 @@ export namespace Prisma {
     notices?: NoticeCreateNestedManyWithoutBranchInput
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -131288,7 +124724,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -131355,7 +124790,6 @@ export namespace Prisma {
     notices?: NoticeUpdateManyWithoutBranchNestedInput
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -131406,7 +124840,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -131457,7 +124890,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -131508,7 +124940,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -131575,7 +125006,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -131626,7 +125056,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -131707,7 +125136,6 @@ export namespace Prisma {
     notices?: NoticeCreateNestedManyWithoutBranchInput
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -131758,7 +125186,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -131855,7 +125282,6 @@ export namespace Prisma {
     notices?: NoticeUpdateManyWithoutBranchNestedInput
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -131906,7 +125332,6 @@ export namespace Prisma {
     notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -132103,7 +125528,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -132154,7 +125578,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -132258,7 +125681,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -132309,7 +125731,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -132403,7 +125824,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -132454,7 +125874,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -132558,7 +125977,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -132609,7 +126027,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -132904,7 +126321,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
   }
@@ -132955,7 +126371,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
-    snapshots?: SnapshotUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
   }
@@ -133131,7 +126546,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
   }
@@ -133182,7 +126596,6 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
-    snapshots?: SnapshotUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
   }
@@ -133397,7 +126810,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -133426,7 +126838,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -133836,7 +127247,6 @@ export namespace Prisma {
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
@@ -133851,7 +127261,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -133881,7 +127290,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -133926,7 +127334,6 @@ export namespace Prisma {
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
   }
@@ -133940,7 +127347,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -133970,7 +127376,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -134512,7 +127917,6 @@ export namespace Prisma {
     contentEn: string
     titleTa?: string | null
     contentTa?: string | null
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -134621,16 +128025,6 @@ export namespace Prisma {
     purchaseValue?: number | null
     condition?: string
     amcExpiry?: Date | string | null
-    createdAt?: Date | string
-  }
-
-  export type SnapshotCreateManyBranchInput = {
-    id?: string
-    date: Date | string
-    parameterId: string
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
     createdAt?: Date | string
   }
 
@@ -135098,7 +128492,6 @@ export namespace Prisma {
     recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     author?: UserUpdateOneWithoutAuthoredLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
@@ -135112,7 +128505,6 @@ export namespace Prisma {
     contentEn?: StringFieldUpdateOperationsInput | string
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -135142,7 +128534,6 @@ export namespace Prisma {
     contentEn?: StringFieldUpdateOperationsInput | string
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -135441,36 +128832,6 @@ export namespace Prisma {
     purchaseValue?: NullableFloatFieldUpdateOperationsInput | number | null
     condition?: StringFieldUpdateOperationsInput | string
     amcExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SnapshotUpdateWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    parameter?: ParameterUpdateOneRequiredWithoutSnapshotsNestedInput
-  }
-
-  export type SnapshotUncheckedUpdateWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    parameterId?: StringFieldUpdateOperationsInput | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SnapshotUncheckedUpdateManyWithoutBranchInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    parameterId?: StringFieldUpdateOperationsInput | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -136327,7 +129688,6 @@ export namespace Prisma {
     titleTa?: string | null
     contentTa?: string | null
     branchId: string
-    parameterId?: string | null
     valueAtTime?: Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: Decimal | DecimalJsLike | number | string | null
     period?: string | null
@@ -136372,7 +129732,6 @@ export namespace Prisma {
     salutation?: NullableStringFieldUpdateOperationsInput | string | null
     author?: UserUpdateOneWithoutAuthoredLettersNestedInput
     branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    parameter?: ParameterUpdateOneWithoutLettersNestedInput
     nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
     signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
   }
@@ -136386,7 +129745,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136416,7 +129774,6 @@ export namespace Prisma {
     titleTa?: NullableStringFieldUpdateOperationsInput | string | null
     contentTa?: NullableStringFieldUpdateOperationsInput | string | null
     branchId?: StringFieldUpdateOperationsInput | string
-    parameterId?: NullableStringFieldUpdateOperationsInput | string | null
     valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     period?: NullableStringFieldUpdateOperationsInput | string | null
@@ -136760,164 +130117,6 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type LetterCreateManyParameterInput = {
-    id?: string
-    type?: string
-    status?: string
-    titleEn: string
-    contentEn: string
-    titleTa?: string | null
-    contentTa?: string | null
-    branchId: string
-    valueAtTime?: Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: Decimal | DecimalJsLike | number | string | null
-    period?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    previousVersionId?: string | null
-    version?: number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: string | null
-    referenceNo?: string | null
-    titleHi?: string | null
-    contentHi?: string | null
-    isExternal?: boolean
-    recipientName?: string | null
-    recipientAddress?: string | null
-    salutation?: string | null
-    authorId?: string | null
-    signatoryId?: string | null
-  }
-
-  export type SnapshotCreateManyParameterInput = {
-    id?: string
-    date: Date | string
-    branchId?: string | null
-    value: Decimal | DecimalJsLike | number | string
-    budget?: Decimal | DecimalJsLike | number | string | null
-    status?: string | null
-    createdAt?: Date | string
-  }
-
-  export type LetterUpdateWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    author?: UserUpdateOneWithoutAuthoredLettersNestedInput
-    branch?: BranchUpdateOneRequiredWithoutLettersNestedInput
-    previousVersion?: LetterUpdateOneWithoutNextVersionsNestedInput
-    nextVersions?: LetterUpdateManyWithoutPreviousVersionNestedInput
-    signatory?: UserUpdateOneWithoutSignatoryLettersNestedInput
-  }
-
-  export type LetterUncheckedUpdateWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
-    nextVersions?: LetterUncheckedUpdateManyWithoutPreviousVersionNestedInput
-  }
-
-  export type LetterUncheckedUpdateManyWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    titleEn?: StringFieldUpdateOperationsInput | string
-    contentEn?: StringFieldUpdateOperationsInput | string
-    titleTa?: NullableStringFieldUpdateOperationsInput | string | null
-    contentTa?: NullableStringFieldUpdateOperationsInput | string | null
-    branchId?: StringFieldUpdateOperationsInput | string
-    valueAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    budgetAtTime?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    period?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    previousVersionId?: NullableStringFieldUpdateOperationsInput | string | null
-    version?: IntFieldUpdateOperationsInput | number
-    orgMeta?: NullableJsonNullValueInput | InputJsonValue
-    scannedCopyUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    referenceNo?: NullableStringFieldUpdateOperationsInput | string | null
-    titleHi?: NullableStringFieldUpdateOperationsInput | string | null
-    contentHi?: NullableStringFieldUpdateOperationsInput | string | null
-    isExternal?: BoolFieldUpdateOperationsInput | boolean
-    recipientName?: NullableStringFieldUpdateOperationsInput | string | null
-    recipientAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    salutation?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: NullableStringFieldUpdateOperationsInput | string | null
-    signatoryId?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type SnapshotUpdateWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    branch?: BranchUpdateOneWithoutSnapshotsNestedInput
-  }
-
-  export type SnapshotUncheckedUpdateWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    branchId?: NullableStringFieldUpdateOperationsInput | string | null
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SnapshotUncheckedUpdateManyWithoutParameterInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    branchId?: NullableStringFieldUpdateOperationsInput | string | null
-    value?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    budget?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    status?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NoticeAckCreateManyNoticeInput = {
@@ -137452,6 +130651,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    title?: string | null
   }
 
   export type MeetingUpdateWithoutCommitteeInput = {
@@ -137464,6 +130664,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
     actionPoints?: ActionPointUpdateManyWithoutMeetingNestedInput
   }
 
@@ -137477,6 +130678,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
     actionPoints?: ActionPointUncheckedUpdateManyWithoutMeetingNestedInput
   }
 
@@ -137490,6 +130692,7 @@ export namespace Prisma {
     signatories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionPointCreateManyMeetingInput = {

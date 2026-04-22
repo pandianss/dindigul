@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { getFYMetrics, getFYRange } from '../utils/calendar';
+import { startOfDay, endOfDay } from 'date-fns';
 
 export const dashboardService = {
     async getConfig() {
@@ -30,58 +31,79 @@ export const dashboardService = {
             }
         });
 
-        const latestFact = await prisma.fact.findFirst({
+        const latestDates = await prisma.fact.findMany({
+            distinct: ['date'],
             orderBy: { date: 'desc' },
+            take: 2,
             select: { date: true }
         });
-        const latestDate = latestFact?.date || new Date();
+        const latestDate = latestDates[0]?.date || new Date();
+        const previousDate = latestDates[1]?.date || latestDate;
+
+        const branch = await prisma.branch.findUnique({ where: { code: '3933' } });
+        if (!branch) {
+            return { success: false, error: 'Regional Office branch not found' };
+        }
+
         const { start: fyStart } = getFYRange(latestDate);
         const baselineDate = new Date(fyStart.getTime() - 86400000);
 
-        const [recentFacts, baselineFacts, regParams] = await Promise.all([
-            prisma.fact.findMany({
-                where: { date: latestDate, branch: { type: { not: 'REGIONAL OFFICE' } } },
-                include: { branch: true }
+        const [regParams, recentFacts, prevFacts, baselineFacts] = await Promise.all([
+            prisma.misParameterRegistry.findMany({ 
+                where: { 
+                    parameterName: { in: ['SB', 'CD', 'CASA', 'TD', 'TOTAL_BUSINESS'] },
+                    isEnabled: true 
+                },
+                orderBy: { orderIndex: 'asc' }
             }),
             prisma.fact.findMany({
-                where: { date: baselineDate }
+                where: {
+                    unitId: branch.id,
+                    date: { gte: startOfDay(latestDate), lte: endOfDay(latestDate) }
+                }
             }),
-            prisma.misParameterRegistry.findMany({ where: { isEnabled: true } })
+            prisma.fact.findMany({
+                where: {
+                    unitId: branch.id,
+                    date: { gte: startOfDay(previousDate), lte: endOfDay(previousDate) }
+                }
+            }),
+            prisma.fact.findMany({
+                where: {
+                    unitId: branch.id,
+                    date: { gte: startOfDay(baselineDate), lte: endOfDay(baselineDate) }
+                }
+            })
         ]);
 
-        const regMap = Object.fromEntries(regParams.map(p => [p.parameterName, p]));
         const baselineMap = new Map<string, number>();
-        baselineFacts.forEach(f => baselineMap.set(`${f.unitId}:${f.metric}`, Number(f.value)));
+        baselineFacts.forEach(f => baselineMap.set(f.metric, Number(f.value)));
 
-        const paramMap: Record<string, { values: number[], baselines: number[], displayName: string, unit: string }> = {};
-        
-        for (const f of recentFacts) {
-            const config = regMap[f.metric];
-            if (!config) continue;
+        const prevMap = new Map<string, number>();
+        prevFacts.forEach(f => prevMap.set(f.metric, Number(f.value)));
 
-            if (!paramMap[f.metric]) {
-                paramMap[f.metric] = { 
-                    values: [], baselines: [], 
-                    displayName: config.displayName || f.metric,
-                    unit: config.category === 'CASH' ? 'Lakhs' : (f.metric.includes('%') ? '%' : 'Cr')
-                };
-            }
+        const dashboardMetrics = ['SB', 'CD', 'CASA', 'TD'];
 
-            const entry = paramMap[f.metric];
-            entry.values.push(Number(f.value));
-            const bKey = `${f.unitId}:${f.metric}`;
-            entry.baselines.push(baselineMap.get(bKey) || 0);
-        }
+        const kpis = recentFacts.filter(f => dashboardMetrics.includes(f.metric)).map(f => {
+            const config = regParams.find(p => p.parameterName === f.metric);
+            if (!config) return null;
 
-        const kpis = Object.entries(paramMap).map(([code, { values, baselines, displayName, unit }]) => {
-            const actual = values.reduce((a, b) => a + b, 0);
-            const baseline = baselines.reduce((a, b) => a + b, 0);
+            const isRatio = ['%', 'Ratio', 'Percent', 'CD_Ratio'].some(k => f.metric.includes(k));
+            const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(branch.type?.toUpperCase() || '') || branch.code === '3933';
+
+            const actual = Number(f.value);
+            const baseline = baselineMap.get(f.metric) || actual;
+            const previous = prevMap.get(f.metric) || actual;
+            
             const fyGrowth = actual - baseline;
+            const dailyGrowth = actual - previous;
             const pace = baseline !== 0 ? (fyGrowth / Math.abs(baseline)) * 100 : 0;
             
-            let status = 'LAGGING';
+            let status: 'SURPASSED' | 'POSITIVE' | 'LAGGING' | 'NEGATIVE' = 'LAGGING';
             if (actual > baseline) status = 'POSITIVE';
             else if (actual < baseline) status = 'NEGATIVE';
+
+            const unit = (config.category === 'CASH' || !isRegional) && !isRatio ? 'Lakhs' : (isRatio ? '%' : 'Cr');
 
             const formatVal = (v: number) => {
                 if (unit === 'Cr' || unit === 'Lakhs') return `₹${v.toFixed(1)} ${unit}`;
@@ -89,25 +111,30 @@ export const dashboardService = {
                 return v.toLocaleString('en-IN');
             };
 
-            const prefix = fyGrowth > 0 ? '+' : '';
-            const growthDisplay = (unit === 'Cr' || unit === 'Lakhs')
-                ? `${prefix}₹${fyGrowth.toFixed(1)} ${unit}`
-                : unit === '%' 
-                    ? `${prefix}${fyGrowth.toFixed(2)}%`
-                    : `${prefix}${fyGrowth.toLocaleString('en-IN')}`;
+            const getGrowthDisplay = (val: number) => {
+                const prefix = val > 0 ? '+' : '';
+                if (unit === 'Cr' || unit === 'Lakhs') return `${prefix}₹${val.toFixed(1)} ${unit}`;
+                if (unit === '%') return `${prefix}${val.toFixed(2)}%`;
+                return `${prefix}${val.toLocaleString('en-IN')}`;
+            };
 
             return {
-                code,
-                label: displayName,
+                code: f.metric,
+                label: config.displayName,
                 val: formatVal(actual),
                 budget: 'N/A',
                 growth: fyGrowth,
-                growthDisplay,
+                growthDisplay: getGrowthDisplay(fyGrowth),
+                dailyGrowth: dailyGrowth,
+                dailyGrowthDisplay: getGrowthDisplay(dailyGrowth),
                 pace: Number.isFinite(pace) ? parseFloat(pace.toFixed(1)) : 0,
                 status,
                 unit
             };
+        }).filter(Boolean).sort((a: any, b: any) => {
+            return dashboardMetrics.indexOf(a.code) - dashboardMetrics.indexOf(b.code);
         });
+
 
         const branchPulse = { SURPASSED: 0, POSITIVE: 0, LAGGING: 0, NEGATIVE: 0 };
         recentFacts.filter(f => f.metric === 'TOTAL_BUSINESS').forEach(f => {

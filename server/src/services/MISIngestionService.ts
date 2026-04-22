@@ -8,7 +8,10 @@ import { formatSolId, toUTCDate, normalizeAmount } from '../utils/businessUtils'
 
 const CRITERIA_PARAM_MAP: Record<string, string> = {
     'Total Dep': 'TOTAL_DEPOSITS',
-    'Adv': 'TOTAL_ADVANCES',
+    'Adv': 'ADV',
+    'Advances': 'ADV',
+    'Total Adv': 'ADV',
+    'Total Advances': 'ADV',
     'Business': 'TOTAL_BUSINESS',
     'Recovery': 'TOTAL_RECOVERY',
     'CASA': 'CASA',
@@ -65,8 +68,11 @@ const MAPPING: Record<string, string> = {
     'CORERETAIL': 'CORE_RETAIL',
     'CORERET': 'CORE_RETAIL',
     'NPA': 'NPA',
-    'ADV': 'TOTAL_ADVANCES',
-    'TOTALDEP': 'TOTAL_DEPOSITS',
+    'ADV': 'ADV',
+    'ADVANCE': 'ADV',
+    'ADVANCES': 'ADV',
+    'TOTALADVANCES': 'ADV',
+    'TOTALADV': 'ADV',
     'TOTALDEPOSITS': 'TOTAL_DEPOSITS',
     'SB': 'SB_DEPOSITS',
     'CD': 'CD_DEPOSITS',
@@ -194,9 +200,9 @@ export class MISIngestionService {
                         const paramName = normalizeCode(rawHeader);
                         const val = normalizeAmount(Number(rawValue || 0), !isRegional);
 
-                        if (paramName === 'TOTAL_ADVANCES') adv = val;
+                        if (paramName === 'ADV') adv = val;
 
-                        const isDerived = ['CASA', 'TOTAL_DEPOSITS', 'BUSINESS_TOTAL', 'CASA%', 'CD_RATIO', 'RET_TD', 'TOTAL_ADVANCES'].includes(paramName);
+                        const isDerived = ['CASA', 'TOTAL_DEPOSITS', 'BUSINESS_TOTAL', 'CASA%', 'CD_RATIO', 'RET_TD', 'ADV'].includes(paramName);
                         
                         if (paramName && paramName !== 'UNKNOWN' && !isDerived) {
                             factsToCreate.push({
@@ -225,10 +231,10 @@ export class MISIngestionService {
                         { metric: 'Core Ret', value: coreRetSum },
                         { metric: 'CASA', value: casa },
                         { metric: 'Total Dep', value: totalDep },
-                        { metric: 'Ret_TD', value: retTd },
+                        { metric: 'RET_TD', value: retTd },
                         { metric: 'CASA%', value: casaPct },
                         { metric: 'CD_Ratio', value: totalDep > 0 ? (adv / totalDep) * 100 : 0 },
-                        { metric: 'TOTAL_ADVANCES', value: adv },
+                        { metric: 'ADV', value: adv },
                         { metric: 'Bus', value: totalDep + adv },
                         { metric: 'Recovery', value: scaledTotalRec }
                     ];

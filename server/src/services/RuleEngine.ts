@@ -139,16 +139,29 @@ function buildExceptionsForSnapshot(
                 ruleId: 'RULE-CASH-01'
             }));
         }
+    }
 
-        if (PROFIT_PARAMETERS.has(row.parameter) && currentValue < 0) {
-            exceptions.push(buildException(snapshot, {
-                type: ExceptionType.RISK,
-                severity: ExceptionSeverity.HIGH,
-                parameter: 'Profit',
-                message: `Net Loss recorded for the period: Rs. ${Math.abs(currentValue).toFixed(2)} Lakhs. Immediate analysis of income/expenditure gaps required.`,
-                triggerValue: currentValue.toFixed(2),
-                ruleId: 'RULE-PROFIT-01'
-            }));
+    // MILESTONE HURDLE DETECTION (Logical Business Success)
+    const businessParam = snapshot.panelData.find(row => 
+        ['Business', 'TOTAL_BUSINESS', 'Bus'].includes(row.parameter)
+    );
+    if (businessParam) {
+        const currentVal = toNumber(businessParam.val_current);
+        const prevVal = toNumber(businessParam.val_y_eod);
+        const hurdles = [50, 100, 250, 500, 1000, 2000, 5000];
+
+        for (const h of hurdles) {
+            if (currentVal >= h && prevVal < h) {
+                exceptions.push(buildException(snapshot, {
+                    type: ExceptionType.GROWTH,
+                    severity: ExceptionSeverity.LOW,
+                    parameter: businessParam.parameter,
+                    message: `🏆 CONGRATULATIONS! Branch has crossed the ${h} Crore Milestone in Total Business. Keep up the momentum!`,
+                    triggerValue: `${currentVal.toFixed(2)} Cr`,
+                    ruleId: 'RULE-MILESTONE'
+                }));
+                break; // Only flag the highest hurdle crossed today
+            }
         }
     }
 

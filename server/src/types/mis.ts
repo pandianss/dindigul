@@ -4,7 +4,7 @@ export const MisParameter = {
     SB: 'SB',
     CD: 'CD',
     TD: 'TD',
-    ADVANCE_TOTAL: 'Adv',
+    ADVANCE_TOTAL: 'ADV',
     BUSINESS_TOTAL: 'Bus',
     NPA: 'NPA',
     CD_RATIO: 'CD_Ratio',

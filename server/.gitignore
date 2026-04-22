@@ -2,7 +2,10 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+src/generated/
 /generated/prisma
 
 # Quarantine dangerous scripts
 scripts/danger/
+dist/
+*.log

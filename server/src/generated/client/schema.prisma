@@ -149,7 +149,6 @@ model Branch {
   postingHistory      PostingHistory[]
   recoveryActions     RecoveryAction[]
   regionalAssets      RegionalAsset[]
-  snapshots           Snapshot[]
   stationeryMovements StationeryMovement[]
   users               User[]               @relation("BranchMembers")
 
@@ -202,39 +201,37 @@ model BranchHistory {
 }
 
 model Letter {
-  id                String     @id @default(uuid())
-  type              String     @default("MANUAL")
-  status            String     @default("DRAFT")
+  id                String   @id @default(uuid())
+  type              String   @default("MANUAL")
+  status            String   @default("DRAFT")
   titleEn           String
   contentEn         String
   titleTa           String?
   contentTa         String?
   branchId          String
-  parameterId       String?
-  valueAtTime       Decimal?   @db.Decimal(18, 4)
-  budgetAtTime      Decimal?   @db.Decimal(18, 4)
+  valueAtTime       Decimal? @db.Decimal(18, 4)
+  budgetAtTime      Decimal? @db.Decimal(18, 4)
   period            String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   previousVersionId String?
-  version           Int        @default(1)
+  version           Int      @default(1)
   orgMeta           Json?
   scannedCopyUrl    String?
-  referenceNo       String?    @unique
+  referenceNo       String?  @unique
   titleHi           String?
   contentHi         String?
-  isExternal        Boolean    @default(false)
+  isExternal        Boolean  @default(false)
   recipientName     String?
   recipientAddress  String?
   salutation        String?
   authorId          String?
   signatoryId       String?
-  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
-  branch            Branch     @relation(fields: [branchId], references: [id])
-  parameter         Parameter? @relation(fields: [parameterId], references: [id])
-  previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
-  nextVersions      Letter[]   @relation("LetterHistory")
-  signatory         User?      @relation("LetterSignatory", fields: [signatoryId], references: [id])
+  author            User?    @relation("LetterAuthor", fields: [authorId], references: [id])
+  branch            Branch   @relation(fields: [branchId], references: [id])
+  previousVersion   Letter?  @relation("LetterHistory", fields: [previousVersionId], references: [id])
+  nextVersions      Letter[] @relation("LetterHistory")
+  signatory         User?    @relation("LetterSignatory", fields: [signatoryId], references: [id])
 
   @@map("letters")
 }
@@ -338,36 +335,6 @@ model Holiday {
   venue       String?
 
   @@map("holidays")
-}
-
-model Parameter {
-  id        String     @id @default(uuid())
-  code      String     @unique
-  nameEn    String
-  nameTa    String?
-  nameHi    String?
-  category  String
-  unit      String     @default("Cr")
-  letters   Letter[]
-  snapshots Snapshot[]
-
-  @@map("parameters")
-}
-
-model Snapshot {
-  id          String    @id @default(uuid())
-  date        DateTime
-  parameterId String
-  branchId    String?
-  value       Decimal   @db.Decimal(18, 4)
-  budget      Decimal?  @db.Decimal(18, 4)
-  status      String?
-  createdAt   DateTime  @default(now())
-  branch      Branch?   @relation(fields: [branchId], references: [id])
-  parameter   Parameter @relation(fields: [parameterId], references: [id])
-
-  @@index([date])
-  @@map("snapshots")
 }
 
 model Notice {
@@ -843,35 +810,6 @@ model CalendarMaster {
   @@map("calendar_master")
 }
 
-model FactSbDailyBranch {
-  id              String   @id @default(uuid())
-  solId           String
-  openDay         DateTime
-  netSbOpened     Int
-  workingDayFlag  Boolean
-  qualifiedCount  Int
-  dataQualityFlag String
-  createdAt       DateTime @default(now())
-  sbClosed        Int      @default(0)
-
-  @@unique([solId, openDay])
-  @@map("fact_sb_daily_branch")
-}
-
-model FactCdMonthlyBranch {
-  id              String   @id @default(uuid())
-  solId           String
-  monthKey        String
-  netCdOpened     Int
-  qualifiedCount  Int
-  dataQualityFlag String
-  createdAt       DateTime @default(now())
-  cdClosed        Int      @default(0)
-
-  @@unique([solId, monthKey])
-  @@map("fact_cd_monthly_branch")
-}
-
 model ProductAdoptionScheme {
   id       String  @id @default(uuid())
   code     String  @unique
@@ -1040,7 +978,7 @@ model Committee {
 
 model Meeting {
   id           String        @id @default(uuid())
-  committeeId  String
+  committeeId  String?
   date         DateTime
   venue        String?
   status       String        @default("DRAFT")
@@ -1049,8 +987,9 @@ model Meeting {
   signatories  Json? // Officials in signing block [{ userId, name, designation }]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  title        String?
   actionPoints ActionPoint[]
-  committee    Committee     @relation(fields: [committeeId], references: [id])
+  committee    Committee?    @relation(fields: [committeeId], references: [id])
 
   @@map("meetings")
 }

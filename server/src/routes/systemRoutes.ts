@@ -6,8 +6,9 @@ import { parseCSV } from '../utils/csv';
 import { departmentUpload as upload } from '../middleware/upload';
 import path from 'path';
 import fs from 'fs';
-import { generatePDF, buildMeetingMinutesHtml, getRegionalOfficeData } from '../services/pdfService';
+import { generatePDF, buildMeetingMinutesHtml, getRegionalOfficeData, buildPremiumLayout } from '../services/pdfService';
 import { logger } from '../utils/logger';
+import { syncCalendarDay } from '../utils/calendar';
 
 const requireAdminOrPlanning = (req: any, res: any, next: any) => {
     const isPlanning = req.user?.role === 'RO_USER' && req.user?.section === 'Planning';
@@ -21,7 +22,6 @@ const systemRouter = Router();
 
 // ---- Merged from calendar.ts ----
 const calendarRouter = Router();
-
 
 // Apply auth to all routes in this file
 calendarRouter.use(authenticateToken);
@@ -57,6 +57,8 @@ calendarRouter.post('/', async (req: any, res) => {
                     venue
                 }
             });
+            // Sync analytical calendar
+            await syncCalendarDay(new Date(date));
             return res.json(updated);
         }
 
@@ -69,6 +71,10 @@ calendarRouter.post('/', async (req: any, res) => {
                 venue
             }
         });
+
+        // Sync analytical calendar
+        await syncCalendarDay(new Date(date));
+
         res.json(created);
     } catch (error) {
         console.error('Error saving event:', error);
@@ -83,9 +89,19 @@ calendarRouter.delete('/:id', async (req: any, res) => {
     }
     try {
         const { id } = req.params;
+        
+        // Fetch date before deletion to sync calendar
+        const holiday = await prisma.holiday.findUnique({ where: { id } });
+        const holidayDate = holiday?.date;
+
         await prisma.holiday.delete({
             where: { id }
         });
+
+        if (holidayDate) {
+            await syncCalendarDay(new Date(holidayDate));
+        }
+
         res.json({ success: true });
     } catch (error) {
         console.error('Error deleting event:', error);
@@ -869,8 +885,11 @@ meetingRoutesRouter.get('/committees', authenticateToken, async (req, res) => {
 // 2. Get Meetings for a Committee
 meetingRoutesRouter.get('/committee/:id/meetings', authenticateToken, async (req, res) => {
     try {
+        const { id } = req.params;
         const meetings = await prisma.meeting.findMany({
-            where: { committeeId: req.params.id as string },
+            where: id === 'GENERAL' 
+                ? { committeeId: null } 
+                : { committeeId: id as string },
             orderBy: { date: 'desc' },
             include: { committee: true }
         });
@@ -880,50 +899,64 @@ meetingRoutesRouter.get('/committee/:id/meetings', authenticateToken, async (req
     }
 });
 
-// 3. Create Meeting Draft
+// 3. Create Meeting Draft / Final
 meetingRoutesRouter.post('/', authenticateToken, async (req: any, res) => {
-    const { committeeId, date, venue, attendees, signatories } = req.body;
+    const { committeeId, date, venue, attendees, signatories, title, minutes, status } = req.body;
+    
+    // Valid date check
+    const parsedDate = new Date(date);
+    const finalDate = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+
     try {
         const meeting = await prisma.meeting.create({
             data: {
-                committeeId,
-                date: new Date(date),
-                venue,
-                attendees,
-                signatories,
-                status: 'DRAFT',
-                minutesJson: JSON.stringify([]) // Empty structured table
+                committeeId: committeeId === 'GENERAL' ? null : (committeeId || null),
+                title: title || (committeeId === 'GENERAL' ? 'Meeting' : null),
+                date: finalDate,
+                venue: venue || 'Dindigul',
+                attendees: Array.isArray(attendees) ? attendees : [],
+                signatories: Array.isArray(signatories) ? signatories : [],
+                status: status || 'DRAFT',
+                minutesJson: minutes ? JSON.stringify(minutes) : JSON.stringify([])
             }
         });
         res.status(201).json(meeting);
-    } catch (err) {
+    } catch (err: any) {
         logger.error('Failed to create meeting:', err);
-        res.status(500).json({ error: 'Failed to create meeting' });
+        res.status(500).json({ 
+            error: 'Failed to create meeting', 
+            details: err?.message || 'Unknown error',
+            code: err?.code
+        });
     }
 });
 
-// 4. Update Minutes (Structured Table)
-meetingRoutesRouter.patch('/:id/minutes', authenticateToken, async (req, res) => {
-    const { minutes, attendees, signatories, status, venue } = req.body;
+// 4. Update Meeting (Full Payload)
+meetingRoutesRouter.put('/:id', authenticateToken, async (req: any, res) => {
+    const { committeeId, date, venue, attendees, signatories, title, minutes, status } = req.body;
     try {
         const updated = await prisma.meeting.update({
             where: { id: req.params.id as string },
             data: {
-                minutesJson: minutes ? JSON.stringify(minutes) : undefined,
+                committeeId: committeeId === 'GENERAL' ? null : (committeeId || undefined),
+                title: title !== undefined ? title : undefined,
+                date: date ? new Date(date) : undefined,
+                venue: venue || undefined,
                 attendees: attendees || undefined,
                 signatories: signatories || undefined,
                 status: status || undefined,
-                venue: venue || undefined
+                minutesJson: minutes ? JSON.stringify(minutes) : undefined
             }
         });
         res.json(updated);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to update minutes' });
+    } catch (err: any) {
+        logger.error('Failed to update meeting:', err);
+        res.status(500).json({ error: 'Failed to update meeting', details: err?.message });
     }
 });
 
 // 5. Generate Minutes PDF
-meetingRoutesRouter.get('/:id/pdf', authenticateToken, async (req: any, res) => {
+meetingRoutesRouter.get('/:id/pdf', authenticateToken, async (req, res) => {
     try {
         const meeting = await prisma.meeting.findUnique({
             where: { id: req.params.id as string },
@@ -932,46 +965,111 @@ meetingRoutesRouter.get('/:id/pdf', authenticateToken, async (req: any, res) => 
 
         if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
 
-        // Resolve Signatories Detailed Info
-        const sigList: any[] = Array.isArray(meeting.signatories) ? meeting.signatories : [];
-        const resolvedSignatories = await Promise.all(sigList.map(async (sig: any) => {
-            if (sig.userId) {
-                const user = await prisma.user.findUnique({
-                    where: { id: sig.userId },
-                    include: { designation: true, department: true }
-                });
-                return {
-                    name: user?.fullNameEn || sig.name,
-                    designation: user?.designationEn || user?.designation?.nameEn || sig.designation,
-                    department: user?.department?.nameEn || ''
-                };
+        // Helper to resolve staff details (Trilingual) from Name or UUID
+        const resolveMember = async (input: any) => {
+            const identifier = typeof input === 'string' ? input : (input.userId || input.name || '');
+            if (!identifier) return null;
+
+            let user = null;
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            
+            if (uuidRegex.test(identifier)) {
+                user = await prisma.user.findUnique({ where: { id: identifier } });
+            } else {
+                user = await prisma.user.findFirst({ where: { fullNameEn: identifier } });
             }
-            return sig;
-        }));
+
+            return {
+                nameEn: user?.fullNameEn || identifier,
+                nameHi: user?.fullNameHi || '',
+                nameTa: user?.fullNameTa || '',
+                designationEn: user?.designationEn || (typeof input !== 'string' ? input.designation : 'Official'),
+                designationHi: user?.designationHi || '',
+                designationTa: user?.designationTa || ''
+            };
+        };
+
+        const resolvedSignatories = (await Promise.all(
+            (Array.isArray(meeting.signatories) ? meeting.signatories : []).map(resolveMember)
+        )).filter(Boolean);
+
+        // Participants can be UUIDs or names. We resolve them into trilingual identities.
+        // Participant Narrative (Typed Description)
+        const participantNarrative = (meeting as any).participantDescription || 'All Participants';
+
+        // Absentees are selected from the dropdown (stored in attendees IDs)
+        const absenteeIds = Array.isArray(meeting.attendees) ? meeting.attendees : [];
+        const resolvedAbsentees = (await Promise.all(
+            absenteeIds.map(id => resolveMember(id))
+        )).filter(Boolean);
+
+        // Signatories (Present)
+        const presentAttendees = resolvedSignatories;
+
+        // Safe JSON Parse for Minutes
+        let minutesData = [];
+        try {
+            if (meeting.minutesJson) {
+                minutesData = JSON.parse(meeting.minutesJson);
+            }
+        } catch (err) {
+            logger.error('Failed to parse meeting minutesJson:', err);
+            // Fallback to treat as raw text if it's not valid JSON
+            minutesData = meeting.minutesJson ? [{ content: meeting.minutesJson }] : [];
+        }
 
         const roData = await getRegionalOfficeData();
-        const html = buildMeetingMinutesHtml({
-            committee: meeting.committee,
-            dateStr: meeting.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+        
+        logger.info(`Generating Professional Meeting Minutes PDF for: ${meeting.title || 'Untitled'}`);
+
+        const htmlBody = buildMeetingMinutesHtml({
+            committee: meeting.committee?.nameEn || '',
+            title: meeting.title,
+            dateStr: meeting.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.'),
             venue: meeting.venue,
-            attendees: meeting.attendees,
-            minutes: JSON.parse(meeting.minutesJson || '[]'),
+            present: participantNarrative, // Pass the typed string here
+            absentees: resolvedAbsentees,
+            minutes: minutesData,
             resolvedSignatories
         }, roData);
 
-        const pdfBuffer = await generatePDF(html);
+        const refNo = `RO/DGL/MOM/${new Date(meeting.date).getFullYear()}/${meeting.id.substring(0, 4).toUpperCase()}`;
+
+        const finalHtml = buildPremiumLayout({
+            title: meeting.title || 'MINUTES OF MEETING',
+            subTitle: meeting.committee?.nameEn || 'COMMITTEE PROCEEDINGS',
+            date: meeting.date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.'),
+            refNo: refNo,
+            bodyHtml: htmlBody,
+            organization: roData as any,
+            hideHeader: false,
+            isLetter: true, 
+            hideMeta: true, 
+            meetingStatus: meeting.status as any
+        });
+
+        const pdfBuffer = await generatePDF(finalHtml);
 
         res.contentType('application/pdf');
         res.send(pdfBuffer);
-    } catch (err) {
-        logger.error('PDF Generation failed:', err);
-        res.status(500).json({ error: 'Failed to generate PDF' });
+    } catch (err: any) {
+        logger.error('CRITICAL: Meeting PDF Generation failed:', {
+            error: err.message,
+            stack: err.stack,
+            meetingId: req.params.id
+        });
+        // TEMPORARY: Return full stack trace to identify the exact cause of 500 error
+        res.status(500).json({ 
+            error: 'Failed to generate PDF', 
+            details: err?.message,
+            stack: err?.stack,
+            hint: 'Check the Network tab response for full details'
+        });
     }
 });
 
 
 systemRouter.use('/meetings', meetingRoutesRouter);
-
 
 
 export default systemRouter;

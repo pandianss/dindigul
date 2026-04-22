@@ -85,10 +85,16 @@ const CalendarManager: React.FC = () => {
 
     const stats = useMemo(() => getCalendarStats(startOfToday(), holidays), [holidays]);
 
-    const daysInMonth = useMemo(() => {
+    const { daysInMonth, paddingDays } = useMemo(() => {
         const start = startOfMonth(currentMonth);
         const end = endOfMonth(currentMonth);
-        return eachDayOfInterval({ start, end });
+        const days = eachDayOfInterval({ start, end });
+        
+        // Calculate padding days (0 for Sunday, 1 for Monday, etc.)
+        const paddingCount = start.getDay();
+        const padding = Array.from({ length: paddingCount });
+        
+        return { daysInMonth: days, paddingDays: padding };
     }, [currentMonth]);
 
     const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -212,6 +218,12 @@ const CalendarManager: React.FC = () => {
                                 {day}
                             </div>
                         ))}
+                        
+                        {/* Padding days for the previous month */}
+                        {paddingDays.map((_, i) => (
+                            <div key={`padding-${i}`} className="bg-gray-50/50 opacity-30 h-28 border-r border-b border-gray-100" />
+                        ))}
+
                         {daysInMonth.map((day) => {
                             const dateStr = format(day, 'yyyy-MM-dd');
                             const dayEvents = holidays.filter(h => h.date === dateStr);
