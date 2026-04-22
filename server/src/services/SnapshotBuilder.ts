@@ -48,6 +48,10 @@ export class SnapshotBuilder {
             });
 
             if (allFacts.length === 0) {
+                logger.warn('SNAPSHOT_BRANCH_SKIP_NO_FACTS', { 
+                    sol: branch.code, 
+                    date: businessDate.toISOString().split('T')[0] 
+                });
                 skippedCount++;
                 continue;
             }
@@ -73,9 +77,10 @@ export class SnapshotBuilder {
             // 2. Create or Update Snapshot
             const snapshot = await prisma.misSnapshot.upsert({
                 where: {
-                    unitId_businessDate: {
+                    unitId_businessDate_version: {
                         unitId: branch.id,
-                        businessDate
+                        businessDate,
+                        version: 1
                     }
                 },
                 update: { status: 'DRAFT' },

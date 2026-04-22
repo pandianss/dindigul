@@ -8043,10 +8043,12 @@ export namespace Prisma {
 
   export type MisParameterRegistryCountOutputType = {
     childParameters: number
+    panelData: number
   }
 
   export type MisParameterRegistryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     childParameters?: boolean | MisParameterRegistryCountOutputTypeCountChildParametersArgs
+    panelData?: boolean | MisParameterRegistryCountOutputTypeCountPanelDataArgs
   }
 
   // Custom InputTypes
@@ -8065,6 +8067,13 @@ export namespace Prisma {
    */
   export type MisParameterRegistryCountOutputTypeCountChildParametersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MisParameterRegistryWhereInput
+  }
+
+  /**
+   * MisParameterRegistryCountOutputType without action
+   */
+  export type MisParameterRegistryCountOutputTypeCountPanelDataArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MisInformationPanelWhereInput
   }
 
 
@@ -53888,6 +53897,7 @@ export namespace Prisma {
     val_prev_fy_end?: boolean
     val_prev_fy_start?: boolean
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["misInformationPanel"]>
 
   export type MisInformationPanelSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -53912,6 +53922,7 @@ export namespace Prisma {
     val_prev_fy_end?: boolean
     val_prev_fy_start?: boolean
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["misInformationPanel"]>
 
   export type MisInformationPanelSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -53936,6 +53947,7 @@ export namespace Prisma {
     val_prev_fy_end?: boolean
     val_prev_fy_start?: boolean
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["misInformationPanel"]>
 
   export type MisInformationPanelSelectScalar = {
@@ -53964,18 +53976,22 @@ export namespace Prisma {
   export type MisInformationPanelOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "snapshotId" | "parameter" | "val_fy_start" | "val_fy_end" | "val_prev_m_end" | "val_dby" | "val_y_eod" | "val_current" | "growth_day" | "growth_month" | "growth_fy" | "budget_month" | "gap_month" | "budget_quarter" | "gap_quarter" | "growth_prev_fy" | "status" | "val_prev_fy_end" | "val_prev_fy_start", ExtArgs["result"]["misInformationPanel"]>
   export type MisInformationPanelInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }
   export type MisInformationPanelIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }
   export type MisInformationPanelIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     snapshot?: boolean | MisSnapshotDefaultArgs<ExtArgs>
+    registry?: boolean | MisParameterRegistryDefaultArgs<ExtArgs>
   }
 
   export type $MisInformationPanelPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "MisInformationPanel"
     objects: {
       snapshot: Prisma.$MisSnapshotPayload<ExtArgs>
+      registry: Prisma.$MisParameterRegistryPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -54393,6 +54409,7 @@ export namespace Prisma {
   export interface Prisma__MisInformationPanelClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     snapshot<T extends MisSnapshotDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MisSnapshotDefaultArgs<ExtArgs>>): Prisma__MisSnapshotClient<$Result.GetResult<Prisma.$MisSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    registry<T extends MisParameterRegistryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MisParameterRegistryDefaultArgs<ExtArgs>>): Prisma__MisParameterRegistryClient<$Result.GetResult<Prisma.$MisParameterRegistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -65170,6 +65187,7 @@ export namespace Prisma {
     parentParameterName?: boolean
     parentParameter?: boolean | MisParameterRegistry$parentParameterArgs<ExtArgs>
     childParameters?: boolean | MisParameterRegistry$childParametersArgs<ExtArgs>
+    panelData?: boolean | MisParameterRegistry$panelDataArgs<ExtArgs>
     _count?: boolean | MisParameterRegistryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["misParameterRegistry"]>
 
@@ -65215,6 +65233,7 @@ export namespace Prisma {
   export type MisParameterRegistryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     parentParameter?: boolean | MisParameterRegistry$parentParameterArgs<ExtArgs>
     childParameters?: boolean | MisParameterRegistry$childParametersArgs<ExtArgs>
+    panelData?: boolean | MisParameterRegistry$panelDataArgs<ExtArgs>
     _count?: boolean | MisParameterRegistryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MisParameterRegistryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -65229,6 +65248,7 @@ export namespace Prisma {
     objects: {
       parentParameter: Prisma.$MisParameterRegistryPayload<ExtArgs> | null
       childParameters: Prisma.$MisParameterRegistryPayload<ExtArgs>[]
+      panelData: Prisma.$MisInformationPanelPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       parameterName: string
@@ -65636,6 +65656,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     parentParameter<T extends MisParameterRegistry$parentParameterArgs<ExtArgs> = {}>(args?: Subset<T, MisParameterRegistry$parentParameterArgs<ExtArgs>>): Prisma__MisParameterRegistryClient<$Result.GetResult<Prisma.$MisParameterRegistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     childParameters<T extends MisParameterRegistry$childParametersArgs<ExtArgs> = {}>(args?: Subset<T, MisParameterRegistry$childParametersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MisParameterRegistryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    panelData<T extends MisParameterRegistry$panelDataArgs<ExtArgs> = {}>(args?: Subset<T, MisParameterRegistry$panelDataArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MisInformationPanelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -66115,6 +66136,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MisParameterRegistryScalarFieldEnum | MisParameterRegistryScalarFieldEnum[]
+  }
+
+  /**
+   * MisParameterRegistry.panelData
+   */
+  export type MisParameterRegistry$panelDataArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MisInformationPanel
+     */
+    select?: MisInformationPanelSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MisInformationPanel
+     */
+    omit?: MisInformationPanelOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MisInformationPanelInclude<ExtArgs> | null
+    where?: MisInformationPanelWhereInput
+    orderBy?: MisInformationPanelOrderByWithRelationInput | MisInformationPanelOrderByWithRelationInput[]
+    cursor?: MisInformationPanelWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MisInformationPanelScalarFieldEnum | MisInformationPanelScalarFieldEnum[]
   }
 
   /**
@@ -94134,6 +94179,7 @@ export namespace Prisma {
     val_prev_fy_end?: DecimalFilter<"MisInformationPanel"> | Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: DecimalFilter<"MisInformationPanel"> | Decimal | DecimalJsLike | number | string
     snapshot?: XOR<MisSnapshotScalarRelationFilter, MisSnapshotWhereInput>
+    registry?: XOR<MisParameterRegistryScalarRelationFilter, MisParameterRegistryWhereInput>
   }
 
   export type MisInformationPanelOrderByWithRelationInput = {
@@ -94158,6 +94204,7 @@ export namespace Prisma {
     val_prev_fy_end?: SortOrder
     val_prev_fy_start?: SortOrder
     snapshot?: MisSnapshotOrderByWithRelationInput
+    registry?: MisParameterRegistryOrderByWithRelationInput
   }
 
   export type MisInformationPanelWhereUniqueInput = Prisma.AtLeast<{
@@ -94185,6 +94232,7 @@ export namespace Prisma {
     val_prev_fy_end?: DecimalFilter<"MisInformationPanel"> | Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: DecimalFilter<"MisInformationPanel"> | Decimal | DecimalJsLike | number | string
     snapshot?: XOR<MisSnapshotScalarRelationFilter, MisSnapshotWhereInput>
+    registry?: XOR<MisParameterRegistryScalarRelationFilter, MisParameterRegistryWhereInput>
   }, "id">
 
   export type MisInformationPanelOrderByWithAggregationInput = {
@@ -94981,6 +95029,7 @@ export namespace Prisma {
     parentParameterName?: StringNullableFilter<"MisParameterRegistry"> | string | null
     parentParameter?: XOR<MisParameterRegistryNullableScalarRelationFilter, MisParameterRegistryWhereInput> | null
     childParameters?: MisParameterRegistryListRelationFilter
+    panelData?: MisInformationPanelListRelationFilter
   }
 
   export type MisParameterRegistryOrderByWithRelationInput = {
@@ -94995,6 +95044,7 @@ export namespace Prisma {
     parentParameterName?: SortOrderInput | SortOrder
     parentParameter?: MisParameterRegistryOrderByWithRelationInput
     childParameters?: MisParameterRegistryOrderByRelationAggregateInput
+    panelData?: MisInformationPanelOrderByRelationAggregateInput
   }
 
   export type MisParameterRegistryWhereUniqueInput = Prisma.AtLeast<{
@@ -95012,6 +95062,7 @@ export namespace Prisma {
     parentParameterName?: StringNullableFilter<"MisParameterRegistry"> | string | null
     parentParameter?: XOR<MisParameterRegistryNullableScalarRelationFilter, MisParameterRegistryWhereInput> | null
     childParameters?: MisParameterRegistryListRelationFilter
+    panelData?: MisInformationPanelListRelationFilter
   }, "parameterName">
 
   export type MisParameterRegistryOrderByWithAggregationInput = {
@@ -100301,7 +100352,6 @@ export namespace Prisma {
 
   export type MisInformationPanelCreateInput = {
     id?: string
-    parameter: string
     val_fy_start?: Decimal | DecimalJsLike | number | string
     val_fy_end?: Decimal | DecimalJsLike | number | string
     val_prev_m_end?: Decimal | DecimalJsLike | number | string
@@ -100320,6 +100370,7 @@ export namespace Prisma {
     val_prev_fy_end?: Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: Decimal | DecimalJsLike | number | string
     snapshot: MisSnapshotCreateNestedOneWithoutPanelDataInput
+    registry: MisParameterRegistryCreateNestedOneWithoutPanelDataInput
   }
 
   export type MisInformationPanelUncheckedCreateInput = {
@@ -100347,7 +100398,6 @@ export namespace Prisma {
 
   export type MisInformationPanelUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    parameter?: StringFieldUpdateOperationsInput | string
     val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -100366,6 +100416,7 @@ export namespace Prisma {
     val_prev_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     snapshot?: MisSnapshotUpdateOneRequiredWithoutPanelDataNestedInput
+    registry?: MisParameterRegistryUpdateOneRequiredWithoutPanelDataNestedInput
   }
 
   export type MisInformationPanelUncheckedUpdateInput = {
@@ -100416,7 +100467,6 @@ export namespace Prisma {
 
   export type MisInformationPanelUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    parameter?: StringFieldUpdateOperationsInput | string
     val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -101290,6 +101340,7 @@ export namespace Prisma {
     orderIndex?: number
     parentParameter?: MisParameterRegistryCreateNestedOneWithoutChildParametersInput
     childParameters?: MisParameterRegistryCreateNestedManyWithoutParentParameterInput
+    panelData?: MisInformationPanelCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryUncheckedCreateInput = {
@@ -101303,6 +101354,7 @@ export namespace Prisma {
     orderIndex?: number
     parentParameterName?: string | null
     childParameters?: MisParameterRegistryUncheckedCreateNestedManyWithoutParentParameterInput
+    panelData?: MisInformationPanelUncheckedCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryUpdateInput = {
@@ -101316,6 +101368,7 @@ export namespace Prisma {
     orderIndex?: IntFieldUpdateOperationsInput | number
     parentParameter?: MisParameterRegistryUpdateOneWithoutChildParametersNestedInput
     childParameters?: MisParameterRegistryUpdateManyWithoutParentParameterNestedInput
+    panelData?: MisInformationPanelUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryUncheckedUpdateInput = {
@@ -101329,6 +101382,7 @@ export namespace Prisma {
     orderIndex?: IntFieldUpdateOperationsInput | number
     parentParameterName?: NullableStringFieldUpdateOperationsInput | string | null
     childParameters?: MisParameterRegistryUncheckedUpdateManyWithoutParentParameterNestedInput
+    panelData?: MisInformationPanelUncheckedUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryCreateManyInput = {
@@ -105548,6 +105602,11 @@ export namespace Prisma {
   export type MisSnapshotScalarRelationFilter = {
     is?: MisSnapshotWhereInput
     isNot?: MisSnapshotWhereInput
+  }
+
+  export type MisParameterRegistryScalarRelationFilter = {
+    is?: MisParameterRegistryWhereInput
+    isNot?: MisParameterRegistryWhereInput
   }
 
   export type MisInformationPanelCountOrderByAggregateInput = {
@@ -110470,12 +110529,26 @@ export namespace Prisma {
     connect?: MisSnapshotWhereUniqueInput
   }
 
+  export type MisParameterRegistryCreateNestedOneWithoutPanelDataInput = {
+    create?: XOR<MisParameterRegistryCreateWithoutPanelDataInput, MisParameterRegistryUncheckedCreateWithoutPanelDataInput>
+    connectOrCreate?: MisParameterRegistryCreateOrConnectWithoutPanelDataInput
+    connect?: MisParameterRegistryWhereUniqueInput
+  }
+
   export type MisSnapshotUpdateOneRequiredWithoutPanelDataNestedInput = {
     create?: XOR<MisSnapshotCreateWithoutPanelDataInput, MisSnapshotUncheckedCreateWithoutPanelDataInput>
     connectOrCreate?: MisSnapshotCreateOrConnectWithoutPanelDataInput
     upsert?: MisSnapshotUpsertWithoutPanelDataInput
     connect?: MisSnapshotWhereUniqueInput
     update?: XOR<XOR<MisSnapshotUpdateToOneWithWhereWithoutPanelDataInput, MisSnapshotUpdateWithoutPanelDataInput>, MisSnapshotUncheckedUpdateWithoutPanelDataInput>
+  }
+
+  export type MisParameterRegistryUpdateOneRequiredWithoutPanelDataNestedInput = {
+    create?: XOR<MisParameterRegistryCreateWithoutPanelDataInput, MisParameterRegistryUncheckedCreateWithoutPanelDataInput>
+    connectOrCreate?: MisParameterRegistryCreateOrConnectWithoutPanelDataInput
+    upsert?: MisParameterRegistryUpsertWithoutPanelDataInput
+    connect?: MisParameterRegistryWhereUniqueInput
+    update?: XOR<XOR<MisParameterRegistryUpdateToOneWithWhereWithoutPanelDataInput, MisParameterRegistryUpdateWithoutPanelDataInput>, MisParameterRegistryUncheckedUpdateWithoutPanelDataInput>
   }
 
   export type MisSnapshotCreateNestedOneWithoutExceptionsInput = {
@@ -110575,11 +110648,25 @@ export namespace Prisma {
     connect?: MisParameterRegistryWhereUniqueInput | MisParameterRegistryWhereUniqueInput[]
   }
 
+  export type MisInformationPanelCreateNestedManyWithoutRegistryInput = {
+    create?: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput> | MisInformationPanelCreateWithoutRegistryInput[] | MisInformationPanelUncheckedCreateWithoutRegistryInput[]
+    connectOrCreate?: MisInformationPanelCreateOrConnectWithoutRegistryInput | MisInformationPanelCreateOrConnectWithoutRegistryInput[]
+    createMany?: MisInformationPanelCreateManyRegistryInputEnvelope
+    connect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+  }
+
   export type MisParameterRegistryUncheckedCreateNestedManyWithoutParentParameterInput = {
     create?: XOR<MisParameterRegistryCreateWithoutParentParameterInput, MisParameterRegistryUncheckedCreateWithoutParentParameterInput> | MisParameterRegistryCreateWithoutParentParameterInput[] | MisParameterRegistryUncheckedCreateWithoutParentParameterInput[]
     connectOrCreate?: MisParameterRegistryCreateOrConnectWithoutParentParameterInput | MisParameterRegistryCreateOrConnectWithoutParentParameterInput[]
     createMany?: MisParameterRegistryCreateManyParentParameterInputEnvelope
     connect?: MisParameterRegistryWhereUniqueInput | MisParameterRegistryWhereUniqueInput[]
+  }
+
+  export type MisInformationPanelUncheckedCreateNestedManyWithoutRegistryInput = {
+    create?: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput> | MisInformationPanelCreateWithoutRegistryInput[] | MisInformationPanelUncheckedCreateWithoutRegistryInput[]
+    connectOrCreate?: MisInformationPanelCreateOrConnectWithoutRegistryInput | MisInformationPanelCreateOrConnectWithoutRegistryInput[]
+    createMany?: MisInformationPanelCreateManyRegistryInputEnvelope
+    connect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
   }
 
   export type MisParameterRegistryUpdateOneWithoutChildParametersNestedInput = {
@@ -110606,6 +110693,20 @@ export namespace Prisma {
     deleteMany?: MisParameterRegistryScalarWhereInput | MisParameterRegistryScalarWhereInput[]
   }
 
+  export type MisInformationPanelUpdateManyWithoutRegistryNestedInput = {
+    create?: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput> | MisInformationPanelCreateWithoutRegistryInput[] | MisInformationPanelUncheckedCreateWithoutRegistryInput[]
+    connectOrCreate?: MisInformationPanelCreateOrConnectWithoutRegistryInput | MisInformationPanelCreateOrConnectWithoutRegistryInput[]
+    upsert?: MisInformationPanelUpsertWithWhereUniqueWithoutRegistryInput | MisInformationPanelUpsertWithWhereUniqueWithoutRegistryInput[]
+    createMany?: MisInformationPanelCreateManyRegistryInputEnvelope
+    set?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    disconnect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    delete?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    connect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    update?: MisInformationPanelUpdateWithWhereUniqueWithoutRegistryInput | MisInformationPanelUpdateWithWhereUniqueWithoutRegistryInput[]
+    updateMany?: MisInformationPanelUpdateManyWithWhereWithoutRegistryInput | MisInformationPanelUpdateManyWithWhereWithoutRegistryInput[]
+    deleteMany?: MisInformationPanelScalarWhereInput | MisInformationPanelScalarWhereInput[]
+  }
+
   export type MisParameterRegistryUncheckedUpdateManyWithoutParentParameterNestedInput = {
     create?: XOR<MisParameterRegistryCreateWithoutParentParameterInput, MisParameterRegistryUncheckedCreateWithoutParentParameterInput> | MisParameterRegistryCreateWithoutParentParameterInput[] | MisParameterRegistryUncheckedCreateWithoutParentParameterInput[]
     connectOrCreate?: MisParameterRegistryCreateOrConnectWithoutParentParameterInput | MisParameterRegistryCreateOrConnectWithoutParentParameterInput[]
@@ -110618,6 +110719,20 @@ export namespace Prisma {
     update?: MisParameterRegistryUpdateWithWhereUniqueWithoutParentParameterInput | MisParameterRegistryUpdateWithWhereUniqueWithoutParentParameterInput[]
     updateMany?: MisParameterRegistryUpdateManyWithWhereWithoutParentParameterInput | MisParameterRegistryUpdateManyWithWhereWithoutParentParameterInput[]
     deleteMany?: MisParameterRegistryScalarWhereInput | MisParameterRegistryScalarWhereInput[]
+  }
+
+  export type MisInformationPanelUncheckedUpdateManyWithoutRegistryNestedInput = {
+    create?: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput> | MisInformationPanelCreateWithoutRegistryInput[] | MisInformationPanelUncheckedCreateWithoutRegistryInput[]
+    connectOrCreate?: MisInformationPanelCreateOrConnectWithoutRegistryInput | MisInformationPanelCreateOrConnectWithoutRegistryInput[]
+    upsert?: MisInformationPanelUpsertWithWhereUniqueWithoutRegistryInput | MisInformationPanelUpsertWithWhereUniqueWithoutRegistryInput[]
+    createMany?: MisInformationPanelCreateManyRegistryInputEnvelope
+    set?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    disconnect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    delete?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    connect?: MisInformationPanelWhereUniqueInput | MisInformationPanelWhereUniqueInput[]
+    update?: MisInformationPanelUpdateWithWhereUniqueWithoutRegistryInput | MisInformationPanelUpdateWithWhereUniqueWithoutRegistryInput[]
+    updateMany?: MisInformationPanelUpdateManyWithWhereWithoutRegistryInput | MisInformationPanelUpdateManyWithWhereWithoutRegistryInput[]
+    deleteMany?: MisInformationPanelScalarWhereInput | MisInformationPanelScalarWhereInput[]
   }
 
   export type MisImportLogCreateuniqueDatesInput = {
@@ -123466,7 +123581,6 @@ export namespace Prisma {
 
   export type MisInformationPanelCreateWithoutSnapshotInput = {
     id?: string
-    parameter: string
     val_fy_start?: Decimal | DecimalJsLike | number | string
     val_fy_end?: Decimal | DecimalJsLike | number | string
     val_prev_m_end?: Decimal | DecimalJsLike | number | string
@@ -123484,6 +123598,7 @@ export namespace Prisma {
     status?: string
     val_prev_fy_end?: Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: Decimal | DecimalJsLike | number | string
+    registry: MisParameterRegistryCreateNestedOneWithoutPanelDataInput
   }
 
   export type MisInformationPanelUncheckedCreateWithoutSnapshotInput = {
@@ -123819,6 +123934,37 @@ export namespace Prisma {
     create: XOR<MisSnapshotCreateWithoutPanelDataInput, MisSnapshotUncheckedCreateWithoutPanelDataInput>
   }
 
+  export type MisParameterRegistryCreateWithoutPanelDataInput = {
+    parameterName: string
+    displayName: string
+    category?: string | null
+    isEnabled?: boolean
+    createdFromBudgetFlag?: boolean
+    description?: string | null
+    fullForm?: string | null
+    orderIndex?: number
+    parentParameter?: MisParameterRegistryCreateNestedOneWithoutChildParametersInput
+    childParameters?: MisParameterRegistryCreateNestedManyWithoutParentParameterInput
+  }
+
+  export type MisParameterRegistryUncheckedCreateWithoutPanelDataInput = {
+    parameterName: string
+    displayName: string
+    category?: string | null
+    isEnabled?: boolean
+    createdFromBudgetFlag?: boolean
+    description?: string | null
+    fullForm?: string | null
+    orderIndex?: number
+    parentParameterName?: string | null
+    childParameters?: MisParameterRegistryUncheckedCreateNestedManyWithoutParentParameterInput
+  }
+
+  export type MisParameterRegistryCreateOrConnectWithoutPanelDataInput = {
+    where: MisParameterRegistryWhereUniqueInput
+    create: XOR<MisParameterRegistryCreateWithoutPanelDataInput, MisParameterRegistryUncheckedCreateWithoutPanelDataInput>
+  }
+
   export type MisSnapshotUpsertWithoutPanelDataInput = {
     update: XOR<MisSnapshotUpdateWithoutPanelDataInput, MisSnapshotUncheckedUpdateWithoutPanelDataInput>
     create: XOR<MisSnapshotCreateWithoutPanelDataInput, MisSnapshotUncheckedCreateWithoutPanelDataInput>
@@ -123850,6 +123996,43 @@ export namespace Prisma {
     frozenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     exceptions?: MisExceptionUncheckedUpdateManyWithoutSnapshotNestedInput
+  }
+
+  export type MisParameterRegistryUpsertWithoutPanelDataInput = {
+    update: XOR<MisParameterRegistryUpdateWithoutPanelDataInput, MisParameterRegistryUncheckedUpdateWithoutPanelDataInput>
+    create: XOR<MisParameterRegistryCreateWithoutPanelDataInput, MisParameterRegistryUncheckedCreateWithoutPanelDataInput>
+    where?: MisParameterRegistryWhereInput
+  }
+
+  export type MisParameterRegistryUpdateToOneWithWhereWithoutPanelDataInput = {
+    where?: MisParameterRegistryWhereInput
+    data: XOR<MisParameterRegistryUpdateWithoutPanelDataInput, MisParameterRegistryUncheckedUpdateWithoutPanelDataInput>
+  }
+
+  export type MisParameterRegistryUpdateWithoutPanelDataInput = {
+    parameterName?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdFromBudgetFlag?: BoolFieldUpdateOperationsInput | boolean
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    fullForm?: NullableStringFieldUpdateOperationsInput | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    parentParameter?: MisParameterRegistryUpdateOneWithoutChildParametersNestedInput
+    childParameters?: MisParameterRegistryUpdateManyWithoutParentParameterNestedInput
+  }
+
+  export type MisParameterRegistryUncheckedUpdateWithoutPanelDataInput = {
+    parameterName?: StringFieldUpdateOperationsInput | string
+    displayName?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    isEnabled?: BoolFieldUpdateOperationsInput | boolean
+    createdFromBudgetFlag?: BoolFieldUpdateOperationsInput | boolean
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    fullForm?: NullableStringFieldUpdateOperationsInput | string | null
+    orderIndex?: IntFieldUpdateOperationsInput | number
+    parentParameterName?: NullableStringFieldUpdateOperationsInput | string | null
+    childParameters?: MisParameterRegistryUncheckedUpdateManyWithoutParentParameterNestedInput
   }
 
   export type MisSnapshotCreateWithoutExceptionsInput = {
@@ -125010,6 +125193,7 @@ export namespace Prisma {
     fullForm?: string | null
     orderIndex?: number
     parentParameter?: MisParameterRegistryCreateNestedOneWithoutChildParametersInput
+    panelData?: MisInformationPanelCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryUncheckedCreateWithoutChildParametersInput = {
@@ -125022,6 +125206,7 @@ export namespace Prisma {
     fullForm?: string | null
     orderIndex?: number
     parentParameterName?: string | null
+    panelData?: MisInformationPanelUncheckedCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryCreateOrConnectWithoutChildParametersInput = {
@@ -125039,6 +125224,7 @@ export namespace Prisma {
     fullForm?: string | null
     orderIndex?: number
     childParameters?: MisParameterRegistryCreateNestedManyWithoutParentParameterInput
+    panelData?: MisInformationPanelCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryUncheckedCreateWithoutParentParameterInput = {
@@ -125051,6 +125237,7 @@ export namespace Prisma {
     fullForm?: string | null
     orderIndex?: number
     childParameters?: MisParameterRegistryUncheckedCreateNestedManyWithoutParentParameterInput
+    panelData?: MisInformationPanelUncheckedCreateNestedManyWithoutRegistryInput
   }
 
   export type MisParameterRegistryCreateOrConnectWithoutParentParameterInput = {
@@ -125060,6 +125247,60 @@ export namespace Prisma {
 
   export type MisParameterRegistryCreateManyParentParameterInputEnvelope = {
     data: MisParameterRegistryCreateManyParentParameterInput | MisParameterRegistryCreateManyParentParameterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MisInformationPanelCreateWithoutRegistryInput = {
+    id?: string
+    val_fy_start?: Decimal | DecimalJsLike | number | string
+    val_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: Decimal | DecimalJsLike | number | string
+    val_dby?: Decimal | DecimalJsLike | number | string
+    val_y_eod?: Decimal | DecimalJsLike | number | string
+    val_current?: Decimal | DecimalJsLike | number | string
+    growth_day?: Decimal | DecimalJsLike | number | string
+    growth_month?: Decimal | DecimalJsLike | number | string
+    growth_fy?: Decimal | DecimalJsLike | number | string
+    budget_month?: Decimal | DecimalJsLike | number | string
+    gap_month?: Decimal | DecimalJsLike | number | string
+    budget_quarter?: Decimal | DecimalJsLike | number | string
+    gap_quarter?: Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: Decimal | DecimalJsLike | number | string
+    status?: string
+    val_prev_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: Decimal | DecimalJsLike | number | string
+    snapshot: MisSnapshotCreateNestedOneWithoutPanelDataInput
+  }
+
+  export type MisInformationPanelUncheckedCreateWithoutRegistryInput = {
+    id?: string
+    snapshotId: string
+    val_fy_start?: Decimal | DecimalJsLike | number | string
+    val_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: Decimal | DecimalJsLike | number | string
+    val_dby?: Decimal | DecimalJsLike | number | string
+    val_y_eod?: Decimal | DecimalJsLike | number | string
+    val_current?: Decimal | DecimalJsLike | number | string
+    growth_day?: Decimal | DecimalJsLike | number | string
+    growth_month?: Decimal | DecimalJsLike | number | string
+    growth_fy?: Decimal | DecimalJsLike | number | string
+    budget_month?: Decimal | DecimalJsLike | number | string
+    gap_month?: Decimal | DecimalJsLike | number | string
+    budget_quarter?: Decimal | DecimalJsLike | number | string
+    gap_quarter?: Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: Decimal | DecimalJsLike | number | string
+    status?: string
+    val_prev_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type MisInformationPanelCreateOrConnectWithoutRegistryInput = {
+    where: MisInformationPanelWhereUniqueInput
+    create: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput>
+  }
+
+  export type MisInformationPanelCreateManyRegistryInputEnvelope = {
+    data: MisInformationPanelCreateManyRegistryInput | MisInformationPanelCreateManyRegistryInput[]
     skipDuplicates?: boolean
   }
 
@@ -125084,6 +125325,7 @@ export namespace Prisma {
     fullForm?: NullableStringFieldUpdateOperationsInput | string | null
     orderIndex?: IntFieldUpdateOperationsInput | number
     parentParameter?: MisParameterRegistryUpdateOneWithoutChildParametersNestedInput
+    panelData?: MisInformationPanelUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryUncheckedUpdateWithoutChildParametersInput = {
@@ -125096,6 +125338,7 @@ export namespace Prisma {
     fullForm?: NullableStringFieldUpdateOperationsInput | string | null
     orderIndex?: IntFieldUpdateOperationsInput | number
     parentParameterName?: NullableStringFieldUpdateOperationsInput | string | null
+    panelData?: MisInformationPanelUncheckedUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryUpsertWithWhereUniqueWithoutParentParameterInput = {
@@ -125127,6 +125370,22 @@ export namespace Prisma {
     fullForm?: StringNullableFilter<"MisParameterRegistry"> | string | null
     orderIndex?: IntFilter<"MisParameterRegistry"> | number
     parentParameterName?: StringNullableFilter<"MisParameterRegistry"> | string | null
+  }
+
+  export type MisInformationPanelUpsertWithWhereUniqueWithoutRegistryInput = {
+    where: MisInformationPanelWhereUniqueInput
+    update: XOR<MisInformationPanelUpdateWithoutRegistryInput, MisInformationPanelUncheckedUpdateWithoutRegistryInput>
+    create: XOR<MisInformationPanelCreateWithoutRegistryInput, MisInformationPanelUncheckedCreateWithoutRegistryInput>
+  }
+
+  export type MisInformationPanelUpdateWithWhereUniqueWithoutRegistryInput = {
+    where: MisInformationPanelWhereUniqueInput
+    data: XOR<MisInformationPanelUpdateWithoutRegistryInput, MisInformationPanelUncheckedUpdateWithoutRegistryInput>
+  }
+
+  export type MisInformationPanelUpdateManyWithWhereWithoutRegistryInput = {
+    where: MisInformationPanelScalarWhereInput
+    data: XOR<MisInformationPanelUpdateManyMutationInput, MisInformationPanelUncheckedUpdateManyWithoutRegistryInput>
   }
 
   export type IngestionLogCreateWithoutImportLogInput = {
@@ -131727,7 +131986,6 @@ export namespace Prisma {
 
   export type MisInformationPanelUpdateWithoutSnapshotInput = {
     id?: StringFieldUpdateOperationsInput | string
-    parameter?: StringFieldUpdateOperationsInput | string
     val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -131745,6 +132003,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     val_prev_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     val_prev_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    registry?: MisParameterRegistryUpdateOneRequiredWithoutPanelDataNestedInput
   }
 
   export type MisInformationPanelUncheckedUpdateWithoutSnapshotInput = {
@@ -131802,6 +132061,28 @@ export namespace Prisma {
     orderIndex?: number
   }
 
+  export type MisInformationPanelCreateManyRegistryInput = {
+    id?: string
+    snapshotId: string
+    val_fy_start?: Decimal | DecimalJsLike | number | string
+    val_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: Decimal | DecimalJsLike | number | string
+    val_dby?: Decimal | DecimalJsLike | number | string
+    val_y_eod?: Decimal | DecimalJsLike | number | string
+    val_current?: Decimal | DecimalJsLike | number | string
+    growth_day?: Decimal | DecimalJsLike | number | string
+    growth_month?: Decimal | DecimalJsLike | number | string
+    growth_fy?: Decimal | DecimalJsLike | number | string
+    budget_month?: Decimal | DecimalJsLike | number | string
+    gap_month?: Decimal | DecimalJsLike | number | string
+    budget_quarter?: Decimal | DecimalJsLike | number | string
+    gap_quarter?: Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: Decimal | DecimalJsLike | number | string
+    status?: string
+    val_prev_fy_end?: Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: Decimal | DecimalJsLike | number | string
+  }
+
   export type MisParameterRegistryUpdateWithoutParentParameterInput = {
     parameterName?: StringFieldUpdateOperationsInput | string
     displayName?: StringFieldUpdateOperationsInput | string
@@ -131812,6 +132093,7 @@ export namespace Prisma {
     fullForm?: NullableStringFieldUpdateOperationsInput | string | null
     orderIndex?: IntFieldUpdateOperationsInput | number
     childParameters?: MisParameterRegistryUpdateManyWithoutParentParameterNestedInput
+    panelData?: MisInformationPanelUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryUncheckedUpdateWithoutParentParameterInput = {
@@ -131824,6 +132106,7 @@ export namespace Prisma {
     fullForm?: NullableStringFieldUpdateOperationsInput | string | null
     orderIndex?: IntFieldUpdateOperationsInput | number
     childParameters?: MisParameterRegistryUncheckedUpdateManyWithoutParentParameterNestedInput
+    panelData?: MisInformationPanelUncheckedUpdateManyWithoutRegistryNestedInput
   }
 
   export type MisParameterRegistryUncheckedUpdateManyWithoutParentParameterInput = {
@@ -131835,6 +132118,72 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     fullForm?: NullableStringFieldUpdateOperationsInput | string | null
     orderIndex?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type MisInformationPanelUpdateWithoutRegistryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_dby?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_y_eod?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_current?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_day?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+    val_prev_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    snapshot?: MisSnapshotUpdateOneRequiredWithoutPanelDataNestedInput
+  }
+
+  export type MisInformationPanelUncheckedUpdateWithoutRegistryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    snapshotId?: StringFieldUpdateOperationsInput | string
+    val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_dby?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_y_eod?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_current?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_day?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+    val_prev_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+  }
+
+  export type MisInformationPanelUncheckedUpdateManyWithoutRegistryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    snapshotId?: StringFieldUpdateOperationsInput | string
+    val_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_m_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_dby?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_y_eod?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_current?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_day?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_month?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budget_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    gap_quarter?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    growth_prev_fy?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    status?: StringFieldUpdateOperationsInput | string
+    val_prev_fy_end?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    val_prev_fy_start?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
   }
 
   export type IngestionLogCreateManyImportLogInput = {

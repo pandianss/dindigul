@@ -706,27 +706,28 @@ model MisSnapshot {
 }
 
 model MisInformationPanel {
-  id                String      @id @default(uuid())
+  id                String               @id @default(uuid())
   snapshotId        String
   parameter         String
-  val_fy_start      Decimal     @default(0) @db.Decimal(18, 4)
-  val_fy_end        Decimal     @default(0) @db.Decimal(18, 4)
-  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 4)
-  val_dby           Decimal     @default(0) @db.Decimal(18, 4)
-  val_y_eod         Decimal     @default(0) @db.Decimal(18, 4)
-  val_current       Decimal     @default(0) @db.Decimal(18, 4)
-  growth_day        Decimal     @default(0) @db.Decimal(18, 4)
-  growth_month      Decimal     @default(0) @db.Decimal(18, 4)
-  growth_fy         Decimal     @default(0) @db.Decimal(18, 4)
-  budget_month      Decimal     @default(0) @db.Decimal(18, 4)
-  gap_month         Decimal     @default(0) @db.Decimal(18, 4)
-  budget_quarter    Decimal     @default(0) @db.Decimal(18, 4)
-  gap_quarter       Decimal     @default(0) @db.Decimal(18, 4)
-  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 4)
-  status            String      @default("Neutral")
-  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 4)
-  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 4)
-  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  val_fy_start      Decimal              @default(0) @db.Decimal(18, 4)
+  val_fy_end        Decimal              @default(0) @db.Decimal(18, 4)
+  val_prev_m_end    Decimal              @default(0) @db.Decimal(18, 4)
+  val_dby           Decimal              @default(0) @db.Decimal(18, 4)
+  val_y_eod         Decimal              @default(0) @db.Decimal(18, 4)
+  val_current       Decimal              @default(0) @db.Decimal(18, 4)
+  growth_day        Decimal              @default(0) @db.Decimal(18, 4)
+  growth_month      Decimal              @default(0) @db.Decimal(18, 4)
+  growth_fy         Decimal              @default(0) @db.Decimal(18, 4)
+  budget_month      Decimal              @default(0) @db.Decimal(18, 4)
+  gap_month         Decimal              @default(0) @db.Decimal(18, 4)
+  budget_quarter    Decimal              @default(0) @db.Decimal(18, 4)
+  gap_quarter       Decimal              @default(0) @db.Decimal(18, 4)
+  growth_prev_fy    Decimal              @default(0) @db.Decimal(18, 4)
+  status            String               @default("Neutral")
+  val_prev_fy_end   Decimal              @default(0) @db.Decimal(18, 4)
+  val_prev_fy_start Decimal              @default(0) @db.Decimal(18, 4)
+  snapshot          MisSnapshot          @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  registry          MisParameterRegistry @relation(fields: [parameter], references: [parameterName])
 
   @@map("mis_information_panels")
 }
@@ -890,6 +891,7 @@ model MisParameterRegistry {
   parentParameterName   String?
   parentParameter       MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
   childParameters       MisParameterRegistry[] @relation("ParameterHierarchy")
+  panelData             MisInformationPanel[]
 
   @@map("mis_parameter_registry")
 }

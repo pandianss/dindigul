@@ -17,7 +17,7 @@ export class FactRepository {
      * Fetches current cash holdings for a branch on a specific date (or the latest available).
      */
     static async getCashHoldings(branchId: string, targetDate: Date) {
-        const metrics = ['CASH_TOTAL', 'CASH_CRL', 'CASH_EXCESS', 'CASH_BNA'];
+        const metrics = ['CASH_TOTAL', 'CASH_CRL', 'CASH_EXCESS', 'CASH_BNA', 'CASH_HAND', 'CASH_ATM', 'CASH_BC'];
         
         const facts = await prisma.fact.findMany({
             where: {
@@ -35,6 +35,8 @@ export class FactRepository {
             retentionLimit: find('CASH_CRL'),
             excessCash: find('CASH_EXCESS'),
             bnaCash: find('CASH_BNA'),
+            atmCash: find('CASH_ATM'),
+            bcCash: find('CASH_BC'),
             asOfDate: targetDate
         };
     }

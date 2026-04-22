@@ -1,6 +1,7 @@
 import prisma from '../lib/prisma';
 import { FactRepository } from '../infra/FactRepository';
 import { toUTCDate } from '../utils/businessUtils';
+import { logger } from '../utils/logger';
 import { 
     UnifiedLetterPayloadSchema, 
     CashDataSchema,

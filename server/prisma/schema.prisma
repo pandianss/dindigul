@@ -893,6 +893,7 @@ model MisParameterRegistry {
   parentParameterName   String?
   parentParameter       MisParameterRegistry?  @relation("ParameterHierarchy", fields: [parentParameterName], references: [parameterName])
   childParameters       MisParameterRegistry[] @relation("ParameterHierarchy")
+  panelData             MisInformationPanel[]
 
   @@map("mis_parameter_registry")
 }

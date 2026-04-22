@@ -5,77 +5,155 @@ import { logger } from '../utils/logger';
  * This is the SINGLE SOURCE OF TRUTH for data field translations.
  */
 export class MetricMapper {
+    private static readonly SKIP_PATTERNS = [
+        /^s\s*no\.?$/i,
+        /^sol$/i,
+        /^date$/i,
+        /^branch$/i,
+        /^total$/i,
+        /^remark.*$/i
+    ];
+
     private static readonly mapping: Record<string, string> = {
-        // Core Deposits
-        ' SB ': 'SB',
-        ' CD ': 'CD',
-        ' TD ': 'TD',
-        'Bulk Dep': 'Bulk_Dep',
+        // Advance Products
+        'agri jl': 'Agri_JL',
+        'retail jl': 'RETAIL_JL',
+        'gold': 'Gold',
+        'housing': 'HL',
+        'vehicle': 'VL',
+        'personal': 'PersonalLoan',
+        'mortgage': 'Mort',
+        'education': 'EL',
+        'liquirent': 'Liq',
+        'other retail': 'OthRet',
+        'total retail': 'Core Ret',
+        'core retail': 'Core Ret',
+        'retail total': 'Core Ret',
+        'msme': 'MSME',
+        'shg': 'SHG',
+        'kcc': 'KCC',
+        'govt spon': 'Gov',
+        'oth schematic': 'OthSch',
+        'core agri': 'Core_Agri',
+        'adv': 'Adv',
+        'advances': 'Adv',
+        'total advances': 'Adv',
+        'npa': 'NPA',
+        'mudra': 'Mudra',
 
-        // Core Advances
-        ' Mudra ': 'MUDRA',
-        ' CORE AGRI ': 'CORE_AGRI',
-        ' ADV ': 'ADV',
-        ' TOTAL RETAIL ': 'RETAIL_TOTAL',
+        // Deposits
+        'sb': 'SB',
+        'savings': 'SB',
+        'sb deposits': 'SB',
+        'cd': 'CD',
+        'current': 'CD',
+        'cd deposits': 'CD',
+        'td': 'TD',
+        'term': 'TD',
+        'td deposits': 'TD',
+        'total dep': 'Total Dep',
+        'total deposits': 'Total Dep',
+        'bulk dep': 'Bulk_Dep',
 
-        // Cash & Liquidity
-        'Total Cash': 'CASH_TOTAL',
-        'Excess': 'CASH_EXCESS',
-        'Cash on Hand': 'CASH_HAND',
-        'ATM Cash': 'CASH_ATM',
+        // Cash Holdings
+        'cash on hand': 'CASH_HAND',
+        'atm cash': 'CASH_ATM',
+        'bc cash': 'CASH_BC',
+        'bna cash': 'CASH_BNA',
+        'total cash': 'CASH_TOTAL',
+        'crl': 'CASH_CRL',
+        'excess': 'CASH_EXCESS',
 
-        // Performance & Recovery
-        'PL': 'Branch_PL',
-        'Rec Q1': 'Rec_Q1',
-        'Rec Q2': 'Rec_Q2',
-        'Rec Q3': 'Rec_Q3',
-        'Rec Q4': 'Rec_Q4',
+        // Profitability & Recovery
+        'pl': 'Branch_PL',
+        'profit': 'Branch_PL',
+        'loss': 'Branch_PL',
+        'rec q1': 'REC_Q1',
+        'rec q2': 'REC_Q2',
+        'rec q3': 'REC_Q3',
+        'rec q4': 'REC_Q4',
 
-        // Fallbacks/Others
-        ' NPA ': 'NPA',
-        ' SHG ': 'SHG',
-        ' KCC ': 'KCC'
+        // Business
+        'bus': 'Bus',
+        'business': 'Bus',
+        'total business': 'Bus'
     };
 
     /**
      * Normalizes an Excel header to a Registry Code.
+     * Returns null for skip columns.
      */
-    static map(header: string): string {
-        const trimmed = header.trim();
+    static map(header: string): string | null {
+        // Aggressive normalization: remove all non-alphanumeric/space characters and trim all whitespace
+        const normalized = (header || '').replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
         
-        // Direct match with trimmed version
-        if (this.mapping[header]) return this.mapping[header];
-        if (this.mapping[trimmed]) return this.mapping[trimmed];
+        if (this.SKIP_PATTERNS.some(p => p.test(normalized))) {
+            return null;
+        }
 
-        // Case-insensitive lookup
-        const entry = Object.entries(this.mapping).find(([k]) => 
-            k.trim().toLowerCase() === trimmed.toLowerCase()
-        );
+        const code = this.mapping[normalized];
+        if (code) return code;
 
-        if (entry) return entry[1];
-
-        // If no mapping exists, return the trimmed header as is
-        return trimmed;
+        // Fallback for unmapped columns (log and return trimmed uppercase)
+        logger.warn('METRIC_MAPPER_UNMAPPED', { header, normalized });
+        return normalized.toUpperCase().replace(/\s+/g, '_');
     }
 
     /**
-     * Identifies special metrics that need post-ingestion calculation (e.g. Total Recovery).
+     * Identifies special metrics that need post-ingestion calculation.
      */
     static getCalculatedMetrics(factMap: Record<string, number>): Record<string, number> {
         const calculated: Record<string, number> = {};
 
-        // 1. Total Recovery (Sum of Q1-Q4)
-        const q1 = factMap['Rec_Q1'] || 0;
-        const q2 = factMap['Rec_Q2'] || 0;
-        const q3 = factMap['Rec_Q3'] || 0;
-        const q4 = factMap['Rec_Q4'] || 0;
-        calculated['Recovery'] = q1 + q2 + q3 + q4;
+        // Helper to get value or 0
+        const getVal = (m: string) => factMap[m] || 0;
 
-        // 2. Retail TD (TD - Bulk)
-        const td = factMap['TD'] || 0;
-        const bulk = factMap['Bulk_Dep'] || 0;
-        calculated['Ret_TD'] = td - bulk;
+        const sb = getVal('SB');
+        const cd = getVal('CD');
+        const td = getVal('TD');
+        const adv = getVal('Adv');
+        const bulk = getVal('Bulk_Dep');
+
+        // 1. CASA = SB + CD
+        const casa = sb + cd;
+        calculated['CASA'] = casa;
+
+        // 2. Total Dep = SB + CD + TD
+        const totalDep = sb + cd + td;
+        calculated['Total Dep'] = totalDep;
+
+        // 3. Ret_TD = TD - Bulk (floor at 0)
+        calculated['Ret_TD'] = Math.max(0, td - bulk);
+
+        // 4. Bus = Total Dep + Adv
+        calculated['Bus'] = totalDep + adv;
+
+        // 5. CD_Ratio = Adv / Total Dep * 100 (round 2dp)
+        calculated['CD_Ratio'] = totalDep === 0 ? 0 : Number((adv / totalDep * 100).toFixed(2));
+
+        // 6. CASA_PCT = CASA / Total Dep * 100 (round 2dp)
+        calculated['CASA_PCT'] = totalDep === 0 ? 0 : Number((casa / totalDep * 100).toFixed(2));
+
+        // 7. Recovery = REC_Q1 + REC_Q2 + REC_Q3 + REC_Q4
+        calculated['Recovery'] = getVal('REC_Q1') + getVal('REC_Q2') + getVal('REC_Q3') + getVal('REC_Q4');
+
+        // 8. Core Adv = Mudra + Core_Agri + Core Ret + MSME + SHG + KCC
+        calculated['Core Adv'] = getVal('Mudra') + getVal('Core_Agri') + getVal('Core Ret') + 
+                                 getVal('MSME') + getVal('SHG') + getVal('KCC');
 
         return calculated;
     }
+
+    /**
+     * Returns all unique metric codes (direct + calculated).
+     */
+    static getAllMetricCodes(): string[] {
+        const direct = Object.values(this.mapping);
+        const calculated = [
+            'CASA', 'Total Dep', 'Ret_TD', 'Bus', 
+            'CD_Ratio', 'CASA_PCT', 'Recovery', 'Core Adv'
+        ];
+        return Array.from(new Set([...direct, ...calculated]));
+    }
 }
+

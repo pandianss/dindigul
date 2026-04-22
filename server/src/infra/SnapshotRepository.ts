@@ -13,7 +13,7 @@ export class SnapshotRepository {
             where: { businessDate },
             include: {
                 branch: true,
-                panelData: true,
+                panelData: { include: { registry: true } },
                 exceptions: true
             }
         });
@@ -29,7 +29,7 @@ export class SnapshotRepository {
             },
             include: {
                 branch: true,
-                panelData: true,
+                panelData: { include: { registry: true } },
                 exceptions: true
             }
         });
@@ -50,3 +50,4 @@ export class SnapshotRepository {
         return { success: true };
     }
 }
+

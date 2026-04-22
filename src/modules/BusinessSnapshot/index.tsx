@@ -234,9 +234,9 @@ const BusinessSnapshot: React.FC = () => {
                                         className="fixed bottom-8 right-8 bg-bank-navy text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-40 flex items-center gap-2 group"
                                     >
                                         <PanelRightOpen className="w-6 h-6" />
-                                        {snapshot.exceptions.length > 0 && (
+                                        {snapshot.exceptions?.length > 0 && (
                                             <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce group-hover:animate-none">
-                                                {snapshot.exceptions.length}
+                                                {snapshot.exceptions?.length}
                                             </span>
                                         )}
                                     </button>

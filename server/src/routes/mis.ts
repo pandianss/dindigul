@@ -49,42 +49,28 @@ router.get('/business-snapshot/:branchCode', authenticateToken, async (req, res)
     const { branchCode } = req.params;
     const { date } = req.query;
 
+    if (!date) return res.status(400).json({ error: 'Date is required' });
+
     try {
-        const branch = await prisma.branch.findUnique({ where: { code: branchCode } });
-        if (!branch) return res.status(404).json({ error: 'Branch not found' });
-
-        let businessDate: Date;
-        if (date) {
-            const [y, m, d] = String(date).split('-').map(Number);
-            businessDate = new Date(Date.UTC(y, m - 1, d));
-        } else {
-            const latest = await prisma.fact.findFirst({
-                where: { unitId: branch.id },
-                orderBy: { date: 'desc' }
-            });
-            if (!latest) return res.status(404).json({ error: 'No data found for this branch' });
-            businessDate = latest.date;
-        }
-
-        const snapshot = await prisma.misSnapshot.findUnique({
-            where: {
-                unitId_businessDate: {
-                    unitId: branch.id,
-                    businessDate
-                }
-            },
-            include: {
-                panelData: {
-                    include: { registry: true }
-                }
-            }
-        });
-
+        const snapshot = await SnapshotRepository.getSnapshot(branchCode as string, String(date));
+        
         if (!snapshot) {
-            return res.status(404).json({ error: `Snapshot not generated for ${businessDate.toISOString().split('T')[0]}` });
+            return res.status(404).json({ error: `Snapshot not generated for SOL ${branchCode} on ${date}` });
         }
 
-        res.json(snapshot);
+        // Enrich panel data with metadata for frontend components (PerformanceWidget etc)
+        const enrichedSnapshot = {
+            ...snapshot,
+            panelData: snapshot.panelData.map(p => ({
+                ...p,
+                metadata: {
+                    displayName: p.registry?.displayName || p.parameter,
+                    category: p.registry?.category || 'Uncategorized'
+                }
+            }))
+        };
+
+        res.json(enrichedSnapshot);
     } catch (error: any) {
         logger.error('Error fetching business snapshot:', error);
         res.status(500).json({ error: 'Failed to fetch snapshot' });
@@ -166,12 +152,27 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
     try {
-        const result = await MISIngester.processExcel(req.file.path, req.file.originalname);
+        const importId = uuidv4();
         
-        // Create permanent record in Inlet History
+        // 1. Create initial log record to satisfy FK constraints
         await prisma.misImportLog.create({
             data: {
+                id: importId,
                 filename: req.file.originalname,
+                status: 'PROCESSING',
+                processedUnits: 0,
+                failedUnits: 0,
+                uniqueDates: []
+            }
+        });
+
+        // 2. Perform ingestion
+        const result = await MISIngester.ingestData(req.file.path, importId, req.file.originalname);
+        
+        // 3. Update log record with final results
+        await prisma.misImportLog.update({
+            where: { id: importId },
+            data: {
                 status: 'SUCCESS',
                 processedUnits: result.processedUnits,
                 failedUnits: result.skippedUnits,
@@ -206,33 +207,6 @@ router.post('/generate-from-staging', authenticateToken, async (req, res) => {
     }
 });
 
-// Get business snapshot
-router.get('/business-snapshot/:branchCode', async (req, res) => {
-    const { branchCode } = req.params;
-    const { date } = req.query;
-    if (!date) return res.status(400).json({ error: 'Missing date' });
-    try {
-        const snapshot = await SnapshotRepository.getSnapshot(branchCode, String(date));
-        if (!snapshot) return res.status(404).json({ error: `Snapshot not found for ${branchCode}` });
-
-        // Enrich panel data with metadata for frontend components (PerformanceWidget etc)
-        const registry = await prisma.misParameterRegistry.findMany();
-        const regMap = Object.fromEntries(registry.map(r => [r.parameterName, { displayName: r.displayName, category: r.category }]));
-
-        const enrichedSnapshot = {
-            ...snapshot,
-            panelData: snapshot.panelData.map(p => ({
-                ...p,
-                metadata: regMap[p.parameter] || { displayName: p.parameter, category: 'Uncategorized' }
-            }))
-        };
-
-        res.json(enrichedSnapshot);
-    } catch (error: any) {
-        logger.error('Error getting business snapshot:', error);
-        res.status(500).json({ error: 'Internal server error while fetching snapshot' });
-    }
-});
 
 // Freeze snapshot
 router.post('/freeze/:snapshotId', authenticateToken, async (req, res) => {
