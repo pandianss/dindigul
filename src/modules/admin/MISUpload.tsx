@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw, Table2, Trash2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw, Table2, Trash2, Search } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,6 +10,8 @@ const MISUpload: React.FC = () => {
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string, details?: any } | null>(null);
     const [history, setHistory] = useState<any[]>([]);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [diagnostics, setDiagnostics] = useState<any | null>(null);
+    const [diagnosticsId, setDiagnosticsId] = useState<string | null>(null);
 
     const fetchHistory = React.useCallback(async () => {
         try {
@@ -75,6 +77,20 @@ const MISUpload: React.FC = () => {
             setMessage({ type: 'error', text: errorMsg });
         } finally {
             setDeletingId(null);
+        }
+    };
+
+    const handleDiagnostics = async (id: string) => {
+        setDiagnosticsId(id);
+        try {
+            const res = await api.get(`/mis/import-logs/${id}/diagnostics`);
+            setDiagnostics(res.data);
+            setMessage({ type: 'success', text: 'Diagnostics loaded for selected batch.' });
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.error || 'Diagnostics fetch failed';
+            setMessage({ type: 'error', text: errorMsg });
+        } finally {
+            setDiagnosticsId(null);
         }
     };
 
@@ -154,6 +170,40 @@ const MISUpload: React.FC = () => {
                             )}
                         </div>
                     )}
+                    
+                    {diagnostics && (
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                            <h3 className="font-black text-slate-800 pb-4 mb-4 border-b border-slate-50 uppercase tracking-tighter">
+                                Batch Diagnostics
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div className="bg-slate-50 rounded-xl p-3">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ingestion Logs</p>
+                                    <p className="text-lg font-black text-slate-700">{diagnostics.totals.ingestionLogs}</p>
+                                </div>
+                                <div className="bg-slate-50 rounded-xl p-3">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Facts</p>
+                                    <p className="text-lg font-black text-slate-700">{diagnostics.totals.facts}</p>
+                                </div>
+                                <div className="bg-slate-50 rounded-xl p-3">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fact Dates</p>
+                                    <p className="text-lg font-black text-slate-700">{diagnostics.totals.uniqueFactDates}</p>
+                                </div>
+                                <div className={`${diagnostics.totals.missingSnapshotPairs > 0 ? 'bg-amber-50' : 'bg-emerald-50'} rounded-xl p-3`}>
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Missing Snapshots</p>
+                                    <p className={`text-lg font-black ${diagnostics.totals.missingSnapshotPairs > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                        {diagnostics.totals.missingSnapshotPairs}
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                Import Dates: {(diagnostics.dates.importDates || []).join(', ') || 'N/A'}
+                            </p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+                                Fact Dates: {(diagnostics.dates.factDates || []).join(', ') || 'N/A'}
+                            </p>
+                        </div>
+                    )}
 
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                         <h3 className="font-black text-slate-800 pb-4 mb-4 border-b border-slate-50 uppercase tracking-tighter flex items-center gap-2">
@@ -191,14 +241,24 @@ const MISUpload: React.FC = () => {
                                             </td>
                                             <td className="py-4 text-right">
                                                 {(user?.role === 'ADMIN' || user?.section === 'Planning') ? (
-                                                    <button
-                                                        onClick={() => handleDelete(h.id)}
-                                                        disabled={deletingId === h.id}
-                                                        className="p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-50"
-                                                        title="Delete Ingestion Data"
-                                                    >
-                                                        {deletingId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                                    </button>
+                                                    <div className="inline-flex items-center gap-1">
+                                                        <button
+                                                            onClick={() => handleDiagnostics(h.id)}
+                                                            disabled={diagnosticsId === h.id}
+                                                            className="p-2 text-slate-300 hover:text-blue-500 transition-colors disabled:opacity-50"
+                                                            title="View Batch Diagnostics"
+                                                        >
+                                                            {diagnosticsId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(h.id)}
+                                                            disabled={deletingId === h.id}
+                                                            className="p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-50"
+                                                            title="Delete Ingestion Data"
+                                                        >
+                                                            {deletingId === h.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                        </button>
+                                                    </div>
                                                 ) : (
                                                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest" title="Requires ADMIN or Planning section">View Only</span>
                                                 )}

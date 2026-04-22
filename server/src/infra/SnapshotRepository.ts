@@ -22,10 +22,16 @@ export class SnapshotRepository {
     static async getSnapshot(branchCode: string, date: string) {
         const businessDate = toUTCDate(date);
         logger.info('FETCH_SNAPSHOT_QUERY', { branchCode, businessDate: businessDate.toISOString() });
+        const dayStart = businessDate;
+        const dayEnd = new Date(dayStart.getTime() + 86400000);
+
         return await prisma.misSnapshot.findFirst({
             where: {
                 branch: { code: branchCode },
-                businessDate
+                businessDate: {
+                    gte: dayStart,
+                    lt: dayEnd
+                }
             },
             include: {
                 branch: true,

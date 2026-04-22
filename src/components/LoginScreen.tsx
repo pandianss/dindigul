@@ -231,6 +231,98 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
         }
     };
 
+    // Initial Selection View
+    if (!showManualForm) {
+        return (
+            <div className="min-h-screen bg-[#0A1628] flex items-center justify-center p-6 relative overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-[-20%] right-[-10%] w-[700px] h-[700px] rounded-full bg-[#00A896]/8 blur-[120px]" />
+                    <div className="absolute bottom-[-25%] left-[-15%] w-[600px] h-[600px] rounded-full bg-[#F4A261]/5 blur-[140px]" />
+                    <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] rounded-full bg-[#1A3A6B]/30 blur-[80px]" />
+                    <svg className="absolute inset-0 w-full h-full opacity-[0.02]" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+                </div>
+
+                <div className="w-full max-w-sm relative">
+                    <div className="bg-white/[0.04] border border-white/10 rounded-3xl backdrop-blur-xl shadow-[0_32px_80px_-20px_rgba(0,0,0,0.6)] overflow-hidden">
+                        <div className="h-[2px] bg-gradient-to-r from-transparent via-[#00A896] to-transparent opacity-60" />
+                        <div className="p-8">
+                            <div className="flex flex-col items-center mb-10">
+                                <div className="bg-white/[0.06] border border-white/10 rounded-2xl px-6 py-3 mb-6">
+                                    <img src="/assets/logo_full.svg" alt="Bank Logo" className="h-9 w-auto brightness-0 invert opacity-90" />
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00A896]/10 border border-[#00A896]/20 rounded-full mb-4">
+                                    <Shield size={10} className="text-[#00A896]" />
+                                    <span className="text-[#00A896] text-[10px] font-bold uppercase tracking-widest">Identity Gateway</span>
+                                </div>
+                                <h2 className="text-white font-bold text-xl">Welcome Back</h2>
+                                <p className="text-white/40 text-xs mt-1.5 text-center px-4">Select your preferred method to access the regional portal</p>
+                            </div>
+
+                            <div className="space-y-3.5">
+                                <button
+                                    onClick={() => setShowManualForm(true)}
+                                    className="w-full group relative p-5 rounded-2xl font-bold text-sm transition-all duration-300 border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 text-left flex items-center gap-4"
+                                >
+                                    <div className="w-12 h-12 rounded-xl bg-[#F4A261]/10 flex items-center justify-center text-[#F4A261] group-hover:scale-110 transition-transform">
+                                        <ShieldCheck size={22} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-white font-bold">Login as Administrator</div>
+                                        <div className="text-[10px] text-white/30 font-normal mt-0.5 uppercase tracking-wider">Manual Credentials</div>
+                                    </div>
+                                    <ChevronRight size={18} className="text-white/20 group-hover:translate-x-1 transition-transform" />
+                                </button>
+
+                                <button
+                                    onClick={async () => {
+                                        setLoading(true);
+                                        setError(null);
+                                        try { await autoLogin(); } catch (err: any) { setError(err.message); } finally { setLoading(false); }
+                                    }}
+                                    disabled={loading}
+                                    className="w-full group relative p-5 rounded-2xl font-bold text-sm transition-all duration-300 bg-[#00A896]/10 border border-[#00A896]/20 hover:bg-[#00A896]/15 text-left flex items-center gap-4"
+                                >
+                                    <div className="w-12 h-12 rounded-xl bg-[#00A896]/10 flex items-center justify-center text-[#00A896] group-hover:scale-110 transition-transform">
+                                        {loading ? <RefreshCw size={22} className="animate-spin" /> : <User size={22} />}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-[#00A896] font-bold">Login with System</div>
+                                        <div className="text-[10px] text-[#00A896]/40 font-normal mt-0.5 uppercase tracking-wider">Active Directory SSO</div>
+                                    </div>
+                                    {!loading && <ChevronRight size={18} className="text-[#00A896]/20 group-hover:translate-x-1 transition-transform" />}
+                                </button>
+                                
+                                {error && !loading && (
+                                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] uppercase font-bold tracking-tight animate-in fade-in duration-300">
+                                        <AlertCircle size={14} className="shrink-0" />
+                                        <span>{error}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="border-t border-white/[0.05] px-8 py-4 flex items-center justify-center">
+                            <button onClick={onVisitGuest} className="text-[10px] font-bold text-white/30 hover:text-white/60 uppercase tracking-[0.2em] transition-colors">
+                                Explore Guest Portal
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p className="text-center text-[9px] text-white/15 uppercase tracking-[0.3em] mt-8">
+                        Authorized Personnel Only
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#0A1628] flex items-center justify-center p-6 relative overflow-hidden">
             {/* Atmospheric background */}
@@ -258,12 +350,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
                     <div className="p-8">
                         {/* Logo & brand */}
                         <div className="flex flex-col items-center mb-8">
+                            <button 
+                                onClick={() => setShowManualForm(false)}
+                                className="absolute left-6 top-8 text-white/20 hover:text-white/50 transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest group"
+                            >
+                                <ChevronRight size={14} className="rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                                <span>Back</span>
+                            </button>
                             <div className="bg-white/[0.06] border border-white/10 rounded-2xl px-6 py-3 mb-5">
                                 <img src="/assets/logo_full.svg" alt="Bank Logo" className="h-9 w-auto object-contain brightness-0 invert opacity-90" />
                             </div>
                             <div className="flex items-center gap-2 px-3 py-1.5 bg-[#00A896]/10 border border-[#00A896]/20 rounded-full">
                                 <div className="w-1.5 h-1.5 rounded-full bg-[#00A896] animate-pulse" />
-                                <span className="text-[#00A896] text-[10px] font-bold uppercase tracking-widest">Secure Portal</span>
+                                <span className="text-[#00A896] text-[10px] font-bold uppercase tracking-widest">Admin Authorization</span>
                             </div>
                         </div>
 
@@ -357,25 +456,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onVisitGuest }) => {
                                         : <><Lock size={15} /> Authorize Access</>
                                     }
                                 </div>
-                            </button>
-
-                            {/* System Login Toggle */}
-                            <button
-                                type="button"
-                                disabled={loading}
-                                onClick={async () => {
-                                    setLoading(true);
-                                    try {
-                                        await autoLogin();
-                                    } catch (err: any) {
-                                        setError(err.message || 'System login failed');
-                                    } finally {
-                                        setLoading(false);
-                                    }
-                                }}
-                                className="w-full py-4 rounded-2xl font-semibold text-white/70 bg-white/[0.05] border border-white/10 hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2 text-sm mt-3"
-                            >
-                                <User size={15} /> Login with System Username
                             </button>
                         </form>
                     </div>

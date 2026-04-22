@@ -151,8 +151,9 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
     if (!['ADMIN', 'RO_USER'].includes(req.user?.role) && !isPlanning) return res.status(403).json({ error: 'Forbidden' });
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    let importId: string | null = null;
     try {
-        const importId = uuidv4();
+        importId = uuidv4();
         
         // 1. Create initial log record to satisfy FK constraints
         await prisma.misImportLog.create({
@@ -180,11 +181,22 @@ router.post('/excel-upload', authenticateToken, upload.single('file'), async (re
             }
         });
 
-        fs.unlinkSync(req.file.path);
         res.json(result);
     } catch (error: any) {
         logger.error('Excel processing error:', error);
+        if (importId) {
+            await prisma.misImportLog.update({
+                where: { id: importId },
+                data: { status: 'FAILED' }
+            }).catch((logErr: any) => {
+                logger.error('MIS_IMPORT_LOG_UPDATE_FAILED', logErr, { importId });
+            });
+        }
         res.status(500).json({ error: error.message || 'Failed to process Excel file' });
+    } finally {
+        if (req.file?.path && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
     }
 });
 
@@ -239,6 +251,108 @@ router.get('/import-logs', authenticateToken, async (req, res) => {
     } catch (error: any) {
         logger.error('Error fetching import logs:', error);
         res.status(500).json({ error: 'Failed to fetch import logs' });
+    }
+});
+
+// Get diagnostics for a specific import batch
+router.get('/import-logs/:id/diagnostics', authenticateToken, async (req, res) => {
+    try {
+        const id = String(req.params.id);
+        const log = await prisma.misImportLog.findUnique({
+            where: { id }
+        });
+
+        if (!log) return res.status(404).json({ error: 'Import log not found' });
+
+        const ingestionLogs = await prisma.ingestionLog.findMany({
+            where: { importLogId: id },
+            include: { branch: { select: { id: true, code: true, nameEn: true } } },
+            orderBy: { createdAt: 'asc' }
+        });
+
+        const ingestionIds = ingestionLogs.map((i) => i.id);
+        const facts = ingestionIds.length > 0
+            ? await prisma.fact.findMany({
+                where: { ingestionId: { in: ingestionIds } },
+                select: { unitId: true, date: true, metric: true, ingestionId: true }
+            })
+            : [];
+
+        const uniqueFactDates = Array.from(
+            new Set(facts.map((f) => f.date.toISOString().split('T')[0]))
+        ).sort();
+
+        const snapshotDates = uniqueFactDates.length > 0
+            ? await prisma.misSnapshot.findMany({
+                where: {
+                    businessDate: {
+                        gte: new Date(`${uniqueFactDates[0]}T00:00:00.000Z`),
+                        lte: new Date(`${uniqueFactDates[uniqueFactDates.length - 1]}T23:59:59.999Z`)
+                    }
+                },
+                select: { unitId: true, businessDate: true, branch: { select: { code: true } } }
+            })
+            : [];
+
+        const snapshotKeySet = new Set(
+            snapshotDates.map((s) => `${s.unitId}::${s.businessDate.toISOString().split('T')[0]}`)
+        );
+
+        const factPairs = new Set(
+            facts.map((f) => `${f.unitId}::${f.date.toISOString().split('T')[0]}`)
+        );
+
+        const missingSnapshots = Array.from(factPairs)
+            .filter((k) => !snapshotKeySet.has(k))
+            .map((k) => {
+                const [unitId, date] = k.split('::');
+                const branch = ingestionLogs.find((i) => i.unitId === unitId)?.branch;
+                return { unitId, date, branchCode: branch?.code || 'UNKNOWN', branchName: branch?.nameEn || 'Unknown' };
+            });
+
+        const perUnit = ingestionLogs.map((ing) => {
+            const unitFacts = facts.filter((f) => f.ingestionId === ing.id);
+            const metrics = new Set(unitFacts.map((f) => f.metric));
+            const dates = new Set(unitFacts.map((f) => f.date.toISOString().split('T')[0]));
+            return {
+                ingestionId: ing.id,
+                unitId: ing.unitId,
+                branchCode: ing.branch.code,
+                branchName: ing.branch.nameEn,
+                status: ing.status,
+                createdAt: ing.createdAt,
+                factCount: unitFacts.length,
+                metricCount: metrics.size,
+                dates: Array.from(dates).sort()
+            };
+        });
+
+        res.json({
+            importLog: {
+                id: log.id,
+                filename: log.filename,
+                status: log.status,
+                processedUnits: log.processedUnits,
+                failedUnits: log.failedUnits,
+                uniqueDates: log.uniqueDates,
+                createdAt: log.createdAt
+            },
+            totals: {
+                ingestionLogs: ingestionLogs.length,
+                facts: facts.length,
+                uniqueFactDates: uniqueFactDates.length,
+                missingSnapshotPairs: missingSnapshots.length
+            },
+            dates: {
+                importDates: log.uniqueDates,
+                factDates: uniqueFactDates
+            },
+            missingSnapshots,
+            perUnit
+        });
+    } catch (error: any) {
+        logger.error('Error fetching import diagnostics:', error);
+        res.status(500).json({ error: 'Failed to fetch import diagnostics' });
     }
 });
 

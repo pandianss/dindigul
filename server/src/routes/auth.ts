@@ -130,7 +130,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { username },
-            include: { branch: true, departments: true }
+            include: { branch: true }
         });
         if (!user) {
             await recordAudit('LOGIN_FAILED', username, null, req, { reason: 'user_not_found' });
@@ -196,7 +196,7 @@ router.post('/mfa/challenge', async (req, res) => {
 
         const user = await prisma.user.findUnique({
             where: { id: payload.id },
-            include: { branch: true, departments: true, managedDepartments: true }
+            include: { branch: true }
         });
         if (!user || !(user as any).mfaSecret) return res.status(401).json({ error: 'MFA not configured' });
 
@@ -256,9 +256,7 @@ router.get('/auto-login', async (req, res) => {
         const user = await prisma.user.findUnique({
             where: { username: sysUser },
             include: {
-                branch: true,
-                departments: true,
-                managedDepartments: true
+                branch: true
             }
         });
         if (!user) return res.status(404).json({ error: `System user '${sysUser}' is not registered as staff.`, sysUser, requiresManual: true });

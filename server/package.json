@@ -9,6 +9,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "admin:reset": "ts-node-dev --transpile-only src/scripts/resetAdminPassword.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push --accept-data-loss",
     "server": "node dist/index.js"
