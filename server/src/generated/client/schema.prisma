@@ -57,9 +57,11 @@ model User {
   postingHistory       PostingHistory[]
   presentationDecks    PresentationDeck[]
   sessions             Session[]
-  branch               Branch?            @relation("BranchMembers", fields: [branchId], references: [id])
-  department           Department?        @relation("UserDepartment", fields: [departmentId], references: [id])
+  branch               Branch?            @relation("BranchMembers", fields: [branchId], references: [code])
   designation          Designation?       @relation(fields: [designationId], references: [id])
+  gradeMaster          Grade?             @relation(fields: [gradeId], references: [id])
+  gradeId              String?
+  department           Department?        @relation("UserDepartment", fields: [departmentId], references: [id])
   photo                Photo?             @relation(fields: [photoId], references: [id])
   managedDepartments   Department[]       @relation("DepartmentHeads")
   departments          Department[]       @relation("UserDepartments")
@@ -101,32 +103,46 @@ model LoginAuditLog {
 }
 
 model Branch {
-  id                  String               @id @default(uuid())
-  sNo                 Int?
-  code                String               @unique
-  officeId            Int?
-  nameEn              String
-  nameTa              String?
-  nameHi              String?
-  type                String
-  openDate            String?
-  district            String?
-  populationGroup     String?
-  riskCategory        String?
-  riskEffectiveDate   DateTime?
-  specialStatus       String?
-  ifsc                String?
-  address             String?
-  latitude            Float?
-  longitude           Float?
-  pincode             String?
-  headUserId          String?              @unique
-  secondLineUserId    String?              @unique
-  addressHi           String?
-  addressTa           String?
-  email               String?
-  phone               String?
-  size                String?
+  code              String    @id // SOL - Singular Unique ID
+  officeId          Int?
+  nameEn            String
+  nameTa            String?
+  nameHi            String?
+  type              String    @default("BRANCH")
+  size              String?
+  openDate          String?
+  populationGroup   String?
+  riskCategory      String?
+  riskEffectiveDate DateTime?
+  prevRiskCategory  String?
+  ifsc              String?
+  micr              String?
+  bsrCode           String?
+  address1En        String?
+  address2En        String?
+  districtEn        String?
+  address1Ta        String?
+  address2Ta        String?
+  districtTa        String?
+  address1Hi        String?
+  address2Hi        String?
+  districtHi        String?
+  pincode           String?
+  phone             String?
+  email             String?
+  latitude          Float?
+  longitude         Float?
+
+  parentCode String?
+  parent     Branch?  @relation("Hierarchy", fields: [parentCode], references: [code])
+  children   Branch[] @relation("Hierarchy")
+
+  headUserId       String? @unique
+  secondLineUserId String? @unique
+
+  sNo           Int?
+  specialStatus String?
+
   accountClosures     AccountClosure[]
   accountOpenings     AccountOpening[]
   atms                Atm[]
@@ -151,6 +167,8 @@ model Branch {
   regionalAssets      RegionalAsset[]
   stationeryMovements StationeryMovement[]
   users               User[]               @relation("BranchMembers")
+  partners            ServicePartner[]
+  lockers             Locker[]
 
   @@map("branches")
 }
@@ -187,6 +205,19 @@ model Designation {
   @@map("designations")
 }
 
+model Grade {
+  id               String           @id @default(uuid())
+  code             String           @unique // e.g. SC-I, SC-IV
+  name             String // e.g. Scale I, Scale IV
+  seniorityLevel   Int              @default(1) // Higher number = more senior
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  users            User[]
+  postingHistories PostingHistory[]
+
+  @@map("grades")
+}
+
 model BranchHistory {
   id           String   @id @default(uuid())
   branchId     String
@@ -195,7 +226,7 @@ model BranchHistory {
   newValue     String?
   changedBy    String
   changedAt    DateTime @default(now())
-  branch       Branch   @relation(fields: [branchId], references: [id])
+  branch       Branch   @relation(fields: [branchId], references: [code])
 
   @@map("branch_history")
 }
@@ -228,7 +259,7 @@ model Letter {
   authorId          String?
   signatoryId       String?
   author            User?    @relation("LetterAuthor", fields: [authorId], references: [id])
-  branch            Branch   @relation(fields: [branchId], references: [id])
+  branch            Branch   @relation(fields: [branchId], references: [code])
   previousVersion   Letter?  @relation("LetterHistory", fields: [previousVersionId], references: [id])
   nextVersions      Letter[] @relation("LetterHistory")
   signatory         User?    @relation("LetterSignatory", fields: [signatoryId], references: [id])
@@ -292,7 +323,7 @@ model BranchRequest {
   resolvedAt      DateTime?
   slaBreached     Boolean   @default(false)
   contentJson     Json?
-  branch          Branch    @relation(fields: [branchId], references: [id])
+  branch          Branch    @relation(fields: [branchId], references: [code])
   user            User      @relation(fields: [userId], references: [id])
   comments        Comment[]
 
@@ -355,7 +386,7 @@ model Notice {
   contentHi        String?
   titleHi          String?
   acknowledgements NoticeAck[]
-  branch           Branch?     @relation(fields: [branchId], references: [id])
+  branch           Branch?     @relation(fields: [branchId], references: [code])
   photo            Photo?      @relation(fields: [photoId], references: [id])
 
   @@map("notices")
@@ -367,7 +398,7 @@ model NoticeAck {
   userId    String
   branchId  String
   createdAt DateTime @default(now())
-  branch    Branch   @relation(fields: [branchId], references: [id])
+  branch    Branch   @relation(fields: [branchId], references: [code])
   notice    Notice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
 
@@ -386,6 +417,39 @@ model StationeryItem {
   @@map("stationery_items")
 }
 
+model ServicePartner {
+  id             String   @id @default(uuid())
+  type           String   @default("JEWEL_APPRAISER") // JEWEL_APPRAISER, BC_INDIVIDUAL, BC_CORPORATE
+  nameEn         String
+  nameTa         String?
+  nameHi         String?
+  registrationNo String?  @unique // IBA Reg No for BC, etc.
+  phone          String?
+  email          String?
+  status         String   @default("ACTIVE")
+  branchId       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  branch         Branch   @relation(fields: [branchId], references: [code])
+
+  @@map("service_partners")
+}
+
+model Locker {
+  id        String   @id @default(uuid())
+  lockerNo  String
+  type      String // A, B, C, D, H1, E, F, G, H, L1, K, L2, L
+  category  String // Small, Medium, Large
+  status    String   @default("AVAILABLE") // LET_OUT, AVAILABLE
+  branchId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  branch    Branch   @relation(fields: [branchId], references: [code])
+
+  @@unique([branchId, lockerNo])
+  @@map("lockers")
+}
+
 model StationeryMovement {
   id        String         @id @default(uuid())
   itemId    String
@@ -396,7 +460,7 @@ model StationeryMovement {
   remarks   String?
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
-  branch    Branch?        @relation(fields: [branchId], references: [id])
+  branch    Branch?        @relation(fields: [branchId], references: [code])
   item      StationeryItem @relation(fields: [itemId], references: [id])
 
   @@map("stationery_movements")
@@ -482,14 +546,17 @@ model OrganizationConfig {
 }
 
 model Atm {
-  id          String   @id @default(uuid())
-  atmId       String   @unique
-  branchId    String
-  lastTxnTime String
-  balance     Decimal  @db.Decimal(18, 4)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  branch      Branch   @relation(fields: [branchId], references: [id])
+  id             String   @id @default(uuid())
+  atmId          String   @unique
+  branchId       String
+  deviceType     String   @default("ATM") // ATM, CDM (covers CRM/BNA)
+  managementType String   @default("BRANCH_MANAGED") // BRANCH_MANAGED, OUTSOURCED
+  locationType   String   @default("ONSITE") // ONSITE, OFFSITE
+  lastTxnTime    String
+  balance        Decimal  @db.Decimal(18, 4)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  branch         Branch   @relation(fields: [branchId], references: [code])
 
   @@map("atms")
 }
@@ -499,13 +566,15 @@ model PostingHistory {
   userId        String
   branchId      String
   designationId String?
+  gradeId       String?
   startDate     DateTime     @default(now())
   endDate       DateTime?
   isCurrent     Boolean      @default(true)
   remarks       String?
   createdAt     DateTime     @default(now())
-  branch        Branch       @relation(fields: [branchId], references: [id])
+  branch        Branch       @relation(fields: [branchId], references: [code])
   designation   Designation? @relation(fields: [designationId], references: [id])
+  gradeMaster   Grade?       @relation(fields: [gradeId], references: [id])
   user          User         @relation(fields: [userId], references: [id])
 
   @@map("posting_history")
@@ -614,7 +683,7 @@ model IngestionLog {
   createdAt   DateTime      @default(now())
   importLogId String?
   importLog   MisImportLog? @relation(fields: [importLogId], references: [id], onDelete: Cascade)
-  branch      Branch        @relation(fields: [unitId], references: [id])
+  branch      Branch        @relation(fields: [unitId], references: [code])
   facts       Fact[]
 
   @@map("ingestion_logs")
@@ -683,7 +752,7 @@ model Fact {
   ingestionId String?
   createdAt   DateTime      @default(now())
   ingestion   IngestionLog? @relation(fields: [ingestionId], references: [id], onDelete: Cascade)
-  branch      Branch        @relation(fields: [unitId], references: [id])
+  branch      Branch        @relation(fields: [unitId], references: [code])
 
   @@index([date, unitId, metric])
   @@map("mis_facts")
@@ -699,7 +768,7 @@ model MisSnapshot {
   createdAt    DateTime              @default(now())
   exceptions   MisException[]
   panelData    MisInformationPanel[]
-  branch       Branch                @relation(fields: [unitId], references: [id])
+  branch       Branch                @relation(fields: [unitId], references: [code])
 
   @@unique([unitId, businessDate, version])
   @@map("mis_snapshots")
@@ -747,7 +816,7 @@ model MisException {
   taskId       String?
   createdAt    DateTime    @default(now())
   snapshot     MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
-  branch       Branch      @relation(fields: [unitId], references: [id])
+  branch       Branch      @relation(fields: [unitId], references: [code])
 
   @@map("mis_exceptions")
 }
@@ -1047,7 +1116,7 @@ model RecoveryAction {
   branchId       String
   remarks        String?
   createdAt      DateTime @default(now())
-  branch         Branch   @relation(fields: [branchId], references: [id])
+  branch         Branch   @relation(fields: [branchId], references: [code])
 
   @@map("recovery_actions")
 }
@@ -1063,7 +1132,7 @@ model AuditObservation {
   auditDate            DateTime?
   branchId             String
   createdAt            DateTime  @default(now())
-  branch               Branch    @relation(fields: [branchId], references: [id])
+  branch               Branch    @relation(fields: [branchId], references: [code])
 
   @@map("audit_observations")
 }
@@ -1080,7 +1149,7 @@ model RegionalAsset {
   branchId      String
   createdAt     DateTime            @default(now())
   maintenances  MaintenanceRecord[]
-  branch        Branch              @relation(fields: [branchId], references: [id])
+  branch        Branch              @relation(fields: [branchId], references: [code])
 
   @@map("regional_assets")
 }
@@ -1123,7 +1192,7 @@ model CampaignTarget {
   campaignId  String
   branchId    String
   targetValue Decimal  @db.Decimal(18, 4)
-  branch      Branch   @relation(fields: [branchId], references: [id])
+  branch      Branch   @relation(fields: [branchId], references: [code])
   campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@map("campaign_targets")
@@ -1135,7 +1204,7 @@ model CampaignDailyData {
   branchId   String
   date       DateTime
   value      Decimal  @db.Decimal(18, 4)
-  branch     Branch   @relation(fields: [branchId], references: [id])
+  branch     Branch   @relation(fields: [branchId], references: [code])
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@unique([campaignId, branchId, date])
@@ -1185,7 +1254,7 @@ model BranchVisit {
   updatedAt       DateTime @updatedAt
   letterIssued    Boolean  @default(false)
   observations    String?
-  branch          Branch   @relation(fields: [branchId], references: [id])
+  branch          Branch   @relation(fields: [branchId], references: [code])
   visitor         User     @relation(fields: [visitorId], references: [id])
 
   @@map("branch_visits")

@@ -62,7 +62,6 @@ model User {
   gradeMaster          Grade?             @relation(fields: [gradeId], references: [id])
   gradeId              String?
   department           Department?        @relation("UserDepartment", fields: [departmentId], references: [id])
-  designation          Designation?       @relation(fields: [designationId], references: [id])
   photo                Photo?             @relation(fields: [photoId], references: [id])
   managedDepartments   Department[]       @relation("DepartmentHeads")
   departments          Department[]       @relation("UserDepartments")
@@ -104,46 +103,46 @@ model LoginAuditLog {
 }
 
 model Branch {
-  code                String               @id // SOL - Singular Unique ID
-  officeId            Int?
-  nameEn              String
-  nameTa              String?
-  nameHi              String?
-  type                String               @default("BRANCH")
-  size                String?
-  openDate            String?
-  populationGroup     String?
-  riskCategory        String?
-  riskEffectiveDate   DateTime?
-  prevRiskCategory    String?
-  ifsc                String?
-  micr                String?
-  bsrCode             String?
-  address1En          String?
-  address2En          String?
-  districtEn          String?
-  address1Ta          String?
-  address2Ta          String?
-  districtTa          String?
-  address1Hi          String?
-  address2Hi          String?
-  districtHi          String?
-  pincode             String?
-  phone               String?
-  email               String?
-  latitude            Float?
-  longitude           Float?
-  
-  parentCode          String?
-  parent              Branch?              @relation("Hierarchy", fields: [parentCode], references: [code])
-  children            Branch[]             @relation("Hierarchy")
-  
-  headUserId          String?              @unique
-  secondLineUserId    String?              @unique
-  
-  sNo                 Int?
-  specialStatus       String?
-  
+  code              String    @id // SOL - Singular Unique ID
+  officeId          Int?
+  nameEn            String
+  nameTa            String?
+  nameHi            String?
+  type              String    @default("BRANCH")
+  size              String?
+  openDate          String?
+  populationGroup   String?
+  riskCategory      String?
+  riskEffectiveDate DateTime?
+  prevRiskCategory  String?
+  ifsc              String?
+  micr              String?
+  bsrCode           String?
+  address1En        String?
+  address2En        String?
+  districtEn        String?
+  address1Ta        String?
+  address2Ta        String?
+  districtTa        String?
+  address1Hi        String?
+  address2Hi        String?
+  districtHi        String?
+  pincode           String?
+  phone             String?
+  email             String?
+  latitude          Float?
+  longitude         Float?
+
+  parentCode String?
+  parent     Branch?  @relation("Hierarchy", fields: [parentCode], references: [code])
+  children   Branch[] @relation("Hierarchy")
+
+  headUserId       String? @unique
+  secondLineUserId String? @unique
+
+  sNo           Int?
+  specialStatus String?
+
   accountClosures     AccountClosure[]
   accountOpenings     AccountOpening[]
   atms                Atm[]
@@ -207,13 +206,14 @@ model Designation {
 }
 
 model Grade {
-  id             String           @id @default(uuid())
-  code           String           @unique // e.g. SC-I, SC-IV
-  name           String           // e.g. Scale I, Scale IV
-  seniorityLevel Int              @default(1) // Higher number = more senior
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  users          User[]
+  id               String           @id @default(uuid())
+  code             String           @unique // e.g. SC-I, SC-IV
+  name             String // e.g. Scale I, Scale IV
+  seniorityLevel   Int              @default(1) // Higher number = more senior
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  users            User[]
+  postingHistories PostingHistory[]
 
   @@map("grades")
 }
@@ -232,37 +232,37 @@ model BranchHistory {
 }
 
 model Letter {
-  id                String     @id @default(uuid())
-  type              String     @default("MANUAL")
-  status            String     @default("DRAFT")
+  id                String   @id @default(uuid())
+  type              String   @default("MANUAL")
+  status            String   @default("DRAFT")
   titleEn           String
   contentEn         String
   titleTa           String?
   contentTa         String?
   branchId          String
-  valueAtTime       Decimal?   @db.Decimal(18, 4)
-  budgetAtTime      Decimal?   @db.Decimal(18, 4)
+  valueAtTime       Decimal? @db.Decimal(18, 4)
+  budgetAtTime      Decimal? @db.Decimal(18, 4)
   period            String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   previousVersionId String?
-  version           Int        @default(1)
+  version           Int      @default(1)
   orgMeta           Json?
   scannedCopyUrl    String?
-  referenceNo       String?    @unique
+  referenceNo       String?  @unique
   titleHi           String?
   contentHi         String?
-  isExternal        Boolean    @default(false)
+  isExternal        Boolean  @default(false)
   recipientName     String?
   recipientAddress  String?
   salutation        String?
   authorId          String?
   signatoryId       String?
-  author            User?      @relation("LetterAuthor", fields: [authorId], references: [id])
-  branch            Branch     @relation(fields: [branchId], references: [code])
-  previousVersion   Letter?    @relation("LetterHistory", fields: [previousVersionId], references: [id])
-  nextVersions      Letter[]   @relation("LetterHistory")
-  signatory         User?      @relation("LetterSignatory", fields: [signatoryId], references: [id])
+  author            User?    @relation("LetterAuthor", fields: [authorId], references: [id])
+  branch            Branch   @relation(fields: [branchId], references: [code])
+  previousVersion   Letter?  @relation("LetterHistory", fields: [previousVersionId], references: [id])
+  nextVersions      Letter[] @relation("LetterHistory")
+  signatory         User?    @relation("LetterSignatory", fields: [signatoryId], references: [id])
 
   @@map("letters")
 }
@@ -325,6 +325,7 @@ model BranchRequest {
   contentJson     Json?
   branch          Branch    @relation(fields: [branchId], references: [code])
   user            User      @relation(fields: [userId], references: [id])
+  comments        Comment[]
 
   @@map("branch_requests")
 }
@@ -435,15 +436,15 @@ model ServicePartner {
 }
 
 model Locker {
-  id             String   @id @default(uuid())
-  lockerNo       String
-  type           String   // A, B, C, D, H1, E, F, G, H, L1, K, L2, L
-  category       String   // Small, Medium, Large
-  status         String   @default("AVAILABLE") // LET_OUT, AVAILABLE
-  branchId       String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  branch         Branch   @relation(fields: [branchId], references: [code])
+  id        String   @id @default(uuid())
+  lockerNo  String
+  type      String // A, B, C, D, H1, E, F, G, H, L1, K, L2, L
+  category  String // Small, Medium, Large
+  status    String   @default("AVAILABLE") // LET_OUT, AVAILABLE
+  branchId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  branch    Branch   @relation(fields: [branchId], references: [code])
 
   @@unique([branchId, lockerNo])
   @@map("lockers")
@@ -545,7 +546,7 @@ model OrganizationConfig {
 }
 
 model Atm {
-  id          String   @id @default(uuid())
+  id             String   @id @default(uuid())
   atmId          String   @unique
   branchId       String
   deviceType     String   @default("ATM") // ATM, CDM (covers CRM/BNA)
@@ -774,27 +775,27 @@ model MisSnapshot {
 }
 
 model MisInformationPanel {
-  id                String      @id @default(uuid())
+  id                String               @id @default(uuid())
   snapshotId        String
   parameter         String
-  val_fy_start      Decimal     @default(0) @db.Decimal(18, 4)
-  val_fy_end        Decimal     @default(0) @db.Decimal(18, 4)
-  val_prev_m_end    Decimal     @default(0) @db.Decimal(18, 4)
-  val_dby           Decimal     @default(0) @db.Decimal(18, 4)
-  val_y_eod         Decimal     @default(0) @db.Decimal(18, 4)
-  val_current       Decimal     @default(0) @db.Decimal(18, 4)
-  growth_day        Decimal     @default(0) @db.Decimal(18, 4)
-  growth_month      Decimal     @default(0) @db.Decimal(18, 4)
-  growth_fy         Decimal     @default(0) @db.Decimal(18, 4)
-  budget_month      Decimal     @default(0) @db.Decimal(18, 4)
-  gap_month         Decimal     @default(0) @db.Decimal(18, 4)
-  budget_quarter    Decimal     @default(0) @db.Decimal(18, 4)
-  gap_quarter       Decimal     @default(0) @db.Decimal(18, 4)
-  growth_prev_fy    Decimal     @default(0) @db.Decimal(18, 4)
-  status            String      @default("Neutral")
-  val_prev_fy_end   Decimal     @default(0) @db.Decimal(18, 4)
-  val_prev_fy_start Decimal     @default(0) @db.Decimal(18, 4)
-  snapshot          MisSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  val_fy_start      Decimal              @default(0) @db.Decimal(18, 4)
+  val_fy_end        Decimal              @default(0) @db.Decimal(18, 4)
+  val_prev_m_end    Decimal              @default(0) @db.Decimal(18, 4)
+  val_dby           Decimal              @default(0) @db.Decimal(18, 4)
+  val_y_eod         Decimal              @default(0) @db.Decimal(18, 4)
+  val_current       Decimal              @default(0) @db.Decimal(18, 4)
+  growth_day        Decimal              @default(0) @db.Decimal(18, 4)
+  growth_month      Decimal              @default(0) @db.Decimal(18, 4)
+  growth_fy         Decimal              @default(0) @db.Decimal(18, 4)
+  budget_month      Decimal              @default(0) @db.Decimal(18, 4)
+  gap_month         Decimal              @default(0) @db.Decimal(18, 4)
+  budget_quarter    Decimal              @default(0) @db.Decimal(18, 4)
+  gap_quarter       Decimal              @default(0) @db.Decimal(18, 4)
+  growth_prev_fy    Decimal              @default(0) @db.Decimal(18, 4)
+  status            String               @default("Neutral")
+  val_prev_fy_end   Decimal              @default(0) @db.Decimal(18, 4)
+  val_prev_fy_start Decimal              @default(0) @db.Decimal(18, 4)
+  snapshot          MisSnapshot          @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
   registry          MisParameterRegistry @relation(fields: [parameter], references: [parameterName])
 
   @@map("mis_information_panels")
@@ -878,8 +879,6 @@ model CalendarMaster {
 
   @@map("calendar_master")
 }
-
-
 
 model ProductAdoptionScheme {
   id       String  @id @default(uuid())
@@ -1054,9 +1053,9 @@ model Meeting {
   date         DateTime
   venue        String?
   status       String        @default("DRAFT")
-  attendees    Json?         // List of participants [{ name, designation, dept }]
-  minutesJson  String?       // Structured table content
-  signatories  Json?         // Officials in signing block [{ userId, name, designation }]
+  attendees    Json? // List of participants [{ name, designation, dept }]
+  minutesJson  String? // Structured table content
+  signatories  Json? // Officials in signing block [{ userId, name, designation }]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   title        String?
@@ -1262,12 +1261,12 @@ model BranchVisit {
 }
 
 model GenerationRecord {
-  id           String   @id @default(uuid())
-  payloadHash  String   @unique
-  letterId     String
-  fileUrl      String
-  timestamp    DateTime @default(now())
-  
+  id          String   @id @default(uuid())
+  payloadHash String   @unique
+  letterId    String
+  fileUrl     String
+  timestamp   DateTime @default(now())
+
   @@index([payloadHash])
   @@index([letterId])
   @@map("generation_records")

@@ -1,0 +1,81 @@
+parameterName,displayName,category,isEnabled,createdFromBudgetFlag,description,fullForm,orderIndex,parentParameterName
+Mudra,Mudra,Core Advances,true,true,,Mudra,331,MSME
+Recovery,Recovery,ASSET_QUALITY,true,true,,,200,
+Core Agri,Core Agri,CORE_ADVANCES,true,true,,,100,
+Rec_Q1,Rec Q1,GENERAL,true,true,,,500,
+Rec_Q2,Rec Q2,GENERAL,true,true,,,500,
+Rec_Q3,Rec Q3,GENERAL,true,true,,,500,
+Rec_Q4,Rec Q4,GENERAL,true,true,,,500,
+MUDRA,MUDRA,GENERAL,true,true,,,500,
+AGRI_JL,AGRI JL,GENERAL,true,true,,,500,
+GOLD_RETAIL,GOLD RETAIL,GENERAL,true,true,,,500,
+GOLD,GOLD,CORE_ADVANCES,true,true,,,100,
+Branch_PL,Branch P&L,Profitability,true,false,,,320,Bus
+Total Dep,Total Dep,Key Business Parameters,true,false,,Total Deposits (CASA+TD),20,Bus
+CASA%,CASA%,Key Business Parameters,true,false,,CASA Ratio,60,CASA
+Ret_TD,Ret TD,Key Business Parameters,true,true,,,80,TD
+NPA,NPA,Key Business Parameters,true,true,,Non Performing Asset,120,Adv
+Gold,Gold,Jewel Loans,true,true,,Jewel Loan,200,Adv
+MORT,MORT,GENERAL,true,true,,,500,
+Ret-Gold,Ret JL,Jewel Loans,true,true,,Retail Jewel Loans,210,Gold
+Agri_JL,Agri JL,Jewel Loans,true,true,,Agriculture Jewel Loan,220,Gold
+Core Ret,Core Ret,Core Advances,true,true,,Core Retail,310,Core Adv
+LIQ,LIQ,GENERAL,true,true,,,500,
+OTH_RET,OTH RET,GENERAL,true,true,,,500,
+TOT_RETAIL,TOT RETAIL,GENERAL,true,true,,,500,
+GOV,GOV,GENERAL,true,true,,,500,
+OTH_SCH,OTH SCH,GENERAL,true,true,,,500,
+CORE_AGRI,CORE AGRI,CORE_ADVANCES,true,true,,,100,
+ADV,ADV,GENERAL,true,true,,,500,
+Bulk_Dep,Bulk Deposits,Key Business Parameters,true,false,,,90,TD
+HL,HL,Core Advances,true,true,,Housing Loan,311,Core Ret
+BULK_DEP,BULK DEP,GENERAL,true,true,,,500,
+BRANCH_PL,BRANCH PL,GENERAL,true,true,,,500,
+REC_Q1,REC Q1,GENERAL,true,true,,,500,
+REC_Q2,REC Q2,GENERAL,true,true,,,500,
+PersonalLoan,PL,Core Advances,true,true,,Personal Loan,312,Core Ret
+REC_Q3,REC Q3,GENERAL,true,true,,,500,
+REC_Q4,REC Q4,GENERAL,true,true,,,500,
+Cash_Hand,Cash on Hand,Cash Management,false,false,,,50,
+Cash_ATM,ATM Cash,Cash Management,false,false,,,51,
+Cash_BC,BC Cash,Cash Management,false,false,,,52,
+Cash_BNA,BNA Cash,Cash Management,false,false,,,53,
+Cash_Total,Total Cash,Cash Management,false,false,,,54,
+Cash_CRL,Cash Required Level,Cash Management,false,false,,,55,
+Cash_Excess,Cash Excess / Deficit,Cash Management,false,false,,,56,
+EL,EL,Core Advances,true,true,,Education Loan,313,Core Ret
+Tot_Retail,Total Retail Advances,Retail Advances,false,false,,,36,
+VL,VL,Core Advances,true,true,,Vehicle Loan,314,Core Ret
+Mort,Mort,Core Advances,true,true,,Mortgage,315,Core Ret
+Liq,Liq,Core Advances,true,true,,Liquirent,316,Core Ret
+CASH_TOTAL,CASH TOTAL,CASH,false,true,,,300,
+CASH_ATM,CASH ATM,CASH,false,true,,,300,
+CASH_BC,CASH BC,CASH,false,true,,,300,
+CASH_BNA,CASH BNA,CASH,false,true,,,300,
+CASH_CRL,CASH CRL,CASH,false,true,,,300,
+OthRet,OthRet,Core Advances,true,true,,Other Retail,317,Core Ret
+Core_Agri,Core Agri,Core Advances,true,true,,Core Agri,320,Core Adv
+KCC,KCC,Core Advances,true,true,,Kisan Credit Card,321,Core_Agri
+SHG,SHG,Core Advances,true,true,,Self Help Group,322,Core_Agri
+Gov,Gov,Core Advances,true,true,,Government Schemes,323,Core_Agri
+OthSch,OthSch,Core Advances,true,true,,Other Schematic Lending,324,Core_Agri
+CASH_EXCESS,CASH EXCESS,CASH,false,true,,,300,
+SB,SAVINGS DEPOSITS,KBP,true,true,,,0,CASA
+MSME,Core MSME,Core Advances,true,true,,Core Micro Small & Medium Enterprise,330,Core Adv
+CD,CURRENT DEPOSITS,KBP,true,true,,,1,CASA
+TD,TERM DEPOSITS,KBP,true,true,,,3,Total Dep
+Adv,TOTAL ADVANCES,KBP,true,true,,,4,Bus
+RET_TD,RET TD,GENERAL,true,true,,,500,
+CD_Ratio,CD Ratio,Key Business Parameters,true,true,,,110,Adv
+S_NO,S NO,GENERAL,true,true,,,500,
+SOL,SOL,GENERAL,true,true,,,500,
+DATE,DATE,GENERAL,true,true,,,500,
+PERSONAL,PERSONAL,GENERAL,true,true,,,500,
+SB_DEPOSITS,SB DEPOSITS,GENERAL,true,true,,,500,
+CD_DEPOSITS,CD DEPOSITS,GENERAL,true,true,,,500,
+TD_DEPOSITS,TD DEPOSITS,GENERAL,true,true,,,500,
+TOTAL_ADVANCES,TOTAL ADVANCES,CORE_ADVANCES,true,true,,,100,
+Core Adv,Core Advances,Core Advances,true,true,,,300,Adv
+CASH_HAND,CASH HAND,CASH,false,true,,,300,
+Bus,TOTAL BUSINESS,KBP,true,true,,,5,
+CASA,CASA (SB+CD),KBP,true,true,,,2,Total Dep

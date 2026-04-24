@@ -44,6 +44,11 @@ export type Department = $Result.DefaultSelection<Prisma.$DepartmentPayload>
  */
 export type Designation = $Result.DefaultSelection<Prisma.$DesignationPayload>
 /**
+ * Model Grade
+ * 
+ */
+export type Grade = $Result.DefaultSelection<Prisma.$GradePayload>
+/**
  * Model BranchHistory
  * 
  */
@@ -98,6 +103,16 @@ export type NoticeAck = $Result.DefaultSelection<Prisma.$NoticeAckPayload>
  * 
  */
 export type StationeryItem = $Result.DefaultSelection<Prisma.$StationeryItemPayload>
+/**
+ * Model ServicePartner
+ * 
+ */
+export type ServicePartner = $Result.DefaultSelection<Prisma.$ServicePartnerPayload>
+/**
+ * Model Locker
+ * 
+ */
+export type Locker = $Result.DefaultSelection<Prisma.$LockerPayload>
 /**
  * Model StationeryMovement
  * 
@@ -546,6 +561,16 @@ export class PrismaClient<
   get designation(): Prisma.DesignationDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.grade`: Exposes CRUD operations for the **Grade** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Grades
+    * const grades = await prisma.grade.findMany()
+    * ```
+    */
+  get grade(): Prisma.GradeDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.branchHistory`: Exposes CRUD operations for the **BranchHistory** model.
     * Example usage:
     * ```ts
@@ -654,6 +679,26 @@ export class PrismaClient<
     * ```
     */
   get stationeryItem(): Prisma.StationeryItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.servicePartner`: Exposes CRUD operations for the **ServicePartner** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ServicePartners
+    * const servicePartners = await prisma.servicePartner.findMany()
+    * ```
+    */
+  get servicePartner(): Prisma.ServicePartnerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.locker`: Exposes CRUD operations for the **Locker** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Lockers
+    * const lockers = await prisma.locker.findMany()
+    * ```
+    */
+  get locker(): Prisma.LockerDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.stationeryMovement`: Exposes CRUD operations for the **StationeryMovement** model.
@@ -1624,6 +1669,7 @@ export namespace Prisma {
     Branch: 'Branch',
     Department: 'Department',
     Designation: 'Designation',
+    Grade: 'Grade',
     BranchHistory: 'BranchHistory',
     Letter: 'Letter',
     LetterTemplate: 'LetterTemplate',
@@ -1635,6 +1681,8 @@ export namespace Prisma {
     Notice: 'Notice',
     NoticeAck: 'NoticeAck',
     StationeryItem: 'StationeryItem',
+    ServicePartner: 'ServicePartner',
+    Locker: 'Locker',
     StationeryMovement: 'StationeryMovement',
     Budget: 'Budget',
     ExpenseSanction: 'ExpenseSanction',
@@ -1703,7 +1751,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "notice" | "noticeAck" | "stationeryItem" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit" | "generationRecord"
+      modelProps: "user" | "session" | "loginAuditLog" | "branch" | "department" | "designation" | "grade" | "branchHistory" | "letter" | "letterTemplate" | "officeNote" | "branchRequest" | "comment" | "photo" | "holiday" | "notice" | "noticeAck" | "stationeryItem" | "servicePartner" | "locker" | "stationeryMovement" | "budget" | "expenseSanction" | "srmMessage" | "dashboardTicker" | "organizationConfig" | "atm" | "postingHistory" | "chatGroup" | "chatMember" | "chatMessage" | "branchQuery" | "messageAck" | "chatAuditLog" | "ingestionLog" | "ingestionVerticalStatus" | "stgUnitFinancialsDaily" | "stgAccountDaily" | "stgUserVerticalDaily" | "fact" | "misSnapshot" | "misInformationPanel" | "misException" | "accountOpening" | "accountClosure" | "calendarMaster" | "productAdoptionScheme" | "systemConfig" | "notification" | "budgetMaster" | "budgetHistory" | "misParameterRegistry" | "budgetImportLog" | "misImportLog" | "internalNote" | "presentationDeck" | "referenceSequence" | "committee" | "meeting" | "actionPoint" | "dispatchRecord" | "legalCase" | "recoveryAction" | "auditObservation" | "regionalAsset" | "maintenanceRecord" | "campaign" | "campaignTarget" | "campaignDailyData" | "departmentManual" | "departmentActivity" | "branchVisit" | "generationRecord"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2148,6 +2196,80 @@ export namespace Prisma {
           count: {
             args: Prisma.DesignationCountArgs<ExtArgs>
             result: $Utils.Optional<DesignationCountAggregateOutputType> | number
+          }
+        }
+      }
+      Grade: {
+        payload: Prisma.$GradePayload<ExtArgs>
+        fields: Prisma.GradeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GradeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GradeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          findFirst: {
+            args: Prisma.GradeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GradeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          findMany: {
+            args: Prisma.GradeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>[]
+          }
+          create: {
+            args: Prisma.GradeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          createMany: {
+            args: Prisma.GradeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GradeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>[]
+          }
+          delete: {
+            args: Prisma.GradeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          update: {
+            args: Prisma.GradeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          deleteMany: {
+            args: Prisma.GradeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GradeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GradeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>[]
+          }
+          upsert: {
+            args: Prisma.GradeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GradePayload>
+          }
+          aggregate: {
+            args: Prisma.GradeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGrade>
+          }
+          groupBy: {
+            args: Prisma.GradeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GradeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GradeCountArgs<ExtArgs>
+            result: $Utils.Optional<GradeCountAggregateOutputType> | number
           }
         }
       }
@@ -2962,6 +3084,154 @@ export namespace Prisma {
           count: {
             args: Prisma.StationeryItemCountArgs<ExtArgs>
             result: $Utils.Optional<StationeryItemCountAggregateOutputType> | number
+          }
+        }
+      }
+      ServicePartner: {
+        payload: Prisma.$ServicePartnerPayload<ExtArgs>
+        fields: Prisma.ServicePartnerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ServicePartnerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ServicePartnerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          findFirst: {
+            args: Prisma.ServicePartnerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ServicePartnerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          findMany: {
+            args: Prisma.ServicePartnerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>[]
+          }
+          create: {
+            args: Prisma.ServicePartnerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          createMany: {
+            args: Prisma.ServicePartnerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ServicePartnerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>[]
+          }
+          delete: {
+            args: Prisma.ServicePartnerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          update: {
+            args: Prisma.ServicePartnerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          deleteMany: {
+            args: Prisma.ServicePartnerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ServicePartnerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ServicePartnerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>[]
+          }
+          upsert: {
+            args: Prisma.ServicePartnerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ServicePartnerPayload>
+          }
+          aggregate: {
+            args: Prisma.ServicePartnerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateServicePartner>
+          }
+          groupBy: {
+            args: Prisma.ServicePartnerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ServicePartnerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ServicePartnerCountArgs<ExtArgs>
+            result: $Utils.Optional<ServicePartnerCountAggregateOutputType> | number
+          }
+        }
+      }
+      Locker: {
+        payload: Prisma.$LockerPayload<ExtArgs>
+        fields: Prisma.LockerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LockerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LockerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          findFirst: {
+            args: Prisma.LockerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LockerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          findMany: {
+            args: Prisma.LockerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>[]
+          }
+          create: {
+            args: Prisma.LockerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          createMany: {
+            args: Prisma.LockerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LockerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>[]
+          }
+          delete: {
+            args: Prisma.LockerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          update: {
+            args: Prisma.LockerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          deleteMany: {
+            args: Prisma.LockerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LockerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LockerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>[]
+          }
+          upsert: {
+            args: Prisma.LockerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LockerPayload>
+          }
+          aggregate: {
+            args: Prisma.LockerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLocker>
+          }
+          groupBy: {
+            args: Prisma.LockerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LockerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LockerCountArgs<ExtArgs>
+            result: $Utils.Optional<LockerCountAggregateOutputType> | number
           }
         }
       }
@@ -7001,6 +7271,7 @@ export namespace Prisma {
     branch?: BranchOmit
     department?: DepartmentOmit
     designation?: DesignationOmit
+    grade?: GradeOmit
     branchHistory?: BranchHistoryOmit
     letter?: LetterOmit
     letterTemplate?: LetterTemplateOmit
@@ -7012,6 +7283,8 @@ export namespace Prisma {
     notice?: NoticeOmit
     noticeAck?: NoticeAckOmit
     stationeryItem?: StationeryItemOmit
+    servicePartner?: ServicePartnerOmit
+    locker?: LockerOmit
     stationeryMovement?: StationeryMovementOmit
     budget?: BudgetOmit
     expenseSanction?: ExpenseSanctionOmit
@@ -7356,6 +7629,7 @@ export namespace Prisma {
    */
 
   export type BranchCountOutputType = {
+    children: number
     accountClosures: number
     accountOpenings: number
     atms: number
@@ -7378,9 +7652,12 @@ export namespace Prisma {
     regionalAssets: number
     stationeryMovements: number
     users: number
+    partners: number
+    lockers: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    children?: boolean | BranchCountOutputTypeCountChildrenArgs
     accountClosures?: boolean | BranchCountOutputTypeCountAccountClosuresArgs
     accountOpenings?: boolean | BranchCountOutputTypeCountAccountOpeningsArgs
     atms?: boolean | BranchCountOutputTypeCountAtmsArgs
@@ -7403,6 +7680,8 @@ export namespace Prisma {
     regionalAssets?: boolean | BranchCountOutputTypeCountRegionalAssetsArgs
     stationeryMovements?: boolean | BranchCountOutputTypeCountStationeryMovementsArgs
     users?: boolean | BranchCountOutputTypeCountUsersArgs
+    partners?: boolean | BranchCountOutputTypeCountPartnersArgs
+    lockers?: boolean | BranchCountOutputTypeCountLockersArgs
   }
 
   // Custom InputTypes
@@ -7414,6 +7693,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the BranchCountOutputType
      */
     select?: BranchCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BranchWhereInput
   }
 
   /**
@@ -7570,6 +7856,20 @@ export namespace Prisma {
     where?: UserWhereInput
   }
 
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountPartnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServicePartnerWhereInput
+  }
+
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountLockersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LockerWhereInput
+  }
+
 
   /**
    * Count Type DepartmentCountOutputType
@@ -7666,6 +7966,46 @@ export namespace Prisma {
    */
   export type DesignationCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
+  }
+
+
+  /**
+   * Count Type GradeCountOutputType
+   */
+
+  export type GradeCountOutputType = {
+    users: number
+    postingHistories: number
+  }
+
+  export type GradeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | GradeCountOutputTypeCountUsersArgs
+    postingHistories?: boolean | GradeCountOutputTypeCountPostingHistoriesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * GradeCountOutputType without action
+   */
+  export type GradeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GradeCountOutputType
+     */
+    select?: GradeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * GradeCountOutputType without action
+   */
+  export type GradeCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+  }
+
+  /**
+   * GradeCountOutputType without action
+   */
+  export type GradeCountOutputTypeCountPostingHistoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PostingHistoryWhereInput
   }
 
 
@@ -8324,6 +8664,7 @@ export namespace Prisma {
     designationEn: string | null
     designationHi: string | null
     designationTa: string | null
+    gradeId: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -8354,6 +8695,7 @@ export namespace Prisma {
     designationEn: string | null
     designationHi: string | null
     designationTa: string | null
+    gradeId: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -8384,6 +8726,7 @@ export namespace Prisma {
     designationEn: number
     designationHi: number
     designationTa: number
+    gradeId: number
     _all: number
   }
 
@@ -8424,6 +8767,7 @@ export namespace Prisma {
     designationEn?: true
     designationHi?: true
     designationTa?: true
+    gradeId?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -8454,6 +8798,7 @@ export namespace Prisma {
     designationEn?: true
     designationHi?: true
     designationTa?: true
+    gradeId?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -8484,6 +8829,7 @@ export namespace Prisma {
     designationEn?: true
     designationHi?: true
     designationTa?: true
+    gradeId?: true
     _all?: true
   }
 
@@ -8601,6 +8947,7 @@ export namespace Prisma {
     designationEn: string | null
     designationHi: string | null
     designationTa: string | null
+    gradeId: string | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -8650,6 +8997,7 @@ export namespace Prisma {
     designationEn?: boolean
     designationHi?: boolean
     designationTa?: boolean
+    gradeId?: boolean
     requests?: boolean | User$requestsArgs<ExtArgs>
     branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
     headedBranch?: boolean | User$headedBranchArgs<ExtArgs>
@@ -8672,8 +9020,9 @@ export namespace Prisma {
     presentationDecks?: boolean | User$presentationDecksArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
     managedDepartments?: boolean | User$managedDepartmentsArgs<ExtArgs>
     departments?: boolean | User$departmentsArgs<ExtArgs>
@@ -8708,9 +9057,11 @@ export namespace Prisma {
     designationEn?: boolean
     designationHi?: boolean
     designationTa?: boolean
+    gradeId?: boolean
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -8742,9 +9093,11 @@ export namespace Prisma {
     designationEn?: boolean
     designationHi?: boolean
     designationTa?: boolean
+    gradeId?: boolean
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -8776,9 +9129,10 @@ export namespace Prisma {
     designationEn?: boolean
     designationHi?: boolean
     designationTa?: boolean
+    gradeId?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "passwordHash" | "fullNameEn" | "fullNameTa" | "fullNameHi" | "grade" | "role" | "photoId" | "section" | "branchId" | "isRegionHead" | "isSecondLine" | "departmentId" | "designationId" | "createdAt" | "updatedAt" | "failedLoginAttempts" | "lockedUntil" | "mfaEnabled" | "mfaSecret" | "lastLoginAt" | "lastLoginIp" | "gender" | "designationEn" | "designationHi" | "designationTa", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "passwordHash" | "fullNameEn" | "fullNameTa" | "fullNameHi" | "grade" | "role" | "photoId" | "section" | "branchId" | "isRegionHead" | "isSecondLine" | "departmentId" | "designationId" | "createdAt" | "updatedAt" | "failedLoginAttempts" | "lockedUntil" | "mfaEnabled" | "mfaSecret" | "lastLoginAt" | "lastLoginIp" | "gender" | "designationEn" | "designationHi" | "designationTa" | "gradeId", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     requests?: boolean | User$requestsArgs<ExtArgs>
     branchVisits?: boolean | User$branchVisitsArgs<ExtArgs>
@@ -8802,8 +9156,9 @@ export namespace Prisma {
     presentationDecks?: boolean | User$presentationDecksArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
     managedDepartments?: boolean | User$managedDepartmentsArgs<ExtArgs>
     departments?: boolean | User$departmentsArgs<ExtArgs>
@@ -8811,14 +9166,16 @@ export namespace Prisma {
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
   }
   export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | User$branchArgs<ExtArgs>
-    department?: boolean | User$departmentArgs<ExtArgs>
     designation?: boolean | User$designationArgs<ExtArgs>
+    gradeMaster?: boolean | User$gradeMasterArgs<ExtArgs>
+    department?: boolean | User$departmentArgs<ExtArgs>
     photo?: boolean | User$photoArgs<ExtArgs>
   }
 
@@ -8847,8 +9204,9 @@ export namespace Prisma {
       presentationDecks: Prisma.$PresentationDeckPayload<ExtArgs>[]
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       branch: Prisma.$BranchPayload<ExtArgs> | null
-      department: Prisma.$DepartmentPayload<ExtArgs> | null
       designation: Prisma.$DesignationPayload<ExtArgs> | null
+      gradeMaster: Prisma.$GradePayload<ExtArgs> | null
+      department: Prisma.$DepartmentPayload<ExtArgs> | null
       photo: Prisma.$PhotoPayload<ExtArgs> | null
       managedDepartments: Prisma.$DepartmentPayload<ExtArgs>[]
       departments: Prisma.$DepartmentPayload<ExtArgs>[]
@@ -8881,6 +9239,7 @@ export namespace Prisma {
       designationEn: string | null
       designationHi: string | null
       designationTa: string | null
+      gradeId: string | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -9297,8 +9656,9 @@ export namespace Prisma {
     presentationDecks<T extends User$presentationDecksArgs<ExtArgs> = {}>(args?: Subset<T, User$presentationDecksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PresentationDeckPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     branch<T extends User$branchArgs<ExtArgs> = {}>(args?: Subset<T, User$branchArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    department<T extends User$departmentArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     designation<T extends User$designationArgs<ExtArgs> = {}>(args?: Subset<T, User$designationArgs<ExtArgs>>): Prisma__DesignationClient<$Result.GetResult<Prisma.$DesignationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    gradeMaster<T extends User$gradeMasterArgs<ExtArgs> = {}>(args?: Subset<T, User$gradeMasterArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    department<T extends User$departmentArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     photo<T extends User$photoArgs<ExtArgs> = {}>(args?: Subset<T, User$photoArgs<ExtArgs>>): Prisma__PhotoClient<$Result.GetResult<Prisma.$PhotoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     managedDepartments<T extends User$managedDepartmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$managedDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     departments<T extends User$departmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$departmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -9358,6 +9718,7 @@ export namespace Prisma {
     readonly designationEn: FieldRef<"User", 'String'>
     readonly designationHi: FieldRef<"User", 'String'>
     readonly designationTa: FieldRef<"User", 'String'>
+    readonly gradeId: FieldRef<"User", 'String'>
   }
     
 
@@ -10272,25 +10633,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.department
-   */
-  export type User$departmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Department
-     */
-    select?: DepartmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Department
-     */
-    omit?: DepartmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DepartmentInclude<ExtArgs> | null
-    where?: DepartmentWhereInput
-  }
-
-  /**
    * User.designation
    */
   export type User$designationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10307,6 +10649,44 @@ export namespace Prisma {
      */
     include?: DesignationInclude<ExtArgs> | null
     where?: DesignationWhereInput
+  }
+
+  /**
+   * User.gradeMaster
+   */
+  export type User$gradeMasterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    where?: GradeWhereInput
+  }
+
+  /**
+   * User.department
+   */
+  export type User$departmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentInclude<ExtArgs> | null
+    where?: DepartmentWhereInput
   }
 
   /**
@@ -12657,207 +13037,255 @@ export namespace Prisma {
   }
 
   export type BranchAvgAggregateOutputType = {
-    sNo: number | null
     officeId: number | null
     latitude: number | null
     longitude: number | null
+    sNo: number | null
   }
 
   export type BranchSumAggregateOutputType = {
-    sNo: number | null
     officeId: number | null
     latitude: number | null
     longitude: number | null
+    sNo: number | null
   }
 
   export type BranchMinAggregateOutputType = {
-    id: string | null
-    sNo: number | null
     code: string | null
     officeId: number | null
     nameEn: string | null
     nameTa: string | null
     nameHi: string | null
     type: string | null
+    size: string | null
     openDate: string | null
-    district: string | null
     populationGroup: string | null
     riskCategory: string | null
     riskEffectiveDate: Date | null
-    specialStatus: string | null
+    prevRiskCategory: string | null
     ifsc: string | null
-    address: string | null
+    micr: string | null
+    bsrCode: string | null
+    address1En: string | null
+    address2En: string | null
+    districtEn: string | null
+    address1Ta: string | null
+    address2Ta: string | null
+    districtTa: string | null
+    address1Hi: string | null
+    address2Hi: string | null
+    districtHi: string | null
+    pincode: string | null
+    phone: string | null
+    email: string | null
     latitude: number | null
     longitude: number | null
-    pincode: string | null
+    parentCode: string | null
     headUserId: string | null
     secondLineUserId: string | null
-    addressHi: string | null
-    addressTa: string | null
-    email: string | null
-    phone: string | null
-    size: string | null
+    sNo: number | null
+    specialStatus: string | null
   }
 
   export type BranchMaxAggregateOutputType = {
-    id: string | null
-    sNo: number | null
     code: string | null
     officeId: number | null
     nameEn: string | null
     nameTa: string | null
     nameHi: string | null
     type: string | null
+    size: string | null
     openDate: string | null
-    district: string | null
     populationGroup: string | null
     riskCategory: string | null
     riskEffectiveDate: Date | null
-    specialStatus: string | null
+    prevRiskCategory: string | null
     ifsc: string | null
-    address: string | null
+    micr: string | null
+    bsrCode: string | null
+    address1En: string | null
+    address2En: string | null
+    districtEn: string | null
+    address1Ta: string | null
+    address2Ta: string | null
+    districtTa: string | null
+    address1Hi: string | null
+    address2Hi: string | null
+    districtHi: string | null
+    pincode: string | null
+    phone: string | null
+    email: string | null
     latitude: number | null
     longitude: number | null
-    pincode: string | null
+    parentCode: string | null
     headUserId: string | null
     secondLineUserId: string | null
-    addressHi: string | null
-    addressTa: string | null
-    email: string | null
-    phone: string | null
-    size: string | null
+    sNo: number | null
+    specialStatus: string | null
   }
 
   export type BranchCountAggregateOutputType = {
-    id: number
-    sNo: number
     code: number
     officeId: number
     nameEn: number
     nameTa: number
     nameHi: number
     type: number
+    size: number
     openDate: number
-    district: number
     populationGroup: number
     riskCategory: number
     riskEffectiveDate: number
-    specialStatus: number
+    prevRiskCategory: number
     ifsc: number
-    address: number
+    micr: number
+    bsrCode: number
+    address1En: number
+    address2En: number
+    districtEn: number
+    address1Ta: number
+    address2Ta: number
+    districtTa: number
+    address1Hi: number
+    address2Hi: number
+    districtHi: number
+    pincode: number
+    phone: number
+    email: number
     latitude: number
     longitude: number
-    pincode: number
+    parentCode: number
     headUserId: number
     secondLineUserId: number
-    addressHi: number
-    addressTa: number
-    email: number
-    phone: number
-    size: number
+    sNo: number
+    specialStatus: number
     _all: number
   }
 
 
   export type BranchAvgAggregateInputType = {
-    sNo?: true
     officeId?: true
     latitude?: true
     longitude?: true
+    sNo?: true
   }
 
   export type BranchSumAggregateInputType = {
-    sNo?: true
     officeId?: true
     latitude?: true
     longitude?: true
+    sNo?: true
   }
 
   export type BranchMinAggregateInputType = {
-    id?: true
-    sNo?: true
     code?: true
     officeId?: true
     nameEn?: true
     nameTa?: true
     nameHi?: true
     type?: true
+    size?: true
     openDate?: true
-    district?: true
     populationGroup?: true
     riskCategory?: true
     riskEffectiveDate?: true
-    specialStatus?: true
+    prevRiskCategory?: true
     ifsc?: true
-    address?: true
+    micr?: true
+    bsrCode?: true
+    address1En?: true
+    address2En?: true
+    districtEn?: true
+    address1Ta?: true
+    address2Ta?: true
+    districtTa?: true
+    address1Hi?: true
+    address2Hi?: true
+    districtHi?: true
+    pincode?: true
+    phone?: true
+    email?: true
     latitude?: true
     longitude?: true
-    pincode?: true
+    parentCode?: true
     headUserId?: true
     secondLineUserId?: true
-    addressHi?: true
-    addressTa?: true
-    email?: true
-    phone?: true
-    size?: true
+    sNo?: true
+    specialStatus?: true
   }
 
   export type BranchMaxAggregateInputType = {
-    id?: true
-    sNo?: true
     code?: true
     officeId?: true
     nameEn?: true
     nameTa?: true
     nameHi?: true
     type?: true
+    size?: true
     openDate?: true
-    district?: true
     populationGroup?: true
     riskCategory?: true
     riskEffectiveDate?: true
-    specialStatus?: true
+    prevRiskCategory?: true
     ifsc?: true
-    address?: true
+    micr?: true
+    bsrCode?: true
+    address1En?: true
+    address2En?: true
+    districtEn?: true
+    address1Ta?: true
+    address2Ta?: true
+    districtTa?: true
+    address1Hi?: true
+    address2Hi?: true
+    districtHi?: true
+    pincode?: true
+    phone?: true
+    email?: true
     latitude?: true
     longitude?: true
-    pincode?: true
+    parentCode?: true
     headUserId?: true
     secondLineUserId?: true
-    addressHi?: true
-    addressTa?: true
-    email?: true
-    phone?: true
-    size?: true
+    sNo?: true
+    specialStatus?: true
   }
 
   export type BranchCountAggregateInputType = {
-    id?: true
-    sNo?: true
     code?: true
     officeId?: true
     nameEn?: true
     nameTa?: true
     nameHi?: true
     type?: true
+    size?: true
     openDate?: true
-    district?: true
     populationGroup?: true
     riskCategory?: true
     riskEffectiveDate?: true
-    specialStatus?: true
+    prevRiskCategory?: true
     ifsc?: true
-    address?: true
+    micr?: true
+    bsrCode?: true
+    address1En?: true
+    address2En?: true
+    districtEn?: true
+    address1Ta?: true
+    address2Ta?: true
+    districtTa?: true
+    address1Hi?: true
+    address2Hi?: true
+    districtHi?: true
+    pincode?: true
+    phone?: true
+    email?: true
     latitude?: true
     longitude?: true
-    pincode?: true
+    parentCode?: true
     headUserId?: true
     secondLineUserId?: true
-    addressHi?: true
-    addressTa?: true
-    email?: true
-    phone?: true
-    size?: true
+    sNo?: true
+    specialStatus?: true
     _all?: true
   }
 
@@ -12948,32 +13376,40 @@ export namespace Prisma {
   }
 
   export type BranchGroupByOutputType = {
-    id: string
-    sNo: number | null
     code: string
     officeId: number | null
     nameEn: string
     nameTa: string | null
     nameHi: string | null
     type: string
+    size: string | null
     openDate: string | null
-    district: string | null
     populationGroup: string | null
     riskCategory: string | null
     riskEffectiveDate: Date | null
-    specialStatus: string | null
+    prevRiskCategory: string | null
     ifsc: string | null
-    address: string | null
+    micr: string | null
+    bsrCode: string | null
+    address1En: string | null
+    address2En: string | null
+    districtEn: string | null
+    address1Ta: string | null
+    address2Ta: string | null
+    districtTa: string | null
+    address1Hi: string | null
+    address2Hi: string | null
+    districtHi: string | null
+    pincode: string | null
+    phone: string | null
+    email: string | null
     latitude: number | null
     longitude: number | null
-    pincode: string | null
+    parentCode: string | null
     headUserId: string | null
     secondLineUserId: string | null
-    addressHi: string | null
-    addressTa: string | null
-    email: string | null
-    phone: string | null
-    size: string | null
+    sNo: number | null
+    specialStatus: string | null
     _count: BranchCountAggregateOutputType | null
     _avg: BranchAvgAggregateOutputType | null
     _sum: BranchSumAggregateOutputType | null
@@ -12996,32 +13432,42 @@ export namespace Prisma {
 
 
   export type BranchSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sNo?: boolean
     code?: boolean
     officeId?: boolean
     nameEn?: boolean
     nameTa?: boolean
     nameHi?: boolean
     type?: boolean
+    size?: boolean
     openDate?: boolean
-    district?: boolean
     populationGroup?: boolean
     riskCategory?: boolean
     riskEffectiveDate?: boolean
-    specialStatus?: boolean
+    prevRiskCategory?: boolean
     ifsc?: boolean
-    address?: boolean
+    micr?: boolean
+    bsrCode?: boolean
+    address1En?: boolean
+    address2En?: boolean
+    districtEn?: boolean
+    address1Ta?: boolean
+    address2Ta?: boolean
+    districtTa?: boolean
+    address1Hi?: boolean
+    address2Hi?: boolean
+    districtHi?: boolean
+    pincode?: boolean
+    phone?: boolean
+    email?: boolean
     latitude?: boolean
     longitude?: boolean
-    pincode?: boolean
+    parentCode?: boolean
     headUserId?: boolean
     secondLineUserId?: boolean
-    addressHi?: boolean
-    addressTa?: boolean
-    email?: boolean
-    phone?: boolean
-    size?: boolean
+    sNo?: boolean
+    specialStatus?: boolean
+    parent?: boolean | Branch$parentArgs<ExtArgs>
+    children?: boolean | Branch$childrenArgs<ExtArgs>
     accountClosures?: boolean | Branch$accountClosuresArgs<ExtArgs>
     accountOpenings?: boolean | Branch$accountOpeningsArgs<ExtArgs>
     atms?: boolean | Branch$atmsArgs<ExtArgs>
@@ -13046,102 +13492,132 @@ export namespace Prisma {
     regionalAssets?: boolean | Branch$regionalAssetsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
+    partners?: boolean | Branch$partnersArgs<ExtArgs>
+    lockers?: boolean | Branch$lockersArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sNo?: boolean
     code?: boolean
     officeId?: boolean
     nameEn?: boolean
     nameTa?: boolean
     nameHi?: boolean
     type?: boolean
+    size?: boolean
     openDate?: boolean
-    district?: boolean
     populationGroup?: boolean
     riskCategory?: boolean
     riskEffectiveDate?: boolean
-    specialStatus?: boolean
+    prevRiskCategory?: boolean
     ifsc?: boolean
-    address?: boolean
+    micr?: boolean
+    bsrCode?: boolean
+    address1En?: boolean
+    address2En?: boolean
+    districtEn?: boolean
+    address1Ta?: boolean
+    address2Ta?: boolean
+    districtTa?: boolean
+    address1Hi?: boolean
+    address2Hi?: boolean
+    districtHi?: boolean
+    pincode?: boolean
+    phone?: boolean
+    email?: boolean
     latitude?: boolean
     longitude?: boolean
-    pincode?: boolean
+    parentCode?: boolean
     headUserId?: boolean
     secondLineUserId?: boolean
-    addressHi?: boolean
-    addressTa?: boolean
-    email?: boolean
-    phone?: boolean
-    size?: boolean
+    sNo?: boolean
+    specialStatus?: boolean
+    parent?: boolean | Branch$parentArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sNo?: boolean
     code?: boolean
     officeId?: boolean
     nameEn?: boolean
     nameTa?: boolean
     nameHi?: boolean
     type?: boolean
+    size?: boolean
     openDate?: boolean
-    district?: boolean
     populationGroup?: boolean
     riskCategory?: boolean
     riskEffectiveDate?: boolean
-    specialStatus?: boolean
+    prevRiskCategory?: boolean
     ifsc?: boolean
-    address?: boolean
+    micr?: boolean
+    bsrCode?: boolean
+    address1En?: boolean
+    address2En?: boolean
+    districtEn?: boolean
+    address1Ta?: boolean
+    address2Ta?: boolean
+    districtTa?: boolean
+    address1Hi?: boolean
+    address2Hi?: boolean
+    districtHi?: boolean
+    pincode?: boolean
+    phone?: boolean
+    email?: boolean
     latitude?: boolean
     longitude?: boolean
-    pincode?: boolean
+    parentCode?: boolean
     headUserId?: boolean
     secondLineUserId?: boolean
-    addressHi?: boolean
-    addressTa?: boolean
-    email?: boolean
-    phone?: boolean
-    size?: boolean
+    sNo?: boolean
+    specialStatus?: boolean
+    parent?: boolean | Branch$parentArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectScalar = {
-    id?: boolean
-    sNo?: boolean
     code?: boolean
     officeId?: boolean
     nameEn?: boolean
     nameTa?: boolean
     nameHi?: boolean
     type?: boolean
+    size?: boolean
     openDate?: boolean
-    district?: boolean
     populationGroup?: boolean
     riskCategory?: boolean
     riskEffectiveDate?: boolean
-    specialStatus?: boolean
+    prevRiskCategory?: boolean
     ifsc?: boolean
-    address?: boolean
+    micr?: boolean
+    bsrCode?: boolean
+    address1En?: boolean
+    address2En?: boolean
+    districtEn?: boolean
+    address1Ta?: boolean
+    address2Ta?: boolean
+    districtTa?: boolean
+    address1Hi?: boolean
+    address2Hi?: boolean
+    districtHi?: boolean
+    pincode?: boolean
+    phone?: boolean
+    email?: boolean
     latitude?: boolean
     longitude?: boolean
-    pincode?: boolean
+    parentCode?: boolean
     headUserId?: boolean
     secondLineUserId?: boolean
-    addressHi?: boolean
-    addressTa?: boolean
-    email?: boolean
-    phone?: boolean
-    size?: boolean
+    sNo?: boolean
+    specialStatus?: boolean
   }
 
-  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sNo" | "code" | "officeId" | "nameEn" | "nameTa" | "nameHi" | "type" | "openDate" | "district" | "populationGroup" | "riskCategory" | "riskEffectiveDate" | "specialStatus" | "ifsc" | "address" | "latitude" | "longitude" | "pincode" | "headUserId" | "secondLineUserId" | "addressHi" | "addressTa" | "email" | "phone" | "size", ExtArgs["result"]["branch"]>
+  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"code" | "officeId" | "nameEn" | "nameTa" | "nameHi" | "type" | "size" | "openDate" | "populationGroup" | "riskCategory" | "riskEffectiveDate" | "prevRiskCategory" | "ifsc" | "micr" | "bsrCode" | "address1En" | "address2En" | "districtEn" | "address1Ta" | "address2Ta" | "districtTa" | "address1Hi" | "address2Hi" | "districtHi" | "pincode" | "phone" | "email" | "latitude" | "longitude" | "parentCode" | "headUserId" | "secondLineUserId" | "sNo" | "specialStatus", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | Branch$parentArgs<ExtArgs>
+    children?: boolean | Branch$childrenArgs<ExtArgs>
     accountClosures?: boolean | Branch$accountClosuresArgs<ExtArgs>
     accountOpenings?: boolean | Branch$accountOpeningsArgs<ExtArgs>
     atms?: boolean | Branch$atmsArgs<ExtArgs>
@@ -13166,13 +13642,17 @@ export namespace Prisma {
     regionalAssets?: boolean | Branch$regionalAssetsArgs<ExtArgs>
     stationeryMovements?: boolean | Branch$stationeryMovementsArgs<ExtArgs>
     users?: boolean | Branch$usersArgs<ExtArgs>
+    partners?: boolean | Branch$partnersArgs<ExtArgs>
+    lockers?: boolean | Branch$lockersArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | Branch$parentArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
   }
   export type BranchIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parent?: boolean | Branch$parentArgs<ExtArgs>
     headUser?: boolean | Branch$headUserArgs<ExtArgs>
     secondLineUser?: boolean | Branch$secondLineUserArgs<ExtArgs>
   }
@@ -13180,6 +13660,8 @@ export namespace Prisma {
   export type $BranchPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Branch"
     objects: {
+      parent: Prisma.$BranchPayload<ExtArgs> | null
+      children: Prisma.$BranchPayload<ExtArgs>[]
       accountClosures: Prisma.$AccountClosurePayload<ExtArgs>[]
       accountOpenings: Prisma.$AccountOpeningPayload<ExtArgs>[]
       atms: Prisma.$AtmPayload<ExtArgs>[]
@@ -13204,34 +13686,44 @@ export namespace Prisma {
       regionalAssets: Prisma.$RegionalAssetPayload<ExtArgs>[]
       stationeryMovements: Prisma.$StationeryMovementPayload<ExtArgs>[]
       users: Prisma.$UserPayload<ExtArgs>[]
+      partners: Prisma.$ServicePartnerPayload<ExtArgs>[]
+      lockers: Prisma.$LockerPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      sNo: number | null
       code: string
       officeId: number | null
       nameEn: string
       nameTa: string | null
       nameHi: string | null
       type: string
+      size: string | null
       openDate: string | null
-      district: string | null
       populationGroup: string | null
       riskCategory: string | null
       riskEffectiveDate: Date | null
-      specialStatus: string | null
+      prevRiskCategory: string | null
       ifsc: string | null
-      address: string | null
+      micr: string | null
+      bsrCode: string | null
+      address1En: string | null
+      address2En: string | null
+      districtEn: string | null
+      address1Ta: string | null
+      address2Ta: string | null
+      districtTa: string | null
+      address1Hi: string | null
+      address2Hi: string | null
+      districtHi: string | null
+      pincode: string | null
+      phone: string | null
+      email: string | null
       latitude: number | null
       longitude: number | null
-      pincode: string | null
+      parentCode: string | null
       headUserId: string | null
       secondLineUserId: string | null
-      addressHi: string | null
-      addressTa: string | null
-      email: string | null
-      phone: string | null
-      size: string | null
+      sNo: number | null
+      specialStatus: string | null
     }, ExtArgs["result"]["branch"]>
     composites: {}
   }
@@ -13315,8 +13807,8 @@ export namespace Prisma {
      * // Get first 10 Branches
      * const branches = await prisma.branch.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const branchWithIdOnly = await prisma.branch.findMany({ select: { id: true } })
+     * // Only select the `code`
+     * const branchWithCodeOnly = await prisma.branch.findMany({ select: { code: true } })
      * 
      */
     findMany<T extends BranchFindManyArgs>(args?: SelectSubset<T, BranchFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -13360,9 +13852,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Branches and only return the `id`
-     * const branchWithIdOnly = await prisma.branch.createManyAndReturn({
-     *   select: { id: true },
+     * // Create many Branches and only return the `code`
+     * const branchWithCodeOnly = await prisma.branch.createManyAndReturn({
+     *   select: { code: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -13451,9 +13943,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Branches and only return the `id`
-     * const branchWithIdOnly = await prisma.branch.updateManyAndReturn({
-     *   select: { id: true },
+     * // Update zero or more Branches and only return the `code`
+     * const branchWithCodeOnly = await prisma.branch.updateManyAndReturn({
+     *   select: { code: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13626,6 +14118,8 @@ export namespace Prisma {
    */
   export interface Prisma__BranchClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    parent<T extends Branch$parentArgs<ExtArgs> = {}>(args?: Subset<T, Branch$parentArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    children<T extends Branch$childrenArgs<ExtArgs> = {}>(args?: Subset<T, Branch$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountClosures<T extends Branch$accountClosuresArgs<ExtArgs> = {}>(args?: Subset<T, Branch$accountClosuresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountClosurePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     accountOpenings<T extends Branch$accountOpeningsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$accountOpeningsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountOpeningPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     atms<T extends Branch$atmsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$atmsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtmPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -13650,6 +14144,8 @@ export namespace Prisma {
     regionalAssets<T extends Branch$regionalAssetsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$regionalAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegionalAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stationeryMovements<T extends Branch$stationeryMovementsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$stationeryMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StationeryMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     users<T extends Branch$usersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    partners<T extends Branch$partnersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$partnersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    lockers<T extends Branch$lockersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$lockersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13679,32 +14175,40 @@ export namespace Prisma {
    * Fields of the Branch model
    */
   interface BranchFieldRefs {
-    readonly id: FieldRef<"Branch", 'String'>
-    readonly sNo: FieldRef<"Branch", 'Int'>
     readonly code: FieldRef<"Branch", 'String'>
     readonly officeId: FieldRef<"Branch", 'Int'>
     readonly nameEn: FieldRef<"Branch", 'String'>
     readonly nameTa: FieldRef<"Branch", 'String'>
     readonly nameHi: FieldRef<"Branch", 'String'>
     readonly type: FieldRef<"Branch", 'String'>
+    readonly size: FieldRef<"Branch", 'String'>
     readonly openDate: FieldRef<"Branch", 'String'>
-    readonly district: FieldRef<"Branch", 'String'>
     readonly populationGroup: FieldRef<"Branch", 'String'>
     readonly riskCategory: FieldRef<"Branch", 'String'>
     readonly riskEffectiveDate: FieldRef<"Branch", 'DateTime'>
-    readonly specialStatus: FieldRef<"Branch", 'String'>
+    readonly prevRiskCategory: FieldRef<"Branch", 'String'>
     readonly ifsc: FieldRef<"Branch", 'String'>
-    readonly address: FieldRef<"Branch", 'String'>
+    readonly micr: FieldRef<"Branch", 'String'>
+    readonly bsrCode: FieldRef<"Branch", 'String'>
+    readonly address1En: FieldRef<"Branch", 'String'>
+    readonly address2En: FieldRef<"Branch", 'String'>
+    readonly districtEn: FieldRef<"Branch", 'String'>
+    readonly address1Ta: FieldRef<"Branch", 'String'>
+    readonly address2Ta: FieldRef<"Branch", 'String'>
+    readonly districtTa: FieldRef<"Branch", 'String'>
+    readonly address1Hi: FieldRef<"Branch", 'String'>
+    readonly address2Hi: FieldRef<"Branch", 'String'>
+    readonly districtHi: FieldRef<"Branch", 'String'>
+    readonly pincode: FieldRef<"Branch", 'String'>
+    readonly phone: FieldRef<"Branch", 'String'>
+    readonly email: FieldRef<"Branch", 'String'>
     readonly latitude: FieldRef<"Branch", 'Float'>
     readonly longitude: FieldRef<"Branch", 'Float'>
-    readonly pincode: FieldRef<"Branch", 'String'>
+    readonly parentCode: FieldRef<"Branch", 'String'>
     readonly headUserId: FieldRef<"Branch", 'String'>
     readonly secondLineUserId: FieldRef<"Branch", 'String'>
-    readonly addressHi: FieldRef<"Branch", 'String'>
-    readonly addressTa: FieldRef<"Branch", 'String'>
-    readonly email: FieldRef<"Branch", 'String'>
-    readonly phone: FieldRef<"Branch", 'String'>
-    readonly size: FieldRef<"Branch", 'String'>
+    readonly sNo: FieldRef<"Branch", 'Int'>
+    readonly specialStatus: FieldRef<"Branch", 'String'>
   }
     
 
@@ -14103,6 +14607,49 @@ export namespace Prisma {
      * Limit how many Branches to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Branch.parent
+   */
+  export type Branch$parentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
+  }
+
+  /**
+   * Branch.children
+   */
+  export type Branch$childrenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Branch
+     */
+    select?: BranchSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Branch
+     */
+    omit?: BranchOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BranchInclude<ExtArgs> | null
+    where?: BranchWhereInput
+    orderBy?: BranchOrderByWithRelationInput | BranchOrderByWithRelationInput[]
+    cursor?: BranchWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BranchScalarFieldEnum | BranchScalarFieldEnum[]
   }
 
   /**
@@ -14669,6 +15216,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.partners
+   */
+  export type Branch$partnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    where?: ServicePartnerWhereInput
+    orderBy?: ServicePartnerOrderByWithRelationInput | ServicePartnerOrderByWithRelationInput[]
+    cursor?: ServicePartnerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ServicePartnerScalarFieldEnum | ServicePartnerScalarFieldEnum[]
+  }
+
+  /**
+   * Branch.lockers
+   */
+  export type Branch$lockersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    where?: LockerWhereInput
+    orderBy?: LockerOrderByWithRelationInput | LockerOrderByWithRelationInput[]
+    cursor?: LockerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LockerScalarFieldEnum | LockerScalarFieldEnum[]
   }
 
   /**
@@ -17061,6 +17656,1156 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: DesignationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Grade
+   */
+
+  export type AggregateGrade = {
+    _count: GradeCountAggregateOutputType | null
+    _avg: GradeAvgAggregateOutputType | null
+    _sum: GradeSumAggregateOutputType | null
+    _min: GradeMinAggregateOutputType | null
+    _max: GradeMaxAggregateOutputType | null
+  }
+
+  export type GradeAvgAggregateOutputType = {
+    seniorityLevel: number | null
+  }
+
+  export type GradeSumAggregateOutputType = {
+    seniorityLevel: number | null
+  }
+
+  export type GradeMinAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    seniorityLevel: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GradeMaxAggregateOutputType = {
+    id: string | null
+    code: string | null
+    name: string | null
+    seniorityLevel: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GradeCountAggregateOutputType = {
+    id: number
+    code: number
+    name: number
+    seniorityLevel: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GradeAvgAggregateInputType = {
+    seniorityLevel?: true
+  }
+
+  export type GradeSumAggregateInputType = {
+    seniorityLevel?: true
+  }
+
+  export type GradeMinAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    seniorityLevel?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GradeMaxAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    seniorityLevel?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GradeCountAggregateInputType = {
+    id?: true
+    code?: true
+    name?: true
+    seniorityLevel?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GradeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Grade to aggregate.
+     */
+    where?: GradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Grades to fetch.
+     */
+    orderBy?: GradeOrderByWithRelationInput | GradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Grades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Grades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Grades
+    **/
+    _count?: true | GradeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GradeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GradeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GradeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GradeMaxAggregateInputType
+  }
+
+  export type GetGradeAggregateType<T extends GradeAggregateArgs> = {
+        [P in keyof T & keyof AggregateGrade]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGrade[P]>
+      : GetScalarType<T[P], AggregateGrade[P]>
+  }
+
+
+
+
+  export type GradeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GradeWhereInput
+    orderBy?: GradeOrderByWithAggregationInput | GradeOrderByWithAggregationInput[]
+    by: GradeScalarFieldEnum[] | GradeScalarFieldEnum
+    having?: GradeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GradeCountAggregateInputType | true
+    _avg?: GradeAvgAggregateInputType
+    _sum?: GradeSumAggregateInputType
+    _min?: GradeMinAggregateInputType
+    _max?: GradeMaxAggregateInputType
+  }
+
+  export type GradeGroupByOutputType = {
+    id: string
+    code: string
+    name: string
+    seniorityLevel: number
+    createdAt: Date
+    updatedAt: Date
+    _count: GradeCountAggregateOutputType | null
+    _avg: GradeAvgAggregateOutputType | null
+    _sum: GradeSumAggregateOutputType | null
+    _min: GradeMinAggregateOutputType | null
+    _max: GradeMaxAggregateOutputType | null
+  }
+
+  type GetGradeGroupByPayload<T extends GradeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GradeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GradeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GradeGroupByOutputType[P]>
+            : GetScalarType<T[P], GradeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GradeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    seniorityLevel?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    users?: boolean | Grade$usersArgs<ExtArgs>
+    postingHistories?: boolean | Grade$postingHistoriesArgs<ExtArgs>
+    _count?: boolean | GradeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["grade"]>
+
+  export type GradeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    seniorityLevel?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["grade"]>
+
+  export type GradeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    seniorityLevel?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["grade"]>
+
+  export type GradeSelectScalar = {
+    id?: boolean
+    code?: boolean
+    name?: boolean
+    seniorityLevel?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GradeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "seniorityLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["grade"]>
+  export type GradeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | Grade$usersArgs<ExtArgs>
+    postingHistories?: boolean | Grade$postingHistoriesArgs<ExtArgs>
+    _count?: boolean | GradeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type GradeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type GradeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $GradePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Grade"
+    objects: {
+      users: Prisma.$UserPayload<ExtArgs>[]
+      postingHistories: Prisma.$PostingHistoryPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      code: string
+      name: string
+      seniorityLevel: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["grade"]>
+    composites: {}
+  }
+
+  type GradeGetPayload<S extends boolean | null | undefined | GradeDefaultArgs> = $Result.GetResult<Prisma.$GradePayload, S>
+
+  type GradeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GradeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GradeCountAggregateInputType | true
+    }
+
+  export interface GradeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Grade'], meta: { name: 'Grade' } }
+    /**
+     * Find zero or one Grade that matches the filter.
+     * @param {GradeFindUniqueArgs} args - Arguments to find a Grade
+     * @example
+     * // Get one Grade
+     * const grade = await prisma.grade.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GradeFindUniqueArgs>(args: SelectSubset<T, GradeFindUniqueArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Grade that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GradeFindUniqueOrThrowArgs} args - Arguments to find a Grade
+     * @example
+     * // Get one Grade
+     * const grade = await prisma.grade.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GradeFindUniqueOrThrowArgs>(args: SelectSubset<T, GradeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Grade that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeFindFirstArgs} args - Arguments to find a Grade
+     * @example
+     * // Get one Grade
+     * const grade = await prisma.grade.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GradeFindFirstArgs>(args?: SelectSubset<T, GradeFindFirstArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Grade that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeFindFirstOrThrowArgs} args - Arguments to find a Grade
+     * @example
+     * // Get one Grade
+     * const grade = await prisma.grade.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GradeFindFirstOrThrowArgs>(args?: SelectSubset<T, GradeFindFirstOrThrowArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Grades that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Grades
+     * const grades = await prisma.grade.findMany()
+     * 
+     * // Get first 10 Grades
+     * const grades = await prisma.grade.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gradeWithIdOnly = await prisma.grade.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GradeFindManyArgs>(args?: SelectSubset<T, GradeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Grade.
+     * @param {GradeCreateArgs} args - Arguments to create a Grade.
+     * @example
+     * // Create one Grade
+     * const Grade = await prisma.grade.create({
+     *   data: {
+     *     // ... data to create a Grade
+     *   }
+     * })
+     * 
+     */
+    create<T extends GradeCreateArgs>(args: SelectSubset<T, GradeCreateArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Grades.
+     * @param {GradeCreateManyArgs} args - Arguments to create many Grades.
+     * @example
+     * // Create many Grades
+     * const grade = await prisma.grade.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GradeCreateManyArgs>(args?: SelectSubset<T, GradeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Grades and returns the data saved in the database.
+     * @param {GradeCreateManyAndReturnArgs} args - Arguments to create many Grades.
+     * @example
+     * // Create many Grades
+     * const grade = await prisma.grade.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Grades and only return the `id`
+     * const gradeWithIdOnly = await prisma.grade.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GradeCreateManyAndReturnArgs>(args?: SelectSubset<T, GradeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Grade.
+     * @param {GradeDeleteArgs} args - Arguments to delete one Grade.
+     * @example
+     * // Delete one Grade
+     * const Grade = await prisma.grade.delete({
+     *   where: {
+     *     // ... filter to delete one Grade
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GradeDeleteArgs>(args: SelectSubset<T, GradeDeleteArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Grade.
+     * @param {GradeUpdateArgs} args - Arguments to update one Grade.
+     * @example
+     * // Update one Grade
+     * const grade = await prisma.grade.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GradeUpdateArgs>(args: SelectSubset<T, GradeUpdateArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Grades.
+     * @param {GradeDeleteManyArgs} args - Arguments to filter Grades to delete.
+     * @example
+     * // Delete a few Grades
+     * const { count } = await prisma.grade.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GradeDeleteManyArgs>(args?: SelectSubset<T, GradeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Grades.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Grades
+     * const grade = await prisma.grade.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GradeUpdateManyArgs>(args: SelectSubset<T, GradeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Grades and returns the data updated in the database.
+     * @param {GradeUpdateManyAndReturnArgs} args - Arguments to update many Grades.
+     * @example
+     * // Update many Grades
+     * const grade = await prisma.grade.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Grades and only return the `id`
+     * const gradeWithIdOnly = await prisma.grade.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GradeUpdateManyAndReturnArgs>(args: SelectSubset<T, GradeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Grade.
+     * @param {GradeUpsertArgs} args - Arguments to update or create a Grade.
+     * @example
+     * // Update or create a Grade
+     * const grade = await prisma.grade.upsert({
+     *   create: {
+     *     // ... data to create a Grade
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Grade we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GradeUpsertArgs>(args: SelectSubset<T, GradeUpsertArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Grades.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeCountArgs} args - Arguments to filter Grades to count.
+     * @example
+     * // Count the number of Grades
+     * const count = await prisma.grade.count({
+     *   where: {
+     *     // ... the filter for the Grades we want to count
+     *   }
+     * })
+    **/
+    count<T extends GradeCountArgs>(
+      args?: Subset<T, GradeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GradeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Grade.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GradeAggregateArgs>(args: Subset<T, GradeAggregateArgs>): Prisma.PrismaPromise<GetGradeAggregateType<T>>
+
+    /**
+     * Group by Grade.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GradeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GradeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GradeGroupByArgs['orderBy'] }
+        : { orderBy?: GradeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GradeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGradeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Grade model
+   */
+  readonly fields: GradeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Grade.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GradeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    users<T extends Grade$usersArgs<ExtArgs> = {}>(args?: Subset<T, Grade$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    postingHistories<T extends Grade$postingHistoriesArgs<ExtArgs> = {}>(args?: Subset<T, Grade$postingHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostingHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Grade model
+   */
+  interface GradeFieldRefs {
+    readonly id: FieldRef<"Grade", 'String'>
+    readonly code: FieldRef<"Grade", 'String'>
+    readonly name: FieldRef<"Grade", 'String'>
+    readonly seniorityLevel: FieldRef<"Grade", 'Int'>
+    readonly createdAt: FieldRef<"Grade", 'DateTime'>
+    readonly updatedAt: FieldRef<"Grade", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Grade findUnique
+   */
+  export type GradeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter, which Grade to fetch.
+     */
+    where: GradeWhereUniqueInput
+  }
+
+  /**
+   * Grade findUniqueOrThrow
+   */
+  export type GradeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter, which Grade to fetch.
+     */
+    where: GradeWhereUniqueInput
+  }
+
+  /**
+   * Grade findFirst
+   */
+  export type GradeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter, which Grade to fetch.
+     */
+    where?: GradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Grades to fetch.
+     */
+    orderBy?: GradeOrderByWithRelationInput | GradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Grades.
+     */
+    cursor?: GradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Grades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Grades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Grades.
+     */
+    distinct?: GradeScalarFieldEnum | GradeScalarFieldEnum[]
+  }
+
+  /**
+   * Grade findFirstOrThrow
+   */
+  export type GradeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter, which Grade to fetch.
+     */
+    where?: GradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Grades to fetch.
+     */
+    orderBy?: GradeOrderByWithRelationInput | GradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Grades.
+     */
+    cursor?: GradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Grades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Grades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Grades.
+     */
+    distinct?: GradeScalarFieldEnum | GradeScalarFieldEnum[]
+  }
+
+  /**
+   * Grade findMany
+   */
+  export type GradeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter, which Grades to fetch.
+     */
+    where?: GradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Grades to fetch.
+     */
+    orderBy?: GradeOrderByWithRelationInput | GradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Grades.
+     */
+    cursor?: GradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Grades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Grades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Grades.
+     */
+    distinct?: GradeScalarFieldEnum | GradeScalarFieldEnum[]
+  }
+
+  /**
+   * Grade create
+   */
+  export type GradeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Grade.
+     */
+    data: XOR<GradeCreateInput, GradeUncheckedCreateInput>
+  }
+
+  /**
+   * Grade createMany
+   */
+  export type GradeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Grades.
+     */
+    data: GradeCreateManyInput | GradeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Grade createManyAndReturn
+   */
+  export type GradeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * The data used to create many Grades.
+     */
+    data: GradeCreateManyInput | GradeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Grade update
+   */
+  export type GradeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Grade.
+     */
+    data: XOR<GradeUpdateInput, GradeUncheckedUpdateInput>
+    /**
+     * Choose, which Grade to update.
+     */
+    where: GradeWhereUniqueInput
+  }
+
+  /**
+   * Grade updateMany
+   */
+  export type GradeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Grades.
+     */
+    data: XOR<GradeUpdateManyMutationInput, GradeUncheckedUpdateManyInput>
+    /**
+     * Filter which Grades to update
+     */
+    where?: GradeWhereInput
+    /**
+     * Limit how many Grades to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Grade updateManyAndReturn
+   */
+  export type GradeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * The data used to update Grades.
+     */
+    data: XOR<GradeUpdateManyMutationInput, GradeUncheckedUpdateManyInput>
+    /**
+     * Filter which Grades to update
+     */
+    where?: GradeWhereInput
+    /**
+     * Limit how many Grades to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Grade upsert
+   */
+  export type GradeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Grade to update in case it exists.
+     */
+    where: GradeWhereUniqueInput
+    /**
+     * In case the Grade found by the `where` argument doesn't exist, create a new Grade with this data.
+     */
+    create: XOR<GradeCreateInput, GradeUncheckedCreateInput>
+    /**
+     * In case the Grade was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GradeUpdateInput, GradeUncheckedUpdateInput>
+  }
+
+  /**
+   * Grade delete
+   */
+  export type GradeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    /**
+     * Filter which Grade to delete.
+     */
+    where: GradeWhereUniqueInput
+  }
+
+  /**
+   * Grade deleteMany
+   */
+  export type GradeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Grades to delete
+     */
+    where?: GradeWhereInput
+    /**
+     * Limit how many Grades to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Grade.users
+   */
+  export type Grade$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Grade.postingHistories
+   */
+  export type Grade$postingHistoriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostingHistory
+     */
+    select?: PostingHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostingHistory
+     */
+    omit?: PostingHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostingHistoryInclude<ExtArgs> | null
+    where?: PostingHistoryWhereInput
+    orderBy?: PostingHistoryOrderByWithRelationInput | PostingHistoryOrderByWithRelationInput[]
+    cursor?: PostingHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PostingHistoryScalarFieldEnum | PostingHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * Grade without action
+   */
+  export type GradeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
   }
 
 
@@ -29951,6 +31696,2262 @@ export namespace Prisma {
 
 
   /**
+   * Model ServicePartner
+   */
+
+  export type AggregateServicePartner = {
+    _count: ServicePartnerCountAggregateOutputType | null
+    _min: ServicePartnerMinAggregateOutputType | null
+    _max: ServicePartnerMaxAggregateOutputType | null
+  }
+
+  export type ServicePartnerMinAggregateOutputType = {
+    id: string | null
+    type: string | null
+    nameEn: string | null
+    nameTa: string | null
+    nameHi: string | null
+    registrationNo: string | null
+    phone: string | null
+    email: string | null
+    status: string | null
+    branchId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServicePartnerMaxAggregateOutputType = {
+    id: string | null
+    type: string | null
+    nameEn: string | null
+    nameTa: string | null
+    nameHi: string | null
+    registrationNo: string | null
+    phone: string | null
+    email: string | null
+    status: string | null
+    branchId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServicePartnerCountAggregateOutputType = {
+    id: number
+    type: number
+    nameEn: number
+    nameTa: number
+    nameHi: number
+    registrationNo: number
+    phone: number
+    email: number
+    status: number
+    branchId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ServicePartnerMinAggregateInputType = {
+    id?: true
+    type?: true
+    nameEn?: true
+    nameTa?: true
+    nameHi?: true
+    registrationNo?: true
+    phone?: true
+    email?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServicePartnerMaxAggregateInputType = {
+    id?: true
+    type?: true
+    nameEn?: true
+    nameTa?: true
+    nameHi?: true
+    registrationNo?: true
+    phone?: true
+    email?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServicePartnerCountAggregateInputType = {
+    id?: true
+    type?: true
+    nameEn?: true
+    nameTa?: true
+    nameHi?: true
+    registrationNo?: true
+    phone?: true
+    email?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ServicePartnerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServicePartner to aggregate.
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServicePartners to fetch.
+     */
+    orderBy?: ServicePartnerOrderByWithRelationInput | ServicePartnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ServicePartnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServicePartners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServicePartners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ServicePartners
+    **/
+    _count?: true | ServicePartnerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ServicePartnerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ServicePartnerMaxAggregateInputType
+  }
+
+  export type GetServicePartnerAggregateType<T extends ServicePartnerAggregateArgs> = {
+        [P in keyof T & keyof AggregateServicePartner]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateServicePartner[P]>
+      : GetScalarType<T[P], AggregateServicePartner[P]>
+  }
+
+
+
+
+  export type ServicePartnerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ServicePartnerWhereInput
+    orderBy?: ServicePartnerOrderByWithAggregationInput | ServicePartnerOrderByWithAggregationInput[]
+    by: ServicePartnerScalarFieldEnum[] | ServicePartnerScalarFieldEnum
+    having?: ServicePartnerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ServicePartnerCountAggregateInputType | true
+    _min?: ServicePartnerMinAggregateInputType
+    _max?: ServicePartnerMaxAggregateInputType
+  }
+
+  export type ServicePartnerGroupByOutputType = {
+    id: string
+    type: string
+    nameEn: string
+    nameTa: string | null
+    nameHi: string | null
+    registrationNo: string | null
+    phone: string | null
+    email: string | null
+    status: string
+    branchId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ServicePartnerCountAggregateOutputType | null
+    _min: ServicePartnerMinAggregateOutputType | null
+    _max: ServicePartnerMaxAggregateOutputType | null
+  }
+
+  type GetServicePartnerGroupByPayload<T extends ServicePartnerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ServicePartnerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ServicePartnerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ServicePartnerGroupByOutputType[P]>
+            : GetScalarType<T[P], ServicePartnerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ServicePartnerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    nameEn?: boolean
+    nameTa?: boolean
+    nameHi?: boolean
+    registrationNo?: boolean
+    phone?: boolean
+    email?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["servicePartner"]>
+
+  export type ServicePartnerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    nameEn?: boolean
+    nameTa?: boolean
+    nameHi?: boolean
+    registrationNo?: boolean
+    phone?: boolean
+    email?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["servicePartner"]>
+
+  export type ServicePartnerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    nameEn?: boolean
+    nameTa?: boolean
+    nameHi?: boolean
+    registrationNo?: boolean
+    phone?: boolean
+    email?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["servicePartner"]>
+
+  export type ServicePartnerSelectScalar = {
+    id?: boolean
+    type?: boolean
+    nameEn?: boolean
+    nameTa?: boolean
+    nameHi?: boolean
+    registrationNo?: boolean
+    phone?: boolean
+    email?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ServicePartnerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "nameEn" | "nameTa" | "nameHi" | "registrationNo" | "phone" | "email" | "status" | "branchId" | "createdAt" | "updatedAt", ExtArgs["result"]["servicePartner"]>
+  export type ServicePartnerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type ServicePartnerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type ServicePartnerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+
+  export type $ServicePartnerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ServicePartner"
+    objects: {
+      branch: Prisma.$BranchPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: string
+      nameEn: string
+      nameTa: string | null
+      nameHi: string | null
+      registrationNo: string | null
+      phone: string | null
+      email: string | null
+      status: string
+      branchId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["servicePartner"]>
+    composites: {}
+  }
+
+  type ServicePartnerGetPayload<S extends boolean | null | undefined | ServicePartnerDefaultArgs> = $Result.GetResult<Prisma.$ServicePartnerPayload, S>
+
+  type ServicePartnerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ServicePartnerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ServicePartnerCountAggregateInputType | true
+    }
+
+  export interface ServicePartnerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServicePartner'], meta: { name: 'ServicePartner' } }
+    /**
+     * Find zero or one ServicePartner that matches the filter.
+     * @param {ServicePartnerFindUniqueArgs} args - Arguments to find a ServicePartner
+     * @example
+     * // Get one ServicePartner
+     * const servicePartner = await prisma.servicePartner.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ServicePartnerFindUniqueArgs>(args: SelectSubset<T, ServicePartnerFindUniqueArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ServicePartner that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ServicePartnerFindUniqueOrThrowArgs} args - Arguments to find a ServicePartner
+     * @example
+     * // Get one ServicePartner
+     * const servicePartner = await prisma.servicePartner.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ServicePartnerFindUniqueOrThrowArgs>(args: SelectSubset<T, ServicePartnerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServicePartner that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerFindFirstArgs} args - Arguments to find a ServicePartner
+     * @example
+     * // Get one ServicePartner
+     * const servicePartner = await prisma.servicePartner.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ServicePartnerFindFirstArgs>(args?: SelectSubset<T, ServicePartnerFindFirstArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ServicePartner that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerFindFirstOrThrowArgs} args - Arguments to find a ServicePartner
+     * @example
+     * // Get one ServicePartner
+     * const servicePartner = await prisma.servicePartner.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ServicePartnerFindFirstOrThrowArgs>(args?: SelectSubset<T, ServicePartnerFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ServicePartners that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ServicePartners
+     * const servicePartners = await prisma.servicePartner.findMany()
+     * 
+     * // Get first 10 ServicePartners
+     * const servicePartners = await prisma.servicePartner.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const servicePartnerWithIdOnly = await prisma.servicePartner.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ServicePartnerFindManyArgs>(args?: SelectSubset<T, ServicePartnerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ServicePartner.
+     * @param {ServicePartnerCreateArgs} args - Arguments to create a ServicePartner.
+     * @example
+     * // Create one ServicePartner
+     * const ServicePartner = await prisma.servicePartner.create({
+     *   data: {
+     *     // ... data to create a ServicePartner
+     *   }
+     * })
+     * 
+     */
+    create<T extends ServicePartnerCreateArgs>(args: SelectSubset<T, ServicePartnerCreateArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ServicePartners.
+     * @param {ServicePartnerCreateManyArgs} args - Arguments to create many ServicePartners.
+     * @example
+     * // Create many ServicePartners
+     * const servicePartner = await prisma.servicePartner.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ServicePartnerCreateManyArgs>(args?: SelectSubset<T, ServicePartnerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ServicePartners and returns the data saved in the database.
+     * @param {ServicePartnerCreateManyAndReturnArgs} args - Arguments to create many ServicePartners.
+     * @example
+     * // Create many ServicePartners
+     * const servicePartner = await prisma.servicePartner.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ServicePartners and only return the `id`
+     * const servicePartnerWithIdOnly = await prisma.servicePartner.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ServicePartnerCreateManyAndReturnArgs>(args?: SelectSubset<T, ServicePartnerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ServicePartner.
+     * @param {ServicePartnerDeleteArgs} args - Arguments to delete one ServicePartner.
+     * @example
+     * // Delete one ServicePartner
+     * const ServicePartner = await prisma.servicePartner.delete({
+     *   where: {
+     *     // ... filter to delete one ServicePartner
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ServicePartnerDeleteArgs>(args: SelectSubset<T, ServicePartnerDeleteArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ServicePartner.
+     * @param {ServicePartnerUpdateArgs} args - Arguments to update one ServicePartner.
+     * @example
+     * // Update one ServicePartner
+     * const servicePartner = await prisma.servicePartner.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ServicePartnerUpdateArgs>(args: SelectSubset<T, ServicePartnerUpdateArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ServicePartners.
+     * @param {ServicePartnerDeleteManyArgs} args - Arguments to filter ServicePartners to delete.
+     * @example
+     * // Delete a few ServicePartners
+     * const { count } = await prisma.servicePartner.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ServicePartnerDeleteManyArgs>(args?: SelectSubset<T, ServicePartnerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServicePartners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ServicePartners
+     * const servicePartner = await prisma.servicePartner.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ServicePartnerUpdateManyArgs>(args: SelectSubset<T, ServicePartnerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ServicePartners and returns the data updated in the database.
+     * @param {ServicePartnerUpdateManyAndReturnArgs} args - Arguments to update many ServicePartners.
+     * @example
+     * // Update many ServicePartners
+     * const servicePartner = await prisma.servicePartner.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ServicePartners and only return the `id`
+     * const servicePartnerWithIdOnly = await prisma.servicePartner.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ServicePartnerUpdateManyAndReturnArgs>(args: SelectSubset<T, ServicePartnerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ServicePartner.
+     * @param {ServicePartnerUpsertArgs} args - Arguments to update or create a ServicePartner.
+     * @example
+     * // Update or create a ServicePartner
+     * const servicePartner = await prisma.servicePartner.upsert({
+     *   create: {
+     *     // ... data to create a ServicePartner
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ServicePartner we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ServicePartnerUpsertArgs>(args: SelectSubset<T, ServicePartnerUpsertArgs<ExtArgs>>): Prisma__ServicePartnerClient<$Result.GetResult<Prisma.$ServicePartnerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ServicePartners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerCountArgs} args - Arguments to filter ServicePartners to count.
+     * @example
+     * // Count the number of ServicePartners
+     * const count = await prisma.servicePartner.count({
+     *   where: {
+     *     // ... the filter for the ServicePartners we want to count
+     *   }
+     * })
+    **/
+    count<T extends ServicePartnerCountArgs>(
+      args?: Subset<T, ServicePartnerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ServicePartnerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ServicePartner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ServicePartnerAggregateArgs>(args: Subset<T, ServicePartnerAggregateArgs>): Prisma.PrismaPromise<GetServicePartnerAggregateType<T>>
+
+    /**
+     * Group by ServicePartner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServicePartnerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ServicePartnerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ServicePartnerGroupByArgs['orderBy'] }
+        : { orderBy?: ServicePartnerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ServicePartnerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServicePartnerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ServicePartner model
+   */
+  readonly fields: ServicePartnerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ServicePartner.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ServicePartnerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ServicePartner model
+   */
+  interface ServicePartnerFieldRefs {
+    readonly id: FieldRef<"ServicePartner", 'String'>
+    readonly type: FieldRef<"ServicePartner", 'String'>
+    readonly nameEn: FieldRef<"ServicePartner", 'String'>
+    readonly nameTa: FieldRef<"ServicePartner", 'String'>
+    readonly nameHi: FieldRef<"ServicePartner", 'String'>
+    readonly registrationNo: FieldRef<"ServicePartner", 'String'>
+    readonly phone: FieldRef<"ServicePartner", 'String'>
+    readonly email: FieldRef<"ServicePartner", 'String'>
+    readonly status: FieldRef<"ServicePartner", 'String'>
+    readonly branchId: FieldRef<"ServicePartner", 'String'>
+    readonly createdAt: FieldRef<"ServicePartner", 'DateTime'>
+    readonly updatedAt: FieldRef<"ServicePartner", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ServicePartner findUnique
+   */
+  export type ServicePartnerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter, which ServicePartner to fetch.
+     */
+    where: ServicePartnerWhereUniqueInput
+  }
+
+  /**
+   * ServicePartner findUniqueOrThrow
+   */
+  export type ServicePartnerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter, which ServicePartner to fetch.
+     */
+    where: ServicePartnerWhereUniqueInput
+  }
+
+  /**
+   * ServicePartner findFirst
+   */
+  export type ServicePartnerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter, which ServicePartner to fetch.
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServicePartners to fetch.
+     */
+    orderBy?: ServicePartnerOrderByWithRelationInput | ServicePartnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServicePartners.
+     */
+    cursor?: ServicePartnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServicePartners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServicePartners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServicePartners.
+     */
+    distinct?: ServicePartnerScalarFieldEnum | ServicePartnerScalarFieldEnum[]
+  }
+
+  /**
+   * ServicePartner findFirstOrThrow
+   */
+  export type ServicePartnerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter, which ServicePartner to fetch.
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServicePartners to fetch.
+     */
+    orderBy?: ServicePartnerOrderByWithRelationInput | ServicePartnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ServicePartners.
+     */
+    cursor?: ServicePartnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServicePartners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServicePartners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServicePartners.
+     */
+    distinct?: ServicePartnerScalarFieldEnum | ServicePartnerScalarFieldEnum[]
+  }
+
+  /**
+   * ServicePartner findMany
+   */
+  export type ServicePartnerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter, which ServicePartners to fetch.
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ServicePartners to fetch.
+     */
+    orderBy?: ServicePartnerOrderByWithRelationInput | ServicePartnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ServicePartners.
+     */
+    cursor?: ServicePartnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ServicePartners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ServicePartners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ServicePartners.
+     */
+    distinct?: ServicePartnerScalarFieldEnum | ServicePartnerScalarFieldEnum[]
+  }
+
+  /**
+   * ServicePartner create
+   */
+  export type ServicePartnerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ServicePartner.
+     */
+    data: XOR<ServicePartnerCreateInput, ServicePartnerUncheckedCreateInput>
+  }
+
+  /**
+   * ServicePartner createMany
+   */
+  export type ServicePartnerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ServicePartners.
+     */
+    data: ServicePartnerCreateManyInput | ServicePartnerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ServicePartner createManyAndReturn
+   */
+  export type ServicePartnerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * The data used to create many ServicePartners.
+     */
+    data: ServicePartnerCreateManyInput | ServicePartnerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServicePartner update
+   */
+  export type ServicePartnerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ServicePartner.
+     */
+    data: XOR<ServicePartnerUpdateInput, ServicePartnerUncheckedUpdateInput>
+    /**
+     * Choose, which ServicePartner to update.
+     */
+    where: ServicePartnerWhereUniqueInput
+  }
+
+  /**
+   * ServicePartner updateMany
+   */
+  export type ServicePartnerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ServicePartners.
+     */
+    data: XOR<ServicePartnerUpdateManyMutationInput, ServicePartnerUncheckedUpdateManyInput>
+    /**
+     * Filter which ServicePartners to update
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * Limit how many ServicePartners to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServicePartner updateManyAndReturn
+   */
+  export type ServicePartnerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * The data used to update ServicePartners.
+     */
+    data: XOR<ServicePartnerUpdateManyMutationInput, ServicePartnerUncheckedUpdateManyInput>
+    /**
+     * Filter which ServicePartners to update
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * Limit how many ServicePartners to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ServicePartner upsert
+   */
+  export type ServicePartnerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ServicePartner to update in case it exists.
+     */
+    where: ServicePartnerWhereUniqueInput
+    /**
+     * In case the ServicePartner found by the `where` argument doesn't exist, create a new ServicePartner with this data.
+     */
+    create: XOR<ServicePartnerCreateInput, ServicePartnerUncheckedCreateInput>
+    /**
+     * In case the ServicePartner was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ServicePartnerUpdateInput, ServicePartnerUncheckedUpdateInput>
+  }
+
+  /**
+   * ServicePartner delete
+   */
+  export type ServicePartnerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+    /**
+     * Filter which ServicePartner to delete.
+     */
+    where: ServicePartnerWhereUniqueInput
+  }
+
+  /**
+   * ServicePartner deleteMany
+   */
+  export type ServicePartnerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ServicePartners to delete
+     */
+    where?: ServicePartnerWhereInput
+    /**
+     * Limit how many ServicePartners to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ServicePartner without action
+   */
+  export type ServicePartnerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServicePartner
+     */
+    select?: ServicePartnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ServicePartner
+     */
+    omit?: ServicePartnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ServicePartnerInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Locker
+   */
+
+  export type AggregateLocker = {
+    _count: LockerCountAggregateOutputType | null
+    _min: LockerMinAggregateOutputType | null
+    _max: LockerMaxAggregateOutputType | null
+  }
+
+  export type LockerMinAggregateOutputType = {
+    id: string | null
+    lockerNo: string | null
+    type: string | null
+    category: string | null
+    status: string | null
+    branchId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LockerMaxAggregateOutputType = {
+    id: string | null
+    lockerNo: string | null
+    type: string | null
+    category: string | null
+    status: string | null
+    branchId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LockerCountAggregateOutputType = {
+    id: number
+    lockerNo: number
+    type: number
+    category: number
+    status: number
+    branchId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LockerMinAggregateInputType = {
+    id?: true
+    lockerNo?: true
+    type?: true
+    category?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LockerMaxAggregateInputType = {
+    id?: true
+    lockerNo?: true
+    type?: true
+    category?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LockerCountAggregateInputType = {
+    id?: true
+    lockerNo?: true
+    type?: true
+    category?: true
+    status?: true
+    branchId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LockerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Locker to aggregate.
+     */
+    where?: LockerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Lockers to fetch.
+     */
+    orderBy?: LockerOrderByWithRelationInput | LockerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LockerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Lockers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Lockers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Lockers
+    **/
+    _count?: true | LockerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LockerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LockerMaxAggregateInputType
+  }
+
+  export type GetLockerAggregateType<T extends LockerAggregateArgs> = {
+        [P in keyof T & keyof AggregateLocker]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLocker[P]>
+      : GetScalarType<T[P], AggregateLocker[P]>
+  }
+
+
+
+
+  export type LockerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LockerWhereInput
+    orderBy?: LockerOrderByWithAggregationInput | LockerOrderByWithAggregationInput[]
+    by: LockerScalarFieldEnum[] | LockerScalarFieldEnum
+    having?: LockerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LockerCountAggregateInputType | true
+    _min?: LockerMinAggregateInputType
+    _max?: LockerMaxAggregateInputType
+  }
+
+  export type LockerGroupByOutputType = {
+    id: string
+    lockerNo: string
+    type: string
+    category: string
+    status: string
+    branchId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: LockerCountAggregateOutputType | null
+    _min: LockerMinAggregateOutputType | null
+    _max: LockerMaxAggregateOutputType | null
+  }
+
+  type GetLockerGroupByPayload<T extends LockerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LockerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LockerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LockerGroupByOutputType[P]>
+            : GetScalarType<T[P], LockerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LockerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    lockerNo?: boolean
+    type?: boolean
+    category?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["locker"]>
+
+  export type LockerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    lockerNo?: boolean
+    type?: boolean
+    category?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["locker"]>
+
+  export type LockerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    lockerNo?: boolean
+    type?: boolean
+    category?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["locker"]>
+
+  export type LockerSelectScalar = {
+    id?: boolean
+    lockerNo?: boolean
+    type?: boolean
+    category?: boolean
+    status?: boolean
+    branchId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LockerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "lockerNo" | "type" | "category" | "status" | "branchId" | "createdAt" | "updatedAt", ExtArgs["result"]["locker"]>
+  export type LockerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type LockerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type LockerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+
+  export type $LockerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Locker"
+    objects: {
+      branch: Prisma.$BranchPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      lockerNo: string
+      type: string
+      category: string
+      status: string
+      branchId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["locker"]>
+    composites: {}
+  }
+
+  type LockerGetPayload<S extends boolean | null | undefined | LockerDefaultArgs> = $Result.GetResult<Prisma.$LockerPayload, S>
+
+  type LockerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LockerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LockerCountAggregateInputType | true
+    }
+
+  export interface LockerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Locker'], meta: { name: 'Locker' } }
+    /**
+     * Find zero or one Locker that matches the filter.
+     * @param {LockerFindUniqueArgs} args - Arguments to find a Locker
+     * @example
+     * // Get one Locker
+     * const locker = await prisma.locker.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LockerFindUniqueArgs>(args: SelectSubset<T, LockerFindUniqueArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Locker that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LockerFindUniqueOrThrowArgs} args - Arguments to find a Locker
+     * @example
+     * // Get one Locker
+     * const locker = await prisma.locker.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LockerFindUniqueOrThrowArgs>(args: SelectSubset<T, LockerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Locker that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerFindFirstArgs} args - Arguments to find a Locker
+     * @example
+     * // Get one Locker
+     * const locker = await prisma.locker.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LockerFindFirstArgs>(args?: SelectSubset<T, LockerFindFirstArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Locker that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerFindFirstOrThrowArgs} args - Arguments to find a Locker
+     * @example
+     * // Get one Locker
+     * const locker = await prisma.locker.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LockerFindFirstOrThrowArgs>(args?: SelectSubset<T, LockerFindFirstOrThrowArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Lockers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Lockers
+     * const lockers = await prisma.locker.findMany()
+     * 
+     * // Get first 10 Lockers
+     * const lockers = await prisma.locker.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const lockerWithIdOnly = await prisma.locker.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LockerFindManyArgs>(args?: SelectSubset<T, LockerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Locker.
+     * @param {LockerCreateArgs} args - Arguments to create a Locker.
+     * @example
+     * // Create one Locker
+     * const Locker = await prisma.locker.create({
+     *   data: {
+     *     // ... data to create a Locker
+     *   }
+     * })
+     * 
+     */
+    create<T extends LockerCreateArgs>(args: SelectSubset<T, LockerCreateArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Lockers.
+     * @param {LockerCreateManyArgs} args - Arguments to create many Lockers.
+     * @example
+     * // Create many Lockers
+     * const locker = await prisma.locker.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LockerCreateManyArgs>(args?: SelectSubset<T, LockerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Lockers and returns the data saved in the database.
+     * @param {LockerCreateManyAndReturnArgs} args - Arguments to create many Lockers.
+     * @example
+     * // Create many Lockers
+     * const locker = await prisma.locker.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Lockers and only return the `id`
+     * const lockerWithIdOnly = await prisma.locker.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LockerCreateManyAndReturnArgs>(args?: SelectSubset<T, LockerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Locker.
+     * @param {LockerDeleteArgs} args - Arguments to delete one Locker.
+     * @example
+     * // Delete one Locker
+     * const Locker = await prisma.locker.delete({
+     *   where: {
+     *     // ... filter to delete one Locker
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LockerDeleteArgs>(args: SelectSubset<T, LockerDeleteArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Locker.
+     * @param {LockerUpdateArgs} args - Arguments to update one Locker.
+     * @example
+     * // Update one Locker
+     * const locker = await prisma.locker.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LockerUpdateArgs>(args: SelectSubset<T, LockerUpdateArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Lockers.
+     * @param {LockerDeleteManyArgs} args - Arguments to filter Lockers to delete.
+     * @example
+     * // Delete a few Lockers
+     * const { count } = await prisma.locker.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LockerDeleteManyArgs>(args?: SelectSubset<T, LockerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Lockers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Lockers
+     * const locker = await prisma.locker.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LockerUpdateManyArgs>(args: SelectSubset<T, LockerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Lockers and returns the data updated in the database.
+     * @param {LockerUpdateManyAndReturnArgs} args - Arguments to update many Lockers.
+     * @example
+     * // Update many Lockers
+     * const locker = await prisma.locker.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Lockers and only return the `id`
+     * const lockerWithIdOnly = await prisma.locker.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LockerUpdateManyAndReturnArgs>(args: SelectSubset<T, LockerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Locker.
+     * @param {LockerUpsertArgs} args - Arguments to update or create a Locker.
+     * @example
+     * // Update or create a Locker
+     * const locker = await prisma.locker.upsert({
+     *   create: {
+     *     // ... data to create a Locker
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Locker we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LockerUpsertArgs>(args: SelectSubset<T, LockerUpsertArgs<ExtArgs>>): Prisma__LockerClient<$Result.GetResult<Prisma.$LockerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Lockers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerCountArgs} args - Arguments to filter Lockers to count.
+     * @example
+     * // Count the number of Lockers
+     * const count = await prisma.locker.count({
+     *   where: {
+     *     // ... the filter for the Lockers we want to count
+     *   }
+     * })
+    **/
+    count<T extends LockerCountArgs>(
+      args?: Subset<T, LockerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LockerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Locker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LockerAggregateArgs>(args: Subset<T, LockerAggregateArgs>): Prisma.PrismaPromise<GetLockerAggregateType<T>>
+
+    /**
+     * Group by Locker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LockerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LockerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LockerGroupByArgs['orderBy'] }
+        : { orderBy?: LockerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LockerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLockerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Locker model
+   */
+  readonly fields: LockerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Locker.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LockerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Locker model
+   */
+  interface LockerFieldRefs {
+    readonly id: FieldRef<"Locker", 'String'>
+    readonly lockerNo: FieldRef<"Locker", 'String'>
+    readonly type: FieldRef<"Locker", 'String'>
+    readonly category: FieldRef<"Locker", 'String'>
+    readonly status: FieldRef<"Locker", 'String'>
+    readonly branchId: FieldRef<"Locker", 'String'>
+    readonly createdAt: FieldRef<"Locker", 'DateTime'>
+    readonly updatedAt: FieldRef<"Locker", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Locker findUnique
+   */
+  export type LockerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter, which Locker to fetch.
+     */
+    where: LockerWhereUniqueInput
+  }
+
+  /**
+   * Locker findUniqueOrThrow
+   */
+  export type LockerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter, which Locker to fetch.
+     */
+    where: LockerWhereUniqueInput
+  }
+
+  /**
+   * Locker findFirst
+   */
+  export type LockerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter, which Locker to fetch.
+     */
+    where?: LockerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Lockers to fetch.
+     */
+    orderBy?: LockerOrderByWithRelationInput | LockerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Lockers.
+     */
+    cursor?: LockerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Lockers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Lockers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Lockers.
+     */
+    distinct?: LockerScalarFieldEnum | LockerScalarFieldEnum[]
+  }
+
+  /**
+   * Locker findFirstOrThrow
+   */
+  export type LockerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter, which Locker to fetch.
+     */
+    where?: LockerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Lockers to fetch.
+     */
+    orderBy?: LockerOrderByWithRelationInput | LockerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Lockers.
+     */
+    cursor?: LockerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Lockers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Lockers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Lockers.
+     */
+    distinct?: LockerScalarFieldEnum | LockerScalarFieldEnum[]
+  }
+
+  /**
+   * Locker findMany
+   */
+  export type LockerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter, which Lockers to fetch.
+     */
+    where?: LockerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Lockers to fetch.
+     */
+    orderBy?: LockerOrderByWithRelationInput | LockerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Lockers.
+     */
+    cursor?: LockerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Lockers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Lockers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Lockers.
+     */
+    distinct?: LockerScalarFieldEnum | LockerScalarFieldEnum[]
+  }
+
+  /**
+   * Locker create
+   */
+  export type LockerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Locker.
+     */
+    data: XOR<LockerCreateInput, LockerUncheckedCreateInput>
+  }
+
+  /**
+   * Locker createMany
+   */
+  export type LockerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Lockers.
+     */
+    data: LockerCreateManyInput | LockerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Locker createManyAndReturn
+   */
+  export type LockerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * The data used to create many Lockers.
+     */
+    data: LockerCreateManyInput | LockerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Locker update
+   */
+  export type LockerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Locker.
+     */
+    data: XOR<LockerUpdateInput, LockerUncheckedUpdateInput>
+    /**
+     * Choose, which Locker to update.
+     */
+    where: LockerWhereUniqueInput
+  }
+
+  /**
+   * Locker updateMany
+   */
+  export type LockerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Lockers.
+     */
+    data: XOR<LockerUpdateManyMutationInput, LockerUncheckedUpdateManyInput>
+    /**
+     * Filter which Lockers to update
+     */
+    where?: LockerWhereInput
+    /**
+     * Limit how many Lockers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Locker updateManyAndReturn
+   */
+  export type LockerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * The data used to update Lockers.
+     */
+    data: XOR<LockerUpdateManyMutationInput, LockerUncheckedUpdateManyInput>
+    /**
+     * Filter which Lockers to update
+     */
+    where?: LockerWhereInput
+    /**
+     * Limit how many Lockers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Locker upsert
+   */
+  export type LockerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Locker to update in case it exists.
+     */
+    where: LockerWhereUniqueInput
+    /**
+     * In case the Locker found by the `where` argument doesn't exist, create a new Locker with this data.
+     */
+    create: XOR<LockerCreateInput, LockerUncheckedCreateInput>
+    /**
+     * In case the Locker was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LockerUpdateInput, LockerUncheckedUpdateInput>
+  }
+
+  /**
+   * Locker delete
+   */
+  export type LockerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+    /**
+     * Filter which Locker to delete.
+     */
+    where: LockerWhereUniqueInput
+  }
+
+  /**
+   * Locker deleteMany
+   */
+  export type LockerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Lockers to delete
+     */
+    where?: LockerWhereInput
+    /**
+     * Limit how many Lockers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Locker without action
+   */
+  export type LockerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locker
+     */
+    select?: LockerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locker
+     */
+    omit?: LockerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LockerInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model StationeryMovement
    */
 
@@ -36732,6 +40733,9 @@ export namespace Prisma {
     id: string | null
     atmId: string | null
     branchId: string | null
+    deviceType: string | null
+    managementType: string | null
+    locationType: string | null
     lastTxnTime: string | null
     balance: Decimal | null
     createdAt: Date | null
@@ -36742,6 +40746,9 @@ export namespace Prisma {
     id: string | null
     atmId: string | null
     branchId: string | null
+    deviceType: string | null
+    managementType: string | null
+    locationType: string | null
     lastTxnTime: string | null
     balance: Decimal | null
     createdAt: Date | null
@@ -36752,6 +40759,9 @@ export namespace Prisma {
     id: number
     atmId: number
     branchId: number
+    deviceType: number
+    managementType: number
+    locationType: number
     lastTxnTime: number
     balance: number
     createdAt: number
@@ -36772,6 +40782,9 @@ export namespace Prisma {
     id?: true
     atmId?: true
     branchId?: true
+    deviceType?: true
+    managementType?: true
+    locationType?: true
     lastTxnTime?: true
     balance?: true
     createdAt?: true
@@ -36782,6 +40795,9 @@ export namespace Prisma {
     id?: true
     atmId?: true
     branchId?: true
+    deviceType?: true
+    managementType?: true
+    locationType?: true
     lastTxnTime?: true
     balance?: true
     createdAt?: true
@@ -36792,6 +40808,9 @@ export namespace Prisma {
     id?: true
     atmId?: true
     branchId?: true
+    deviceType?: true
+    managementType?: true
+    locationType?: true
     lastTxnTime?: true
     balance?: true
     createdAt?: true
@@ -36889,6 +40908,9 @@ export namespace Prisma {
     id: string
     atmId: string
     branchId: string
+    deviceType: string
+    managementType: string
+    locationType: string
     lastTxnTime: string
     balance: Decimal
     createdAt: Date
@@ -36918,6 +40940,9 @@ export namespace Prisma {
     id?: boolean
     atmId?: boolean
     branchId?: boolean
+    deviceType?: boolean
+    managementType?: boolean
+    locationType?: boolean
     lastTxnTime?: boolean
     balance?: boolean
     createdAt?: boolean
@@ -36929,6 +40954,9 @@ export namespace Prisma {
     id?: boolean
     atmId?: boolean
     branchId?: boolean
+    deviceType?: boolean
+    managementType?: boolean
+    locationType?: boolean
     lastTxnTime?: boolean
     balance?: boolean
     createdAt?: boolean
@@ -36940,6 +40968,9 @@ export namespace Prisma {
     id?: boolean
     atmId?: boolean
     branchId?: boolean
+    deviceType?: boolean
+    managementType?: boolean
+    locationType?: boolean
     lastTxnTime?: boolean
     balance?: boolean
     createdAt?: boolean
@@ -36951,13 +40982,16 @@ export namespace Prisma {
     id?: boolean
     atmId?: boolean
     branchId?: boolean
+    deviceType?: boolean
+    managementType?: boolean
+    locationType?: boolean
     lastTxnTime?: boolean
     balance?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AtmOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "atmId" | "branchId" | "lastTxnTime" | "balance" | "createdAt" | "updatedAt", ExtArgs["result"]["atm"]>
+  export type AtmOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "atmId" | "branchId" | "deviceType" | "managementType" | "locationType" | "lastTxnTime" | "balance" | "createdAt" | "updatedAt", ExtArgs["result"]["atm"]>
   export type AtmInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
   }
@@ -36977,6 +41011,9 @@ export namespace Prisma {
       id: string
       atmId: string
       branchId: string
+      deviceType: string
+      managementType: string
+      locationType: string
       lastTxnTime: string
       balance: Prisma.Decimal
       createdAt: Date
@@ -37408,6 +41445,9 @@ export namespace Prisma {
     readonly id: FieldRef<"Atm", 'String'>
     readonly atmId: FieldRef<"Atm", 'String'>
     readonly branchId: FieldRef<"Atm", 'String'>
+    readonly deviceType: FieldRef<"Atm", 'String'>
+    readonly managementType: FieldRef<"Atm", 'String'>
+    readonly locationType: FieldRef<"Atm", 'String'>
     readonly lastTxnTime: FieldRef<"Atm", 'String'>
     readonly balance: FieldRef<"Atm", 'Decimal'>
     readonly createdAt: FieldRef<"Atm", 'DateTime'>
@@ -37846,6 +41886,7 @@ export namespace Prisma {
     userId: string | null
     branchId: string | null
     designationId: string | null
+    gradeId: string | null
     startDate: Date | null
     endDate: Date | null
     isCurrent: boolean | null
@@ -37858,6 +41899,7 @@ export namespace Prisma {
     userId: string | null
     branchId: string | null
     designationId: string | null
+    gradeId: string | null
     startDate: Date | null
     endDate: Date | null
     isCurrent: boolean | null
@@ -37870,6 +41912,7 @@ export namespace Prisma {
     userId: number
     branchId: number
     designationId: number
+    gradeId: number
     startDate: number
     endDate: number
     isCurrent: number
@@ -37884,6 +41927,7 @@ export namespace Prisma {
     userId?: true
     branchId?: true
     designationId?: true
+    gradeId?: true
     startDate?: true
     endDate?: true
     isCurrent?: true
@@ -37896,6 +41940,7 @@ export namespace Prisma {
     userId?: true
     branchId?: true
     designationId?: true
+    gradeId?: true
     startDate?: true
     endDate?: true
     isCurrent?: true
@@ -37908,6 +41953,7 @@ export namespace Prisma {
     userId?: true
     branchId?: true
     designationId?: true
+    gradeId?: true
     startDate?: true
     endDate?: true
     isCurrent?: true
@@ -37993,6 +42039,7 @@ export namespace Prisma {
     userId: string
     branchId: string
     designationId: string | null
+    gradeId: string | null
     startDate: Date
     endDate: Date | null
     isCurrent: boolean
@@ -38022,6 +42069,7 @@ export namespace Prisma {
     userId?: boolean
     branchId?: boolean
     designationId?: boolean
+    gradeId?: boolean
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
@@ -38029,6 +42077,7 @@ export namespace Prisma {
     createdAt?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["postingHistory"]>
 
@@ -38037,6 +42086,7 @@ export namespace Prisma {
     userId?: boolean
     branchId?: boolean
     designationId?: boolean
+    gradeId?: boolean
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
@@ -38044,6 +42094,7 @@ export namespace Prisma {
     createdAt?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["postingHistory"]>
 
@@ -38052,6 +42103,7 @@ export namespace Prisma {
     userId?: boolean
     branchId?: boolean
     designationId?: boolean
+    gradeId?: boolean
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
@@ -38059,6 +42111,7 @@ export namespace Prisma {
     createdAt?: boolean
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["postingHistory"]>
 
@@ -38067,6 +42120,7 @@ export namespace Prisma {
     userId?: boolean
     branchId?: boolean
     designationId?: boolean
+    gradeId?: boolean
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
@@ -38074,20 +42128,23 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type PostingHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "branchId" | "designationId" | "startDate" | "endDate" | "isCurrent" | "remarks" | "createdAt", ExtArgs["result"]["postingHistory"]>
+  export type PostingHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "branchId" | "designationId" | "gradeId" | "startDate" | "endDate" | "isCurrent" | "remarks" | "createdAt", ExtArgs["result"]["postingHistory"]>
   export type PostingHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type PostingHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type PostingHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branch?: boolean | BranchDefaultArgs<ExtArgs>
     designation?: boolean | PostingHistory$designationArgs<ExtArgs>
+    gradeMaster?: boolean | PostingHistory$gradeMasterArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
@@ -38096,6 +42153,7 @@ export namespace Prisma {
     objects: {
       branch: Prisma.$BranchPayload<ExtArgs>
       designation: Prisma.$DesignationPayload<ExtArgs> | null
+      gradeMaster: Prisma.$GradePayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -38103,6 +42161,7 @@ export namespace Prisma {
       userId: string
       branchId: string
       designationId: string | null
+      gradeId: string | null
       startDate: Date
       endDate: Date | null
       isCurrent: boolean
@@ -38504,6 +42563,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     designation<T extends PostingHistory$designationArgs<ExtArgs> = {}>(args?: Subset<T, PostingHistory$designationArgs<ExtArgs>>): Prisma__DesignationClient<$Result.GetResult<Prisma.$DesignationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    gradeMaster<T extends PostingHistory$gradeMasterArgs<ExtArgs> = {}>(args?: Subset<T, PostingHistory$gradeMasterArgs<ExtArgs>>): Prisma__GradeClient<$Result.GetResult<Prisma.$GradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -38538,6 +42598,7 @@ export namespace Prisma {
     readonly userId: FieldRef<"PostingHistory", 'String'>
     readonly branchId: FieldRef<"PostingHistory", 'String'>
     readonly designationId: FieldRef<"PostingHistory", 'String'>
+    readonly gradeId: FieldRef<"PostingHistory", 'String'>
     readonly startDate: FieldRef<"PostingHistory", 'DateTime'>
     readonly endDate: FieldRef<"PostingHistory", 'DateTime'>
     readonly isCurrent: FieldRef<"PostingHistory", 'Boolean'>
@@ -38960,6 +43021,25 @@ export namespace Prisma {
      */
     include?: DesignationInclude<ExtArgs> | null
     where?: DesignationWhereInput
+  }
+
+  /**
+   * PostingHistory.gradeMaster
+   */
+  export type PostingHistory$gradeMasterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grade
+     */
+    select?: GradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grade
+     */
+    omit?: GradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GradeInclude<ExtArgs> | null
+    where?: GradeWhereInput
   }
 
   /**
@@ -89603,7 +93683,8 @@ export namespace Prisma {
     gender: 'gender',
     designationEn: 'designationEn',
     designationHi: 'designationHi',
-    designationTa: 'designationTa'
+    designationTa: 'designationTa',
+    gradeId: 'gradeId'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -89640,32 +93721,40 @@ export namespace Prisma {
 
 
   export const BranchScalarFieldEnum: {
-    id: 'id',
-    sNo: 'sNo',
     code: 'code',
     officeId: 'officeId',
     nameEn: 'nameEn',
     nameTa: 'nameTa',
     nameHi: 'nameHi',
     type: 'type',
+    size: 'size',
     openDate: 'openDate',
-    district: 'district',
     populationGroup: 'populationGroup',
     riskCategory: 'riskCategory',
     riskEffectiveDate: 'riskEffectiveDate',
-    specialStatus: 'specialStatus',
+    prevRiskCategory: 'prevRiskCategory',
     ifsc: 'ifsc',
-    address: 'address',
+    micr: 'micr',
+    bsrCode: 'bsrCode',
+    address1En: 'address1En',
+    address2En: 'address2En',
+    districtEn: 'districtEn',
+    address1Ta: 'address1Ta',
+    address2Ta: 'address2Ta',
+    districtTa: 'districtTa',
+    address1Hi: 'address1Hi',
+    address2Hi: 'address2Hi',
+    districtHi: 'districtHi',
+    pincode: 'pincode',
+    phone: 'phone',
+    email: 'email',
     latitude: 'latitude',
     longitude: 'longitude',
-    pincode: 'pincode',
+    parentCode: 'parentCode',
     headUserId: 'headUserId',
     secondLineUserId: 'secondLineUserId',
-    addressHi: 'addressHi',
-    addressTa: 'addressTa',
-    email: 'email',
-    phone: 'phone',
-    size: 'size'
+    sNo: 'sNo',
+    specialStatus: 'specialStatus'
   };
 
   export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
@@ -89697,6 +93786,18 @@ export namespace Prisma {
   };
 
   export type DesignationScalarFieldEnum = (typeof DesignationScalarFieldEnum)[keyof typeof DesignationScalarFieldEnum]
+
+
+  export const GradeScalarFieldEnum: {
+    id: 'id',
+    code: 'code',
+    name: 'name',
+    seniorityLevel: 'seniorityLevel',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GradeScalarFieldEnum = (typeof GradeScalarFieldEnum)[keyof typeof GradeScalarFieldEnum]
 
 
   export const BranchHistoryScalarFieldEnum: {
@@ -89884,6 +93985,38 @@ export namespace Prisma {
   export type StationeryItemScalarFieldEnum = (typeof StationeryItemScalarFieldEnum)[keyof typeof StationeryItemScalarFieldEnum]
 
 
+  export const ServicePartnerScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    nameEn: 'nameEn',
+    nameTa: 'nameTa',
+    nameHi: 'nameHi',
+    registrationNo: 'registrationNo',
+    phone: 'phone',
+    email: 'email',
+    status: 'status',
+    branchId: 'branchId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ServicePartnerScalarFieldEnum = (typeof ServicePartnerScalarFieldEnum)[keyof typeof ServicePartnerScalarFieldEnum]
+
+
+  export const LockerScalarFieldEnum: {
+    id: 'id',
+    lockerNo: 'lockerNo',
+    type: 'type',
+    category: 'category',
+    status: 'status',
+    branchId: 'branchId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LockerScalarFieldEnum = (typeof LockerScalarFieldEnum)[keyof typeof LockerScalarFieldEnum]
+
+
   export const StationeryMovementScalarFieldEnum: {
     id: 'id',
     itemId: 'itemId',
@@ -89984,6 +94117,9 @@ export namespace Prisma {
     id: 'id',
     atmId: 'atmId',
     branchId: 'branchId',
+    deviceType: 'deviceType',
+    managementType: 'managementType',
+    locationType: 'locationType',
     lastTxnTime: 'lastTxnTime',
     balance: 'balance',
     createdAt: 'createdAt',
@@ -89998,6 +94134,7 @@ export namespace Prisma {
     userId: 'userId',
     branchId: 'branchId',
     designationId: 'designationId',
+    gradeId: 'gradeId',
     startDate: 'startDate',
     endDate: 'endDate',
     isCurrent: 'isCurrent',
@@ -90856,6 +94993,7 @@ export namespace Prisma {
     designationEn?: StringNullableFilter<"User"> | string | null
     designationHi?: StringNullableFilter<"User"> | string | null
     designationTa?: StringNullableFilter<"User"> | string | null
+    gradeId?: StringNullableFilter<"User"> | string | null
     requests?: BranchRequestListRelationFilter
     branchVisits?: BranchVisitListRelationFilter
     headedBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
@@ -90878,8 +95016,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckListRelationFilter
     sessions?: SessionListRelationFilter
     branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
-    department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     designation?: XOR<DesignationNullableScalarRelationFilter, DesignationWhereInput> | null
+    gradeMaster?: XOR<GradeNullableScalarRelationFilter, GradeWhereInput> | null
+    department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     photo?: XOR<PhotoNullableScalarRelationFilter, PhotoWhereInput> | null
     managedDepartments?: DepartmentListRelationFilter
     departments?: DepartmentListRelationFilter
@@ -90913,6 +95052,7 @@ export namespace Prisma {
     designationEn?: SortOrderInput | SortOrder
     designationHi?: SortOrderInput | SortOrder
     designationTa?: SortOrderInput | SortOrder
+    gradeId?: SortOrderInput | SortOrder
     requests?: BranchRequestOrderByRelationAggregateInput
     branchVisits?: BranchVisitOrderByRelationAggregateInput
     headedBranch?: BranchOrderByWithRelationInput
@@ -90935,8 +95075,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
     branch?: BranchOrderByWithRelationInput
-    department?: DepartmentOrderByWithRelationInput
     designation?: DesignationOrderByWithRelationInput
+    gradeMaster?: GradeOrderByWithRelationInput
+    department?: DepartmentOrderByWithRelationInput
     photo?: PhotoOrderByWithRelationInput
     managedDepartments?: DepartmentOrderByRelationAggregateInput
     departments?: DepartmentOrderByRelationAggregateInput
@@ -90973,6 +95114,7 @@ export namespace Prisma {
     designationEn?: StringNullableFilter<"User"> | string | null
     designationHi?: StringNullableFilter<"User"> | string | null
     designationTa?: StringNullableFilter<"User"> | string | null
+    gradeId?: StringNullableFilter<"User"> | string | null
     requests?: BranchRequestListRelationFilter
     branchVisits?: BranchVisitListRelationFilter
     headedBranch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
@@ -90995,8 +95137,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckListRelationFilter
     sessions?: SessionListRelationFilter
     branch?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
-    department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     designation?: XOR<DesignationNullableScalarRelationFilter, DesignationWhereInput> | null
+    gradeMaster?: XOR<GradeNullableScalarRelationFilter, GradeWhereInput> | null
+    department?: XOR<DepartmentNullableScalarRelationFilter, DepartmentWhereInput> | null
     photo?: XOR<PhotoNullableScalarRelationFilter, PhotoWhereInput> | null
     managedDepartments?: DepartmentListRelationFilter
     departments?: DepartmentListRelationFilter
@@ -91030,6 +95173,7 @@ export namespace Prisma {
     designationEn?: SortOrderInput | SortOrder
     designationHi?: SortOrderInput | SortOrder
     designationTa?: SortOrderInput | SortOrder
+    gradeId?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -91068,6 +95212,7 @@ export namespace Prisma {
     designationEn?: StringNullableWithAggregatesFilter<"User"> | string | null
     designationHi?: StringNullableWithAggregatesFilter<"User"> | string | null
     designationTa?: StringNullableWithAggregatesFilter<"User"> | string | null
+    gradeId?: StringNullableWithAggregatesFilter<"User"> | string | null
   }
 
   export type SessionWhereInput = {
@@ -91224,32 +95369,42 @@ export namespace Prisma {
     AND?: BranchWhereInput | BranchWhereInput[]
     OR?: BranchWhereInput[]
     NOT?: BranchWhereInput | BranchWhereInput[]
-    id?: StringFilter<"Branch"> | string
-    sNo?: IntNullableFilter<"Branch"> | number | null
     code?: StringFilter<"Branch"> | string
     officeId?: IntNullableFilter<"Branch"> | number | null
     nameEn?: StringFilter<"Branch"> | string
     nameTa?: StringNullableFilter<"Branch"> | string | null
     nameHi?: StringNullableFilter<"Branch"> | string | null
     type?: StringFilter<"Branch"> | string
+    size?: StringNullableFilter<"Branch"> | string | null
     openDate?: StringNullableFilter<"Branch"> | string | null
-    district?: StringNullableFilter<"Branch"> | string | null
     populationGroup?: StringNullableFilter<"Branch"> | string | null
     riskCategory?: StringNullableFilter<"Branch"> | string | null
     riskEffectiveDate?: DateTimeNullableFilter<"Branch"> | Date | string | null
-    specialStatus?: StringNullableFilter<"Branch"> | string | null
+    prevRiskCategory?: StringNullableFilter<"Branch"> | string | null
     ifsc?: StringNullableFilter<"Branch"> | string | null
-    address?: StringNullableFilter<"Branch"> | string | null
+    micr?: StringNullableFilter<"Branch"> | string | null
+    bsrCode?: StringNullableFilter<"Branch"> | string | null
+    address1En?: StringNullableFilter<"Branch"> | string | null
+    address2En?: StringNullableFilter<"Branch"> | string | null
+    districtEn?: StringNullableFilter<"Branch"> | string | null
+    address1Ta?: StringNullableFilter<"Branch"> | string | null
+    address2Ta?: StringNullableFilter<"Branch"> | string | null
+    districtTa?: StringNullableFilter<"Branch"> | string | null
+    address1Hi?: StringNullableFilter<"Branch"> | string | null
+    address2Hi?: StringNullableFilter<"Branch"> | string | null
+    districtHi?: StringNullableFilter<"Branch"> | string | null
+    pincode?: StringNullableFilter<"Branch"> | string | null
+    phone?: StringNullableFilter<"Branch"> | string | null
+    email?: StringNullableFilter<"Branch"> | string | null
     latitude?: FloatNullableFilter<"Branch"> | number | null
     longitude?: FloatNullableFilter<"Branch"> | number | null
-    pincode?: StringNullableFilter<"Branch"> | string | null
+    parentCode?: StringNullableFilter<"Branch"> | string | null
     headUserId?: StringNullableFilter<"Branch"> | string | null
     secondLineUserId?: StringNullableFilter<"Branch"> | string | null
-    addressHi?: StringNullableFilter<"Branch"> | string | null
-    addressTa?: StringNullableFilter<"Branch"> | string | null
-    email?: StringNullableFilter<"Branch"> | string | null
-    phone?: StringNullableFilter<"Branch"> | string | null
-    size?: StringNullableFilter<"Branch"> | string | null
+    sNo?: IntNullableFilter<"Branch"> | number | null
+    specialStatus?: StringNullableFilter<"Branch"> | string | null
+    parent?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    children?: BranchListRelationFilter
     accountClosures?: AccountClosureListRelationFilter
     accountOpenings?: AccountOpeningListRelationFilter
     atms?: AtmListRelationFilter
@@ -91274,35 +95429,47 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
+    partners?: ServicePartnerListRelationFilter
+    lockers?: LockerListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
-    id?: SortOrder
-    sNo?: SortOrderInput | SortOrder
     code?: SortOrder
     officeId?: SortOrderInput | SortOrder
     nameEn?: SortOrder
     nameTa?: SortOrderInput | SortOrder
     nameHi?: SortOrderInput | SortOrder
     type?: SortOrder
+    size?: SortOrderInput | SortOrder
     openDate?: SortOrderInput | SortOrder
-    district?: SortOrderInput | SortOrder
     populationGroup?: SortOrderInput | SortOrder
     riskCategory?: SortOrderInput | SortOrder
     riskEffectiveDate?: SortOrderInput | SortOrder
-    specialStatus?: SortOrderInput | SortOrder
+    prevRiskCategory?: SortOrderInput | SortOrder
     ifsc?: SortOrderInput | SortOrder
-    address?: SortOrderInput | SortOrder
+    micr?: SortOrderInput | SortOrder
+    bsrCode?: SortOrderInput | SortOrder
+    address1En?: SortOrderInput | SortOrder
+    address2En?: SortOrderInput | SortOrder
+    districtEn?: SortOrderInput | SortOrder
+    address1Ta?: SortOrderInput | SortOrder
+    address2Ta?: SortOrderInput | SortOrder
+    districtTa?: SortOrderInput | SortOrder
+    address1Hi?: SortOrderInput | SortOrder
+    address2Hi?: SortOrderInput | SortOrder
+    districtHi?: SortOrderInput | SortOrder
+    pincode?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
-    pincode?: SortOrderInput | SortOrder
+    parentCode?: SortOrderInput | SortOrder
     headUserId?: SortOrderInput | SortOrder
     secondLineUserId?: SortOrderInput | SortOrder
-    addressHi?: SortOrderInput | SortOrder
-    addressTa?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    size?: SortOrderInput | SortOrder
+    sNo?: SortOrderInput | SortOrder
+    specialStatus?: SortOrderInput | SortOrder
+    parent?: BranchOrderByWithRelationInput
+    children?: BranchOrderByRelationAggregateInput
     accountClosures?: AccountClosureOrderByRelationAggregateInput
     accountOpenings?: AccountOpeningOrderByRelationAggregateInput
     atms?: AtmOrderByRelationAggregateInput
@@ -91327,38 +95494,50 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetOrderByRelationAggregateInput
     stationeryMovements?: StationeryMovementOrderByRelationAggregateInput
     users?: UserOrderByRelationAggregateInput
+    partners?: ServicePartnerOrderByRelationAggregateInput
+    lockers?: LockerOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
     code?: string
     headUserId?: string
     secondLineUserId?: string
     AND?: BranchWhereInput | BranchWhereInput[]
     OR?: BranchWhereInput[]
     NOT?: BranchWhereInput | BranchWhereInput[]
-    sNo?: IntNullableFilter<"Branch"> | number | null
     officeId?: IntNullableFilter<"Branch"> | number | null
     nameEn?: StringFilter<"Branch"> | string
     nameTa?: StringNullableFilter<"Branch"> | string | null
     nameHi?: StringNullableFilter<"Branch"> | string | null
     type?: StringFilter<"Branch"> | string
+    size?: StringNullableFilter<"Branch"> | string | null
     openDate?: StringNullableFilter<"Branch"> | string | null
-    district?: StringNullableFilter<"Branch"> | string | null
     populationGroup?: StringNullableFilter<"Branch"> | string | null
     riskCategory?: StringNullableFilter<"Branch"> | string | null
     riskEffectiveDate?: DateTimeNullableFilter<"Branch"> | Date | string | null
-    specialStatus?: StringNullableFilter<"Branch"> | string | null
+    prevRiskCategory?: StringNullableFilter<"Branch"> | string | null
     ifsc?: StringNullableFilter<"Branch"> | string | null
-    address?: StringNullableFilter<"Branch"> | string | null
+    micr?: StringNullableFilter<"Branch"> | string | null
+    bsrCode?: StringNullableFilter<"Branch"> | string | null
+    address1En?: StringNullableFilter<"Branch"> | string | null
+    address2En?: StringNullableFilter<"Branch"> | string | null
+    districtEn?: StringNullableFilter<"Branch"> | string | null
+    address1Ta?: StringNullableFilter<"Branch"> | string | null
+    address2Ta?: StringNullableFilter<"Branch"> | string | null
+    districtTa?: StringNullableFilter<"Branch"> | string | null
+    address1Hi?: StringNullableFilter<"Branch"> | string | null
+    address2Hi?: StringNullableFilter<"Branch"> | string | null
+    districtHi?: StringNullableFilter<"Branch"> | string | null
+    pincode?: StringNullableFilter<"Branch"> | string | null
+    phone?: StringNullableFilter<"Branch"> | string | null
+    email?: StringNullableFilter<"Branch"> | string | null
     latitude?: FloatNullableFilter<"Branch"> | number | null
     longitude?: FloatNullableFilter<"Branch"> | number | null
-    pincode?: StringNullableFilter<"Branch"> | string | null
-    addressHi?: StringNullableFilter<"Branch"> | string | null
-    addressTa?: StringNullableFilter<"Branch"> | string | null
-    email?: StringNullableFilter<"Branch"> | string | null
-    phone?: StringNullableFilter<"Branch"> | string | null
-    size?: StringNullableFilter<"Branch"> | string | null
+    parentCode?: StringNullableFilter<"Branch"> | string | null
+    sNo?: IntNullableFilter<"Branch"> | number | null
+    specialStatus?: StringNullableFilter<"Branch"> | string | null
+    parent?: XOR<BranchNullableScalarRelationFilter, BranchWhereInput> | null
+    children?: BranchListRelationFilter
     accountClosures?: AccountClosureListRelationFilter
     accountOpenings?: AccountOpeningListRelationFilter
     atms?: AtmListRelationFilter
@@ -91383,35 +95562,45 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetListRelationFilter
     stationeryMovements?: StationeryMovementListRelationFilter
     users?: UserListRelationFilter
-  }, "id" | "code" | "headUserId" | "secondLineUserId">
+    partners?: ServicePartnerListRelationFilter
+    lockers?: LockerListRelationFilter
+  }, "code" | "headUserId" | "secondLineUserId">
 
   export type BranchOrderByWithAggregationInput = {
-    id?: SortOrder
-    sNo?: SortOrderInput | SortOrder
     code?: SortOrder
     officeId?: SortOrderInput | SortOrder
     nameEn?: SortOrder
     nameTa?: SortOrderInput | SortOrder
     nameHi?: SortOrderInput | SortOrder
     type?: SortOrder
+    size?: SortOrderInput | SortOrder
     openDate?: SortOrderInput | SortOrder
-    district?: SortOrderInput | SortOrder
     populationGroup?: SortOrderInput | SortOrder
     riskCategory?: SortOrderInput | SortOrder
     riskEffectiveDate?: SortOrderInput | SortOrder
-    specialStatus?: SortOrderInput | SortOrder
+    prevRiskCategory?: SortOrderInput | SortOrder
     ifsc?: SortOrderInput | SortOrder
-    address?: SortOrderInput | SortOrder
+    micr?: SortOrderInput | SortOrder
+    bsrCode?: SortOrderInput | SortOrder
+    address1En?: SortOrderInput | SortOrder
+    address2En?: SortOrderInput | SortOrder
+    districtEn?: SortOrderInput | SortOrder
+    address1Ta?: SortOrderInput | SortOrder
+    address2Ta?: SortOrderInput | SortOrder
+    districtTa?: SortOrderInput | SortOrder
+    address1Hi?: SortOrderInput | SortOrder
+    address2Hi?: SortOrderInput | SortOrder
+    districtHi?: SortOrderInput | SortOrder
+    pincode?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
-    pincode?: SortOrderInput | SortOrder
+    parentCode?: SortOrderInput | SortOrder
     headUserId?: SortOrderInput | SortOrder
     secondLineUserId?: SortOrderInput | SortOrder
-    addressHi?: SortOrderInput | SortOrder
-    addressTa?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    size?: SortOrderInput | SortOrder
+    sNo?: SortOrderInput | SortOrder
+    specialStatus?: SortOrderInput | SortOrder
     _count?: BranchCountOrderByAggregateInput
     _avg?: BranchAvgOrderByAggregateInput
     _max?: BranchMaxOrderByAggregateInput
@@ -91423,32 +95612,40 @@ export namespace Prisma {
     AND?: BranchScalarWhereWithAggregatesInput | BranchScalarWhereWithAggregatesInput[]
     OR?: BranchScalarWhereWithAggregatesInput[]
     NOT?: BranchScalarWhereWithAggregatesInput | BranchScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Branch"> | string
-    sNo?: IntNullableWithAggregatesFilter<"Branch"> | number | null
     code?: StringWithAggregatesFilter<"Branch"> | string
     officeId?: IntNullableWithAggregatesFilter<"Branch"> | number | null
     nameEn?: StringWithAggregatesFilter<"Branch"> | string
     nameTa?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     nameHi?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     type?: StringWithAggregatesFilter<"Branch"> | string
+    size?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     openDate?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    district?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     populationGroup?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     riskCategory?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     riskEffectiveDate?: DateTimeNullableWithAggregatesFilter<"Branch"> | Date | string | null
-    specialStatus?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    prevRiskCategory?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     ifsc?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    address?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    micr?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    bsrCode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address1En?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address2En?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    districtEn?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address1Ta?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address2Ta?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    districtTa?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address1Hi?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    address2Hi?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    districtHi?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    pincode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    email?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     latitude?: FloatNullableWithAggregatesFilter<"Branch"> | number | null
     longitude?: FloatNullableWithAggregatesFilter<"Branch"> | number | null
-    pincode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    parentCode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     headUserId?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     secondLineUserId?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    addressHi?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    addressTa?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    phone?: StringNullableWithAggregatesFilter<"Branch"> | string | null
-    size?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    sNo?: IntNullableWithAggregatesFilter<"Branch"> | number | null
+    specialStatus?: StringNullableWithAggregatesFilter<"Branch"> | string | null
   }
 
   export type DepartmentWhereInput = {
@@ -91603,6 +95800,71 @@ export namespace Prisma {
     workId?: IntNullableWithAggregatesFilter<"Designation"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Designation"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Designation"> | Date | string
+  }
+
+  export type GradeWhereInput = {
+    AND?: GradeWhereInput | GradeWhereInput[]
+    OR?: GradeWhereInput[]
+    NOT?: GradeWhereInput | GradeWhereInput[]
+    id?: StringFilter<"Grade"> | string
+    code?: StringFilter<"Grade"> | string
+    name?: StringFilter<"Grade"> | string
+    seniorityLevel?: IntFilter<"Grade"> | number
+    createdAt?: DateTimeFilter<"Grade"> | Date | string
+    updatedAt?: DateTimeFilter<"Grade"> | Date | string
+    users?: UserListRelationFilter
+    postingHistories?: PostingHistoryListRelationFilter
+  }
+
+  export type GradeOrderByWithRelationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    seniorityLevel?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    users?: UserOrderByRelationAggregateInput
+    postingHistories?: PostingHistoryOrderByRelationAggregateInput
+  }
+
+  export type GradeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    code?: string
+    AND?: GradeWhereInput | GradeWhereInput[]
+    OR?: GradeWhereInput[]
+    NOT?: GradeWhereInput | GradeWhereInput[]
+    name?: StringFilter<"Grade"> | string
+    seniorityLevel?: IntFilter<"Grade"> | number
+    createdAt?: DateTimeFilter<"Grade"> | Date | string
+    updatedAt?: DateTimeFilter<"Grade"> | Date | string
+    users?: UserListRelationFilter
+    postingHistories?: PostingHistoryListRelationFilter
+  }, "id" | "code">
+
+  export type GradeOrderByWithAggregationInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    seniorityLevel?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GradeCountOrderByAggregateInput
+    _avg?: GradeAvgOrderByAggregateInput
+    _max?: GradeMaxOrderByAggregateInput
+    _min?: GradeMinOrderByAggregateInput
+    _sum?: GradeSumOrderByAggregateInput
+  }
+
+  export type GradeScalarWhereWithAggregatesInput = {
+    AND?: GradeScalarWhereWithAggregatesInput | GradeScalarWhereWithAggregatesInput[]
+    OR?: GradeScalarWhereWithAggregatesInput[]
+    NOT?: GradeScalarWhereWithAggregatesInput | GradeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Grade"> | string
+    code?: StringWithAggregatesFilter<"Grade"> | string
+    name?: StringWithAggregatesFilter<"Grade"> | string
+    seniorityLevel?: IntWithAggregatesFilter<"Grade"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Grade"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Grade"> | Date | string
   }
 
   export type BranchHistoryWhereInput = {
@@ -92576,6 +96838,167 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"StationeryItem"> | Date | string
   }
 
+  export type ServicePartnerWhereInput = {
+    AND?: ServicePartnerWhereInput | ServicePartnerWhereInput[]
+    OR?: ServicePartnerWhereInput[]
+    NOT?: ServicePartnerWhereInput | ServicePartnerWhereInput[]
+    id?: StringFilter<"ServicePartner"> | string
+    type?: StringFilter<"ServicePartner"> | string
+    nameEn?: StringFilter<"ServicePartner"> | string
+    nameTa?: StringNullableFilter<"ServicePartner"> | string | null
+    nameHi?: StringNullableFilter<"ServicePartner"> | string | null
+    registrationNo?: StringNullableFilter<"ServicePartner"> | string | null
+    phone?: StringNullableFilter<"ServicePartner"> | string | null
+    email?: StringNullableFilter<"ServicePartner"> | string | null
+    status?: StringFilter<"ServicePartner"> | string
+    branchId?: StringFilter<"ServicePartner"> | string
+    createdAt?: DateTimeFilter<"ServicePartner"> | Date | string
+    updatedAt?: DateTimeFilter<"ServicePartner"> | Date | string
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }
+
+  export type ServicePartnerOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    nameEn?: SortOrder
+    nameTa?: SortOrderInput | SortOrder
+    nameHi?: SortOrderInput | SortOrder
+    registrationNo?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    branch?: BranchOrderByWithRelationInput
+  }
+
+  export type ServicePartnerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    registrationNo?: string
+    AND?: ServicePartnerWhereInput | ServicePartnerWhereInput[]
+    OR?: ServicePartnerWhereInput[]
+    NOT?: ServicePartnerWhereInput | ServicePartnerWhereInput[]
+    type?: StringFilter<"ServicePartner"> | string
+    nameEn?: StringFilter<"ServicePartner"> | string
+    nameTa?: StringNullableFilter<"ServicePartner"> | string | null
+    nameHi?: StringNullableFilter<"ServicePartner"> | string | null
+    phone?: StringNullableFilter<"ServicePartner"> | string | null
+    email?: StringNullableFilter<"ServicePartner"> | string | null
+    status?: StringFilter<"ServicePartner"> | string
+    branchId?: StringFilter<"ServicePartner"> | string
+    createdAt?: DateTimeFilter<"ServicePartner"> | Date | string
+    updatedAt?: DateTimeFilter<"ServicePartner"> | Date | string
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }, "id" | "registrationNo">
+
+  export type ServicePartnerOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    nameEn?: SortOrder
+    nameTa?: SortOrderInput | SortOrder
+    nameHi?: SortOrderInput | SortOrder
+    registrationNo?: SortOrderInput | SortOrder
+    phone?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ServicePartnerCountOrderByAggregateInput
+    _max?: ServicePartnerMaxOrderByAggregateInput
+    _min?: ServicePartnerMinOrderByAggregateInput
+  }
+
+  export type ServicePartnerScalarWhereWithAggregatesInput = {
+    AND?: ServicePartnerScalarWhereWithAggregatesInput | ServicePartnerScalarWhereWithAggregatesInput[]
+    OR?: ServicePartnerScalarWhereWithAggregatesInput[]
+    NOT?: ServicePartnerScalarWhereWithAggregatesInput | ServicePartnerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ServicePartner"> | string
+    type?: StringWithAggregatesFilter<"ServicePartner"> | string
+    nameEn?: StringWithAggregatesFilter<"ServicePartner"> | string
+    nameTa?: StringNullableWithAggregatesFilter<"ServicePartner"> | string | null
+    nameHi?: StringNullableWithAggregatesFilter<"ServicePartner"> | string | null
+    registrationNo?: StringNullableWithAggregatesFilter<"ServicePartner"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"ServicePartner"> | string | null
+    email?: StringNullableWithAggregatesFilter<"ServicePartner"> | string | null
+    status?: StringWithAggregatesFilter<"ServicePartner"> | string
+    branchId?: StringWithAggregatesFilter<"ServicePartner"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ServicePartner"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ServicePartner"> | Date | string
+  }
+
+  export type LockerWhereInput = {
+    AND?: LockerWhereInput | LockerWhereInput[]
+    OR?: LockerWhereInput[]
+    NOT?: LockerWhereInput | LockerWhereInput[]
+    id?: StringFilter<"Locker"> | string
+    lockerNo?: StringFilter<"Locker"> | string
+    type?: StringFilter<"Locker"> | string
+    category?: StringFilter<"Locker"> | string
+    status?: StringFilter<"Locker"> | string
+    branchId?: StringFilter<"Locker"> | string
+    createdAt?: DateTimeFilter<"Locker"> | Date | string
+    updatedAt?: DateTimeFilter<"Locker"> | Date | string
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }
+
+  export type LockerOrderByWithRelationInput = {
+    id?: SortOrder
+    lockerNo?: SortOrder
+    type?: SortOrder
+    category?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    branch?: BranchOrderByWithRelationInput
+  }
+
+  export type LockerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    branchId_lockerNo?: LockerBranchIdLockerNoCompoundUniqueInput
+    AND?: LockerWhereInput | LockerWhereInput[]
+    OR?: LockerWhereInput[]
+    NOT?: LockerWhereInput | LockerWhereInput[]
+    lockerNo?: StringFilter<"Locker"> | string
+    type?: StringFilter<"Locker"> | string
+    category?: StringFilter<"Locker"> | string
+    status?: StringFilter<"Locker"> | string
+    branchId?: StringFilter<"Locker"> | string
+    createdAt?: DateTimeFilter<"Locker"> | Date | string
+    updatedAt?: DateTimeFilter<"Locker"> | Date | string
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }, "id" | "branchId_lockerNo">
+
+  export type LockerOrderByWithAggregationInput = {
+    id?: SortOrder
+    lockerNo?: SortOrder
+    type?: SortOrder
+    category?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LockerCountOrderByAggregateInput
+    _max?: LockerMaxOrderByAggregateInput
+    _min?: LockerMinOrderByAggregateInput
+  }
+
+  export type LockerScalarWhereWithAggregatesInput = {
+    AND?: LockerScalarWhereWithAggregatesInput | LockerScalarWhereWithAggregatesInput[]
+    OR?: LockerScalarWhereWithAggregatesInput[]
+    NOT?: LockerScalarWhereWithAggregatesInput | LockerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Locker"> | string
+    lockerNo?: StringWithAggregatesFilter<"Locker"> | string
+    type?: StringWithAggregatesFilter<"Locker"> | string
+    category?: StringWithAggregatesFilter<"Locker"> | string
+    status?: StringWithAggregatesFilter<"Locker"> | string
+    branchId?: StringWithAggregatesFilter<"Locker"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Locker"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Locker"> | Date | string
+  }
+
   export type StationeryMovementWhereInput = {
     AND?: StationeryMovementWhereInput | StationeryMovementWhereInput[]
     OR?: StationeryMovementWhereInput[]
@@ -93066,6 +97489,9 @@ export namespace Prisma {
     id?: StringFilter<"Atm"> | string
     atmId?: StringFilter<"Atm"> | string
     branchId?: StringFilter<"Atm"> | string
+    deviceType?: StringFilter<"Atm"> | string
+    managementType?: StringFilter<"Atm"> | string
+    locationType?: StringFilter<"Atm"> | string
     lastTxnTime?: StringFilter<"Atm"> | string
     balance?: DecimalFilter<"Atm"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Atm"> | Date | string
@@ -93077,6 +97503,9 @@ export namespace Prisma {
     id?: SortOrder
     atmId?: SortOrder
     branchId?: SortOrder
+    deviceType?: SortOrder
+    managementType?: SortOrder
+    locationType?: SortOrder
     lastTxnTime?: SortOrder
     balance?: SortOrder
     createdAt?: SortOrder
@@ -93091,6 +97520,9 @@ export namespace Prisma {
     OR?: AtmWhereInput[]
     NOT?: AtmWhereInput | AtmWhereInput[]
     branchId?: StringFilter<"Atm"> | string
+    deviceType?: StringFilter<"Atm"> | string
+    managementType?: StringFilter<"Atm"> | string
+    locationType?: StringFilter<"Atm"> | string
     lastTxnTime?: StringFilter<"Atm"> | string
     balance?: DecimalFilter<"Atm"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Atm"> | Date | string
@@ -93102,6 +97534,9 @@ export namespace Prisma {
     id?: SortOrder
     atmId?: SortOrder
     branchId?: SortOrder
+    deviceType?: SortOrder
+    managementType?: SortOrder
+    locationType?: SortOrder
     lastTxnTime?: SortOrder
     balance?: SortOrder
     createdAt?: SortOrder
@@ -93120,6 +97555,9 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Atm"> | string
     atmId?: StringWithAggregatesFilter<"Atm"> | string
     branchId?: StringWithAggregatesFilter<"Atm"> | string
+    deviceType?: StringWithAggregatesFilter<"Atm"> | string
+    managementType?: StringWithAggregatesFilter<"Atm"> | string
+    locationType?: StringWithAggregatesFilter<"Atm"> | string
     lastTxnTime?: StringWithAggregatesFilter<"Atm"> | string
     balance?: DecimalWithAggregatesFilter<"Atm"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeWithAggregatesFilter<"Atm"> | Date | string
@@ -93134,6 +97572,7 @@ export namespace Prisma {
     userId?: StringFilter<"PostingHistory"> | string
     branchId?: StringFilter<"PostingHistory"> | string
     designationId?: StringNullableFilter<"PostingHistory"> | string | null
+    gradeId?: StringNullableFilter<"PostingHistory"> | string | null
     startDate?: DateTimeFilter<"PostingHistory"> | Date | string
     endDate?: DateTimeNullableFilter<"PostingHistory"> | Date | string | null
     isCurrent?: BoolFilter<"PostingHistory"> | boolean
@@ -93141,6 +97580,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PostingHistory"> | Date | string
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     designation?: XOR<DesignationNullableScalarRelationFilter, DesignationWhereInput> | null
+    gradeMaster?: XOR<GradeNullableScalarRelationFilter, GradeWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -93149,6 +97589,7 @@ export namespace Prisma {
     userId?: SortOrder
     branchId?: SortOrder
     designationId?: SortOrderInput | SortOrder
+    gradeId?: SortOrderInput | SortOrder
     startDate?: SortOrder
     endDate?: SortOrderInput | SortOrder
     isCurrent?: SortOrder
@@ -93156,6 +97597,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     branch?: BranchOrderByWithRelationInput
     designation?: DesignationOrderByWithRelationInput
+    gradeMaster?: GradeOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
 
@@ -93167,6 +97609,7 @@ export namespace Prisma {
     userId?: StringFilter<"PostingHistory"> | string
     branchId?: StringFilter<"PostingHistory"> | string
     designationId?: StringNullableFilter<"PostingHistory"> | string | null
+    gradeId?: StringNullableFilter<"PostingHistory"> | string | null
     startDate?: DateTimeFilter<"PostingHistory"> | Date | string
     endDate?: DateTimeNullableFilter<"PostingHistory"> | Date | string | null
     isCurrent?: BoolFilter<"PostingHistory"> | boolean
@@ -93174,6 +97617,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"PostingHistory"> | Date | string
     branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
     designation?: XOR<DesignationNullableScalarRelationFilter, DesignationWhereInput> | null
+    gradeMaster?: XOR<GradeNullableScalarRelationFilter, GradeWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
@@ -93182,6 +97626,7 @@ export namespace Prisma {
     userId?: SortOrder
     branchId?: SortOrder
     designationId?: SortOrderInput | SortOrder
+    gradeId?: SortOrderInput | SortOrder
     startDate?: SortOrder
     endDate?: SortOrderInput | SortOrder
     isCurrent?: SortOrder
@@ -93200,6 +97645,7 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"PostingHistory"> | string
     branchId?: StringWithAggregatesFilter<"PostingHistory"> | string
     designationId?: StringNullableWithAggregatesFilter<"PostingHistory"> | string | null
+    gradeId?: StringNullableWithAggregatesFilter<"PostingHistory"> | string | null
     startDate?: DateTimeWithAggregatesFilter<"PostingHistory"> | Date | string
     endDate?: DateTimeNullableWithAggregatesFilter<"PostingHistory"> | Date | string | null
     isCurrent?: BoolWithAggregatesFilter<"PostingHistory"> | boolean
@@ -96674,8 +101120,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -96709,6 +101156,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -96780,8 +101228,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -96815,6 +101264,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -96868,6 +101318,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -96924,6 +101375,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SessionCreateInput = {
@@ -97093,30 +101545,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -97141,35 +101602,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -97192,33 +101664,44 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -97243,35 +101726,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -97294,91 +101788,116 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
   }
 
   export type BranchUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BranchUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DepartmentCreateInput = {
@@ -97555,6 +102074,77 @@ export namespace Prisma {
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     workId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradeCreateInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutGradeMasterInput
+    postingHistories?: PostingHistoryCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeUncheckedCreateInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutGradeMasterInput
+    postingHistories?: PostingHistoryUncheckedCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutGradeMasterNestedInput
+    postingHistories?: PostingHistoryUpdateManyWithoutGradeMasterNestedInput
+  }
+
+  export type GradeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutGradeMasterNestedInput
+    postingHistories?: PostingHistoryUncheckedUpdateManyWithoutGradeMasterNestedInput
+  }
+
+  export type GradeCreateManyInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GradeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GradeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -98634,6 +103224,186 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ServicePartnerCreateInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    branch: BranchCreateNestedOneWithoutPartnersInput
+  }
+
+  export type ServicePartnerUncheckedCreateInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    branchId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServicePartnerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneRequiredWithoutPartnersNestedInput
+  }
+
+  export type ServicePartnerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServicePartnerCreateManyInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    branchId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServicePartnerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServicePartnerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerCreateInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    branch: BranchCreateNestedOneWithoutLockersInput
+  }
+
+  export type LockerUncheckedCreateInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    branchId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LockerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneRequiredWithoutLockersNestedInput
+  }
+
+  export type LockerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerCreateManyInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    branchId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LockerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StationeryMovementCreateInput = {
     id?: string
     quantity: number
@@ -99184,6 +103954,9 @@ export namespace Prisma {
   export type AtmCreateInput = {
     id?: string
     atmId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -99195,6 +103968,9 @@ export namespace Prisma {
     id?: string
     atmId: string
     branchId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -99204,6 +103980,9 @@ export namespace Prisma {
   export type AtmUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99215,6 +103994,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99225,6 +104007,9 @@ export namespace Prisma {
     id?: string
     atmId: string
     branchId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -99234,6 +104019,9 @@ export namespace Prisma {
   export type AtmUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99244,6 +104032,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99259,6 +104050,7 @@ export namespace Prisma {
     createdAt?: Date | string
     branch: BranchCreateNestedOneWithoutPostingHistoryInput
     designation?: DesignationCreateNestedOneWithoutPostingHistoryInput
+    gradeMaster?: GradeCreateNestedOneWithoutPostingHistoriesInput
     user: UserCreateNestedOneWithoutPostingHistoryInput
   }
 
@@ -99267,6 +104059,7 @@ export namespace Prisma {
     userId: string
     branchId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -99283,6 +104076,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     branch?: BranchUpdateOneRequiredWithoutPostingHistoryNestedInput
     designation?: DesignationUpdateOneWithoutPostingHistoryNestedInput
+    gradeMaster?: GradeUpdateOneWithoutPostingHistoriesNestedInput
     user?: UserUpdateOneRequiredWithoutPostingHistoryNestedInput
   }
 
@@ -99291,6 +104085,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -99303,6 +104098,7 @@ export namespace Prisma {
     userId: string
     branchId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -99324,6 +104120,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -103273,14 +108070,19 @@ export namespace Prisma {
     none?: SessionWhereInput
   }
 
-  export type DepartmentNullableScalarRelationFilter = {
-    is?: DepartmentWhereInput | null
-    isNot?: DepartmentWhereInput | null
-  }
-
   export type DesignationNullableScalarRelationFilter = {
     is?: DesignationWhereInput | null
     isNot?: DesignationWhereInput | null
+  }
+
+  export type GradeNullableScalarRelationFilter = {
+    is?: GradeWhereInput | null
+    isNot?: GradeWhereInput | null
+  }
+
+  export type DepartmentNullableScalarRelationFilter = {
+    is?: DepartmentWhereInput | null
+    isNot?: DepartmentWhereInput | null
   }
 
   export type PhotoNullableScalarRelationFilter = {
@@ -103399,6 +108201,7 @@ export namespace Prisma {
     designationEn?: SortOrder
     designationHi?: SortOrder
     designationTa?: SortOrder
+    gradeId?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -103433,6 +108236,7 @@ export namespace Prisma {
     designationEn?: SortOrder
     designationHi?: SortOrder
     designationTa?: SortOrder
+    gradeId?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -103463,6 +108267,7 @@ export namespace Prisma {
     designationEn?: SortOrder
     designationHi?: SortOrder
     designationTa?: SortOrder
+    gradeId?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -103661,6 +108466,12 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type BranchListRelationFilter = {
+    every?: BranchWhereInput
+    some?: BranchWhereInput
+    none?: BranchWhereInput
+  }
+
   export type AccountClosureListRelationFilter = {
     every?: AccountClosureWhereInput
     some?: AccountClosureWhereInput
@@ -103763,6 +108574,22 @@ export namespace Prisma {
     none?: UserWhereInput
   }
 
+  export type ServicePartnerListRelationFilter = {
+    every?: ServicePartnerWhereInput
+    some?: ServicePartnerWhereInput
+    none?: ServicePartnerWhereInput
+  }
+
+  export type LockerListRelationFilter = {
+    every?: LockerWhereInput
+    some?: LockerWhereInput
+    none?: LockerWhereInput
+  }
+
+  export type BranchOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type AccountClosureOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -103831,105 +108658,137 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type ServicePartnerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LockerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type BranchCountOrderByAggregateInput = {
-    id?: SortOrder
-    sNo?: SortOrder
     code?: SortOrder
     officeId?: SortOrder
     nameEn?: SortOrder
     nameTa?: SortOrder
     nameHi?: SortOrder
     type?: SortOrder
+    size?: SortOrder
     openDate?: SortOrder
-    district?: SortOrder
     populationGroup?: SortOrder
     riskCategory?: SortOrder
     riskEffectiveDate?: SortOrder
-    specialStatus?: SortOrder
+    prevRiskCategory?: SortOrder
     ifsc?: SortOrder
-    address?: SortOrder
+    micr?: SortOrder
+    bsrCode?: SortOrder
+    address1En?: SortOrder
+    address2En?: SortOrder
+    districtEn?: SortOrder
+    address1Ta?: SortOrder
+    address2Ta?: SortOrder
+    districtTa?: SortOrder
+    address1Hi?: SortOrder
+    address2Hi?: SortOrder
+    districtHi?: SortOrder
+    pincode?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
-    pincode?: SortOrder
+    parentCode?: SortOrder
     headUserId?: SortOrder
     secondLineUserId?: SortOrder
-    addressHi?: SortOrder
-    addressTa?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    size?: SortOrder
+    sNo?: SortOrder
+    specialStatus?: SortOrder
   }
 
   export type BranchAvgOrderByAggregateInput = {
-    sNo?: SortOrder
     officeId?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    sNo?: SortOrder
   }
 
   export type BranchMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sNo?: SortOrder
     code?: SortOrder
     officeId?: SortOrder
     nameEn?: SortOrder
     nameTa?: SortOrder
     nameHi?: SortOrder
     type?: SortOrder
+    size?: SortOrder
     openDate?: SortOrder
-    district?: SortOrder
     populationGroup?: SortOrder
     riskCategory?: SortOrder
     riskEffectiveDate?: SortOrder
-    specialStatus?: SortOrder
+    prevRiskCategory?: SortOrder
     ifsc?: SortOrder
-    address?: SortOrder
+    micr?: SortOrder
+    bsrCode?: SortOrder
+    address1En?: SortOrder
+    address2En?: SortOrder
+    districtEn?: SortOrder
+    address1Ta?: SortOrder
+    address2Ta?: SortOrder
+    districtTa?: SortOrder
+    address1Hi?: SortOrder
+    address2Hi?: SortOrder
+    districtHi?: SortOrder
+    pincode?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
-    pincode?: SortOrder
+    parentCode?: SortOrder
     headUserId?: SortOrder
     secondLineUserId?: SortOrder
-    addressHi?: SortOrder
-    addressTa?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    size?: SortOrder
+    sNo?: SortOrder
+    specialStatus?: SortOrder
   }
 
   export type BranchMinOrderByAggregateInput = {
-    id?: SortOrder
-    sNo?: SortOrder
     code?: SortOrder
     officeId?: SortOrder
     nameEn?: SortOrder
     nameTa?: SortOrder
     nameHi?: SortOrder
     type?: SortOrder
+    size?: SortOrder
     openDate?: SortOrder
-    district?: SortOrder
     populationGroup?: SortOrder
     riskCategory?: SortOrder
     riskEffectiveDate?: SortOrder
-    specialStatus?: SortOrder
+    prevRiskCategory?: SortOrder
     ifsc?: SortOrder
-    address?: SortOrder
+    micr?: SortOrder
+    bsrCode?: SortOrder
+    address1En?: SortOrder
+    address2En?: SortOrder
+    districtEn?: SortOrder
+    address1Ta?: SortOrder
+    address2Ta?: SortOrder
+    districtTa?: SortOrder
+    address1Hi?: SortOrder
+    address2Hi?: SortOrder
+    districtHi?: SortOrder
+    pincode?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
-    pincode?: SortOrder
+    parentCode?: SortOrder
     headUserId?: SortOrder
     secondLineUserId?: SortOrder
-    addressHi?: SortOrder
-    addressTa?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    size?: SortOrder
+    sNo?: SortOrder
+    specialStatus?: SortOrder
   }
 
   export type BranchSumOrderByAggregateInput = {
-    sNo?: SortOrder
     officeId?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    sNo?: SortOrder
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -104046,6 +108905,41 @@ export namespace Prisma {
 
   export type DesignationSumOrderByAggregateInput = {
     workId?: SortOrder
+  }
+
+  export type GradeCountOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    seniorityLevel?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradeAvgOrderByAggregateInput = {
+    seniorityLevel?: SortOrder
+  }
+
+  export type GradeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    seniorityLevel?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradeMinOrderByAggregateInput = {
+    id?: SortOrder
+    code?: SortOrder
+    name?: SortOrder
+    seniorityLevel?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GradeSumOrderByAggregateInput = {
+    seniorityLevel?: SortOrder
   }
 
   export type BranchScalarRelationFilter = {
@@ -104634,6 +109528,89 @@ export namespace Prisma {
     stockLevel?: SortOrder
   }
 
+  export type ServicePartnerCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    nameEn?: SortOrder
+    nameTa?: SortOrder
+    nameHi?: SortOrder
+    registrationNo?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServicePartnerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    nameEn?: SortOrder
+    nameTa?: SortOrder
+    nameHi?: SortOrder
+    registrationNo?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServicePartnerMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    nameEn?: SortOrder
+    nameTa?: SortOrder
+    nameHi?: SortOrder
+    registrationNo?: SortOrder
+    phone?: SortOrder
+    email?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LockerBranchIdLockerNoCompoundUniqueInput = {
+    branchId: string
+    lockerNo: string
+  }
+
+  export type LockerCountOrderByAggregateInput = {
+    id?: SortOrder
+    lockerNo?: SortOrder
+    type?: SortOrder
+    category?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LockerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    lockerNo?: SortOrder
+    type?: SortOrder
+    category?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LockerMinOrderByAggregateInput = {
+    id?: SortOrder
+    lockerNo?: SortOrder
+    type?: SortOrder
+    category?: SortOrder
+    status?: SortOrder
+    branchId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type StationeryItemScalarRelationFilter = {
     is?: StationeryItemWhereInput
     isNot?: StationeryItemWhereInput
@@ -104969,6 +109946,9 @@ export namespace Prisma {
     id?: SortOrder
     atmId?: SortOrder
     branchId?: SortOrder
+    deviceType?: SortOrder
+    managementType?: SortOrder
+    locationType?: SortOrder
     lastTxnTime?: SortOrder
     balance?: SortOrder
     createdAt?: SortOrder
@@ -104983,6 +109963,9 @@ export namespace Prisma {
     id?: SortOrder
     atmId?: SortOrder
     branchId?: SortOrder
+    deviceType?: SortOrder
+    managementType?: SortOrder
+    locationType?: SortOrder
     lastTxnTime?: SortOrder
     balance?: SortOrder
     createdAt?: SortOrder
@@ -104993,6 +109976,9 @@ export namespace Prisma {
     id?: SortOrder
     atmId?: SortOrder
     branchId?: SortOrder
+    deviceType?: SortOrder
+    managementType?: SortOrder
+    locationType?: SortOrder
     lastTxnTime?: SortOrder
     balance?: SortOrder
     createdAt?: SortOrder
@@ -105024,6 +110010,7 @@ export namespace Prisma {
     userId?: SortOrder
     branchId?: SortOrder
     designationId?: SortOrder
+    gradeId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     isCurrent?: SortOrder
@@ -105036,6 +110023,7 @@ export namespace Prisma {
     userId?: SortOrder
     branchId?: SortOrder
     designationId?: SortOrder
+    gradeId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     isCurrent?: SortOrder
@@ -105048,6 +110036,7 @@ export namespace Prisma {
     userId?: SortOrder
     branchId?: SortOrder
     designationId?: SortOrder
+    gradeId?: SortOrder
     startDate?: SortOrder
     endDate?: SortOrder
     isCurrent?: SortOrder
@@ -107240,16 +112229,22 @@ export namespace Prisma {
     connect?: BranchWhereUniqueInput
   }
 
-  export type DepartmentCreateNestedOneWithoutMainUsersInput = {
-    create?: XOR<DepartmentCreateWithoutMainUsersInput, DepartmentUncheckedCreateWithoutMainUsersInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutMainUsersInput
-    connect?: DepartmentWhereUniqueInput
-  }
-
   export type DesignationCreateNestedOneWithoutUsersInput = {
     create?: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
     connectOrCreate?: DesignationCreateOrConnectWithoutUsersInput
     connect?: DesignationWhereUniqueInput
+  }
+
+  export type GradeCreateNestedOneWithoutUsersInput = {
+    create?: XOR<GradeCreateWithoutUsersInput, GradeUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutUsersInput
+    connect?: GradeWhereUniqueInput
+  }
+
+  export type DepartmentCreateNestedOneWithoutMainUsersInput = {
+    create?: XOR<DepartmentCreateWithoutMainUsersInput, DepartmentUncheckedCreateWithoutMainUsersInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutMainUsersInput
+    connect?: DepartmentWhereUniqueInput
   }
 
   export type PhotoCreateNestedOneWithoutUserInput = {
@@ -107751,16 +112746,6 @@ export namespace Prisma {
     update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutUsersInput, BranchUpdateWithoutUsersInput>, BranchUncheckedUpdateWithoutUsersInput>
   }
 
-  export type DepartmentUpdateOneWithoutMainUsersNestedInput = {
-    create?: XOR<DepartmentCreateWithoutMainUsersInput, DepartmentUncheckedCreateWithoutMainUsersInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutMainUsersInput
-    upsert?: DepartmentUpsertWithoutMainUsersInput
-    disconnect?: DepartmentWhereInput | boolean
-    delete?: DepartmentWhereInput | boolean
-    connect?: DepartmentWhereUniqueInput
-    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutMainUsersInput, DepartmentUpdateWithoutMainUsersInput>, DepartmentUncheckedUpdateWithoutMainUsersInput>
-  }
-
   export type DesignationUpdateOneWithoutUsersNestedInput = {
     create?: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
     connectOrCreate?: DesignationCreateOrConnectWithoutUsersInput
@@ -107769,6 +112754,26 @@ export namespace Prisma {
     delete?: DesignationWhereInput | boolean
     connect?: DesignationWhereUniqueInput
     update?: XOR<XOR<DesignationUpdateToOneWithWhereWithoutUsersInput, DesignationUpdateWithoutUsersInput>, DesignationUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type GradeUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<GradeCreateWithoutUsersInput, GradeUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutUsersInput
+    upsert?: GradeUpsertWithoutUsersInput
+    disconnect?: GradeWhereInput | boolean
+    delete?: GradeWhereInput | boolean
+    connect?: GradeWhereUniqueInput
+    update?: XOR<XOR<GradeUpdateToOneWithWhereWithoutUsersInput, GradeUpdateWithoutUsersInput>, GradeUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type DepartmentUpdateOneWithoutMainUsersNestedInput = {
+    create?: XOR<DepartmentCreateWithoutMainUsersInput, DepartmentUncheckedCreateWithoutMainUsersInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutMainUsersInput
+    upsert?: DepartmentUpsertWithoutMainUsersInput
+    disconnect?: DepartmentWhereInput | boolean
+    delete?: DepartmentWhereInput | boolean
+    connect?: DepartmentWhereUniqueInput
+    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutMainUsersInput, DepartmentUpdateWithoutMainUsersInput>, DepartmentUncheckedUpdateWithoutMainUsersInput>
   }
 
   export type PhotoUpdateOneWithoutUserNestedInput = {
@@ -108149,6 +113154,19 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLoginAuditLogsInput, UserUpdateWithoutLoginAuditLogsInput>, UserUncheckedUpdateWithoutLoginAuditLogsInput>
   }
 
+  export type BranchCreateNestedOneWithoutChildrenInput = {
+    create?: XOR<BranchCreateWithoutChildrenInput, BranchUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutChildrenInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type BranchCreateNestedManyWithoutParentInput = {
+    create?: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput> | BranchCreateWithoutParentInput[] | BranchUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BranchCreateOrConnectWithoutParentInput | BranchCreateOrConnectWithoutParentInput[]
+    createMany?: BranchCreateManyParentInputEnvelope
+    connect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+  }
+
   export type AccountClosureCreateNestedManyWithoutBranchInput = {
     create?: XOR<AccountClosureCreateWithoutBranchInput, AccountClosureUncheckedCreateWithoutBranchInput> | AccountClosureCreateWithoutBranchInput[] | AccountClosureUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: AccountClosureCreateOrConnectWithoutBranchInput | AccountClosureCreateOrConnectWithoutBranchInput[]
@@ -108315,6 +113333,27 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
+  export type ServicePartnerCreateNestedManyWithoutBranchInput = {
+    create?: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput> | ServicePartnerCreateWithoutBranchInput[] | ServicePartnerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ServicePartnerCreateOrConnectWithoutBranchInput | ServicePartnerCreateOrConnectWithoutBranchInput[]
+    createMany?: ServicePartnerCreateManyBranchInputEnvelope
+    connect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+  }
+
+  export type LockerCreateNestedManyWithoutBranchInput = {
+    create?: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput> | LockerCreateWithoutBranchInput[] | LockerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: LockerCreateOrConnectWithoutBranchInput | LockerCreateOrConnectWithoutBranchInput[]
+    createMany?: LockerCreateManyBranchInputEnvelope
+    connect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+  }
+
+  export type BranchUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput> | BranchCreateWithoutParentInput[] | BranchUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BranchCreateOrConnectWithoutParentInput | BranchCreateOrConnectWithoutParentInput[]
+    createMany?: BranchCreateManyParentInputEnvelope
+    connect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+  }
+
   export type AccountClosureUncheckedCreateNestedManyWithoutBranchInput = {
     create?: XOR<AccountClosureCreateWithoutBranchInput, AccountClosureUncheckedCreateWithoutBranchInput> | AccountClosureCreateWithoutBranchInput[] | AccountClosureUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: AccountClosureCreateOrConnectWithoutBranchInput | AccountClosureCreateOrConnectWithoutBranchInput[]
@@ -108469,6 +113508,20 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
+  export type ServicePartnerUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput> | ServicePartnerCreateWithoutBranchInput[] | ServicePartnerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ServicePartnerCreateOrConnectWithoutBranchInput | ServicePartnerCreateOrConnectWithoutBranchInput[]
+    createMany?: ServicePartnerCreateManyBranchInputEnvelope
+    connect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+  }
+
+  export type LockerUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput> | LockerCreateWithoutBranchInput[] | LockerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: LockerCreateOrConnectWithoutBranchInput | LockerCreateOrConnectWithoutBranchInput[]
+    createMany?: LockerCreateManyBranchInputEnvelope
+    connect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -108483,6 +113536,30 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BranchUpdateOneWithoutChildrenNestedInput = {
+    create?: XOR<BranchCreateWithoutChildrenInput, BranchUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutChildrenInput
+    upsert?: BranchUpsertWithoutChildrenInput
+    disconnect?: BranchWhereInput | boolean
+    delete?: BranchWhereInput | boolean
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutChildrenInput, BranchUpdateWithoutChildrenInput>, BranchUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type BranchUpdateManyWithoutParentNestedInput = {
+    create?: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput> | BranchCreateWithoutParentInput[] | BranchUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BranchCreateOrConnectWithoutParentInput | BranchCreateOrConnectWithoutParentInput[]
+    upsert?: BranchUpsertWithWhereUniqueWithoutParentInput | BranchUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: BranchCreateManyParentInputEnvelope
+    set?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    disconnect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    delete?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    connect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    update?: BranchUpdateWithWhereUniqueWithoutParentInput | BranchUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: BranchUpdateManyWithWhereWithoutParentInput | BranchUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: BranchScalarWhereInput | BranchScalarWhereInput[]
   }
 
   export type AccountClosureUpdateManyWithoutBranchNestedInput = {
@@ -108813,6 +113890,48 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type ServicePartnerUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput> | ServicePartnerCreateWithoutBranchInput[] | ServicePartnerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ServicePartnerCreateOrConnectWithoutBranchInput | ServicePartnerCreateOrConnectWithoutBranchInput[]
+    upsert?: ServicePartnerUpsertWithWhereUniqueWithoutBranchInput | ServicePartnerUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: ServicePartnerCreateManyBranchInputEnvelope
+    set?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    disconnect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    delete?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    connect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    update?: ServicePartnerUpdateWithWhereUniqueWithoutBranchInput | ServicePartnerUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: ServicePartnerUpdateManyWithWhereWithoutBranchInput | ServicePartnerUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: ServicePartnerScalarWhereInput | ServicePartnerScalarWhereInput[]
+  }
+
+  export type LockerUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput> | LockerCreateWithoutBranchInput[] | LockerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: LockerCreateOrConnectWithoutBranchInput | LockerCreateOrConnectWithoutBranchInput[]
+    upsert?: LockerUpsertWithWhereUniqueWithoutBranchInput | LockerUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: LockerCreateManyBranchInputEnvelope
+    set?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    disconnect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    delete?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    connect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    update?: LockerUpdateWithWhereUniqueWithoutBranchInput | LockerUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: LockerUpdateManyWithWhereWithoutBranchInput | LockerUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: LockerScalarWhereInput | LockerScalarWhereInput[]
+  }
+
+  export type BranchUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput> | BranchCreateWithoutParentInput[] | BranchUncheckedCreateWithoutParentInput[]
+    connectOrCreate?: BranchCreateOrConnectWithoutParentInput | BranchCreateOrConnectWithoutParentInput[]
+    upsert?: BranchUpsertWithWhereUniqueWithoutParentInput | BranchUpsertWithWhereUniqueWithoutParentInput[]
+    createMany?: BranchCreateManyParentInputEnvelope
+    set?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    disconnect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    delete?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    connect?: BranchWhereUniqueInput | BranchWhereUniqueInput[]
+    update?: BranchUpdateWithWhereUniqueWithoutParentInput | BranchUpdateWithWhereUniqueWithoutParentInput[]
+    updateMany?: BranchUpdateManyWithWhereWithoutParentInput | BranchUpdateManyWithWhereWithoutParentInput[]
+    deleteMany?: BranchScalarWhereInput | BranchScalarWhereInput[]
+  }
+
   export type AccountClosureUncheckedUpdateManyWithoutBranchNestedInput = {
     create?: XOR<AccountClosureCreateWithoutBranchInput, AccountClosureUncheckedCreateWithoutBranchInput> | AccountClosureCreateWithoutBranchInput[] | AccountClosureUncheckedCreateWithoutBranchInput[]
     connectOrCreate?: AccountClosureCreateOrConnectWithoutBranchInput | AccountClosureCreateOrConnectWithoutBranchInput[]
@@ -109121,6 +114240,34 @@ export namespace Prisma {
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
+  export type ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput> | ServicePartnerCreateWithoutBranchInput[] | ServicePartnerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: ServicePartnerCreateOrConnectWithoutBranchInput | ServicePartnerCreateOrConnectWithoutBranchInput[]
+    upsert?: ServicePartnerUpsertWithWhereUniqueWithoutBranchInput | ServicePartnerUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: ServicePartnerCreateManyBranchInputEnvelope
+    set?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    disconnect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    delete?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    connect?: ServicePartnerWhereUniqueInput | ServicePartnerWhereUniqueInput[]
+    update?: ServicePartnerUpdateWithWhereUniqueWithoutBranchInput | ServicePartnerUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: ServicePartnerUpdateManyWithWhereWithoutBranchInput | ServicePartnerUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: ServicePartnerScalarWhereInput | ServicePartnerScalarWhereInput[]
+  }
+
+  export type LockerUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput> | LockerCreateWithoutBranchInput[] | LockerUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: LockerCreateOrConnectWithoutBranchInput | LockerCreateOrConnectWithoutBranchInput[]
+    upsert?: LockerUpsertWithWhereUniqueWithoutBranchInput | LockerUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: LockerCreateManyBranchInputEnvelope
+    set?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    disconnect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    delete?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    connect?: LockerWhereUniqueInput | LockerWhereUniqueInput[]
+    update?: LockerUpdateWithWhereUniqueWithoutBranchInput | LockerUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: LockerUpdateManyWithWhereWithoutBranchInput | LockerUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: LockerScalarWhereInput | LockerScalarWhereInput[]
+  }
+
   export type DepartmentManualCreateNestedManyWithoutDepartmentInput = {
     create?: XOR<DepartmentManualCreateWithoutDepartmentInput, DepartmentManualUncheckedCreateWithoutDepartmentInput> | DepartmentManualCreateWithoutDepartmentInput[] | DepartmentManualUncheckedCreateWithoutDepartmentInput[]
     connectOrCreate?: DepartmentManualCreateOrConnectWithoutDepartmentInput | DepartmentManualCreateOrConnectWithoutDepartmentInput[]
@@ -109363,6 +114510,90 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutDesignationInput | UserUpdateWithWhereUniqueWithoutDesignationInput[]
     updateMany?: UserUpdateManyWithWhereWithoutDesignationInput | UserUpdateManyWithWhereWithoutDesignationInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type UserCreateNestedManyWithoutGradeMasterInput = {
+    create?: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput> | UserCreateWithoutGradeMasterInput[] | UserUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutGradeMasterInput | UserCreateOrConnectWithoutGradeMasterInput[]
+    createMany?: UserCreateManyGradeMasterInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type PostingHistoryCreateNestedManyWithoutGradeMasterInput = {
+    create?: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput> | PostingHistoryCreateWithoutGradeMasterInput[] | PostingHistoryUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: PostingHistoryCreateOrConnectWithoutGradeMasterInput | PostingHistoryCreateOrConnectWithoutGradeMasterInput[]
+    createMany?: PostingHistoryCreateManyGradeMasterInputEnvelope
+    connect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutGradeMasterInput = {
+    create?: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput> | UserCreateWithoutGradeMasterInput[] | UserUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutGradeMasterInput | UserCreateOrConnectWithoutGradeMasterInput[]
+    createMany?: UserCreateManyGradeMasterInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type PostingHistoryUncheckedCreateNestedManyWithoutGradeMasterInput = {
+    create?: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput> | PostingHistoryCreateWithoutGradeMasterInput[] | PostingHistoryUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: PostingHistoryCreateOrConnectWithoutGradeMasterInput | PostingHistoryCreateOrConnectWithoutGradeMasterInput[]
+    createMany?: PostingHistoryCreateManyGradeMasterInputEnvelope
+    connect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+  }
+
+  export type UserUpdateManyWithoutGradeMasterNestedInput = {
+    create?: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput> | UserCreateWithoutGradeMasterInput[] | UserUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutGradeMasterInput | UserCreateOrConnectWithoutGradeMasterInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutGradeMasterInput | UserUpsertWithWhereUniqueWithoutGradeMasterInput[]
+    createMany?: UserCreateManyGradeMasterInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutGradeMasterInput | UserUpdateWithWhereUniqueWithoutGradeMasterInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutGradeMasterInput | UserUpdateManyWithWhereWithoutGradeMasterInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type PostingHistoryUpdateManyWithoutGradeMasterNestedInput = {
+    create?: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput> | PostingHistoryCreateWithoutGradeMasterInput[] | PostingHistoryUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: PostingHistoryCreateOrConnectWithoutGradeMasterInput | PostingHistoryCreateOrConnectWithoutGradeMasterInput[]
+    upsert?: PostingHistoryUpsertWithWhereUniqueWithoutGradeMasterInput | PostingHistoryUpsertWithWhereUniqueWithoutGradeMasterInput[]
+    createMany?: PostingHistoryCreateManyGradeMasterInputEnvelope
+    set?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    disconnect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    delete?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    connect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    update?: PostingHistoryUpdateWithWhereUniqueWithoutGradeMasterInput | PostingHistoryUpdateWithWhereUniqueWithoutGradeMasterInput[]
+    updateMany?: PostingHistoryUpdateManyWithWhereWithoutGradeMasterInput | PostingHistoryUpdateManyWithWhereWithoutGradeMasterInput[]
+    deleteMany?: PostingHistoryScalarWhereInput | PostingHistoryScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutGradeMasterNestedInput = {
+    create?: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput> | UserCreateWithoutGradeMasterInput[] | UserUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutGradeMasterInput | UserCreateOrConnectWithoutGradeMasterInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutGradeMasterInput | UserUpsertWithWhereUniqueWithoutGradeMasterInput[]
+    createMany?: UserCreateManyGradeMasterInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutGradeMasterInput | UserUpdateWithWhereUniqueWithoutGradeMasterInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutGradeMasterInput | UserUpdateManyWithWhereWithoutGradeMasterInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type PostingHistoryUncheckedUpdateManyWithoutGradeMasterNestedInput = {
+    create?: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput> | PostingHistoryCreateWithoutGradeMasterInput[] | PostingHistoryUncheckedCreateWithoutGradeMasterInput[]
+    connectOrCreate?: PostingHistoryCreateOrConnectWithoutGradeMasterInput | PostingHistoryCreateOrConnectWithoutGradeMasterInput[]
+    upsert?: PostingHistoryUpsertWithWhereUniqueWithoutGradeMasterInput | PostingHistoryUpsertWithWhereUniqueWithoutGradeMasterInput[]
+    createMany?: PostingHistoryCreateManyGradeMasterInputEnvelope
+    set?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    disconnect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    delete?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    connect?: PostingHistoryWhereUniqueInput | PostingHistoryWhereUniqueInput[]
+    update?: PostingHistoryUpdateWithWhereUniqueWithoutGradeMasterInput | PostingHistoryUpdateWithWhereUniqueWithoutGradeMasterInput[]
+    updateMany?: PostingHistoryUpdateManyWithWhereWithoutGradeMasterInput | PostingHistoryUpdateManyWithWhereWithoutGradeMasterInput[]
+    deleteMany?: PostingHistoryScalarWhereInput | PostingHistoryScalarWhereInput[]
   }
 
   export type BranchCreateNestedOneWithoutHistoryInput = {
@@ -109919,6 +115150,34 @@ export namespace Prisma {
     deleteMany?: StationeryMovementScalarWhereInput | StationeryMovementScalarWhereInput[]
   }
 
+  export type BranchCreateNestedOneWithoutPartnersInput = {
+    create?: XOR<BranchCreateWithoutPartnersInput, BranchUncheckedCreateWithoutPartnersInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutPartnersInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type BranchUpdateOneRequiredWithoutPartnersNestedInput = {
+    create?: XOR<BranchCreateWithoutPartnersInput, BranchUncheckedCreateWithoutPartnersInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutPartnersInput
+    upsert?: BranchUpsertWithoutPartnersInput
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutPartnersInput, BranchUpdateWithoutPartnersInput>, BranchUncheckedUpdateWithoutPartnersInput>
+  }
+
+  export type BranchCreateNestedOneWithoutLockersInput = {
+    create?: XOR<BranchCreateWithoutLockersInput, BranchUncheckedCreateWithoutLockersInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutLockersInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type BranchUpdateOneRequiredWithoutLockersNestedInput = {
+    create?: XOR<BranchCreateWithoutLockersInput, BranchUncheckedCreateWithoutLockersInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutLockersInput
+    upsert?: BranchUpsertWithoutLockersInput
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutLockersInput, BranchUpdateWithoutLockersInput>, BranchUncheckedUpdateWithoutLockersInput>
+  }
+
   export type BranchCreateNestedOneWithoutStationeryMovementsInput = {
     create?: XOR<BranchCreateWithoutStationeryMovementsInput, BranchUncheckedCreateWithoutStationeryMovementsInput>
     connectOrCreate?: BranchCreateOrConnectWithoutStationeryMovementsInput
@@ -110047,6 +115306,12 @@ export namespace Prisma {
     connect?: DesignationWhereUniqueInput
   }
 
+  export type GradeCreateNestedOneWithoutPostingHistoriesInput = {
+    create?: XOR<GradeCreateWithoutPostingHistoriesInput, GradeUncheckedCreateWithoutPostingHistoriesInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutPostingHistoriesInput
+    connect?: GradeWhereUniqueInput
+  }
+
   export type UserCreateNestedOneWithoutPostingHistoryInput = {
     create?: XOR<UserCreateWithoutPostingHistoryInput, UserUncheckedCreateWithoutPostingHistoryInput>
     connectOrCreate?: UserCreateOrConnectWithoutPostingHistoryInput
@@ -110069,6 +115334,16 @@ export namespace Prisma {
     delete?: DesignationWhereInput | boolean
     connect?: DesignationWhereUniqueInput
     update?: XOR<XOR<DesignationUpdateToOneWithWhereWithoutPostingHistoryInput, DesignationUpdateWithoutPostingHistoryInput>, DesignationUncheckedUpdateWithoutPostingHistoryInput>
+  }
+
+  export type GradeUpdateOneWithoutPostingHistoriesNestedInput = {
+    create?: XOR<GradeCreateWithoutPostingHistoriesInput, GradeUncheckedCreateWithoutPostingHistoriesInput>
+    connectOrCreate?: GradeCreateOrConnectWithoutPostingHistoriesInput
+    upsert?: GradeUpsertWithoutPostingHistoriesInput
+    disconnect?: GradeWhereInput | boolean
+    delete?: GradeWhereInput | boolean
+    connect?: GradeWhereUniqueInput
+    update?: XOR<XOR<GradeUpdateToOneWithWhereWithoutPostingHistoriesInput, GradeUpdateWithoutPostingHistoriesInput>, GradeUncheckedUpdateWithoutPostingHistoriesInput>
   }
 
   export type UserUpdateOneRequiredWithoutPostingHistoryNestedInput = {
@@ -111682,30 +116957,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutHeadUserInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -111729,34 +117013,45 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutHeadUserInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -111779,6 +117074,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutHeadUserInput = {
@@ -111787,30 +117084,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutSecondLineUserInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -111834,34 +117140,45 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutSecondLineUserInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -111884,6 +117201,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutSecondLineUserInput = {
@@ -112410,12 +117729,14 @@ export namespace Prisma {
     createdAt?: Date | string
     branch: BranchCreateNestedOneWithoutPostingHistoryInput
     designation?: DesignationCreateNestedOneWithoutPostingHistoryInput
+    gradeMaster?: GradeCreateNestedOneWithoutPostingHistoriesInput
   }
 
   export type PostingHistoryUncheckedCreateWithoutUserInput = {
     id?: string
     branchId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -112500,30 +117821,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutUsersInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -112547,35 +117877,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutUsersInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -112597,11 +117938,67 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutUsersInput = {
     where: BranchWhereUniqueInput
     create: XOR<BranchCreateWithoutUsersInput, BranchUncheckedCreateWithoutUsersInput>
+  }
+
+  export type DesignationCreateWithoutUsersInput = {
+    id?: string
+    code: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    workId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postingHistory?: PostingHistoryCreateNestedManyWithoutDesignationInput
+  }
+
+  export type DesignationUncheckedCreateWithoutUsersInput = {
+    id?: string
+    code: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    workId?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutDesignationInput
+  }
+
+  export type DesignationCreateOrConnectWithoutUsersInput = {
+    where: DesignationWhereUniqueInput
+    create: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
+  }
+
+  export type GradeCreateWithoutUsersInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postingHistories?: PostingHistoryCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeUncheckedCreateWithoutUsersInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postingHistories?: PostingHistoryUncheckedCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeCreateOrConnectWithoutUsersInput = {
+    where: GradeWhereUniqueInput
+    create: XOR<GradeCreateWithoutUsersInput, GradeUncheckedCreateWithoutUsersInput>
   }
 
   export type DepartmentCreateWithoutMainUsersInput = {
@@ -112635,35 +118032,6 @@ export namespace Prisma {
   export type DepartmentCreateOrConnectWithoutMainUsersInput = {
     where: DepartmentWhereUniqueInput
     create: XOR<DepartmentCreateWithoutMainUsersInput, DepartmentUncheckedCreateWithoutMainUsersInput>
-  }
-
-  export type DesignationCreateWithoutUsersInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    workId?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    postingHistory?: PostingHistoryCreateNestedManyWithoutDesignationInput
-  }
-
-  export type DesignationUncheckedCreateWithoutUsersInput = {
-    id?: string
-    code: string
-    nameEn: string
-    nameTa?: string | null
-    nameHi?: string | null
-    workId?: number | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutDesignationInput
-  }
-
-  export type DesignationCreateOrConnectWithoutUsersInput = {
-    where: DesignationWhereUniqueInput
-    create: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
   }
 
   export type PhotoCreateWithoutUserInput = {
@@ -112837,30 +118205,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutHeadUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -112884,34 +118261,45 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutHeadUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -112934,6 +118322,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUpsertWithoutSecondLineUserInput = {
@@ -112948,30 +118338,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutSecondLineUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -112995,34 +118394,45 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutSecondLineUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -113045,6 +118455,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type ChatAuditLogUpsertWithWhereUniqueWithoutActorInput = {
@@ -113478,6 +118890,7 @@ export namespace Prisma {
     userId?: StringFilter<"PostingHistory"> | string
     branchId?: StringFilter<"PostingHistory"> | string
     designationId?: StringNullableFilter<"PostingHistory"> | string | null
+    gradeId?: StringNullableFilter<"PostingHistory"> | string | null
     startDate?: DateTimeFilter<"PostingHistory"> | Date | string
     endDate?: DateTimeNullableFilter<"PostingHistory"> | Date | string | null
     isCurrent?: BoolFilter<"PostingHistory"> | boolean
@@ -113560,30 +118973,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -113607,35 +119029,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -113657,6 +119090,74 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type DesignationUpsertWithoutUsersInput = {
+    update: XOR<DesignationUpdateWithoutUsersInput, DesignationUncheckedUpdateWithoutUsersInput>
+    create: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
+    where?: DesignationWhereInput
+  }
+
+  export type DesignationUpdateToOneWithWhereWithoutUsersInput = {
+    where?: DesignationWhereInput
+    data: XOR<DesignationUpdateWithoutUsersInput, DesignationUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type DesignationUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    workId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postingHistory?: PostingHistoryUpdateManyWithoutDesignationNestedInput
+  }
+
+  export type DesignationUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    workId?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutDesignationNestedInput
+  }
+
+  export type GradeUpsertWithoutUsersInput = {
+    update: XOR<GradeUpdateWithoutUsersInput, GradeUncheckedUpdateWithoutUsersInput>
+    create: XOR<GradeCreateWithoutUsersInput, GradeUncheckedCreateWithoutUsersInput>
+    where?: GradeWhereInput
+  }
+
+  export type GradeUpdateToOneWithWhereWithoutUsersInput = {
+    where?: GradeWhereInput
+    data: XOR<GradeUpdateWithoutUsersInput, GradeUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type GradeUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postingHistories?: PostingHistoryUpdateManyWithoutGradeMasterNestedInput
+  }
+
+  export type GradeUncheckedUpdateWithoutUsersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postingHistories?: PostingHistoryUncheckedUpdateManyWithoutGradeMasterNestedInput
   }
 
   export type DepartmentUpsertWithoutMainUsersInput = {
@@ -113696,41 +119197,6 @@ export namespace Prisma {
     manuals?: DepartmentManualUncheckedUpdateManyWithoutDepartmentNestedInput
     heads?: UserUncheckedUpdateManyWithoutManagedDepartmentsNestedInput
     users?: UserUncheckedUpdateManyWithoutDepartmentsNestedInput
-  }
-
-  export type DesignationUpsertWithoutUsersInput = {
-    update: XOR<DesignationUpdateWithoutUsersInput, DesignationUncheckedUpdateWithoutUsersInput>
-    create: XOR<DesignationCreateWithoutUsersInput, DesignationUncheckedCreateWithoutUsersInput>
-    where?: DesignationWhereInput
-  }
-
-  export type DesignationUpdateToOneWithWhereWithoutUsersInput = {
-    where?: DesignationWhereInput
-    data: XOR<DesignationUpdateWithoutUsersInput, DesignationUncheckedUpdateWithoutUsersInput>
-  }
-
-  export type DesignationUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    workId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    postingHistory?: PostingHistoryUpdateManyWithoutDesignationNestedInput
-  }
-
-  export type DesignationUncheckedUpdateWithoutUsersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    nameEn?: StringFieldUpdateOperationsInput | string
-    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
-    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
-    workId?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutDesignationNestedInput
   }
 
   export type PhotoUpsertWithoutUserInput = {
@@ -113853,8 +119319,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -113888,6 +119355,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -113973,8 +119441,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -114008,6 +119477,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -114077,8 +119547,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -114112,6 +119583,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -114197,8 +119669,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -114232,6 +119705,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -114254,6 +119728,265 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
+  }
+
+  export type BranchCreateWithoutChildrenInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
+    atms?: AtmCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
+    headUser?: UserCreateNestedOneWithoutHeadedBranchInput
+    secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
+    budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogCreateNestedManyWithoutBranchInput
+    letters?: LetterCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionCreateNestedManyWithoutBranchInput
+    facts?: FactCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutBranchInput
+    notices?: NoticeCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutChildrenInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    parentCode?: string | null
+    headUserId?: string | null
+    secondLineUserId?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
+    atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
+    budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
+    letters?: LetterUncheckedCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionUncheckedCreateNestedManyWithoutBranchInput
+    facts?: FactUncheckedCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotUncheckedCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutBranchInput
+    notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutChildrenInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutChildrenInput, BranchUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type BranchCreateWithoutParentInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
+    atms?: AtmCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
+    headUser?: UserCreateNestedOneWithoutHeadedBranchInput
+    secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
+    budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogCreateNestedManyWithoutBranchInput
+    letters?: LetterCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionCreateNestedManyWithoutBranchInput
+    facts?: FactCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutBranchInput
+    notices?: NoticeCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutParentInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    headUserId?: string | null
+    secondLineUserId?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
+    atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
+    budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
+    letters?: LetterUncheckedCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionUncheckedCreateNestedManyWithoutBranchInput
+    facts?: FactUncheckedCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotUncheckedCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutBranchInput
+    notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutParentInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput>
+  }
+
+  export type BranchCreateManyParentInputEnvelope = {
+    data: BranchCreateManyParentInput | BranchCreateManyParentInput[]
+    skipDuplicates?: boolean
   }
 
   export type AccountClosureCreateWithoutBranchInput = {
@@ -114353,6 +120086,9 @@ export namespace Prisma {
   export type AtmCreateWithoutBranchInput = {
     id?: string
     atmId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -114362,6 +120098,9 @@ export namespace Prisma {
   export type AtmUncheckedCreateWithoutBranchInput = {
     id?: string
     atmId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -114567,8 +120306,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -114602,6 +120342,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
@@ -114676,8 +120417,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -114711,6 +120453,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -115100,6 +120843,7 @@ export namespace Prisma {
     remarks?: string | null
     createdAt?: Date | string
     designation?: DesignationCreateNestedOneWithoutPostingHistoryInput
+    gradeMaster?: GradeCreateNestedOneWithoutPostingHistoriesInput
     user: UserCreateNestedOneWithoutPostingHistoryInput
   }
 
@@ -115107,6 +120851,7 @@ export namespace Prisma {
     id?: string
     userId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -115267,8 +121012,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -115301,6 +121047,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -115334,6 +121081,263 @@ export namespace Prisma {
   export type UserCreateManyBranchInputEnvelope = {
     data: UserCreateManyBranchInput | UserCreateManyBranchInput[]
     skipDuplicates?: boolean
+  }
+
+  export type ServicePartnerCreateWithoutBranchInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServicePartnerUncheckedCreateWithoutBranchInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServicePartnerCreateOrConnectWithoutBranchInput = {
+    where: ServicePartnerWhereUniqueInput
+    create: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput>
+  }
+
+  export type ServicePartnerCreateManyBranchInputEnvelope = {
+    data: ServicePartnerCreateManyBranchInput | ServicePartnerCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LockerCreateWithoutBranchInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LockerUncheckedCreateWithoutBranchInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LockerCreateOrConnectWithoutBranchInput = {
+    where: LockerWhereUniqueInput
+    create: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput>
+  }
+
+  export type LockerCreateManyBranchInputEnvelope = {
+    data: LockerCreateManyBranchInput | LockerCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BranchUpsertWithoutChildrenInput = {
+    update: XOR<BranchUpdateWithoutChildrenInput, BranchUncheckedUpdateWithoutChildrenInput>
+    create: XOR<BranchCreateWithoutChildrenInput, BranchUncheckedCreateWithoutChildrenInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutChildrenInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutChildrenInput, BranchUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type BranchUpdateWithoutChildrenInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
+    atms?: AtmUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
+    headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
+    secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
+    budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUpdateManyWithoutBranchNestedInput
+    letters?: LetterUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUpdateManyWithoutBranchNestedInput
+    facts?: FactUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutChildrenInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
+    atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
+    budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
+    letters?: LetterUncheckedUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUncheckedUpdateManyWithoutBranchNestedInput
+    facts?: FactUncheckedUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUncheckedUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUpsertWithWhereUniqueWithoutParentInput = {
+    where: BranchWhereUniqueInput
+    update: XOR<BranchUpdateWithoutParentInput, BranchUncheckedUpdateWithoutParentInput>
+    create: XOR<BranchCreateWithoutParentInput, BranchUncheckedCreateWithoutParentInput>
+  }
+
+  export type BranchUpdateWithWhereUniqueWithoutParentInput = {
+    where: BranchWhereUniqueInput
+    data: XOR<BranchUpdateWithoutParentInput, BranchUncheckedUpdateWithoutParentInput>
+  }
+
+  export type BranchUpdateManyWithWhereWithoutParentInput = {
+    where: BranchScalarWhereInput
+    data: XOR<BranchUpdateManyMutationInput, BranchUncheckedUpdateManyWithoutParentInput>
+  }
+
+  export type BranchScalarWhereInput = {
+    AND?: BranchScalarWhereInput | BranchScalarWhereInput[]
+    OR?: BranchScalarWhereInput[]
+    NOT?: BranchScalarWhereInput | BranchScalarWhereInput[]
+    code?: StringFilter<"Branch"> | string
+    officeId?: IntNullableFilter<"Branch"> | number | null
+    nameEn?: StringFilter<"Branch"> | string
+    nameTa?: StringNullableFilter<"Branch"> | string | null
+    nameHi?: StringNullableFilter<"Branch"> | string | null
+    type?: StringFilter<"Branch"> | string
+    size?: StringNullableFilter<"Branch"> | string | null
+    openDate?: StringNullableFilter<"Branch"> | string | null
+    populationGroup?: StringNullableFilter<"Branch"> | string | null
+    riskCategory?: StringNullableFilter<"Branch"> | string | null
+    riskEffectiveDate?: DateTimeNullableFilter<"Branch"> | Date | string | null
+    prevRiskCategory?: StringNullableFilter<"Branch"> | string | null
+    ifsc?: StringNullableFilter<"Branch"> | string | null
+    micr?: StringNullableFilter<"Branch"> | string | null
+    bsrCode?: StringNullableFilter<"Branch"> | string | null
+    address1En?: StringNullableFilter<"Branch"> | string | null
+    address2En?: StringNullableFilter<"Branch"> | string | null
+    districtEn?: StringNullableFilter<"Branch"> | string | null
+    address1Ta?: StringNullableFilter<"Branch"> | string | null
+    address2Ta?: StringNullableFilter<"Branch"> | string | null
+    districtTa?: StringNullableFilter<"Branch"> | string | null
+    address1Hi?: StringNullableFilter<"Branch"> | string | null
+    address2Hi?: StringNullableFilter<"Branch"> | string | null
+    districtHi?: StringNullableFilter<"Branch"> | string | null
+    pincode?: StringNullableFilter<"Branch"> | string | null
+    phone?: StringNullableFilter<"Branch"> | string | null
+    email?: StringNullableFilter<"Branch"> | string | null
+    latitude?: FloatNullableFilter<"Branch"> | number | null
+    longitude?: FloatNullableFilter<"Branch"> | number | null
+    parentCode?: StringNullableFilter<"Branch"> | string | null
+    headUserId?: StringNullableFilter<"Branch"> | string | null
+    secondLineUserId?: StringNullableFilter<"Branch"> | string | null
+    sNo?: IntNullableFilter<"Branch"> | number | null
+    specialStatus?: StringNullableFilter<"Branch"> | string | null
   }
 
   export type AccountClosureUpsertWithWhereUniqueWithoutBranchInput = {
@@ -115436,6 +121440,9 @@ export namespace Prisma {
     id?: StringFilter<"Atm"> | string
     atmId?: StringFilter<"Atm"> | string
     branchId?: StringFilter<"Atm"> | string
+    deviceType?: StringFilter<"Atm"> | string
+    managementType?: StringFilter<"Atm"> | string
+    locationType?: StringFilter<"Atm"> | string
     lastTxnTime?: StringFilter<"Atm"> | string
     balance?: DecimalFilter<"Atm"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFilter<"Atm"> | Date | string
@@ -115591,8 +121598,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -115626,6 +121634,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
@@ -115706,8 +121715,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -115741,6 +121751,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -116199,6 +122210,71 @@ export namespace Prisma {
     designationEn?: StringNullableFilter<"User"> | string | null
     designationHi?: StringNullableFilter<"User"> | string | null
     designationTa?: StringNullableFilter<"User"> | string | null
+    gradeId?: StringNullableFilter<"User"> | string | null
+  }
+
+  export type ServicePartnerUpsertWithWhereUniqueWithoutBranchInput = {
+    where: ServicePartnerWhereUniqueInput
+    update: XOR<ServicePartnerUpdateWithoutBranchInput, ServicePartnerUncheckedUpdateWithoutBranchInput>
+    create: XOR<ServicePartnerCreateWithoutBranchInput, ServicePartnerUncheckedCreateWithoutBranchInput>
+  }
+
+  export type ServicePartnerUpdateWithWhereUniqueWithoutBranchInput = {
+    where: ServicePartnerWhereUniqueInput
+    data: XOR<ServicePartnerUpdateWithoutBranchInput, ServicePartnerUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type ServicePartnerUpdateManyWithWhereWithoutBranchInput = {
+    where: ServicePartnerScalarWhereInput
+    data: XOR<ServicePartnerUpdateManyMutationInput, ServicePartnerUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type ServicePartnerScalarWhereInput = {
+    AND?: ServicePartnerScalarWhereInput | ServicePartnerScalarWhereInput[]
+    OR?: ServicePartnerScalarWhereInput[]
+    NOT?: ServicePartnerScalarWhereInput | ServicePartnerScalarWhereInput[]
+    id?: StringFilter<"ServicePartner"> | string
+    type?: StringFilter<"ServicePartner"> | string
+    nameEn?: StringFilter<"ServicePartner"> | string
+    nameTa?: StringNullableFilter<"ServicePartner"> | string | null
+    nameHi?: StringNullableFilter<"ServicePartner"> | string | null
+    registrationNo?: StringNullableFilter<"ServicePartner"> | string | null
+    phone?: StringNullableFilter<"ServicePartner"> | string | null
+    email?: StringNullableFilter<"ServicePartner"> | string | null
+    status?: StringFilter<"ServicePartner"> | string
+    branchId?: StringFilter<"ServicePartner"> | string
+    createdAt?: DateTimeFilter<"ServicePartner"> | Date | string
+    updatedAt?: DateTimeFilter<"ServicePartner"> | Date | string
+  }
+
+  export type LockerUpsertWithWhereUniqueWithoutBranchInput = {
+    where: LockerWhereUniqueInput
+    update: XOR<LockerUpdateWithoutBranchInput, LockerUncheckedUpdateWithoutBranchInput>
+    create: XOR<LockerCreateWithoutBranchInput, LockerUncheckedCreateWithoutBranchInput>
+  }
+
+  export type LockerUpdateWithWhereUniqueWithoutBranchInput = {
+    where: LockerWhereUniqueInput
+    data: XOR<LockerUpdateWithoutBranchInput, LockerUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type LockerUpdateManyWithWhereWithoutBranchInput = {
+    where: LockerScalarWhereInput
+    data: XOR<LockerUpdateManyMutationInput, LockerUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type LockerScalarWhereInput = {
+    AND?: LockerScalarWhereInput | LockerScalarWhereInput[]
+    OR?: LockerScalarWhereInput[]
+    NOT?: LockerScalarWhereInput | LockerScalarWhereInput[]
+    id?: StringFilter<"Locker"> | string
+    lockerNo?: StringFilter<"Locker"> | string
+    type?: StringFilter<"Locker"> | string
+    category?: StringFilter<"Locker"> | string
+    status?: StringFilter<"Locker"> | string
+    branchId?: StringFilter<"Locker"> | string
+    createdAt?: DateTimeFilter<"Locker"> | Date | string
+    updatedAt?: DateTimeFilter<"Locker"> | Date | string
   }
 
   export type DepartmentManualCreateWithoutDepartmentInput = {
@@ -116280,6 +122356,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -116312,6 +122389,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -116393,8 +122471,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
   }
@@ -116427,6 +122506,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -116502,8 +122582,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
   }
@@ -116536,6 +122617,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -116651,6 +122733,7 @@ export namespace Prisma {
     remarks?: string | null
     createdAt?: Date | string
     branch: BranchCreateNestedOneWithoutPostingHistoryInput
+    gradeMaster?: GradeCreateNestedOneWithoutPostingHistoriesInput
     user: UserCreateNestedOneWithoutPostingHistoryInput
   }
 
@@ -116658,6 +122741,7 @@ export namespace Prisma {
     id?: string
     userId: string
     branchId: string
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -116721,6 +122805,7 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
     department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
@@ -116754,6 +122839,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -116821,31 +122907,222 @@ export namespace Prisma {
     data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutDesignationInput>
   }
 
-  export type BranchCreateWithoutHistoryInput = {
+  export type UserCreateWithoutGradeMasterInput = {
     id?: string
-    sNo?: number | null
+    username: string
+    passwordHash: string
+    fullNameEn: string
+    fullNameTa?: string | null
+    fullNameHi?: string | null
+    grade?: string | null
+    role?: string
+    section?: string | null
+    isRegionHead?: boolean
+    isSecondLine?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    failedLoginAttempts?: number
+    lockedUntil?: Date | string | null
+    mfaEnabled?: boolean
+    mfaSecret?: string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    gender?: string
+    designationEn?: string | null
+    designationHi?: string | null
+    designationTa?: string | null
+    requests?: BranchRequestCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitCreateNestedManyWithoutVisitorInput
+    headedBranch?: BranchCreateNestedOneWithoutHeadUserInput
+    secondLineBranch?: BranchCreateNestedOneWithoutSecondLineUserInput
+    auditLogs?: ChatAuditLogCreateNestedManyWithoutActorInput
+    chatMemberships?: ChatMemberCreateNestedManyWithoutUserInput
+    createdChatGroups?: ChatGroupCreateNestedManyWithoutCreatorInput
+    messageAcks?: MessageAckCreateNestedManyWithoutUserInput
+    messagesSent?: ChatMessageCreateNestedManyWithoutSenderInput
+    comments?: CommentCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterCreateNestedManyWithoutSignatoryInput
+    loginAuditLogs?: LoginAuditLogCreateNestedManyWithoutUserInput
+    assignedActionPoints?: ActionPointCreateNestedManyWithoutAssignedToInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    approvedNotes?: OfficeNoteCreateNestedManyWithoutApproverInput
+    preparedNotes?: OfficeNoteCreateNestedManyWithoutPreparerInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
+    presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    branch?: BranchCreateNestedOneWithoutUsersInput
+    designation?: DesignationCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
+    photo?: PhotoCreateNestedOneWithoutUserInput
+    managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
+    departments?: DepartmentCreateNestedManyWithoutUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutGradeMasterInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    fullNameEn: string
+    fullNameTa?: string | null
+    fullNameHi?: string | null
+    grade?: string | null
+    role?: string
+    photoId?: string | null
+    section?: string | null
+    branchId?: string | null
+    isRegionHead?: boolean
+    isSecondLine?: boolean
+    departmentId?: string | null
+    designationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    failedLoginAttempts?: number
+    lockedUntil?: Date | string | null
+    mfaEnabled?: boolean
+    mfaSecret?: string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    gender?: string
+    designationEn?: string | null
+    designationHi?: string | null
+    designationTa?: string | null
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
+    branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
+    headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
+    secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
+    auditLogs?: ChatAuditLogUncheckedCreateNestedManyWithoutActorInput
+    chatMemberships?: ChatMemberUncheckedCreateNestedManyWithoutUserInput
+    createdChatGroups?: ChatGroupUncheckedCreateNestedManyWithoutCreatorInput
+    messageAcks?: MessageAckUncheckedCreateNestedManyWithoutUserInput
+    messagesSent?: ChatMessageUncheckedCreateNestedManyWithoutSenderInput
+    comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    authoredLetters?: LetterUncheckedCreateNestedManyWithoutAuthorInput
+    signatoryLetters?: LetterUncheckedCreateNestedManyWithoutSignatoryInput
+    loginAuditLogs?: LoginAuditLogUncheckedCreateNestedManyWithoutUserInput
+    assignedActionPoints?: ActionPointUncheckedCreateNestedManyWithoutAssignedToInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    approvedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutApproverInput
+    preparedNotes?: OfficeNoteUncheckedCreateNestedManyWithoutPreparerInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutUserInput
+    presentationDecks?: PresentationDeckUncheckedCreateNestedManyWithoutCreatedByInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    managedDepartments?: DepartmentUncheckedCreateNestedManyWithoutHeadsInput
+    departments?: DepartmentUncheckedCreateNestedManyWithoutUsersInput
+  }
+
+  export type UserCreateOrConnectWithoutGradeMasterInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput>
+  }
+
+  export type UserCreateManyGradeMasterInputEnvelope = {
+    data: UserCreateManyGradeMasterInput | UserCreateManyGradeMasterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PostingHistoryCreateWithoutGradeMasterInput = {
+    id?: string
+    startDate?: Date | string
+    endDate?: Date | string | null
+    isCurrent?: boolean
+    remarks?: string | null
+    createdAt?: Date | string
+    branch: BranchCreateNestedOneWithoutPostingHistoryInput
+    designation?: DesignationCreateNestedOneWithoutPostingHistoryInput
+    user: UserCreateNestedOneWithoutPostingHistoryInput
+  }
+
+  export type PostingHistoryUncheckedCreateWithoutGradeMasterInput = {
+    id?: string
+    userId: string
+    branchId: string
+    designationId?: string | null
+    startDate?: Date | string
+    endDate?: Date | string | null
+    isCurrent?: boolean
+    remarks?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PostingHistoryCreateOrConnectWithoutGradeMasterInput = {
+    where: PostingHistoryWhereUniqueInput
+    create: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput>
+  }
+
+  export type PostingHistoryCreateManyGradeMasterInputEnvelope = {
+    data: PostingHistoryCreateManyGradeMasterInput | PostingHistoryCreateManyGradeMasterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithWhereUniqueWithoutGradeMasterInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutGradeMasterInput, UserUncheckedUpdateWithoutGradeMasterInput>
+    create: XOR<UserCreateWithoutGradeMasterInput, UserUncheckedCreateWithoutGradeMasterInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutGradeMasterInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutGradeMasterInput, UserUncheckedUpdateWithoutGradeMasterInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutGradeMasterInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutGradeMasterInput>
+  }
+
+  export type PostingHistoryUpsertWithWhereUniqueWithoutGradeMasterInput = {
+    where: PostingHistoryWhereUniqueInput
+    update: XOR<PostingHistoryUpdateWithoutGradeMasterInput, PostingHistoryUncheckedUpdateWithoutGradeMasterInput>
+    create: XOR<PostingHistoryCreateWithoutGradeMasterInput, PostingHistoryUncheckedCreateWithoutGradeMasterInput>
+  }
+
+  export type PostingHistoryUpdateWithWhereUniqueWithoutGradeMasterInput = {
+    where: PostingHistoryWhereUniqueInput
+    data: XOR<PostingHistoryUpdateWithoutGradeMasterInput, PostingHistoryUncheckedUpdateWithoutGradeMasterInput>
+  }
+
+  export type PostingHistoryUpdateManyWithWhereWithoutGradeMasterInput = {
+    where: PostingHistoryScalarWhereInput
+    data: XOR<PostingHistoryUpdateManyMutationInput, PostingHistoryUncheckedUpdateManyWithoutGradeMasterInput>
+  }
+
+  export type BranchCreateWithoutHistoryInput = {
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -116869,35 +123146,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutHistoryInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -116919,6 +123207,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutHistoryInput = {
@@ -116938,30 +123228,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -116985,35 +123284,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -117035,6 +123345,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserCreateWithoutAuthoredLettersInput = {
@@ -117082,8 +123394,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -117117,6 +123430,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -117147,30 +123461,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutLettersInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -117194,35 +123517,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutLettersInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -117244,6 +123578,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutLettersInput = {
@@ -117427,8 +123763,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -117462,6 +123799,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -117547,8 +123885,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -117582,6 +123921,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -117618,30 +123958,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -117665,35 +124014,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutLettersInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -117715,6 +124075,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type LetterUpsertWithoutNextVersionsInput = {
@@ -117858,8 +124220,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -117893,6 +124256,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -117962,8 +124326,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -117997,6 +124362,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -118071,8 +124437,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -118106,6 +124473,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -118270,8 +124638,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -118305,6 +124674,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -118385,8 +124755,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -118420,6 +124791,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -118504,30 +124876,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutRequestsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -118551,35 +124932,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRequestsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -118601,6 +124993,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRequestsInput = {
@@ -118653,8 +125047,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -118688,6 +125083,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
@@ -118753,30 +125149,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutRequestsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -118800,35 +125205,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRequestsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -118850,6 +125266,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutRequestsInput = {
@@ -118908,8 +125326,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -118943,6 +125362,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
@@ -119071,8 +125491,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -119106,6 +125527,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -119240,8 +125662,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -119275,6 +125698,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -119393,8 +125817,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
   }
@@ -119426,6 +125851,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -119518,30 +125944,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutNoticesInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -119565,35 +126000,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutNoticesInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -119615,6 +126061,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutNoticesInput = {
@@ -119673,30 +126121,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutNoticesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -119720,35 +126177,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutNoticesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -119770,6 +126238,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type PhotoUpsertWithoutNoticesInput = {
@@ -119802,30 +126272,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutNoticeAcksInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -119849,35 +126328,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutNoticeAcksInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -119899,6 +126389,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutNoticeAcksInput = {
@@ -119994,8 +126486,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -120029,6 +126522,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -120070,30 +126564,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutNoticeAcksInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -120117,35 +126620,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutNoticeAcksInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -120167,6 +126681,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type NoticeUpsertWithoutAcknowledgementsInput = {
@@ -120274,8 +126790,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -120309,6 +126826,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -120381,31 +126899,560 @@ export namespace Prisma {
     data: XOR<StationeryMovementUpdateManyMutationInput, StationeryMovementUncheckedUpdateManyWithoutItemInput>
   }
 
-  export type BranchCreateWithoutStationeryMovementsInput = {
-    id?: string
-    sNo?: number | null
+  export type BranchCreateWithoutPartnersInput = {
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
+    atms?: AtmCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
+    headUser?: UserCreateNestedOneWithoutHeadedBranchInput
+    secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
+    budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogCreateNestedManyWithoutBranchInput
+    letters?: LetterCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionCreateNestedManyWithoutBranchInput
+    facts?: FactCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutBranchInput
+    notices?: NoticeCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutPartnersInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
     size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    parentCode?: string | null
+    headUserId?: string | null
+    secondLineUserId?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
+    atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
+    budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
+    letters?: LetterUncheckedCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionUncheckedCreateNestedManyWithoutBranchInput
+    facts?: FactUncheckedCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotUncheckedCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutBranchInput
+    notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutPartnersInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutPartnersInput, BranchUncheckedCreateWithoutPartnersInput>
+  }
+
+  export type BranchUpsertWithoutPartnersInput = {
+    update: XOR<BranchUpdateWithoutPartnersInput, BranchUncheckedUpdateWithoutPartnersInput>
+    create: XOR<BranchCreateWithoutPartnersInput, BranchUncheckedCreateWithoutPartnersInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutPartnersInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutPartnersInput, BranchUncheckedUpdateWithoutPartnersInput>
+  }
+
+  export type BranchUpdateWithoutPartnersInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
+    atms?: AtmUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
+    headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
+    secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
+    budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUpdateManyWithoutBranchNestedInput
+    letters?: LetterUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUpdateManyWithoutBranchNestedInput
+    facts?: FactUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutPartnersInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
+    atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
+    budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
+    letters?: LetterUncheckedUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUncheckedUpdateManyWithoutBranchNestedInput
+    facts?: FactUncheckedUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUncheckedUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchCreateWithoutLockersInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
+    atms?: AtmCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitCreateNestedManyWithoutBranchInput
+    headUser?: UserCreateNestedOneWithoutHeadedBranchInput
+    secondLineUser?: UserCreateNestedOneWithoutSecondLineBranchInput
+    budgets?: BudgetMasterCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogCreateNestedManyWithoutBranchInput
+    letters?: LetterCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionCreateNestedManyWithoutBranchInput
+    facts?: FactCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckCreateNestedManyWithoutBranchInput
+    notices?: NoticeCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
+    users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutLockersInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    parentCode?: string | null
+    headUserId?: string | null
+    secondLineUserId?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
+    accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
+    accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
+    atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
+    auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
+    history?: BranchHistoryUncheckedCreateNestedManyWithoutBranchInput
+    requests?: BranchRequestUncheckedCreateNestedManyWithoutBranchInput
+    visits?: BranchVisitUncheckedCreateNestedManyWithoutBranchInput
+    budgets?: BudgetMasterUncheckedCreateNestedManyWithoutBranchInput
+    campaignData?: CampaignDailyDataUncheckedCreateNestedManyWithoutBranchInput
+    campaignTargets?: CampaignTargetUncheckedCreateNestedManyWithoutBranchInput
+    ingestionLogs?: IngestionLogUncheckedCreateNestedManyWithoutBranchInput
+    letters?: LetterUncheckedCreateNestedManyWithoutBranchInput
+    misExceptions?: MisExceptionUncheckedCreateNestedManyWithoutBranchInput
+    facts?: FactUncheckedCreateNestedManyWithoutBranchInput
+    misSnapshots?: MisSnapshotUncheckedCreateNestedManyWithoutBranchInput
+    noticeAcks?: NoticeAckUncheckedCreateNestedManyWithoutBranchInput
+    notices?: NoticeUncheckedCreateNestedManyWithoutBranchInput
+    postingHistory?: PostingHistoryUncheckedCreateNestedManyWithoutBranchInput
+    recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
+    regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
+    stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
+    users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutLockersInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutLockersInput, BranchUncheckedCreateWithoutLockersInput>
+  }
+
+  export type BranchUpsertWithoutLockersInput = {
+    update: XOR<BranchUpdateWithoutLockersInput, BranchUncheckedUpdateWithoutLockersInput>
+    create: XOR<BranchCreateWithoutLockersInput, BranchUncheckedCreateWithoutLockersInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutLockersInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutLockersInput, BranchUncheckedUpdateWithoutLockersInput>
+  }
+
+  export type BranchUpdateWithoutLockersInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
+    atms?: AtmUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
+    headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
+    secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
+    budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUpdateManyWithoutBranchNestedInput
+    letters?: LetterUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUpdateManyWithoutBranchNestedInput
+    facts?: FactUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutLockersInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
+    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
+    atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
+    budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
+    letters?: LetterUncheckedUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUncheckedUpdateManyWithoutBranchNestedInput
+    facts?: FactUncheckedUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUncheckedUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchCreateWithoutStationeryMovementsInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -120429,35 +127476,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutStationeryMovementsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -120479,6 +127537,8 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutStationeryMovementsInput = {
@@ -120519,30 +127579,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutStationeryMovementsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -120566,35 +127635,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutStationeryMovementsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -120616,6 +127696,8 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type StationeryItemUpsertWithoutMovementsInput = {
@@ -120774,30 +127856,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutAtmsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
@@ -120821,35 +127912,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAtmsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
@@ -120871,6 +127973,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAtmsInput = {
@@ -120890,30 +127994,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutAtmsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
@@ -120937,35 +128050,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAtmsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
@@ -120987,33 +128111,44 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutPostingHistoryInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -121037,35 +128172,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutPostingHistoryInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -121087,6 +128233,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutPostingHistoryInput = {
@@ -121121,6 +128269,31 @@ export namespace Prisma {
   export type DesignationCreateOrConnectWithoutPostingHistoryInput = {
     where: DesignationWhereUniqueInput
     create: XOR<DesignationCreateWithoutPostingHistoryInput, DesignationUncheckedCreateWithoutPostingHistoryInput>
+  }
+
+  export type GradeCreateWithoutPostingHistoriesInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeUncheckedCreateWithoutPostingHistoriesInput = {
+    id?: string
+    code: string
+    name: string
+    seniorityLevel?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutGradeMasterInput
+  }
+
+  export type GradeCreateOrConnectWithoutPostingHistoriesInput = {
+    where: GradeWhereUniqueInput
+    create: XOR<GradeCreateWithoutPostingHistoriesInput, GradeUncheckedCreateWithoutPostingHistoriesInput>
   }
 
   export type UserCreateWithoutPostingHistoryInput = {
@@ -121168,8 +128341,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -121203,6 +128377,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -121244,30 +128419,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutPostingHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -121291,35 +128475,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutPostingHistoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -121341,6 +128536,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type DesignationUpsertWithoutPostingHistoryInput = {
@@ -121376,6 +128573,37 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutDesignationNestedInput
+  }
+
+  export type GradeUpsertWithoutPostingHistoriesInput = {
+    update: XOR<GradeUpdateWithoutPostingHistoriesInput, GradeUncheckedUpdateWithoutPostingHistoriesInput>
+    create: XOR<GradeCreateWithoutPostingHistoriesInput, GradeUncheckedCreateWithoutPostingHistoriesInput>
+    where?: GradeWhereInput
+  }
+
+  export type GradeUpdateToOneWithWhereWithoutPostingHistoriesInput = {
+    where?: GradeWhereInput
+    data: XOR<GradeUpdateWithoutPostingHistoriesInput, GradeUncheckedUpdateWithoutPostingHistoriesInput>
+  }
+
+  export type GradeUpdateWithoutPostingHistoriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutGradeMasterNestedInput
+  }
+
+  export type GradeUncheckedUpdateWithoutPostingHistoriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    seniorityLevel?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutGradeMasterNestedInput
   }
 
   export type UserUpsertWithoutPostingHistoryInput = {
@@ -121434,8 +128662,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -121469,6 +128698,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -121568,8 +128798,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -121603,6 +128834,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -121744,8 +128976,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -121779,6 +129012,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -121891,8 +129125,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -121926,6 +129161,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -122044,8 +129280,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -122079,6 +129316,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -122199,8 +129437,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -122234,6 +129473,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -122368,8 +129608,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -122403,6 +129644,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -122507,8 +129749,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -122542,6 +129785,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -122668,8 +129912,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -122703,6 +129948,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -122772,8 +130018,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -122807,6 +130054,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -122892,8 +130140,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -122927,6 +130176,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -122977,30 +130227,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutIngestionLogsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -123024,35 +130283,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutIngestionLogsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -123074,6 +130344,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutIngestionLogsInput = {
@@ -123152,30 +130424,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutIngestionLogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -123199,35 +130480,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutIngestionLogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -123249,6 +130541,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type FactUpsertWithWhereUniqueWithoutIngestionInput = {
@@ -123293,30 +130587,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutFactsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -123340,35 +130643,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutFactsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -123390,6 +130704,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutFactsInput = {
@@ -123440,30 +130756,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutFactsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -123487,35 +130812,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutFactsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -123537,6 +130873,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisExceptionCreateWithoutSnapshotInput = {
@@ -123634,30 +130972,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutMisSnapshotsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -123681,35 +131028,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutMisSnapshotsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -123731,6 +131089,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutMisSnapshotsInput = {
@@ -123808,30 +131168,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutMisSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -123855,35 +131224,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutMisSnapshotsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -123905,6 +131285,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisSnapshotCreateWithoutPanelDataInput = {
@@ -124063,30 +131445,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutMisExceptionsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -124110,35 +131501,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutMisExceptionsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -124160,6 +131562,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutMisExceptionsInput = {
@@ -124212,30 +131616,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutMisExceptionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -124259,35 +131672,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutMisExceptionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -124309,33 +131733,44 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAccountOpeningsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
@@ -124359,35 +131794,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAccountOpeningsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
@@ -124409,6 +131855,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAccountOpeningsInput = {
@@ -124428,30 +131876,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutAccountOpeningsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
@@ -124475,35 +131932,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAccountOpeningsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
@@ -124525,33 +131993,44 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAccountClosuresInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationCreateNestedManyWithoutBranchInput
@@ -124575,35 +132054,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAccountClosuresInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
     auditObservations?: AuditObservationUncheckedCreateNestedManyWithoutBranchInput
@@ -124625,6 +132115,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAccountClosuresInput = {
@@ -124644,30 +132136,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutAccountClosuresInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
@@ -124691,35 +132192,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAccountClosuresInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
     auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
@@ -124741,6 +132253,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -124788,8 +132302,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -124823,6 +132338,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -124908,8 +132424,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -124943,6 +132460,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -124968,30 +132486,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutBudgetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -125015,35 +132542,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutBudgetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -125065,6 +132603,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutBudgetsInput = {
@@ -125084,30 +132624,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutBudgetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -125131,35 +132680,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutBudgetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -125181,6 +132741,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MisParameterRegistryCreateWithoutChildParametersInput = {
@@ -125479,8 +133041,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -125514,6 +133077,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -125599,8 +133163,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -125634,6 +133199,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -125870,8 +133436,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -125905,6 +133472,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     branchVisits?: BranchVisitUncheckedCreateNestedManyWithoutVisitorInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
@@ -126023,8 +133591,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -126058,6 +133627,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -126122,30 +133692,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutRecoveryActionsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -126169,35 +133748,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRecoveryActionsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -126219,6 +133809,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRecoveryActionsInput = {
@@ -126238,30 +133830,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutRecoveryActionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -126285,35 +133886,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRecoveryActionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -126335,33 +133947,44 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateWithoutAuditObservationsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -126385,35 +134008,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutAuditObservationsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -126435,6 +134069,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutAuditObservationsInput = {
@@ -126454,30 +134090,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutAuditObservationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -126501,35 +134146,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutAuditObservationsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -126551,6 +134207,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type MaintenanceRecordCreateWithoutAssetInput = {
@@ -126584,30 +134242,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutRegionalAssetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -126631,35 +134298,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutRegionalAssetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -126681,6 +134359,8 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutRegionalAssetsInput = {
@@ -126730,30 +134410,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutRegionalAssetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -126777,35 +134466,46 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutRegionalAssetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -126827,6 +134527,8 @@ export namespace Prisma {
     recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type RegionalAssetCreateWithoutMaintenancesInput = {
@@ -126976,30 +134678,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutCampaignTargetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -127023,35 +134734,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutCampaignTargetsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -127073,6 +134795,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutCampaignTargetsInput = {
@@ -127129,30 +134853,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutCampaignTargetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -127176,35 +134909,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutCampaignTargetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -127226,6 +134970,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CampaignUpsertWithoutTargetsInput = {
@@ -127272,30 +135018,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutCampaignDataInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -127319,35 +135074,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutCampaignDataInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -127369,6 +135135,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutCampaignDataInput = {
@@ -127425,30 +135193,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutCampaignDataInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -127472,35 +135249,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutCampaignDataInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -127522,6 +135310,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type CampaignUpsertWithoutDailyDataInput = {
@@ -127769,30 +135559,39 @@ export namespace Prisma {
   }
 
   export type BranchCreateWithoutVisitsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    parent?: BranchCreateNestedOneWithoutChildrenInput
+    children?: BranchCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningCreateNestedManyWithoutBranchInput
     atms?: AtmCreateNestedManyWithoutBranchInput
@@ -127816,35 +135615,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementCreateNestedManyWithoutBranchInput
     users?: UserCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerCreateNestedManyWithoutBranchInput
+    lockers?: LockerCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutVisitsInput = {
-    id?: string
-    sNo?: number | null
     code: string
     officeId?: number | null
     nameEn: string
     nameTa?: string | null
     nameHi?: string | null
-    type: string
+    type?: string
+    size?: string | null
     openDate?: string | null
-    district?: string | null
     populationGroup?: string | null
     riskCategory?: string | null
     riskEffectiveDate?: Date | string | null
-    specialStatus?: string | null
+    prevRiskCategory?: string | null
     ifsc?: string | null
-    address?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
     latitude?: number | null
     longitude?: number | null
-    pincode?: string | null
+    parentCode?: string | null
     headUserId?: string | null
     secondLineUserId?: string | null
-    addressHi?: string | null
-    addressTa?: string | null
-    email?: string | null
-    phone?: string | null
-    size?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+    children?: BranchUncheckedCreateNestedManyWithoutParentInput
     accountClosures?: AccountClosureUncheckedCreateNestedManyWithoutBranchInput
     accountOpenings?: AccountOpeningUncheckedCreateNestedManyWithoutBranchInput
     atms?: AtmUncheckedCreateNestedManyWithoutBranchInput
@@ -127866,6 +135676,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedCreateNestedManyWithoutBranchInput
     stationeryMovements?: StationeryMovementUncheckedCreateNestedManyWithoutBranchInput
     users?: UserUncheckedCreateNestedManyWithoutBranchInput
+    partners?: ServicePartnerUncheckedCreateNestedManyWithoutBranchInput
+    lockers?: LockerUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutVisitsInput = {
@@ -127918,8 +135730,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckCreateNestedManyWithoutCreatedByInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     branch?: BranchCreateNestedOneWithoutUsersInput
-    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     designation?: DesignationCreateNestedOneWithoutUsersInput
+    gradeMaster?: GradeCreateNestedOneWithoutUsersInput
+    department?: DepartmentCreateNestedOneWithoutMainUsersInput
     photo?: PhotoCreateNestedOneWithoutUserInput
     managedDepartments?: DepartmentCreateNestedManyWithoutHeadsInput
     departments?: DepartmentCreateNestedManyWithoutUsersInput
@@ -127953,6 +135766,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
     requests?: BranchRequestUncheckedCreateNestedManyWithoutUserInput
     headedBranch?: BranchUncheckedCreateNestedOneWithoutHeadUserInput
     secondLineBranch?: BranchUncheckedCreateNestedOneWithoutSecondLineUserInput
@@ -127994,30 +135808,39 @@ export namespace Prisma {
   }
 
   export type BranchUpdateWithoutVisitsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    parent?: BranchUpdateOneWithoutChildrenNestedInput
+    children?: BranchUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
     atms?: AtmUpdateManyWithoutBranchNestedInput
@@ -128041,35 +135864,46 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
     users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutVisitsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sNo?: NullableIntFieldUpdateOperationsInput | number | null
     code?: StringFieldUpdateOperationsInput | string
     officeId?: NullableIntFieldUpdateOperationsInput | number | null
     nameEn?: StringFieldUpdateOperationsInput | string
     nameTa?: NullableStringFieldUpdateOperationsInput | string | null
     nameHi?: NullableStringFieldUpdateOperationsInput | string | null
     type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
     openDate?: NullableStringFieldUpdateOperationsInput | string | null
-    district?: NullableStringFieldUpdateOperationsInput | string | null
     populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
     riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
     ifsc?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
-    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    parentCode?: NullableStringFieldUpdateOperationsInput | string | null
     headUserId?: NullableStringFieldUpdateOperationsInput | string | null
     secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
-    addressHi?: NullableStringFieldUpdateOperationsInput | string | null
-    addressTa?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    size?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
     accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
     accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
     atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
@@ -128091,6 +135925,8 @@ export namespace Prisma {
     regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
     stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
     users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type UserUpsertWithoutBranchVisitsInput = {
@@ -128149,8 +135985,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -128184,6 +136021,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
     secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
@@ -128420,6 +136258,7 @@ export namespace Prisma {
     id?: string
     branchId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -129099,12 +136938,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     branch?: BranchUpdateOneRequiredWithoutPostingHistoryNestedInput
     designation?: DesignationUpdateOneWithoutPostingHistoryNestedInput
+    gradeMaster?: GradeUpdateOneWithoutPostingHistoriesNestedInput
   }
 
   export type PostingHistoryUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -129116,6 +136957,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -129270,6 +137112,42 @@ export namespace Prisma {
     sealPath?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type BranchCreateManyParentInput = {
+    code: string
+    officeId?: number | null
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    type?: string
+    size?: string | null
+    openDate?: string | null
+    populationGroup?: string | null
+    riskCategory?: string | null
+    riskEffectiveDate?: Date | string | null
+    prevRiskCategory?: string | null
+    ifsc?: string | null
+    micr?: string | null
+    bsrCode?: string | null
+    address1En?: string | null
+    address2En?: string | null
+    districtEn?: string | null
+    address1Ta?: string | null
+    address2Ta?: string | null
+    districtTa?: string | null
+    address1Hi?: string | null
+    address2Hi?: string | null
+    districtHi?: string | null
+    pincode?: string | null
+    phone?: string | null
+    email?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    headUserId?: string | null
+    secondLineUserId?: string | null
+    sNo?: number | null
+    specialStatus?: string | null
+  }
+
   export type AccountClosureCreateManyBranchInput = {
     id?: string
     cifId: string
@@ -129310,6 +137188,9 @@ export namespace Prisma {
   export type AtmCreateManyBranchInput = {
     id?: string
     atmId: string
+    deviceType?: string
+    managementType?: string
+    locationType?: string
     lastTxnTime: string
     balance: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
@@ -129492,6 +137373,7 @@ export namespace Prisma {
     id?: string
     userId: string
     designationId?: string | null
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -129559,6 +137441,189 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
+  }
+
+  export type ServicePartnerCreateManyBranchInput = {
+    id?: string
+    type?: string
+    nameEn: string
+    nameTa?: string | null
+    nameHi?: string | null
+    registrationNo?: string | null
+    phone?: string | null
+    email?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LockerCreateManyBranchInput = {
+    id?: string
+    lockerNo: string
+    type: string
+    category: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BranchUpdateWithoutParentInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUpdateManyWithoutBranchNestedInput
+    atms?: AtmUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUpdateManyWithoutBranchNestedInput
+    headUser?: UserUpdateOneWithoutHeadedBranchNestedInput
+    secondLineUser?: UserUpdateOneWithoutSecondLineBranchNestedInput
+    budgets?: BudgetMasterUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUpdateManyWithoutBranchNestedInput
+    letters?: LetterUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUpdateManyWithoutBranchNestedInput
+    facts?: FactUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUpdateManyWithoutBranchNestedInput
+    users?: UserUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutParentInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    children?: BranchUncheckedUpdateManyWithoutParentNestedInput
+    accountClosures?: AccountClosureUncheckedUpdateManyWithoutBranchNestedInput
+    accountOpenings?: AccountOpeningUncheckedUpdateManyWithoutBranchNestedInput
+    atms?: AtmUncheckedUpdateManyWithoutBranchNestedInput
+    auditObservations?: AuditObservationUncheckedUpdateManyWithoutBranchNestedInput
+    history?: BranchHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    requests?: BranchRequestUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: BranchVisitUncheckedUpdateManyWithoutBranchNestedInput
+    budgets?: BudgetMasterUncheckedUpdateManyWithoutBranchNestedInput
+    campaignData?: CampaignDailyDataUncheckedUpdateManyWithoutBranchNestedInput
+    campaignTargets?: CampaignTargetUncheckedUpdateManyWithoutBranchNestedInput
+    ingestionLogs?: IngestionLogUncheckedUpdateManyWithoutBranchNestedInput
+    letters?: LetterUncheckedUpdateManyWithoutBranchNestedInput
+    misExceptions?: MisExceptionUncheckedUpdateManyWithoutBranchNestedInput
+    facts?: FactUncheckedUpdateManyWithoutBranchNestedInput
+    misSnapshots?: MisSnapshotUncheckedUpdateManyWithoutBranchNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutBranchNestedInput
+    notices?: NoticeUncheckedUpdateManyWithoutBranchNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutBranchNestedInput
+    recoveryActions?: RecoveryActionUncheckedUpdateManyWithoutBranchNestedInput
+    regionalAssets?: RegionalAssetUncheckedUpdateManyWithoutBranchNestedInput
+    stationeryMovements?: StationeryMovementUncheckedUpdateManyWithoutBranchNestedInput
+    users?: UserUncheckedUpdateManyWithoutBranchNestedInput
+    partners?: ServicePartnerUncheckedUpdateManyWithoutBranchNestedInput
+    lockers?: LockerUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateManyWithoutParentInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    officeId?: NullableIntFieldUpdateOperationsInput | number | null
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    size?: NullableStringFieldUpdateOperationsInput | string | null
+    openDate?: NullableStringFieldUpdateOperationsInput | string | null
+    populationGroup?: NullableStringFieldUpdateOperationsInput | string | null
+    riskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    riskEffectiveDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prevRiskCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    ifsc?: NullableStringFieldUpdateOperationsInput | string | null
+    micr?: NullableStringFieldUpdateOperationsInput | string | null
+    bsrCode?: NullableStringFieldUpdateOperationsInput | string | null
+    address1En?: NullableStringFieldUpdateOperationsInput | string | null
+    address2En?: NullableStringFieldUpdateOperationsInput | string | null
+    districtEn?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Ta?: NullableStringFieldUpdateOperationsInput | string | null
+    districtTa?: NullableStringFieldUpdateOperationsInput | string | null
+    address1Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    address2Hi?: NullableStringFieldUpdateOperationsInput | string | null
+    districtHi?: NullableStringFieldUpdateOperationsInput | string | null
+    pincode?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    headUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    secondLineUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    sNo?: NullableIntFieldUpdateOperationsInput | number | null
+    specialStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountClosureUpdateWithoutBranchInput = {
@@ -129675,6 +137740,9 @@ export namespace Prisma {
   export type AtmUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129684,6 +137752,9 @@ export namespace Prisma {
   export type AtmUncheckedUpdateWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129693,6 +137764,9 @@ export namespace Prisma {
   export type AtmUncheckedUpdateManyWithoutBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     atmId?: StringFieldUpdateOperationsInput | string
+    deviceType?: StringFieldUpdateOperationsInput | string
+    managementType?: StringFieldUpdateOperationsInput | string
+    locationType?: StringFieldUpdateOperationsInput | string
     lastTxnTime?: StringFieldUpdateOperationsInput | string
     balance?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -130235,6 +138309,7 @@ export namespace Prisma {
     remarks?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     designation?: DesignationUpdateOneWithoutPostingHistoryNestedInput
+    gradeMaster?: GradeUpdateOneWithoutPostingHistoriesNestedInput
     user?: UserUpdateOneRequiredWithoutPostingHistoryNestedInput
   }
 
@@ -130242,6 +138317,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -130253,6 +138329,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -130406,8 +138483,9 @@ export namespace Prisma {
     postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -130440,6 +138518,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -130492,6 +138571,79 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ServicePartnerUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServicePartnerUncheckedUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServicePartnerUncheckedUpdateManyWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    nameEn?: StringFieldUpdateOperationsInput | string
+    nameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    nameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    registrationNo?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerUncheckedUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LockerUncheckedUpdateManyWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lockerNo?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DepartmentManualCreateManyDepartmentInput = {
@@ -130531,6 +138683,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
   }
 
   export type DepartmentManualUpdateWithoutDepartmentInput = {
@@ -130612,6 +138765,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
@@ -130644,6 +138798,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -130696,6 +138851,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUpdateWithoutManagedDepartmentsInput = {
@@ -130744,8 +138900,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
   }
@@ -130778,6 +138935,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -130830,6 +138988,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUpdateWithoutDepartmentsInput = {
@@ -130878,8 +139037,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
   }
@@ -130912,6 +139072,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -130964,12 +139125,14 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PostingHistoryCreateManyDesignationInput = {
     id?: string
     userId: string
     branchId: string
+    gradeId?: string | null
     startDate?: Date | string
     endDate?: Date | string | null
     isCurrent?: boolean
@@ -131004,6 +139167,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
   }
 
   export type PostingHistoryUpdateWithoutDesignationInput = {
@@ -131014,6 +139178,7 @@ export namespace Prisma {
     remarks?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     branch?: BranchUpdateOneRequiredWithoutPostingHistoryNestedInput
+    gradeMaster?: GradeUpdateOneWithoutPostingHistoriesNestedInput
     user?: UserUpdateOneRequiredWithoutPostingHistoryNestedInput
   }
 
@@ -131021,6 +139186,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -131032,6 +139198,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     branchId?: StringFieldUpdateOperationsInput | string
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
@@ -131085,6 +139252,7 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
     department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     photo?: PhotoUpdateOneWithoutUserNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
@@ -131118,6 +139286,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -131170,6 +139339,221 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UserCreateManyGradeMasterInput = {
+    id?: string
+    username: string
+    passwordHash: string
+    fullNameEn: string
+    fullNameTa?: string | null
+    fullNameHi?: string | null
+    grade?: string | null
+    role?: string
+    photoId?: string | null
+    section?: string | null
+    branchId?: string | null
+    isRegionHead?: boolean
+    isSecondLine?: boolean
+    departmentId?: string | null
+    designationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    failedLoginAttempts?: number
+    lockedUntil?: Date | string | null
+    mfaEnabled?: boolean
+    mfaSecret?: string | null
+    lastLoginAt?: Date | string | null
+    lastLoginIp?: string | null
+    gender?: string
+    designationEn?: string | null
+    designationHi?: string | null
+    designationTa?: string | null
+  }
+
+  export type PostingHistoryCreateManyGradeMasterInput = {
+    id?: string
+    userId: string
+    branchId: string
+    designationId?: string | null
+    startDate?: Date | string
+    endDate?: Date | string | null
+    isCurrent?: boolean
+    remarks?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserUpdateWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullNameEn?: StringFieldUpdateOperationsInput | string
+    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
+    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
+    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
+    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
+    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    requests?: BranchRequestUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUpdateManyWithoutVisitorNestedInput
+    headedBranch?: BranchUpdateOneWithoutHeadUserNestedInput
+    secondLineBranch?: BranchUpdateOneWithoutSecondLineUserNestedInput
+    auditLogs?: ChatAuditLogUpdateManyWithoutActorNestedInput
+    chatMemberships?: ChatMemberUpdateManyWithoutUserNestedInput
+    createdChatGroups?: ChatGroupUpdateManyWithoutCreatorNestedInput
+    messageAcks?: MessageAckUpdateManyWithoutUserNestedInput
+    messagesSent?: ChatMessageUpdateManyWithoutSenderNestedInput
+    comments?: CommentUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUpdateManyWithoutSignatoryNestedInput
+    loginAuditLogs?: LoginAuditLogUpdateManyWithoutUserNestedInput
+    assignedActionPoints?: ActionPointUpdateManyWithoutAssignedToNestedInput
+    noticeAcks?: NoticeAckUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    approvedNotes?: OfficeNoteUpdateManyWithoutApproverNestedInput
+    preparedNotes?: OfficeNoteUpdateManyWithoutPreparerNestedInput
+    postingHistory?: PostingHistoryUpdateManyWithoutUserNestedInput
+    presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    branch?: BranchUpdateOneWithoutUsersNestedInput
+    designation?: DesignationUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
+    photo?: PhotoUpdateOneWithoutUserNestedInput
+    managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
+    departments?: DepartmentUpdateManyWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullNameEn?: StringFieldUpdateOperationsInput | string
+    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    photoId?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
+    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
+    departmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
+    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
+    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
+    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
+    branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
+    headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
+    secondLineBranch?: BranchUncheckedUpdateOneWithoutSecondLineUserNestedInput
+    auditLogs?: ChatAuditLogUncheckedUpdateManyWithoutActorNestedInput
+    chatMemberships?: ChatMemberUncheckedUpdateManyWithoutUserNestedInput
+    createdChatGroups?: ChatGroupUncheckedUpdateManyWithoutCreatorNestedInput
+    messageAcks?: MessageAckUncheckedUpdateManyWithoutUserNestedInput
+    messagesSent?: ChatMessageUncheckedUpdateManyWithoutSenderNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    authoredLetters?: LetterUncheckedUpdateManyWithoutAuthorNestedInput
+    signatoryLetters?: LetterUncheckedUpdateManyWithoutSignatoryNestedInput
+    loginAuditLogs?: LoginAuditLogUncheckedUpdateManyWithoutUserNestedInput
+    assignedActionPoints?: ActionPointUncheckedUpdateManyWithoutAssignedToNestedInput
+    noticeAcks?: NoticeAckUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    approvedNotes?: OfficeNoteUncheckedUpdateManyWithoutApproverNestedInput
+    preparedNotes?: OfficeNoteUncheckedUpdateManyWithoutPreparerNestedInput
+    postingHistory?: PostingHistoryUncheckedUpdateManyWithoutUserNestedInput
+    presentationDecks?: PresentationDeckUncheckedUpdateManyWithoutCreatedByNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    managedDepartments?: DepartmentUncheckedUpdateManyWithoutHeadsNestedInput
+    departments?: DepartmentUncheckedUpdateManyWithoutUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    fullNameEn?: StringFieldUpdateOperationsInput | string
+    fullNameTa?: NullableStringFieldUpdateOperationsInput | string | null
+    fullNameHi?: NullableStringFieldUpdateOperationsInput | string | null
+    grade?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: StringFieldUpdateOperationsInput | string
+    photoId?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: NullableStringFieldUpdateOperationsInput | string | null
+    branchId?: NullableStringFieldUpdateOperationsInput | string | null
+    isRegionHead?: BoolFieldUpdateOperationsInput | boolean
+    isSecondLine?: BoolFieldUpdateOperationsInput | boolean
+    departmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    failedLoginAttempts?: IntFieldUpdateOperationsInput | number
+    lockedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mfaEnabled?: BoolFieldUpdateOperationsInput | boolean
+    mfaSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastLoginIp?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: StringFieldUpdateOperationsInput | string
+    designationEn?: NullableStringFieldUpdateOperationsInput | string | null
+    designationHi?: NullableStringFieldUpdateOperationsInput | string | null
+    designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PostingHistoryUpdateWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneRequiredWithoutPostingHistoryNestedInput
+    designation?: DesignationUpdateOneWithoutPostingHistoryNestedInput
+    user?: UserUpdateOneRequiredWithoutPostingHistoryNestedInput
+  }
+
+  export type PostingHistoryUncheckedUpdateWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostingHistoryUncheckedUpdateManyWithoutGradeMasterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    designationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    remarks?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LetterCreateManyPreviousVersionInput = {
@@ -131421,6 +139805,7 @@ export namespace Prisma {
     designationEn?: string | null
     designationHi?: string | null
     designationTa?: string | null
+    gradeId?: string | null
   }
 
   export type NoticeUpdateWithoutPhotoInput = {
@@ -131525,8 +139910,9 @@ export namespace Prisma {
     presentationDecks?: PresentationDeckUpdateManyWithoutCreatedByNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     branch?: BranchUpdateOneWithoutUsersNestedInput
-    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     designation?: DesignationUpdateOneWithoutUsersNestedInput
+    gradeMaster?: GradeUpdateOneWithoutUsersNestedInput
+    department?: DepartmentUpdateOneWithoutMainUsersNestedInput
     managedDepartments?: DepartmentUpdateManyWithoutHeadsNestedInput
     departments?: DepartmentUpdateManyWithoutUsersNestedInput
   }
@@ -131558,6 +139944,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
     requests?: BranchRequestUncheckedUpdateManyWithoutUserNestedInput
     branchVisits?: BranchVisitUncheckedUpdateManyWithoutVisitorNestedInput
     headedBranch?: BranchUncheckedUpdateOneWithoutHeadUserNestedInput
@@ -131610,6 +139997,7 @@ export namespace Prisma {
     designationEn?: NullableStringFieldUpdateOperationsInput | string | null
     designationHi?: NullableStringFieldUpdateOperationsInput | string | null
     designationTa?: NullableStringFieldUpdateOperationsInput | string | null
+    gradeId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type NoticeAckCreateManyNoticeInput = {

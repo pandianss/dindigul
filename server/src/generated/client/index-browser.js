@@ -147,7 +147,8 @@ exports.Prisma.UserScalarFieldEnum = {
   gender: 'gender',
   designationEn: 'designationEn',
   designationHi: 'designationHi',
-  designationTa: 'designationTa'
+  designationTa: 'designationTa',
+  gradeId: 'gradeId'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -175,32 +176,40 @@ exports.Prisma.LoginAuditLogScalarFieldEnum = {
 };
 
 exports.Prisma.BranchScalarFieldEnum = {
-  id: 'id',
-  sNo: 'sNo',
   code: 'code',
   officeId: 'officeId',
   nameEn: 'nameEn',
   nameTa: 'nameTa',
   nameHi: 'nameHi',
   type: 'type',
+  size: 'size',
   openDate: 'openDate',
-  district: 'district',
   populationGroup: 'populationGroup',
   riskCategory: 'riskCategory',
   riskEffectiveDate: 'riskEffectiveDate',
-  specialStatus: 'specialStatus',
+  prevRiskCategory: 'prevRiskCategory',
   ifsc: 'ifsc',
-  address: 'address',
+  micr: 'micr',
+  bsrCode: 'bsrCode',
+  address1En: 'address1En',
+  address2En: 'address2En',
+  districtEn: 'districtEn',
+  address1Ta: 'address1Ta',
+  address2Ta: 'address2Ta',
+  districtTa: 'districtTa',
+  address1Hi: 'address1Hi',
+  address2Hi: 'address2Hi',
+  districtHi: 'districtHi',
+  pincode: 'pincode',
+  phone: 'phone',
+  email: 'email',
   latitude: 'latitude',
   longitude: 'longitude',
-  pincode: 'pincode',
+  parentCode: 'parentCode',
   headUserId: 'headUserId',
   secondLineUserId: 'secondLineUserId',
-  addressHi: 'addressHi',
-  addressTa: 'addressTa',
-  email: 'email',
-  phone: 'phone',
-  size: 'size'
+  sNo: 'sNo',
+  specialStatus: 'specialStatus'
 };
 
 exports.Prisma.DepartmentScalarFieldEnum = {
@@ -221,6 +230,15 @@ exports.Prisma.DesignationScalarFieldEnum = {
   nameTa: 'nameTa',
   nameHi: 'nameHi',
   workId: 'workId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GradeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  seniorityLevel: 'seniorityLevel',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -377,6 +395,32 @@ exports.Prisma.StationeryItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ServicePartnerScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  nameEn: 'nameEn',
+  nameTa: 'nameTa',
+  nameHi: 'nameHi',
+  registrationNo: 'registrationNo',
+  phone: 'phone',
+  email: 'email',
+  status: 'status',
+  branchId: 'branchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LockerScalarFieldEnum = {
+  id: 'id',
+  lockerNo: 'lockerNo',
+  type: 'type',
+  category: 'category',
+  status: 'status',
+  branchId: 'branchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.StationeryMovementScalarFieldEnum = {
   id: 'id',
   itemId: 'itemId',
@@ -459,6 +503,9 @@ exports.Prisma.AtmScalarFieldEnum = {
   id: 'id',
   atmId: 'atmId',
   branchId: 'branchId',
+  deviceType: 'deviceType',
+  managementType: 'managementType',
+  locationType: 'locationType',
   lastTxnTime: 'lastTxnTime',
   balance: 'balance',
   createdAt: 'createdAt',
@@ -470,6 +517,7 @@ exports.Prisma.PostingHistoryScalarFieldEnum = {
   userId: 'userId',
   branchId: 'branchId',
   designationId: 'designationId',
+  gradeId: 'gradeId',
   startDate: 'startDate',
   endDate: 'endDate',
   isCurrent: 'isCurrent',
@@ -1050,6 +1098,7 @@ exports.Prisma.ModelName = {
   Branch: 'Branch',
   Department: 'Department',
   Designation: 'Designation',
+  Grade: 'Grade',
   BranchHistory: 'BranchHistory',
   Letter: 'Letter',
   LetterTemplate: 'LetterTemplate',
@@ -1061,6 +1110,8 @@ exports.Prisma.ModelName = {
   Notice: 'Notice',
   NoticeAck: 'NoticeAck',
   StationeryItem: 'StationeryItem',
+  ServicePartner: 'ServicePartner',
+  Locker: 'Locker',
   StationeryMovement: 'StationeryMovement',
   Budget: 'Budget',
   ExpenseSanction: 'ExpenseSanction',

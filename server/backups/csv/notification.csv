@@ -1,0 +1,8 @@
+id,userId,type,title,message,isRead,link,createdAt
+60cf97ea-c989-4701-9b48-ad17380b7a51,43c39db4-0b83-445f-b02a-6c55c455c51f,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:04:45.734Z
+b414c538-7347-4115-98ba-417642c22be8,61a1236f-7d61-4a89-81e4-ba47a7f4ab09,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:04:45.740Z
+ded14fdd-e0c4-40df-a74f-a339b132f02b,d71cfd27-f225-4eaf-8adb-c821541e3a28,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:04:45.742Z
+3e63b419-572b-4e22-953d-7152904d0860,c3395517-8af4-458e-9948-dda371466642,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:50:54.040Z
+644b050f-b5af-4cc4-a3b3-ee95c5db39a2,2900afd4-ac8c-40b4-9263-e0b0ea61c73e,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:50:54.044Z
+f3eb46a0-1928-4c41-8577-9b738d367446,453c47f8-458d-4852-b5c8-fcec4a5bbf3e,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:50:54.046Z
+dd2bf60b-585f-4f6d-92d0-b5a025e57e98,070d1579-3fba-47fd-8cce-cb2767351f4c,INFO,Letter Update: Operational Risk Advisory - 30.03.2026,Letter status changed to SENT,false,/letters,2026-03-31T10:50:54.047Z

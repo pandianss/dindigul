@@ -37,6 +37,22 @@ export class HardenedTemplateRenderer {
                     ...payload.content,
                     bodyHtml: this.sanitize(payload.content.bodyHtml)
                 },
+                // Legacy mapping for premiumLayout.hbs
+                title: payload.content.title.en,
+                titleHi: payload.content.title.hi,
+                titleTa: payload.content.title.ta,
+                date: payload.metadata.letterDate,
+                refNo: payload.metadata.referenceNo,
+                bodyHtml: this.sanitize(payload.content.bodyHtml),
+                // Map signatory to template requirements (initiator vs reviewersOrApprovers)
+                reviewersOrApprovers: [{
+                    nameEn: payload.signatory.name.en,
+                    nameHi: payload.signatory.name.hi,
+                    nameTa: payload.signatory.name.ta,
+                    titleEn: payload.signatory.title.en,
+                    titleHi: payload.signatory.title.hi,
+                    titleTa: payload.signatory.title.ta
+                }],
                 organization: {
                     ...payload.organization,
                     bankLogo: PDFRenderer.getImageAsDataUri('assets/logo_center.svg'),

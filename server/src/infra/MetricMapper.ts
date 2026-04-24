@@ -33,6 +33,7 @@ export class MetricMapper {
         'shg': 'SHG',
         'kcc': 'KCC',
         'govt spon': 'Gov',
+        'got spon': 'Gov',
         'oth schematic': 'OthSch',
         'core agri': 'Core_Agri',
         'adv': 'Adv',
@@ -40,6 +41,7 @@ export class MetricMapper {
         'total advances': 'Adv',
         'npa': 'NPA',
         'mudra': 'Mudra',
+        'retail td': 'Ret_TD',
 
         // Deposits
         'sb': 'SB',
@@ -108,38 +110,53 @@ export class MetricMapper {
         // Helper to get value or 0
         const getVal = (m: string) => factMap[m] || 0;
 
+        // 1. Core Agri = SHG + KCC + Gov + OthSch
+        const coreAgri = getVal('SHG') + getVal('KCC') + getVal('Gov') + getVal('OthSch');
+        calculated['Core_Agri'] = coreAgri;
+
+        // 2. MSME = Mudra
+        const msme = getVal('Mudra');
+        calculated['MSME'] = msme;
+
+        // 3. Gold = Agri_JL + RETAIL_JL
+        const gold = getVal('Agri_JL') + getVal('RETAIL_JL');
+        calculated['Gold'] = gold;
+
+        // 4. Core Ret = PersonalLoan + Mort + EL + Liq + OthRet + HL + VL
+        const coreRet = getVal('PersonalLoan') + getVal('Mort') + getVal('EL') + 
+                         getVal('Liq') + getVal('OthRet') + getVal('HL') + getVal('VL');
+        calculated['Core Ret'] = coreRet;
+
+        // 5. Adv = Core_Agri + Core Ret + MSME + Gold
+        const adv = coreAgri + coreRet + msme + gold;
+        calculated['Adv'] = adv;
+
+        // 6. CASA = SB + CD
         const sb = getVal('SB');
         const cd = getVal('CD');
-        const td = getVal('TD');
-        const adv = getVal('Adv');
-        const bulk = getVal('Bulk_Dep');
-
-        // 1. CASA = SB + CD
         const casa = sb + cd;
         calculated['CASA'] = casa;
 
-        // 2. Total Dep = SB + CD + TD
+        // 7. TD = Ret_TD + Bulk_Dep
+        const td = getVal('Ret_TD') + getVal('Bulk_Dep');
+        calculated['TD'] = td;
+
+        // 8. Total Dep = SB + CD + TD
         const totalDep = sb + cd + td;
         calculated['Total Dep'] = totalDep;
 
-        // 3. Ret_TD = TD - Bulk (floor at 0)
-        calculated['Ret_TD'] = Math.max(0, td - bulk);
+        // 9. Business = Adv + SB + CD + TD
+        calculated['Bus'] = adv + totalDep;
 
-        // 4. Bus = Total Dep + Adv
-        calculated['Bus'] = totalDep + adv;
+        // 10. CASH_TOTAL = CASH_HAND + CASH_ATM + CASH_BC + CASH_BNA
+        calculated['CASH_TOTAL'] = getVal('CASH_HAND') + getVal('CASH_ATM') + getVal('CASH_BC') + getVal('CASH_BNA');
 
-        // 5. CD_Ratio = Adv / Total Dep * 100 (round 2dp)
-        calculated['CD_Ratio'] = totalDep === 0 ? 0 : Number((adv / totalDep * 100).toFixed(2));
-
-        // 6. CASA_PCT = CASA / Total Dep * 100 (round 2dp)
-        calculated['CASA_PCT'] = totalDep === 0 ? 0 : Number((casa / totalDep * 100).toFixed(2));
-
-        // 7. Recovery = REC_Q1 + REC_Q2 + REC_Q3 + REC_Q4
+        // 11. Recovery = REC_Q1 + REC_Q2 + REC_Q3 + REC_Q4
         calculated['Recovery'] = getVal('REC_Q1') + getVal('REC_Q2') + getVal('REC_Q3') + getVal('REC_Q4');
 
-        // 8. Core Adv = Mudra + Core_Agri + Core Ret + MSME + SHG + KCC
-        calculated['Core Adv'] = getVal('Mudra') + getVal('Core_Agri') + getVal('Core Ret') + 
-                                 getVal('MSME') + getVal('SHG') + getVal('KCC');
+        // 12. Ratios
+        calculated['CD_Ratio'] = totalDep === 0 ? 0 : Number((adv / totalDep * 100).toFixed(2));
+        calculated['CASA_PCT'] = totalDep === 0 ? 0 : Number((casa / totalDep * 100).toFixed(2));
 
         return calculated;
     }
@@ -150,8 +167,9 @@ export class MetricMapper {
     static getAllMetricCodes(): string[] {
         const direct = Object.values(this.mapping);
         const calculated = [
-            'CASA', 'Total Dep', 'Ret_TD', 'Bus', 
-            'CD_Ratio', 'CASA_PCT', 'Recovery', 'Core Adv'
+            'CASA', 'Total Dep', 'TD', 'Bus', 
+            'CD_Ratio', 'CASA_PCT', 'Recovery', 
+            'Core_Agri', 'MSME', 'Gold', 'Core Ret', 'Adv', 'CASH_TOTAL', 'Bus_Per_Employee'
         ];
         return Array.from(new Set([...direct, ...calculated]));
     }

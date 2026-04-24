@@ -35,7 +35,7 @@ export class AuditManager {
      * Generates a deterministic SHA-256 hash of a JSON payload.
      */
     static hashPayload(payload: any): string {
-        const str = JSON.stringify(payload, Object.keys(payload).sort());
+        const str = JSON.stringify(payload);
         return crypto.createHash('sha256').update(str).digest('hex');
     }
 }

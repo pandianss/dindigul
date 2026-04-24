@@ -11,6 +11,7 @@ import { validate } from '../lib/validate';
 import { 
   LetterOrchestrator, 
   BulkLetterOrchestrator, 
+  OperationalRiskOrchestrator
 } from '../services';
 import { LetterRepository } from '../infra';
 import { PDFRenderer } from '../renderers';
@@ -164,8 +165,14 @@ router.post('/generate', authenticateToken, async (req: any, res) => {
   const { period, date, type, signatoryId } = req.body;
   if (!period) return res.status(400).json({ error: 'period is required' });
   try {
-    const result = await BulkLetterOrchestrator.generateMonthlyLetters(period); // Update parameters as needed
-    res.json({ message: `Generated ${result.length} letter(s).`, results: result });
+    let result;
+    if (type === 'OP_RISK') {
+      result = await OperationalRiskOrchestrator.generateDrafts(date, signatoryId);
+    } else {
+      result = await BulkLetterOrchestrator.generateMonthlyLetters(period);
+    }
+    const count = (result as any).count || (Array.isArray(result) ? result.length : 0);
+    res.json({ message: `Generated ${count} letter(s).`, results: result });
   } catch (error: any) {
     logger.error('[LetterGen] Error generating letters:', error);
     res.status(500).json({ error: error.message || 'Failed to generate letters' });
@@ -229,7 +236,6 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
             headUser: { include: { designation: true } }
           }
         },
-        parameter: true,
         signatory: {
           include: { designation: true }
         },
@@ -256,7 +262,15 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
         await Promise.all(batch.map(async (letter) => {
           try {
             const pdfBuffer = await LetterOrchestrator.generateLetterPdf(letter.id); // Browser shared via renderer cache
-            const safeFileName = `${letter.referenceNo?.replace(/\//g, '_') || 'Letter'}.pdf`;
+            let safeFileName;
+            if (letter.type === 'OP_RISK' && letter.period && /^\d{2}\.\d{2}\.\d{4}$/.test(letter.period)) {
+              const [d, m, y] = letter.period.split('.');
+              const yyyymmdd = `${y}${m}${d}`;
+              const sol = letter.branch?.code || '0000';
+              safeFileName = `${sol}_OA_${yyyymmdd}.pdf`;
+            } else {
+              safeFileName = `${letter.referenceNo?.replace(/\//g, '_') || 'Letter'}.pdf`;
+            }
             archive.append(pdfBuffer, { name: safeFileName });
           } catch (pdfErr: any) {
             logger.error(`[BulkPDF] Individual generation failed for letter ${letter.id}:`, pdfErr);
@@ -265,7 +279,7 @@ router.post('/bulk-pdf-zip', authenticateToken, async (req: any, res) => {
         }));
       }
     } finally {
-      await browser.close();
+      // Do not close browser singleton here as it is managed by the PDFRenderer
     }
 
     if (failures.length > 0) {

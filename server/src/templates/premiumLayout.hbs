@@ -3,82 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @page { margin: 0; }
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
         
-        {{#if organization.tamilFont}}
         @font-face {
             font-family: 'ArimaTamil';
-            src: url(data:font/ttf;base64,{{organization.tamilFont}}) format('truetype');
+            src: url('data:font/ttf;base64,{{organization.tamilFont}}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
-        {{/if}}
 
-        {{#if organization.hindiFont}}
         @font-face {
             font-family: 'NotoHindi';
-            src: url(data:font/ttf;base64,{{organization.hindiFont}}) format('truetype');
+            src: url('data:font/ttf;base64,{{organization.hindiFont}}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
-        {{/if}}
 
         body { 
             font-family: 'Century Gothic', 'Segoe UI', Tahoma, sans-serif; 
-            line-height: 1.4; 
-            color: #1a1a1a; 
             margin: 0;
             padding: 0;
-            font-size: 14px;
-        }
-        
-        /* Apply Trilingual Fonts */
-        .tamil-text, .bank-name-ta, .tamil-col, .signatory-ta {
-            font-family: 'ArimaTamil', 'Century Gothic', sans-serif !important;
-        }
-        .hindi-text, .bank-name-hi, .hindi-col, .signatory-hi {
-            font-family: 'NotoHindi', 'Segoe UI', sans-serif !important;
+            background-color: white;
+            color: #1a202c;
+            line-height: 1.6;
+            font-size: 18px; 
         }
 
         .page-container {
-            padding: 30px 50px;
+            width: 100%;
             position: relative;
-            min-height: 100vh;
-            box-sizing: border-box;
         }
-        
-        /* Horizontal Header Layout - Left Aligned */
+
+        /* Indic Font Classes */
+        .tamil-text, .bank-name-ta, .tamil-col, .sig-trilingual {
+            font-family: 'ArimaTamil', sans-serif !important;
+        }
+        .hindi-text, .bank-name-hi, .hindi-col {
+            font-family: 'NotoHindi', sans-serif !important;
+        }
+
+        /* Header Layout */
         .header {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 20px;
-            margin-bottom: 12px;
+            border-bottom: 2px solid #00338d;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
+
         .logo-container {
-            flex-shrink: 0;
+            width: 80px; /* Slightly larger logo */
+            margin-right: 20px;
         }
+
         .logo-img {
-            height: 60px;
-            width: auto;
+            max-width: 100%;
+            height: auto;
         }
+
         .bank-names-container {
-            text-align: left;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px; /* Increased spacing to avoid 'imposing' look */
+        }
+
+        .bank-name-ta {
+            color: #00338d;
+            font-size: 20px; 
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .bank-name-hi {
+            color: #00338d;
+            font-size: 17px; 
+            font-weight: 600;
+            line-height: 1.1;
+        }
+
+        .bank-name-en {
+            color: #00338d;
+            font-size: 18px; 
+            font-weight: 800;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+            line-height: 1.1;
+            letter-spacing: 0.8px;
+        }
+
+        /* 3-Column Info Section */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .info-col {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #00338d;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .contact-bar {
+            background-color: #f1f5f9;
+            padding: 6px 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 11px;
+            color: #475569;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        /* Table Hardening */
+        table {
+            page-break-inside: auto;
+            width: 100%;
+            border-collapse: collapse;
         }
         
-        /* Trilingual Bank Name Styles - Refined Spacing & Weight */
-        .bank-name-ta { color: #00338d; font-size: 19px; font-weight: 900; margin: 0; line-height: 1.3; }
-        .bank-name-hi { color: #00338d; font-size: 19px; font-weight: 700; margin: 0; line-height: 1.3; }
-        .bank-name-en { 
-            color: #00338d; 
-            font-size: 18px; 
-            font-weight: 700; 
-            margin: 0; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1px; 
-            font-family: Arial, Helvetica, sans-serif; 
-            line-height: 1.3; 
-        }        
+        thead {
+            display: table-header-group; /* Ensures header repeats on each page */
+        }
+        
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        th {
+            background-color: #00338d !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+        }
         /* 3-Column Info Section */
         .info-section {
             display: flex;
@@ -204,25 +282,42 @@
         }
         
         .signature-space {
-            height: 60px;
+            height: 35px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            padding-bottom: 5px;
         }
         
-        .sig-name {
-            font-weight: 800;
-            font-size: 13px;
-            color: #1a1a1a;
+        .sig-line {
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .sig-trilingual {
+            font-size: 11.5px;
+            font-weight: 900;
+            color: #334155;
             margin-bottom: 2px;
+            font-family: 'ArimaTamil', 'NotoHindi', sans-serif !important;
         }
-        
-        .sig-title {
+
+        .sig-name-en {
             font-size: 11px;
-            color: #444;
-            line-height: 1.2;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #1e293b;
+            margin-bottom: 1px;
         }
-        
-        .sig-ta { font-family: 'ArimaTamil', sans-serif !important; font-size: 11.5px; font-weight: 900; }
-        .sig-hi { font-family: 'NotoHindi', sans-serif !important; font-size: 11.5px; }
-        .sig-en { font-size: 11px; text-transform: uppercase; font-weight: 700; }
+
+        .sig-title-en {
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
         
         .page-footer {
             position: absolute;
@@ -307,32 +402,32 @@
         <!-- Footer / Signatories -->
         <div class="footer">
             {{#if initiator}}
-            <!-- Row 1: Initiator -->
             <div class="signatory-row initiator-row">
-                <div class="signatory-col" style="text-align: left;">
-                    <div class="signature-space"></div>
-                    {{#if initiator.nameTa}}<div class="sig-name sig-ta">{{initiator.nameTa}}</div>{{/if}}
-                    {{#if initiator.nameHi}}<div class="sig-name sig-hi">{{initiator.nameHi}}</div>{{/if}}
-                    <div class="sig-name sig-en">{{initiator.nameEn}}</div>
-                    {{#if initiator.titleTa}}<div class="sig-title sig-ta">{{initiator.titleTa}}</div>{{/if}}
-                    {{#if initiator.titleHi}}<div class="sig-title sig-hi">{{initiator.titleHi}}</div>{{/if}}
-                    <div class="sig-title sig-en">{{initiator.titleEn}}</div>
+                <div class="signatory-col" style="text-align: right;">
+                    <div class="signature-space">Sd/-</div>
+                    <div class="sig-line">-------------------------------------</div>
+                    <div class="sig-trilingual">
+                        {{#if initiator.nameTa}}({{initiator.nameTa}}) / {{/if}}
+                        {{#if initiator.nameHi}}({{initiator.nameHi}}){{/if}}
+                    </div>
+                    <div class="sig-name-en">({{initiator.nameEn}})</div>
+                    <div class="sig-title-en">{{initiator.titleEn}}</div>
                 </div>
             </div>
             {{/if}}
 
             {{#if reviewersOrApprovers}}
-            <!-- Row 2: Reviewers & Approvers -->
             <div class="signatories-row">
                 {{#each reviewersOrApprovers}}
                 <div class="signatory-col">
-                    <div class="signature-space"></div>
-                    {{#if nameTa}}<div class="sig-name sig-ta">{{nameTa}}</div>{{/if}}
-                    {{#if nameHi}}<div class="sig-name sig-hi">{{nameHi}}</div>{{/if}}
-                    <div class="sig-name sig-en">{{nameEn}}</div>
-                    {{#if titleTa}}<div class="sig-title sig-ta">{{titleTa}}</div>{{/if}}
-                    {{#if titleHi}}<div class="sig-title sig-hi">{{titleHi}}</div>{{/if}}
-                    <div class="sig-title sig-en">{{titleEn}}</div>
+                    <div class="signature-space">Sd/-</div>
+                    <div class="sig-line">-------------------------------------</div>
+                    <div class="sig-trilingual">
+                        {{#if nameTa}}({{nameTa}}) / {{/if}}
+                        {{#if nameHi}}({{nameHi}}){{/if}}
+                    </div>
+                    <div class="sig-name-en">({{nameEn}})</div>
+                    <div class="sig-title-en">{{titleEn}}</div>
                 </div>
                 {{/each}}
             </div>

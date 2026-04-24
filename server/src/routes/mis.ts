@@ -63,9 +63,14 @@ router.get('/business-snapshot/:branchCode', authenticateToken, async (req, res)
             ...snapshot,
             panelData: snapshot.panelData.map(p => ({
                 ...p,
+                val_prev_fy_start: Number(p.val_prev_fy_start || 0),
+                val_prev_fy_end: Number(p.val_prev_fy_end || 0),
+                val_y_eod: Number(p.val_y_eod || 0),
+                growth_prev_fy: Number(p.val_prev_fy_end || 0) - Number(p.val_prev_fy_start || 0),
                 metadata: {
                     displayName: p.registry?.displayName || p.parameter,
-                    category: p.registry?.category || 'Uncategorized'
+                    category: p.registry?.category || 'Uncategorized',
+                    parentParameterName: p.registry?.parentParameterName
                 }
             }))
         };
@@ -89,7 +94,7 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
         const snapshots = await prisma.misSnapshot.findMany({
             where: { businessDate },
             include: {
-                branch: { select: { id: true, code: true, nameEn: true, nameTa: true, type: true } },
+                branch: { select: { code: true, nameEn: true, nameTa: true, type: true } },
                 panelData: true,
             },
             orderBy: { branch: { code: 'asc' } }
@@ -115,12 +120,17 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
                     parameter: p.parameter,
                     displayName: regMap[p.parameter]?.displayName || p.parameter,
                     category: regMap[p.parameter]?.category || 'Other',
+                    parentParameterName: regMap[p.parameter]?.parentParameterName,
                     val_current: Number(p.val_current),
                     val_fy_start: Number(p.val_fy_start),
+                    val_prev_fy_start: Number(p.val_prev_fy_start || 0),
+                    val_prev_fy_end: Number(p.val_prev_fy_end || 0),
                     val_prev_m_end: Number(p.val_prev_m_end),
+                    val_y_eod: Number(p.val_y_eod || 0),
                     growth_fy: Number(p.growth_fy),
                     growth_month: Number(p.growth_month),
                     growth_day: Number(p.growth_day),
+                    growth_prev_fy: Number(p.val_prev_fy_end || 0) - Number(p.val_prev_fy_start || 0),
                     budget_month: Number(p.budget_month),
                     gap_month: Number(p.gap_month),
                     status: p.status,
@@ -278,7 +288,7 @@ router.get('/import-logs/:id/diagnostics', authenticateToken, async (req, res) =
 
         const ingestionLogs = await prisma.ingestionLog.findMany({
             where: { importLogId: id },
-            include: { branch: { select: { id: true, code: true, nameEn: true } } },
+            include: { branch: { select: { code: true, nameEn: true } } },
             orderBy: { createdAt: 'asc' }
         });
 

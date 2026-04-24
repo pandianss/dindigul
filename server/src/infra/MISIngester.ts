@@ -30,6 +30,16 @@ export class MISIngester {
         }
 
         if (typeof raw === 'number' && Number.isFinite(raw)) {
+            // Check if this looks like a YYYYMMDD number rather than an Excel serial date
+            // Excel serial dates for 21st century are roughly 36000 to 73000
+            if (raw > 19000000 && raw < 21000000) {
+                const str = String(raw);
+                const y = Number(str.slice(0, 4));
+                const m = Number(str.slice(4, 6));
+                const d = Number(str.slice(6, 8));
+                return new Date(Date.UTC(y, m - 1, d));
+            }
+
             // Excel serial date (days since 1899-12-30)
             const parsed = (xlsx as any).SSF?.parse_date_code?.(raw);
             if (parsed && parsed.y && parsed.m && parsed.d) {
@@ -106,8 +116,8 @@ export class MISIngester {
                 if (val !== 0) rowFacts[metricCode] = val;
             });
 
-            const groupKey = this.getGroupKey(branch.id, businessDate);
-            const grouped = groupedFacts.get(groupKey) || { unitId: branch.id, date: businessDate, factMap: {} };
+            const groupKey = this.getGroupKey(branch.code, businessDate);
+            const grouped = groupedFacts.get(groupKey) || { unitId: branch.code, date: businessDate, factMap: {} };
             for (const [metric, value] of Object.entries(rowFacts)) {
                 grouped.factMap[metric] = (grouped.factMap[metric] || 0) + value;
             }

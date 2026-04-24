@@ -1,0 +1,5 @@
+id,code,name,type,isActive
+14eefbba-ee62-449b-960c-2d0be1d14d3d,SBREG,Savings Bank Regular,SB,true
+9307979f-2f77-443a-b5ea-cfd9648b51e5,SBNRE,SB NRE Account,SB,true
+bdcdcba9-c9a5-40de-9713-ca6f0a3ae66e,CDGEN,Current Deposit General,CD,true
+93e79432-c496-41d2-907a-f3caf9fa1637,CDCORP,Corporate Current Account,CD,true

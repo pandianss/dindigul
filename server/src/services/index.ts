@@ -7,3 +7,4 @@ export * from './LetterOrchestrator';
 export * from './SchedulerOrchestrator';
 export * from './SnapshotOrchestrator';
 export * from './SnapshotBuilder';
+export * from './OperationalRiskOrchestrator';

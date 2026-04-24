@@ -42,6 +42,35 @@ export class FactRepository {
     }
 
     /**
+     * Fetches facts for multiple metrics across two dates for comparison.
+     */
+    static async getTrendData(branchId: string, current: Date, previous: Date, metrics: string[]) {
+        const facts = await prisma.fact.findMany({
+            where: {
+                unitId: branchId,
+                date: { in: [current, previous] },
+                metric: { in: metrics }
+            }
+        });
+
+        const map: Record<string, Record<string, number>> = {};
+        map[current.toISOString()] = {};
+        map[previous.toISOString()] = {};
+
+        facts.forEach(f => {
+            const dateKey = f.date.toISOString();
+            if (map[dateKey]) {
+                map[dateKey][f.metric] = Number(f.value);
+            }
+        });
+
+        return {
+            current: map[current.toISOString()],
+            previous: map[previous.toISOString()]
+        };
+    }
+
+    /**
      * Fetches trilingual signatory data for the RO or a specific user.
      */
     static async getRegionalOfficeConfig(): Promise<{
@@ -71,9 +100,9 @@ export class FactRepository {
                 ta: ro?.nameTa || 'மண்டல அலுவலகம், திண்டுக்கல்'
             },
             address: {
-                en: ro?.address || '',
-                hi: ro?.addressHi || '',
-                ta: ro?.addressTa || ''
+                en: ro?.address1En || '',
+                hi: ro?.address1Hi || '',
+                ta: ro?.address1Ta || ''
             },
             phone: ro?.phone || '+91 451 2420000',
             email: ro?.email || 'ro.dindigul@iob.in',

@@ -16,18 +16,26 @@ export class SnapshotBuilder {
     
     static async generateDailySnapshots(dateStr: string) {
         const businessDate = toUTCDate(dateStr);
-        const fyStartDate = getFinancialYearStart(businessDate);
+        
+        // Banking Logic: FY reference is ALWAYS the closing of the previous March 31st
+        const fyYear = businessDate.getUTCMonth() < 3 ? businessDate.getUTCFullYear() - 1 : businessDate.getUTCFullYear();
+        const fyClosingDate = new Date(Date.UTC(fyYear, 2, 31)); // March 31st of current FY start
+        const prevYearClosingDate = new Date(Date.UTC(fyYear - 1, 2, 31)); // March 31st of previous year
+        
         const pmEndDate = getPreviousMonthEnd(businessDate);
         const yesterdayDate = getYesterday(businessDate);
 
         logger.info('SNAPSHOT_GEN_START', { 
             businessDate: businessDate.toISOString(),
-            fyStart: fyStartDate.toISOString(),
+            fyClosing: fyClosingDate.toISOString(),
+            prevYearClosing: prevYearClosingDate.toISOString(),
             pmEnd: pmEndDate.toISOString()
         });
 
         const [branches, registry] = await Promise.all([
-            prisma.branch.findMany(),
+            prisma.branch.findMany({
+                include: { _count: { select: { users: true } } }
+            }),
             prisma.misParameterRegistry.findMany({
                 where: { isEnabled: true }
             })
@@ -40,9 +48,9 @@ export class SnapshotBuilder {
             // 1. Fetch Facts for all relevant dates to calculate growth
             const allFacts = await prisma.fact.findMany({
                 where: {
-                    unitId: branch.id,
+                    unitId: branch.code,
                     date: {
-                        in: [businessDate, fyStartDate, pmEndDate, yesterdayDate]
+                        in: [businessDate, fyClosingDate, prevYearClosingDate, pmEndDate, yesterdayDate]
                     }
                 }
             });
@@ -58,7 +66,7 @@ export class SnapshotBuilder {
 
             // Organize facts by date and metric
             const factMap: Record<string, Record<string, number>> = {};
-            [businessDate, fyStartDate, pmEndDate, yesterdayDate].forEach(d => {
+            [businessDate, fyClosingDate, prevYearClosingDate, pmEndDate, yesterdayDate].forEach(d => {
                 factMap[d.toISOString()] = {};
             });
 
@@ -70,22 +78,31 @@ export class SnapshotBuilder {
             });
 
             const currentFacts = factMap[businessDate.toISOString()];
-            const fyFacts = factMap[fyStartDate.toISOString()];
+            const fyFacts = factMap[fyClosingDate.toISOString()];
+            const prevYearFacts = factMap[prevYearClosingDate.toISOString()];
             const pmFacts = factMap[pmEndDate.toISOString()];
             const yesterdayFacts = factMap[yesterdayDate.toISOString()];
+
+            // Inject Business Per Employee
+            const staffCount = (branch as any)._count?.users || 1; // Avoid division by zero
+            currentFacts['Bus_Per_Employee'] = Number(((currentFacts['Bus'] || 0) / staffCount).toFixed(2));
+            fyFacts['Bus_Per_Employee'] = Number(((fyFacts['Bus'] || 0) / staffCount).toFixed(2));
+            prevYearFacts['Bus_Per_Employee'] = Number(((prevYearFacts['Bus'] || 0) / staffCount).toFixed(2));
+            pmFacts['Bus_Per_Employee'] = Number(((pmFacts['Bus'] || 0) / staffCount).toFixed(2));
+            yesterdayFacts['Bus_Per_Employee'] = Number(((yesterdayFacts['Bus'] || 0) / staffCount).toFixed(2));
 
             // 2. Create or Update Snapshot
             const snapshot = await prisma.misSnapshot.upsert({
                 where: {
                     unitId_businessDate_version: {
-                        unitId: branch.id,
+                        unitId: branch.code,
                         businessDate,
                         version: 1
                     }
                 },
                 update: { status: 'DRAFT' },
                 create: {
-                    unitId: branch.id,
+                    unitId: branch.code,
                     businessDate,
                     status: 'DRAFT',
                     version: 1
@@ -105,6 +122,8 @@ export class SnapshotBuilder {
                     parameter: metric,
                     val_current: valCurrent,
                     val_fy_start: valFyStart,
+                    val_prev_fy_start: prevYearFacts[metric] || 0, // Maps to the first historical column
+                    val_prev_fy_end: valFyStart, // Maps to the second historical column (Prev FY End)
                     val_prev_m_end: valPmEnd,
                     val_y_eod: valYesterday,
                     growth_fy: valCurrent - valFyStart,

@@ -27,10 +27,10 @@ export const MetricTable: React.FC<MetricTableProps> = ({ cat, items, snapshot, 
     const isRegional = ['RO', 'LPC', 'REGIONAL OFFICE'].includes(snapshot.branch?.type?.toUpperCase() || '');
 
     const findParent = (paramName: string) => {
-        const p = snapshot.panelData.find(item => item.parameter === paramName);
+        const p = items.find(item => item.parameter === paramName);
         const parentName = p?.metadata?.parentParameterName;
         if (!parentName) return null;
-        return snapshot.panelData.find(item => item.parameter === parentName);
+        return items.find(item => item.parameter === parentName);
     };
 
     const getDepth = (paramName: string, currentDepth: number = 0): number => {
@@ -40,12 +40,38 @@ export const MetricTable: React.FC<MetricTableProps> = ({ cat, items, snapshot, 
     };
 
     const getBranchRoot = (paramName: string): string | null => {
-        const branches = ['Core Ret', 'Core_Agri', 'MSME'];
-        if (branches.includes(paramName)) return paramName;
+        const roots = ['Core Ret', 'Core_Agri', 'MSME', 'Gold', 'Adv', 'Total Dep', 'Bus'];
+        if (roots.includes(paramName)) return paramName;
         const parent = findParent(paramName);
         if (!parent) return null;
         return getBranchRoot(parent.parameter);
     };
+
+    // Recursive sorting to ensure children follow parents
+    const sortedItems: SnapshotPanelData[] = [];
+    const visited = new Set<string>();
+
+    const addRecursive = (param: SnapshotPanelData) => {
+        if (visited.has(param.parameter)) return;
+        visited.add(param.parameter);
+        sortedItems.push(param);
+        
+        // Find children
+        const children = items.filter(i => i.metadata?.parentParameterName === param.parameter);
+        children.forEach(addRecursive);
+    };
+
+    // Start with root elements (those with no parent or parent not in this category)
+    items.filter(i => {
+        const parentName = i.metadata?.parentParameterName;
+        const parentInCat = parentName && items.some(p => p.parameter === parentName);
+        return !parentInCat;
+    }).forEach(addRecursive);
+
+    // Safety for any orphans
+    items.forEach(i => {
+        if (!visited.has(i.parameter)) addRecursive(i);
+    });
 
     return (
         <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 mb-8 last:mb-0">
@@ -117,7 +143,7 @@ export const MetricTable: React.FC<MetricTableProps> = ({ cat, items, snapshot, 
                         )}
                     </thead>
                     <tbody className="divide-y divide-slate-50 font-medium text-slate-600">
-                        {items.map((row) => {
+                        {sortedItems.map((row) => {
                             const isRate = isRateMetric(row.parameter);
                             const isInverse = ['NPA', 'EXPENSE', 'COST', 'PROVISION'].some(k => row.parameter.toUpperCase().includes(k));
                             const isPercentMetric = row.parameter.toUpperCase().includes('%') || row.parameter.toUpperCase().includes('RATIO');
@@ -147,6 +173,11 @@ export const MetricTable: React.FC<MetricTableProps> = ({ cat, items, snapshot, 
                                 branchSolidBg = 'bg-[#f8fbff]';
                                 branchBorder = 'border-l-sky-300';
                                 branchParentBorder = 'border-l-sky-600';
+                            } else if (branchRoot === 'Gold') {
+                                branchBg = 'bg-gradient-to-r from-amber-50/30 to-transparent';
+                                branchSolidBg = 'bg-[#fffdf8]';
+                                branchBorder = 'border-l-amber-200';
+                                branchParentBorder = 'border-l-amber-500';
                             }
 
                             const rowClasses = `hover:bg-slate-50/80 transition-all group/row border-l-4 ${isMajorCategory ? (branchParentBorder || 'border-l-slate-400') : (branchBorder || 'border-l-transparent')} ${branchBg} ${isRoot ? 'bg-gradient-to-r from-blue-100/50 to-transparent border-l-4 border-l-bank-navy shadow-sm' : row.parameter === 'Gold' ? 'bg-gradient-to-r from-amber-50 to-transparent border-l-4 border-l-amber-400' : isSubAggregate ? 'bg-blue-50/30 border-l-4 border-l-bank-teal/50' : isMajorCategory ? 'shadow-[inset_4px_0_0_0_rgba(0,0,0,0.05)]' : ''}`;
@@ -158,8 +189,10 @@ export const MetricTable: React.FC<MetricTableProps> = ({ cat, items, snapshot, 
                                 <tr key={row.id} className={rowClasses}>
                                     <td className={cellClasses}>
                                         <div className="flex items-center">
-                                            {depth > 0 && <div className="w-px h-6 bg-slate-200 mr-2" style={{ marginLeft: '-12px' }} />}
-                                            <div className={textClasses} style={paddingClass}>
+                                            {Array.from({ length: depth }).map((_, i) => (
+                                                <div key={i} className="w-6 h-10 border-l border-slate-200 ml-2 first:ml-0" />
+                                            ))}
+                                            <div className={textClasses}>
                                                 {row.metadata.displayName}
                                             </div>
                                         </div>

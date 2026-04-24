@@ -189,13 +189,13 @@ router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, r
 router.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
 
     try {
-        const allBranches = await prisma.branch.findMany({ select: { id: true, code: true } });
+        const allBranches = await prisma.branch.findMany({ select: { code: true } });
         let deletedCount = 0;
         let blockedCount = 0;
 
         for (const branch of allBranches) {
             try {
-                await prisma.branch.delete({ where: { id: branch.id } });
+                await prisma.branch.delete({ where: { code: branch.code } });
                 deletedCount++;
             } catch (error: any) {
                 if (error.code === 'P2003') {
@@ -214,11 +214,11 @@ router.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: a
 });
 
 // Delete individual unit
-router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
-    const id = req.params.id as string;
+router.delete('/:code', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
+    const { code } = req.params;
 
     // Safety Guard: Prevent users from deleting the unit they are currently assigned to
-    if (req.user?.branchId === id) {
+    if (req.user?.branchId === code) {
         return res.status(400).json({
             error: 'Security Violation: You cannot delete the unit you are currently assigned to. Please transfer yourself to another unit first.'
         });
@@ -227,13 +227,13 @@ router.delete('/:id', authenticateToken, requireAdminOrPlanning, async (req: any
     try {
         // Pre-delete Cleanup: Remove transient dependencies that block branch deletion
         // (Draft Letters, Branch History, Campaign Targets, etc.)
-        await prisma.letter.deleteMany({ where: { branchId: id, status: 'DRAFT' } });
-        await prisma.branchHistory.deleteMany({ where: { branchId: id } });
-        await prisma.campaignDailyData.deleteMany({ where: { branchId: id } });
-        await prisma.campaignTarget.deleteMany({ where: { branchId: id } });
+        await prisma.letter.deleteMany({ where: { branchId: code, status: 'DRAFT' } });
+        await prisma.branchHistory.deleteMany({ where: { branchId: code } });
+        await prisma.campaignDailyData.deleteMany({ where: { branchId: code } });
+        await prisma.campaignTarget.deleteMany({ where: { branchId: code } });
         
         // Final Deletion
-        await prisma.branch.delete({ where: { id } });
+        await prisma.branch.delete({ where: { code } });
         res.json({ message: 'Unit and its associated draft records deleted successfully' });
     } catch (error: any) {
         console.error(`Delete unit ${id} error:`, error);
@@ -268,10 +268,10 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
 
         const results = await Promise.all(items.map(async (item: any) => {
             // Map CSV Headers to Database Fields
-            const code = item['SOL'] || item['code'];
+            const code = formatSolId(item['SOL'] || item['code']);
             const nameEn = item['English Name'] || item['nameEn'];
             
-            if (!code || !nameEn) return null;
+            if (!code || code === '0000' || !nameEn) return null;
 
             const data = {
                 nameEn,

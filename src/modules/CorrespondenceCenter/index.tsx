@@ -15,7 +15,6 @@ import { BatchControls } from './components/Discovery/BatchControls';
 import { LetterTable } from './components/Discovery/LetterTable';
 import { LetterPreview } from './components/Viewer/LetterPreview';
 import { DownloadProgress } from './components/Discovery/DownloadProgress';
-import JSZip from 'jszip';
 
 const CorrespondenceCenter: React.FC = () => {
     const { user } = useAuth();
@@ -41,7 +40,6 @@ const CorrespondenceCenter: React.FC = () => {
     const [isMovingSeal, setIsMovingSeal] = useState(false);
     const [sealPos, setSealPos] = useState({ x: 0, y: 30 });
 
-    // Budget State
     const [budgetType, setBudgetType] = useState('Sundry Other Charges');
     const [strategy, setStrategy] = useState<'SIZE_BASED' | 'POPULATION_BASED' | 'UPLOAD_BASED'>('SIZE_BASED');
     const [financialYear, setFinancialYear] = useState('2026-27');
@@ -199,42 +197,18 @@ const CorrespondenceCenter: React.FC = () => {
             return;
         }
 
-        const count = downloadIds.length;
-        setTotalDownload(count);
-        setCurrentDownload(0);
         setDownloadStatus('GENERATING');
-
-        const zip = new JSZip();
+        setTotalDownload(downloadIds.length);
+        setCurrentDownload(0);
 
         try {
-            for (let i = 0; i < count; i++) {
-                const id = downloadIds[i];
-                setCurrentDownload(i + 1);
-                
-                const letter = filteredLetters.find(l => l.id === id);
-                let fileName = '';
-                
-                if (letter?.type === 'OP_RISK' && letter.period && /^\d{2}\.\d{2}\.\d{4}$/.test(letter.period)) {
-                    const [d, m, y] = letter.period.split('.');
-                    const yyyymmdd = `${y}${m}${d}`;
-                    const sol = letter.branch?.code || '0000';
-                    fileName = `${sol}_OA_${yyyymmdd}.pdf`;
-                } else {
-                    const title = letter ? (letter.titleEn || `Letter_${id}`).replace(/\s+/g, '_') : `Letter_${id}`;
-                    fileName = `${title}_${id.slice(-4)}.pdf`;
-                }
-
-                const res = await api.get(`/letters/${id}/pdf`, { responseType: 'blob' });
-                zip.file(fileName, res.data);
-            }
-
+            const res = await api.post('/letters/bulk-pdf-zip', { ids: downloadIds }, { responseType: 'blob' });
             setDownloadStatus('ZIPPING');
-            const content = await zip.generateAsync({ type: 'blob' });
             
-            const url = URL.createObjectURL(content);
+            const url = URL.createObjectURL(new Blob([res.data], { type: 'application/zip' }));
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Batch_Letters_${format(new Date(), 'ddMMyyyy_HHmm')}.zip`;
+            a.download = `Correspondence_Batch_${format(new Date(), 'yyyyMMdd_HHmm')}.zip`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -249,12 +223,24 @@ const CorrespondenceCenter: React.FC = () => {
 
     const handleDownloadPdf = async (id: string, title: string) => {
         try {
+            const letter = letters.find(l => l.id === id);
+            let fileName = `${title.replace(/\s+/g, '_')}.pdf`;
+            
+            if (letter?.type === 'OP_RISK' && letter.period && /^\d{2}\.\d{2}\.\d{4}$/.test(letter.period)) {
+                const [d, m, y] = letter.period.split('.');
+                const yyyymmdd = `${y}${m}${d}`;
+                const sol = letter.branch?.code || '0000';
+                fileName = `${sol}_OA_${yyyymmdd}.pdf`;
+            }
+
             const res = await api.get(`/letters/${id}/pdf`, { responseType: 'blob' });
             const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${title.replace(/\s+/g, '_')}.pdf`;
+            a.download = fileName;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Download failed:', error);
@@ -283,12 +269,14 @@ const CorrespondenceCenter: React.FC = () => {
     const canGenerate = (user?.role === 'ADMIN' || (user?.role === 'RO_USER' && user?.section === 'Planning'));
 
     if (showComposer) {
-        return <LetterComposer onBack={() => { setShowComposer(false); fetchLetters(); }} />;
+        return <LetterComposer 
+            onClose={() => setShowComposer(false)} 
+            onSuccess={() => { setShowComposer(false); fetchLetters(); }} 
+        />;
     }
 
     return (
         <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500">
-            {/* Header Area */}
             <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-4">
                 <div>
                     <h2 className="text-2xl font-bold text-bank-navy">Correspondence Center</h2>

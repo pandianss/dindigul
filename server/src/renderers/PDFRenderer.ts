@@ -85,7 +85,7 @@ export class PDFRenderer {
                 displayHeaderFooter: true,
                 headerTemplate: `<div style="font-size:9px;width:100%;text-align:right;margin-right:12.7mm;margin-top:5mm;color:#64748b;">${options.refNo || ''} | Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>`,
                 footerTemplate: '<div style="font-size:1px;"></div>',
-                margin: { top: '15.5mm', right: '12.7mm', bottom: '15.5mm', left: '12.7mm' }
+                margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
             });
             
             return Buffer.from(pdf);
