@@ -238,4 +238,25 @@ router.post('/generate-letters', authenticateToken, upload.single('file'), async
     }
 });
 
+/**
+ * DELETE /api/budget/purge
+ * Mass deletes all budget master and history records.
+ */
+router.delete('/purge', authenticateToken, async (req: any, res) => {
+    const isPlanning = req.user.section?.toLowerCase() === 'planning';
+    if (req.user.role !== 'ADMIN' && !isPlanning) return res.status(403).json({ error: 'Unauthorized' });
+
+    try {
+        await prisma.$transaction([
+            prisma.budgetMaster.deleteMany({}),
+            prisma.budgetHistory.deleteMany({}),
+            prisma.budgetImportLog.deleteMany({})
+        ]);
+        res.json({ message: 'Budget system purged successfully' });
+    } catch (error) {
+        console.error('Budget purge error:', error);
+        res.status(500).json({ error: 'Failed to purge budgets' });
+    }
+});
+
 export default router;

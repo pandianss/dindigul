@@ -57,9 +57,17 @@ router.get('/', authenticateToken, async (req, res) => {
 // CREATE
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { atmId, branchId, lastTxnTime, balance } = req.body;
+        const { atmId, branchId, lastTxnTime, balance, deviceType, managementType, locationType } = req.body;
         const atm = await prisma.atm.create({
-            data: { atmId, branchId, lastTxnTime, balance: parseFloat(balance) || 0 }
+            data: { 
+                atmId, 
+                branchId, 
+                lastTxnTime, 
+                balance: parseFloat(balance) || 0,
+                deviceType: deviceType || 'ATM',
+                managementType: managementType || 'BRANCH_MANAGED',
+                locationType: locationType || 'ONSITE'
+            }
         });
         res.json(atm);
     } catch (error) {
@@ -71,10 +79,18 @@ router.post('/', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, async (req, res) => {
     try {
         const id = req.params.id as string;
-        const { atmId, branchId, lastTxnTime, balance } = req.body;
+        const { atmId, branchId, lastTxnTime, balance, deviceType, managementType, locationType } = req.body;
         const atm = await prisma.atm.update({
             where: { id },
-            data: { atmId, branchId, lastTxnTime, balance: parseFloat(balance) || 0 }
+            data: { 
+                atmId, 
+                branchId, 
+                lastTxnTime, 
+                balance: parseFloat(balance) || 0,
+                deviceType,
+                managementType,
+                locationType
+            }
         });
         res.json(atm);
     } catch (error) {
@@ -110,6 +126,10 @@ router.post('/bulk', authenticateToken, async (req, res) => {
             const balanceStr = (record['TOTAL CASH AVAILABLE'] || record['balance']) as string;
             const balance = parseFloat(balanceStr) || 0;
 
+            const deviceType = (record['DEVICE TYPE'] || record['deviceType'] || 'ATM') as string;
+            const managementType = (record['MANAGEMENT'] || record['managementType'] || 'BRANCH_MANAGED') as string;
+            const locationType = (record['LOCATION'] || record['locationType'] || 'ONSITE') as string;
+
             if (!branchCode || !atmId) continue;
 
             const branch = await prisma.branch.findUnique({ where: { code: branchCode } });
@@ -117,8 +137,8 @@ router.post('/bulk', authenticateToken, async (req, res) => {
 
             await prisma.atm.upsert({
                 where: { atmId },
-                update: { branchId: branch.id, lastTxnTime, balance },
-                create: { atmId, branchId: branch.id, lastTxnTime, balance }
+                update: { branchId: branch.code, lastTxnTime, balance, deviceType, managementType, locationType },
+                create: { atmId, branchId: branch.code, lastTxnTime, balance, deviceType, managementType, locationType }
             });
             count++;
         }
@@ -126,6 +146,17 @@ router.post('/bulk', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to process bulk upload' });
+    }
+});
+
+// PURGE ALL
+router.delete('/purge', authenticateToken, async (req, res) => {
+    try {
+        const result = await prisma.atm.deleteMany({});
+        res.json({ message: `Purge Complete. Deleted ${result.count} ATM records.` });
+    } catch (error) {
+        console.error('Purge error:', error);
+        res.status(500).json({ error: 'Purge process failed' });
     }
 });
 

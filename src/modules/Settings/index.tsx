@@ -27,6 +27,9 @@ import { StaffForm } from './components/StaffForm';
 import { ATMForm } from './components/ATMForm';
 import { AuditLogView } from './components/AuditLogView';
 import { TransferModal } from './components/TransferModal';
+import { PartnerForm } from './components/PartnerForm';
+import { AssetForm } from './components/AssetForm';
+import { LockerForm } from './components/LockerForm';
 
 const SettingsManager: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('departments');
@@ -71,7 +74,7 @@ const SettingsManager: React.FC = () => {
             console.log(`[Frontend/Fetch] Tab: ${activeTab}, Endpoint: ${endpoint}, Data:`, res.data);
             setData(res.data.data || res.data);
 
-            if (activeTab === 'staff' || activeTab === 'atms') {
+            if (['staff', 'atms', 'partners', 'assets', 'lockers'].includes(activeTab)) {
                 const [desigRes, branchRes, deptRes] = await Promise.all([
                     api.get('/designations'),
                     api.get('/branches'),
@@ -187,7 +190,8 @@ const SettingsManager: React.FC = () => {
         e.preventDefault();
         const method = editingItem ? 'PUT' : 'POST';
         const endpoint = getEndpoint(activeTab);
-        const url = editingItem ? `${endpoint}/${editingItem.id}` : endpoint;
+        const id = editingItem.id || editingItem.code;
+        const url = editingItem ? `${endpoint}/${id}` : endpoint;
         try {
             await api({ url, method, data: formData });
             setShowForm(false);
@@ -201,7 +205,8 @@ const SettingsManager: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (!window.confirm('Are you sure you want to delete this master entry?')) return;
         try {
-            await api.delete(`${getEndpoint(activeTab)}/${id}`);
+        const targetId = activeTab === 'units' ? id : id; // just keeping it clean, but 'id' passed will be the correct code/id from the row
+        await api.delete(`${getEndpoint(activeTab)}/${id}`);
             fetchData();
         } catch (err) {
             setError(getErrorMessage(err));
@@ -223,18 +228,31 @@ const SettingsManager: React.FC = () => {
         }
     };
 
-    const handlePurgeUnits = async () => {
-        if (!window.confirm("WARNING: mass deletion of isolated units?")) return;
-        if (window.prompt("Type 'PURGE' to confirm") !== 'PURGE') return;
+    const handlePurge = async () => {
+        const label = getSingularLabel(activeTab);
+        if (!window.confirm(`WARNING: This will permanently delete all isolated ${activeTab} records. Continue?`)) return;
+        if (window.prompt(`Type 'PURGE' to confirm deletion of all ${activeTab}`) !== 'PURGE') return;
+        
         setLoading(true);
         try {
-            await api.delete('/branches/purge');
+            const res = await api.delete(`${getEndpoint(activeTab)}/purge`);
             fetchData();
+            alert(res.data.message || `Purged ${activeTab}`);
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDownloadTemplate = () => {
+        const fileName = `${activeTab === 'staff' ? 'staff' : activeTab === 'units' ? 'units' : activeTab}.csv`;
+        const link = document.createElement('a');
+        link.href = `/templates/${fileName}`;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,6 +304,9 @@ const SettingsManager: React.FC = () => {
             }} />;
             case 'staff': return <StaffForm {...commonProps} editingItem={editingItem} designations={designations} branches={branches} departments={departments} handlePhotoUpload={handlePhotoUpload} />;
             case 'atms': return <ATMForm {...commonProps} branches={branches} />;
+            case 'partners': return <PartnerForm {...commonProps} branches={branches} />;
+            case 'assets': return <AssetForm {...commonProps} branches={branches} />;
+            case 'lockers': return <LockerForm {...commonProps} branches={branches} />;
             default: return null;
         }
     };
@@ -334,11 +355,33 @@ const SettingsManager: React.FC = () => {
                         )}
                     </div>
                     {!showForm && !['misUpload', 'command', 'auditLog', 'organization'].includes(activeTab) && (
-                        <div className="flex gap-3">
-                            {activeTab === 'units' && <button onClick={handlePurgeUnits} className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-xl font-bold border border-red-100 uppercase tracking-widest text-[11px]"><Trash2 size={16} />Purge</button>}
+                        <div className="flex items-center gap-3">
+                            {(['units', 'staff', 'atms', 'departments', 'designations'] as Tab[]).includes(activeTab) && (
+                                <button onClick={handlePurge} className="btn-danger">
+                                    <Trash2 size={16} />
+                                    <span>Purge</span>
+                                </button>
+                            )}
+                            <button onClick={handleDownloadTemplate} className="btn-outline">
+                                <Plus size={18} className="rotate-45" />
+                                <span>Get Template</span>
+                            </button>
                             <input type="file" id="csv-upload" className="hidden" accept=".csv" onChange={handleBulkUpload} />
-                            <button onClick={() => document.getElementById('csv-upload')?.click()} className="flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-gray-700 rounded-xl font-bold text-[11px]"><Upload size={18} />Bulk Import</button>
-                            <button onClick={() => { setShowForm(true); setEditingItem(null); setFormData(activeTab === 'units' ? { type: 'BRANCH', populationGroup: 'URBAN', riskCategory: 'MEDIUM' } : activeTab === 'staff' ? { gender: 'M' } : {}); }} className="flex items-center gap-2 px-5 py-1.5 bg-bank-navy text-white rounded-xl font-bold text-[11px]"><Plus size={18} />Add {getSingularLabel(activeTab)}</button>
+                            <button onClick={() => document.getElementById('csv-upload')?.click()} className="btn-secondary">
+                                <Upload size={18} />
+                                <span>Bulk Import</span>
+                            </button>
+                            <button 
+                                onClick={() => { 
+                                    setShowForm(true); 
+                                    setEditingItem(null); 
+                                    setFormData(activeTab === 'units' ? { type: 'BRANCH', populationGroup: 'URBAN', riskCategory: 'MEDIUM' } : activeTab === 'staff' ? { gender: 'M' } : {}); 
+                                }} 
+                                className="btn-primary"
+                            >
+                                <Plus size={18} />
+                                <span>Add {getSingularLabel(activeTab)}</span>
+                            </button>
                         </div>
                     )}
                 </header>
@@ -406,14 +449,17 @@ const SettingsManager: React.FC = () => {
                                                 ];
                                             })
                                         ) : (
-                                            data.map(item => (
-                                                <tr key={item.id} className="hover:bg-bank-navy/[0.02] transition-colors group">
-                                                    <td className="px-6 py-4"><div className="flex items-center space-x-4"><div className="p-2.5 bg-gray-50 text-bank-navy rounded-2xl shadow-inner group-hover:bg-white group-hover:shadow-md transition-all">{activeTab === 'departments' ? <Hash size={18} /> : activeTab === 'units' ? <Building2 size={18} /> : activeTab === 'designations' ? <Briefcase size={18} /> : <Calculator size={18} />}</div><div><p className="font-black text-bank-navy tracking-tight uppercase leading-none">{item.code || item.atmId}</p>{activeTab === 'units' && <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 block">{item.type}</span>}</div></div></td>
-                                                    {activeTab === 'units' && <td className="px-6 py-4"><div className="flex flex-wrap gap-1.5"><span className="px-2 py-0.5 text-[9px] font-black bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">{item.populationGroup?.replace('_', ' ')}</span><span className={cn("px-2 py-0.5 text-[9px] font-black rounded border uppercase tracking-wider", item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' : item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' : 'bg-green-50 text-green-700 border-green-100')}>{item.riskCategory} Risk</span></div></td>}
-                                                    <td className="px-6 py-4"><p className="text-sm font-bold text-gray-700">{item.nameEn}</p><div className="flex gap-4 mt-1 opacity-60"><span className="text-xs font-tamil italic">{item.nameTa || '-'}</span><span className="text-xs font-hindi italic">{item.nameHi || '-'}</span></div></td>
-                                                    <td className="px-6 py-4 text-right"><div className="flex items-center justify-end gap-1"><button onClick={() => startEdit(item)} className="p-2 text-bank-teal hover:bg-bank-teal/5 rounded-xl transition-all"><Edit2 size={16} /></button><button onClick={() => handleDelete(item.id || '')} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={16} /></button></div></td>
-                                                </tr>
-                                            ))
+                                                data.map(item => {
+                                                const itemId = activeTab === 'units' ? item.code : item.id;
+                                                return (
+                                                    <tr key={itemId} className="hover:bg-bank-navy/[0.02] transition-colors group">
+                                                        <td className="px-6 py-4"><div className="flex items-center space-x-4"><div className="p-2.5 bg-gray-50 text-bank-navy rounded-2xl shadow-inner group-hover:bg-white group-hover:shadow-md transition-all">{activeTab === 'departments' ? <Hash size={18} /> : activeTab === 'units' ? <Building2 size={18} /> : activeTab === 'designations' ? <Briefcase size={18} /> : <Calculator size={18} />}</div><div><p className="font-black text-bank-navy tracking-tight uppercase leading-none">{item.code || item.atmId || item.registrationNo || item.assetCode || item.lockerNo}</p>{activeTab === 'units' && <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1 block">{item.type}</span>}{activeTab === 'atms' && <div className="flex gap-1 mt-1"><span className="text-[9px] font-black bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded uppercase tracking-widest">{item.deviceType || 'ATM'}</span><span className="text-[9px] font-black bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded uppercase tracking-widest">{item.managementType?.replace('_', ' ') || 'BRANCH MANAGED'}</span></div>}{activeTab === 'partners' && <div className="flex gap-1 mt-1"><span className="text-[9px] font-black bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded uppercase tracking-widest">{item.type?.replace('_', ' ')}</span></div>}{activeTab === 'assets' && <div className="flex gap-1 mt-1"><span className="text-[9px] font-black bg-bank-teal/10 text-bank-teal px-1.5 py-0.5 rounded uppercase tracking-widest">{item.category}</span></div>}{activeTab === 'lockers' && <div className="flex gap-1 mt-1"><span className={cn("text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest", item.status === 'AVAILABLE' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700')}>{item.status?.replace('_', ' ')}</span><span className="text-[9px] font-black bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded uppercase tracking-widest">{item.type}</span></div>}</div></div></td>
+                                                        {activeTab === 'units' && <td className="px-6 py-4"><div className="flex flex-wrap gap-1.5"><span className="px-2 py-0.5 text-[9px] font-black bg-blue-50 text-blue-700 rounded border border-blue-100 uppercase tracking-wider">{item.populationGroup?.replace('_', ' ')}</span><span className={cn("px-2 py-0.5 text-[9px] font-black rounded border uppercase tracking-wider", item.riskCategory === 'HIGH' ? 'bg-red-50 text-red-700 border-red-100' : item.riskCategory === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' : 'bg-green-50 text-green-700 border-green-100')}>{item.riskCategory} Risk</span></div></td>}
+                                                        <td className="px-6 py-4"><p className="text-sm font-bold text-gray-700">{item.nameEn || item.description}</p><div className="flex gap-4 mt-1 opacity-60"><span className="text-xs font-tamil italic">{item.nameTa || '-'}</span><span className="text-xs font-hindi italic">{item.nameHi || '-'}</span></div></td>
+                                                        <td className="px-6 py-4 text-right"><div className="flex items-center justify-end gap-1"><button onClick={() => startEdit(item)} className="p-2 text-bank-teal hover:bg-bank-teal/5 rounded-xl transition-all"><Edit2 size={16} /></button><button onClick={() => handleDelete(itemId || '')} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={16} /></button></div></td>
+                                                    </tr>
+                                                );
+                                            })
                                         )
                                     )}
                                 </tbody>
@@ -433,9 +479,9 @@ const SettingsManager: React.FC = () => {
                         <form onSubmit={handleSave} className="space-y-6">
                             {error && <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 font-bold mb-4">{error}</div>}
                             {renderForm()}
-                            <div className="flex justify-end pt-6 mt-6 border-t border-gray-100 space-x-3">
-                                <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2 rounded-lg font-bold border border-gray-200 hover:bg-gray-50 text-gray-600">Cancel</button>
-                                <button type="submit" className="bg-bank-navy text-white px-8 py-2 rounded-lg font-bold shadow-lg hover:bg-opacity-90 flex items-center space-x-2"><Save size={18} /><span>Save Changes</span></button>
+                            <div className="flex justify-end pt-6 mt-6 border-t border-gray-100 gap-3">
+                                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary !bg-gray-50 border-none shadow-none">Cancel</button>
+                                <button type="submit" className="btn-primary px-10"><Save size={18} /><span>Save Changes</span></button>
                             </div>
                         </form>
                     </div>

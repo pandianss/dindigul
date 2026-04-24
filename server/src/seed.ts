@@ -2,7 +2,7 @@ import prisma from './lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-    const passwordHash = await bcrypt.hash('admin123', 10);
+    const passwordHash = await bcrypt.hash('Iob@3933', 10);
 
     const admin = await prisma.user.upsert({
         where: { username: 'admin' },
@@ -20,9 +20,10 @@ async function main() {
 
     // Seed some initial branches
     const branches = [
-        { code: 'B001', nameEn: 'Dindigul Main', type: 'URBAN' },
-        { code: 'B002', nameEn: 'Palani Road', type: 'SEMI_URBAN' },
-        { code: 'B003', nameEn: 'Collectorate Branch', type: 'URBAN' }
+        { code: '3933', nameEn: 'Regional Office Dindigul', type: 'RO', populationGroup: 'URBAN' },
+        { code: 'B001', nameEn: 'Dindigul Main', type: 'BRANCH', populationGroup: 'URBAN' },
+        { code: 'B002', nameEn: 'Palani Road', type: 'BRANCH', populationGroup: 'SEMI_URBAN' },
+        { code: 'B003', nameEn: 'Collectorate Branch', type: 'BRANCH', populationGroup: 'URBAN' }
     ];
 
     for (const b of branches) {
@@ -37,26 +38,25 @@ async function main() {
 
     // Seed some initial parameters for MIS
     const parameters = [
-        { code: 'TOTAL_DEPOSITS', nameEn: 'Total Deposits', category: 'DEPOSITS', unit: 'Cr' },
-        { code: 'TOTAL_ADVANCES', nameEn: 'Total Advances', category: 'ADVANCES', unit: 'Cr' },
-        { code: 'TOTAL_BUSINESS', nameEn: 'Total Business', category: 'BUSINESS', unit: 'Cr' },
-        { code: 'TOTAL_RECOVERY', nameEn: 'Total Recovery', category: 'RECOVERY', unit: 'Cr' },
-        { code: 'CASA_RATIO', nameEn: 'CASA Ratio', category: 'RATIO', unit: '%' },
-
-        { code: 'GROSS_NPA', nameEn: 'Gross NPA', category: 'ASSET_QUALITY', unit: '%' }
+        { parameterName: 'TOTAL_DEPOSITS', displayName: 'Total Deposits', category: 'DEPOSITS' },
+        { parameterName: 'TOTAL_ADVANCES', displayName: 'Total Advances', category: 'ADVANCES' },
+        { parameterName: 'TOTAL_BUSINESS', displayName: 'Total Business', category: 'BUSINESS' },
+        { parameterName: 'TOTAL_RECOVERY', displayName: 'Total Recovery', category: 'RECOVERY' },
+        { parameterName: 'CASA_RATIO', displayName: 'CASA Ratio', category: 'RATIO' },
+        { parameterName: 'GROSS_NPA', displayName: 'Gross NPA', category: 'ASSET_QUALITY' }
     ];
 
 
     for (const p of parameters) {
-        await prisma.parameter.upsert({
-            where: { code: p.code },
+        await prisma.misParameterRegistry.upsert({
+            where: { parameterName: p.parameterName },
             update: {},
             create: p
         });
     }
 
     // Seed some initial requests for Request Management
-    const itParam = await prisma.parameter.findUnique({ where: { code: 'TOTAL_DEPOSITS' } }); // Just for user/branch context
+    const itParam = await prisma.misParameterRegistry.findUnique({ where: { parameterName: 'TOTAL_DEPOSITS' } }); // Just for user/branch context
     const mainBranch = await prisma.branch.findUnique({ where: { code: 'B001' } });
 
     if (mainBranch) {
@@ -67,7 +67,7 @@ async function main() {
                 category: 'IT',
                 status: 'OPEN',
                 priority: 'HIGH',
-                branchId: mainBranch.id,
+                branchId: mainBranch.code,
                 userId: admin.id,
                 assignedSection: 'IT'
             }
@@ -80,7 +80,7 @@ async function main() {
                 category: 'STATIONERY',
                 status: 'IN_PROGRESS',
                 priority: 'LOW',
-                branchId: mainBranch.id,
+                branchId: mainBranch.code,
                 userId: admin.id,
                 assignedSection: 'Planning'
             }
@@ -146,7 +146,7 @@ async function main() {
     await prisma.stationeryMovement.create({
         data: {
             itemId: forms.id,
-            branchId: mainBranch?.id,
+            branchId: mainBranch?.code,
             quantity: 100,
             type: 'ISSUE',
             remarks: 'Quarterly supply'
@@ -238,7 +238,7 @@ async function main() {
                 amountInvolved: 850000,
                 type: 'SARFAESI',
                 status: 'POSSESSION_TAKEN',
-                branchId: dindigulMain.id,
+                branchId: dindigulMain.code,
                 remarks: 'Physical possession taken on 12.02.2026'
             }
         });
@@ -249,7 +249,7 @@ async function main() {
                 amountInvolved: 420000,
                 type: 'OTS',
                 status: 'NOTIFIED',
-                branchId: dindigulMain.id,
+                branchId: dindigulMain.code,
                 remarks: 'OTS proposal under verification'
             }
         });
@@ -266,7 +266,7 @@ async function main() {
                 observation: 'Duplicate payments detected in electricity bills for Oct-Dec 2025.',
                 riskLevel: 'HIGH',
                 status: 'PENDING',
-                branchId: dindigulCity.id,
+                branchId: dindigulCity.code,
                 targetDate: new Date('2026-03-30'),
                 auditDate: new Date('2026-02-10')
             }
@@ -279,7 +279,7 @@ async function main() {
                 riskLevel: 'MEDIUM',
                 status: 'RECTIFIED',
                 rectificationDetails: 'Inventory verified and signed on 15.02.2026. Register updated.',
-                branchId: dindigulCity.id,
+                branchId: dindigulCity.code,
                 targetDate: new Date('2026-02-28'),
                 auditDate: new Date('2026-01-20')
             }
@@ -299,7 +299,7 @@ async function main() {
                 purchaseDate: new Date('2025-05-15'),
                 purchaseValue: 85000,
                 condition: 'GOOD',
-                branchId: cityBranch.id
+                branchId: cityBranch.code
             }
         });
 
@@ -312,7 +312,7 @@ async function main() {
                 purchaseValue: 245000,
                 condition: 'GOOD',
                 amcExpiry: new Date('2026-03-15'),
-                branchId: cityBranch.id
+                branchId: cityBranch.code
             }
         });
 
@@ -329,6 +329,33 @@ async function main() {
     }
 
     console.log('Seeded Phase 10 Asset & Maintenance data');
+
+    // Seed ATMs / CDMs
+    if (cityBranch) {
+        await prisma.atm.create({
+            data: {
+                atmId: 'S1AC003933',
+                branchId: cityBranch.code,
+                deviceType: 'CDM',
+                managementType: 'BRANCH_MANAGED',
+                locationType: 'ONSITE',
+                lastTxnTime: '22-02-2026 14:30',
+                balance: 1250000.50
+            }
+        });
+
+        await prisma.atm.create({
+            data: {
+                atmId: 'S1AC009999',
+                branchId: cityBranch.code,
+                deviceType: 'ATM',
+                managementType: 'OUTSOURCED',
+                locationType: 'OFFSITE',
+                lastTxnTime: '23-02-2026 09:15',
+                balance: 500000.00
+            }
+        });
+    }
 }
 
 main()

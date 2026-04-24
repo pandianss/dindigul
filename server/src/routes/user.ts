@@ -237,15 +237,15 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                                 }
                             });
                         }
-                        branchCache[branchCode] = branch.id;
-                        branchId = branch.id;
+                        branchCache[branchCode] = branch.code;
+                        branchId = branch.code;
                     }
                 }
 
                 // Extra safety: If we have branchId but no branch object (from cache), fetch it
                 let branchType = '';
                 if (branchId) {
-                    const b = await prisma.branch.findUnique({ where: { id: branchId }, select: { type: true } });
+                    const b = await prisma.branch.findUnique({ where: { code: branchId }, select: { type: true } });
                     branchType = b?.type || '';
                 }
 
@@ -290,12 +290,12 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
                 if (branchId) {
                     if (isUnitHead || isRegionHead) {
                         await prisma.branch.update({
-                            where: { id: branchId },
+                            where: { code: branchId },
                             data: { headUserId: user.id }
                         });
                     } else if (isSecondLine) {
                         await prisma.branch.update({
-                            where: { id: branchId },
+                            where: { code: branchId },
                             data: { secondLineUserId: user.id }
                         });
                     }
@@ -314,6 +314,39 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
     } catch (error) {
         console.error('Bulk user error:', error);
         res.status(500).json({ error: 'Failed to process bulk upload' });
+    }
+});
+
+// Mass Purge Users (excluding ADMINs)
+router.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
+    try {
+        const allUsers = await prisma.user.findMany({ 
+            where: { role: { not: 'ADMIN' } },
+            select: { id: true, username: true } 
+        });
+        
+        let deletedCount = 0;
+        let blockedCount = 0;
+
+        for (const user of allUsers) {
+            if (user.id === req.user.id) continue; // Safety: Don't delete self
+
+            try {
+                await prisma.user.delete({ where: { id: user.id } });
+                deletedCount++;
+            } catch (error: any) {
+                if (error.code === 'P2003') {
+                    blockedCount++; // Skip dependent users gracefully
+                } else {
+                    console.error(`Failed deleting user ${user.username}:`, error);
+                }
+            }
+        }
+
+        res.json({ message: `Purge Complete. Deleted ${deletedCount} users. Skipped ${blockedCount} users due to active dependencies.` });
+    } catch (error) {
+        console.error('Purge error:', error);
+        res.status(500).json({ error: 'Purge process failed' });
     }
 });
 

@@ -12,212 +12,199 @@ export const UnitForm: React.FC<UnitFormProps> = ({
     setFormData, 
     handleSpecialStatusChange 
 }) => {
-    const isRO = formData.type === 'RO' || formData.type === 'Regional Office';
-
     return (
-        <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Code</label>
-                <input
-                    className="w-full p-2 border rounded font-bold"
-                    value={formData.code || ''}
-                    onChange={e => {
-                        const val = e.target.value;
-                        const nextData = { ...formData, code: val };
-                        // Auto-sync sorting ID if it hasn't been manually set differently
-                        if (!formData.officeId || formData.officeId === 9999 || formData.officeId === 0) {
-                            nextData.officeId = parseInt(val) || 0;
-                        }
-                        setFormData(nextData);
-                    }}
-                    required
-                />
-            </div>
-
-            <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Office ID (Sorting)</label>
-                <input
-                    type="number"
-                    className="w-full p-2 border rounded"
-                    value={formData.officeId || ''}
-                    onChange={e => setFormData({ ...formData, officeId: parseInt(e.target.value) || 0 })}
-                    required
-                />
-            </div>
-            <div className="col-span-2">
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Open Date</label>
-                <input
-                    type="date"
-                    className="w-full p-2 border rounded"
-                    value={formData.openDate || ''}
-                    onChange={e => setFormData({ ...formData, openDate: e.target.value })}
-                />
-            </div>
-
-            <div className="col-span-2">
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Unit Name (English)</label>
-                <input
-                    className="w-full p-2 border rounded"
-                    value={formData.nameEn || ''}
-                    onChange={e => setFormData({ ...formData, nameEn: e.target.value })}
-                    required
-                />
-            </div>
-
-            {/* Unit Type & Population Group */}
-            <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Unit Type</label>
-                <select
-                    className="w-full p-2 border rounded"
-                    value={formData.type || 'BRANCH'}
-                    onChange={e => setFormData({ ...formData, type: e.target.value })}
-                >
-                    <option value="RO">Regional Office</option>
-                    <option value="LPC">Loan Processing Centre</option>
-                    <option value="BRANCH">Branch</option>
-                </select>
-            </div>
-            <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Branch Size (Budgeting)</label>
-                <select
-                    className="w-full p-2 border rounded font-bold text-indigo-700 bg-indigo-50/30"
-                    value={formData.size || ''}
-                    onChange={e => setFormData({ ...formData, size: e.target.value })}
-                >
-                    <option value="">Not Categorized</option>
-                    <option value="Small">Small</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Large">Large</option>
-                    <option value="Very Large">Very Large</option>
-                    <option value="Extra Large">Extra Large</option>
-                </select>
-            </div>
-            {!isRO && (
-                <div>
-                    <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Population Group</label>
-                    <select
-                        className="w-full p-2 border rounded"
-                        value={formData.populationGroup || 'URBAN'}
-                        onChange={e => setFormData({ ...formData, populationGroup: e.target.value })}
-                    >
-                        <option value="METRO">Metro</option>
-                        <option value="URBAN">Urban</option>
-                        <option value="SEMI_URBAN">Semi-Urban</option>
-                        <option value="RURAL">Rural</option>
-                    </select>
-                </div>
-            )}
-
-            {/* Special Status */}
-            {!isRO && (
-                <div className="col-span-2">
-                    <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider text-bank-navy">Special Status</label>
-                    <div className="flex flex-wrap gap-3">
-                        {['MSME', 'Agri', 'Retail', 'Captive', 'Specialised Retail', 'Forex', 'Large Corporate'].map(status => (
-                            <label key={status} className="flex items-center space-x-2 bg-gray-50 px-3 py-1 rounded-md border border-gray-200 cursor-pointer hover:bg-gray-100">
-                                <input
-                                    type="checkbox"
-                                    checked={(formData.specialStatus || []).includes(status)}
-                                    onChange={() => handleSpecialStatusChange(status)}
-                                    className="rounded text-bank-navy focus:ring-bank-navy"
-                                />
-                                <span className="text-sm font-medium text-gray-700">{status}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Risk Categorization */}
-            {!isRO && (
-                <>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Risk Category</label>
-                        <select
-                            className="w-full p-2 border rounded font-bold text-gray-700"
-                            value={formData.riskCategory || 'MEDIUM'}
-                            onChange={e => setFormData({ ...formData, riskCategory: e.target.value })}
-                        >
-                            <option value="LOW">Low Risk</option>
-                            <option value="MEDIUM">Medium Risk</option>
-                            <option value="HIGH">High Risk</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider text-bank-navy">Risk Effective Date</label>
-                        <div className="relative">
-                            <input
-                                type="date"
-                                className="w-full p-2 border rounded"
-                                value={formData.riskEffectiveDate?.toString().split('T')[0] || ''}
-                                onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value || undefined })}
-                            />
-                        </div>
-                    </div>
-                </>
-            )}
-
-            <div className="col-span-2 mt-2">
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Name (Tamil) - தமிழ்</label>
+        <div className="space-y-8">
+            {/* 1. Core Identification */}
+            <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Core Identification</h4>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-1">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">SOL (Unique ID)</label>
                         <input
-                            className="w-full p-2 border rounded font-tamil"
+                            className="w-full p-2.5 border rounded-lg font-black text-bank-navy focus:ring-2 focus:ring-bank-teal/20 outline-none transition-all"
+                            value={formData.code || ''}
+                            onChange={e => setFormData({ ...formData, code: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">English Name</label>
+                        <input
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none transition-all"
+                            value={formData.nameEn || ''}
+                            onChange={e => setFormData({ ...formData, nameEn: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="col-span-1">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Tamil Name</label>
+                        <input
+                            className="w-full p-2.5 border rounded-lg font-tamil focus:ring-2 focus:ring-bank-teal/20 outline-none transition-all"
                             value={formData.nameTa || ''}
                             onChange={e => setFormData({ ...formData, nameTa: e.target.value })}
                         />
                     </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Name (Hindi) - हिंदी</label>
+                    <div className="col-span-1">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Hindi Name</label>
                         <input
-                            className="w-full p-2 border rounded font-hindi"
+                            className="w-full p-2.5 border rounded-lg font-hindi focus:ring-2 focus:ring-bank-teal/20 outline-none transition-all"
                             value={formData.nameHi || ''}
                             onChange={e => setFormData({ ...formData, nameHi: e.target.value })}
+                        />
+                    </div>
+                    <div className="col-span-1">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Open Date</label>
+                        <input
+                            type="text"
+                            placeholder="DD/MM/YYYY"
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none transition-all"
+                            value={formData.openDate || ''}
+                            onChange={e => setFormData({ ...formData, openDate: e.target.value })}
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="col-span-2">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (English)</label>
-                <textarea
-                    className="w-full p-2 border rounded"
-                    value={formData.address || ''}
-                    onChange={e => setFormData({ ...formData, address: e.target.value })}
-                />
+            {/* 2. Categorization & Risk */}
+            <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Categorization & Risk</h4>
+                <div className="grid grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Type</label>
+                        <select
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none appearance-none bg-white"
+                            value={formData.type || 'BRANCH'}
+                            onChange={e => setFormData({ ...formData, type: e.target.value })}
+                        >
+                            <option value="BRANCH">Branch</option>
+                            <option value="RO">Regional Office</option>
+                            <option value="LPC">LPC</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Size</label>
+                        <select
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none appearance-none bg-white"
+                            value={formData.size || ''}
+                            onChange={e => setFormData({ ...formData, size: e.target.value })}
+                        >
+                            <option value="">Select...</option>
+                            <option value="SMALL">Small</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LARGE">Large</option>
+                            <option value="V_LARGE">Very Large</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Pop. Group</label>
+                        <select
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none appearance-none bg-white"
+                            value={formData.populationGroup || ''}
+                            onChange={e => setFormData({ ...formData, populationGroup: e.target.value })}
+                        >
+                            <option value="RURAL">Rural</option>
+                            <option value="SEMI_URBAN">Semi-Urban</option>
+                            <option value="URBAN">Urban</option>
+                            <option value="METRO">Metro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Risk Category</label>
+                        <select
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none appearance-none bg-white"
+                            value={formData.riskCategory || ''}
+                            onChange={e => setFormData({ ...formData, riskCategory: e.target.value })}
+                        >
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HIGH">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Prev Risk</label>
+                        <input
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none"
+                            value={formData.prevRiskCategory || ''}
+                            onChange={e => setFormData({ ...formData, prevRiskCategory: e.target.value })}
+                        />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Risk Effective Date</label>
+                        <input
+                            type="date"
+                            className="w-full p-2.5 border rounded-lg font-bold focus:ring-2 focus:ring-bank-teal/20 outline-none"
+                            value={formData.riskEffectiveDate?.toString().split('T')[0] || ''}
+                            onChange={e => setFormData({ ...formData, riskEffectiveDate: e.target.value })}
+                        />
+                    </div>
+                </div>
             </div>
-            <div className="col-span-2">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (Tamil) - தமிழ்</label>
-                <textarea
-                    className="w-full p-2 border rounded font-tamil"
-                    value={formData.addressTa || ''}
-                    onChange={e => setFormData({ ...formData, addressTa: e.target.value })}
-                />
+
+            {/* 3. Address Matrix */}
+            <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Regional Address Matrix</h4>
+                <div className="grid grid-cols-3 gap-6">
+                    {/* English Address */}
+                    <div className="space-y-3">
+                        <p className="text-[9px] font-black text-bank-navy/40 uppercase tracking-widest border-b pb-1">English Address</p>
+                        <input placeholder="Add1 English" className="w-full p-2 border rounded text-xs font-bold" value={formData.address1En || ''} onChange={e => setFormData({ ...formData, address1En: e.target.value })} />
+                        <input placeholder="Add 2 English" className="w-full p-2 border rounded text-xs font-bold" value={formData.address2En || ''} onChange={e => setFormData({ ...formData, address2En: e.target.value })} />
+                        <input placeholder="District English" className="w-full p-2 border rounded text-xs font-bold" value={formData.districtEn || ''} onChange={e => setFormData({ ...formData, districtEn: e.target.value })} />
+                    </div>
+                    {/* Tamil Address */}
+                    <div className="space-y-3">
+                        <p className="text-[9px] font-black text-bank-navy/40 uppercase tracking-widest border-b pb-1">Tamil Address (தமிழ்)</p>
+                        <input placeholder="Add1 Tamil" className="w-full p-2 border rounded text-xs font-tamil" value={formData.address1Ta || ''} onChange={e => setFormData({ ...formData, address1Ta: e.target.value })} />
+                        <input placeholder="Add 2 Tamil" className="w-full p-2 border rounded text-xs font-tamil" value={formData.address2Ta || ''} onChange={e => setFormData({ ...formData, address2Ta: e.target.value })} />
+                        <input placeholder="District Tamil" className="w-full p-2 border rounded text-xs font-tamil" value={formData.districtTa || ''} onChange={e => setFormData({ ...formData, districtTa: e.target.value })} />
+                    </div>
+                    {/* Hindi Address */}
+                    <div className="space-y-3">
+                        <p className="text-[9px] font-black text-bank-navy/40 uppercase tracking-widest border-b pb-1">Hindi Address (हिंदी)</p>
+                        <input placeholder="Add1 Hindi" className="w-full p-2 border rounded text-xs font-hindi" value={formData.address1Hi || ''} onChange={e => setFormData({ ...formData, address1Hi: e.target.value })} />
+                        <input placeholder="Add 2 Hindi" className="w-full p-2 border rounded text-xs font-hindi" value={formData.address2Hi || ''} onChange={e => setFormData({ ...formData, address2Hi: e.target.value })} />
+                        <input placeholder="District Hindi" className="w-full p-2 border rounded text-xs font-hindi" value={formData.districtHi || ''} onChange={e => setFormData({ ...formData, districtHi: e.target.value })} />
+                    </div>
+                </div>
             </div>
-            <div className="col-span-2">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Address (Hindi) - हिंदी</label>
-                <textarea
-                    className="w-full p-2 border rounded font-hindi"
-                    value={formData.addressHi || ''}
-                    onChange={e => setFormData({ ...formData, addressHi: e.target.value })}
-                />
-            </div>
-            <div className="col-span-1">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Phone</label>
-                <input
-                    className="w-full p-2 border rounded"
-                    value={formData.phone || ''}
-                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                />
-            </div>
-            <div className="col-span-1">
-                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider text-bank-navy">Email</label>
-                <input
-                    className="w-full p-2 border rounded"
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={e => setFormData({ ...formData, email: e.target.value })}
-                />
+
+            {/* 4. Technical Identifiers & Contact */}
+            <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Technical Identifiers & Contact</h4>
+                <div className="grid grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">IFSC</label>
+                        <input className="w-full p-2 border rounded text-xs font-black uppercase" value={formData.ifsc || ''} onChange={e => setFormData({ ...formData, ifsc: e.target.value })} />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">MICR</label>
+                        <input className="w-full p-2 border rounded text-xs font-black" value={formData.micr || ''} onChange={e => setFormData({ ...formData, micr: e.target.value })} />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">BSR Code</label>
+                        <input className="w-full p-2 border rounded text-xs font-black" value={formData.bsrCode || ''} onChange={e => setFormData({ ...formData, bsrCode: e.target.value })} />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Pincode</label>
+                        <input className="w-full p-2 border rounded text-xs font-black" value={formData.pincode || ''} onChange={e => setFormData({ ...formData, pincode: e.target.value })} />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Phone</label>
+                        <input className="w-full p-2 border rounded text-xs font-bold" value={formData.phone || ''} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Email</label>
+                        <input className="w-full p-2 border rounded text-xs font-bold" type="email" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Latitude</label>
+                        <input type="number" step="0.0001" className="w-full p-2 border rounded text-xs font-bold" value={formData.latitude || ''} onChange={e => setFormData({ ...formData, latitude: parseFloat(e.target.value) })} />
+                    </div>
+                    <div className="col-span-2">
+                        <label className="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Longitude</label>
+                        <input type="number" step="0.0001" className="w-full p-2 border rounded text-xs font-bold" value={formData.longitude || ''} onChange={e => setFormData({ ...formData, longitude: parseFloat(e.target.value) })} />
+                    </div>
+                </div>
             </div>
         </div>
     );

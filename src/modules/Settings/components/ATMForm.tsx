@@ -25,6 +25,39 @@ export const ATMForm: React.FC<ATMFormProps> = ({
                 />
             </div>
             <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Device Type</label>
+                <select
+                    className="w-full p-2 border rounded"
+                    value={formData.deviceType || 'ATM'}
+                    onChange={e => setFormData({ ...formData, deviceType: e.target.value })}
+                >
+                    <option value="ATM">ATM (Teller Machine)</option>
+                    <option value="CDM">CDM (Cash Deposit/Recycler)</option>
+                </select>
+            </div>
+            <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Management Model</label>
+                <select
+                    className="w-full p-2 border rounded"
+                    value={formData.managementType || 'BRANCH_MANAGED'}
+                    onChange={e => setFormData({ ...formData, managementType: e.target.value })}
+                >
+                    <option value="BRANCH_MANAGED">Branch Managed</option>
+                    <option value="OUTSOURCED">Outsourced (Managed Service)</option>
+                </select>
+            </div>
+            <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Location Type</label>
+                <select
+                    className="w-full p-2 border rounded"
+                    value={formData.locationType || 'ONSITE'}
+                    onChange={e => setFormData({ ...formData, locationType: e.target.value })}
+                >
+                    <option value="ONSITE">Onsite (Inside Branch)</option>
+                    <option value="OFFSITE">Offsite (Standalone)</option>
+                </select>
+            </div>
+            <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Branch Assignment</label>
                 <select
                     className="w-full p-2 border rounded"
@@ -33,7 +66,7 @@ export const ATMForm: React.FC<ATMFormProps> = ({
                     required
                 >
                     <option value="">Select Branch</option>
-                    {branches.map(b => <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>)}
+                    {branches.map(b => <option key={b.code} value={b.code}>{b.code} - {b.nameEn}</option>)}
                 </select>
             </div>
             <div>
@@ -46,7 +79,7 @@ export const ATMForm: React.FC<ATMFormProps> = ({
                     required
                 />
             </div>
-            <div className="col-span-2">
+            <div>
                 <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Last Transaction Time</label>
                 <input
                     className="w-full p-2 border rounded"

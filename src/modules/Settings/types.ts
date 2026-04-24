@@ -1,4 +1,4 @@
-export type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog' | 'command' | 'organization';
+export type Tab = 'departments' | 'units' | 'designations' | 'staff' | 'atms' | 'partners' | 'assets' | 'lockers' | 'bulletins' | 'misUpload' | 'budgets' | 'registry' | 'auditLog' | 'command' | 'organization';
 
 export interface MasterItem {
     id?: string;
@@ -23,6 +23,20 @@ export interface MasterItem {
     email?: string;
     riskCategory?: string;
     riskEffectiveDate?: string;
+    prevRiskCategory?: string;
+    micr?: string;
+    bsrCode?: string;
+    address1En?: string;
+    address2En?: string;
+    districtEn?: string;
+    address1Ta?: string;
+    address2Ta?: string;
+    districtTa?: string;
+    address1Hi?: string;
+    address2Hi?: string;
+    districtHi?: string;
+    latitude?: number;
+    longitude?: number;
     specialStatus?: string | string[];
     gender?: string;
     officeId?: number;
@@ -45,9 +59,23 @@ export interface MasterItem {
     photo?: { data: string };
     photoData?: string | ArrayBuffer | null;
     atmId?: string;
+    deviceType?: string;
+    managementType?: string;
+    locationType?: string;
     lastTxnTime?: string;
     balance?: number;
     size?: string;
+    pincode?: string;
+    ifsc?: string;
+    registrationNo?: string;
+    category?: string;
+    assetCode?: string;
+    description?: string;
+    purchaseDate?: string;
+    purchaseValue?: number;
+    condition?: string;
+    amcExpiry?: string;
+    lockerNo?: string;
 }
 
 export interface TabGroup {

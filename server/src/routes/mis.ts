@@ -109,6 +109,7 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
                 branchId: s.unitId,
                 branchCode: s.branch!.code,
                 branchName: s.branch!.nameEn,
+                branchType: s.branch!.type,
                 status: s.status,
                 panelData: s.panelData.map(p => ({
                     parameter: p.parameter,
@@ -127,11 +128,22 @@ router.get('/regional-panel', authenticateToken, async (req: any, res) => {
             }));
 
         const paramTotals: Record<string, any> = {};
+        const businessCategories = ['DEPOSITS', 'ADVANCES', 'BUSINESS', 'RECOVERY', 'ASSET_QUALITY', 'RATIO'];
+        
         for (const snap of enriched) {
+            const isRO = snap.branchType === 'RO' || snap.branchCode === '3933';
+            
             for (const p of snap.panelData) {
                 if (!paramTotals[p.parameter]) {
                     paramTotals[p.parameter] = { displayName: p.displayName, category: p.category, total: 0, fyStart: 0, growthFy: 0 };
                 }
+                
+                // RO as Cost Centre: Skip business figures for RO, only aggregate costs/others
+                const isBusinessParam = businessCategories.includes(p.category?.toUpperCase());
+                if (isRO && isBusinessParam) {
+                    continue; 
+                }
+
                 paramTotals[p.parameter].total += p.val_current;
                 paramTotals[p.parameter].fyStart += p.val_fy_start;
                 paramTotals[p.parameter].growthFy += p.growth_fy;

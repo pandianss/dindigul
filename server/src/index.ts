@@ -38,6 +38,9 @@ import publicRoutes from './routes/public';
 import returnsRoutes from './routes/returns';
 import systemRoutes from './routes/systemRoutes';
 import manualsRoutes from './routes/manuals';
+import partnerRoutes from './routes/partners';
+import assetRoutes from './routes/assets';
+import lockerRoutes from './routes/lockers';
 import prisma from './lib/prisma';
 
 import { SchedulerOrchestrator } from './services/SchedulerOrchestrator';
@@ -125,6 +128,9 @@ app.use('/api/internal-notes', internalNoteRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/returns', returnsRoutes);
 app.use('/api/manuals', manualsRoutes);
+app.use('/api/partners', partnerRoutes);
+app.use('/api/assets', assetRoutes);
+app.use('/api/lockers', lockerRoutes);
 
 // Unified System Routes (Merging 11 previous files)
 app.use('/api', systemRoutes);

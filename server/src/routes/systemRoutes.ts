@@ -326,6 +326,27 @@ departmentRouter.post('/bulk', authenticateToken, requireAdminOrPlanning, async 
 });
 
 
+// Mass Purge Departments
+departmentRouter.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
+    try {
+        const all = await prisma.department.findMany({ select: { id: true, code: true } });
+        let deletedCount = 0;
+        let blockedCount = 0;
+        for (const item of all) {
+            try {
+                await prisma.department.delete({ where: { id: item.id } });
+                deletedCount++;
+            } catch (error: any) {
+                if (error.code === 'P2003') blockedCount++;
+                else console.error(`Failed deleting dept ${item.code}:`, error);
+            }
+        }
+        res.json({ message: `Purge Complete. Deleted ${deletedCount} departments. Skipped ${blockedCount} due to active dependencies.` });
+    } catch (error) {
+        res.status(500).json({ error: 'Purge process failed' });
+    }
+});
+
 systemRouter.use('/departments', departmentRouter);
 
 
@@ -433,6 +454,27 @@ designationRouter.post('/bulk', authenticateToken, requireAdminOrPlanning, async
     }
 });
 
+
+// Mass Purge Designations
+designationRouter.delete('/purge', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
+    try {
+        const all = await prisma.designation.findMany({ select: { id: true, code: true } });
+        let deletedCount = 0;
+        let blockedCount = 0;
+        for (const item of all) {
+            try {
+                await prisma.designation.delete({ where: { id: item.id } });
+                deletedCount++;
+            } catch (error: any) {
+                if (error.code === 'P2003') blockedCount++;
+                else console.error(`Failed deleting desig ${item.code}:`, error);
+            }
+        }
+        res.json({ message: `Purge Complete. Deleted ${deletedCount} designations. Skipped ${blockedCount} due to active dependencies.` });
+    } catch (error) {
+        res.status(500).json({ error: 'Purge process failed' });
+    }
+});
 
 systemRouter.use('/designations', designationRouter);
 

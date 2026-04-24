@@ -53,83 +53,91 @@ router.get('/', authenticateToken, async (req: any, res) => {
 // Create new unit
 router.post('/', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
     const { 
-        code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, 
-        phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, 
-        openDate, sNo, district, size 
+        code, nameEn, nameTa, nameHi, type, size, openDate, populationGroup, 
+        riskCategory, riskEffectiveDate, prevRiskCategory, ifsc, micr, bsrCode, 
+        address1En, address2En, districtEn, address1Ta, address2Ta, districtTa, 
+        address1Hi, address2Hi, districtHi, pincode, phone, email, latitude, longitude 
     } = req.body;
 
     try {
+        if (type === 'RO') {
+            const existingRO = await prisma.branch.findFirst({ where: { type: 'RO' } });
+            if (existingRO) {
+                return res.status(400).json({ error: 'Only one Regional Office (RO) can exist in the system.' });
+            }
+        }
+
+        // Auto-attach to the single RO if this is a branch/LPC
+        let parentCodeToSet = undefined;
+        if (type !== 'RO') {
+            const ro = await prisma.branch.findFirst({ where: { type: 'RO' } });
+            if (ro) parentCodeToSet = ro.code;
+        }
+
         const unit = await prisma.branch.create({
             data: {
-                code,
-                officeId: officeId ? parseInt(officeId) : 9999,
-                nameEn,
-                nameTa,
-                nameHi,
-                type: type || 'BRANCH',
-                populationGroup: populationGroup || 'URBAN',
-                specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
+                code, nameEn, nameTa, nameHi, type: type || 'BRANCH', size, openDate, populationGroup,
+                parentCode: parentCodeToSet,
                 riskCategory,
                 riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
-                ifsc,
-                address,
-                addressTa,
-                addressHi,
-                phone,
-                email,
-                openDate,
-                sNo: sNo ? parseInt(sNo) : undefined,
-                district,
-                size
+                prevRiskCategory, ifsc, micr, bsrCode,
+                address1En, address2En, districtEn,
+                address1Ta, address2Ta, districtTa,
+                address1Hi, address2Hi, districtHi,
+                pincode, phone, email,
+                latitude: latitude ? parseFloat(latitude) : null,
+                longitude: longitude ? parseFloat(longitude) : null
             }
         });
         res.json(unit);
     } catch (error: any) {
         console.error("Create unit error:", error);
-        res.status(400).json({ 
-            error: 'Failed to create unit',
-            detail: error.message,
-            code: error.code
-        });
+        res.status(400).json({ error: 'Failed to create unit', detail: error.message });
     }
 });
 
-
 // Update unit
 router.put('/:id', authenticateToken, requireAdminOrPlanning, async (req: any, res) => {
-    const id = req.params.id as string;
+    const code = req.params.id as string;
     const { 
-        code, officeId, nameEn, nameTa, nameHi, type, ifsc, address, addressTa, addressHi, 
-        phone, email, populationGroup, specialStatus, riskCategory, riskEffectiveDate, 
-        openDate, sNo, district, size 
+        nameEn, nameTa, nameHi, type, size, openDate, populationGroup, 
+        riskCategory, riskEffectiveDate, prevRiskCategory, ifsc, micr, bsrCode, 
+        address1En, address2En, districtEn, address1Ta, address2Ta, districtTa, 
+        address1Hi, address2Hi, districtHi, pincode, phone, email, latitude, longitude 
     } = req.body;
 
     try {
-        const oldUnit = await prisma.branch.findUnique({ where: { id } });
+        const oldUnit = await prisma.branch.findUnique({ where: { code } });
+        
+        if (type === 'RO') {
+            const existingRO = await prisma.branch.findFirst({ where: { type: 'RO', NOT: { code } } });
+            if (existingRO) {
+                return res.status(400).json({ error: 'Only one Regional Office (RO) can exist in the system.' });
+            }
+        }
+
+
+        // Auto-attach to the single RO if this is a branch/LPC
+        let parentCodeToSet = undefined;
+        if (type !== 'RO') {
+            const ro = await prisma.branch.findFirst({ where: { type: 'RO' } });
+            if (ro) parentCodeToSet = ro.code;
+        }
 
         const unit = await prisma.branch.update({
-            where: { id },
+            where: { code },
             data: {
-                code,
-                officeId: officeId ? parseInt(officeId) : undefined,
-                nameEn,
-                nameTa,
-                nameHi,
-                type,
-                populationGroup,
-                specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
+                nameEn, nameTa, nameHi, type, size, openDate, populationGroup,
+                parentCode: parentCodeToSet,
                 riskCategory,
                 riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
-                ifsc,
-                address,
-                addressTa,
-                addressHi,
-                phone,
-                email,
-                openDate,
-                sNo: sNo ? parseInt(sNo) : undefined,
-                district,
-                size
+                prevRiskCategory, ifsc, micr, bsrCode,
+                address1En, address2En, districtEn,
+                address1Ta, address2Ta, districtTa,
+                address1Hi, address2Hi, districtHi,
+                pincode, phone, email,
+                latitude: latitude ? parseFloat(latitude) : null,
+                longitude: longitude ? parseFloat(longitude) : null
             }
         });
 
@@ -254,33 +262,53 @@ router.post('/bulk', authenticateToken, requireAdminOrPlanning, async (req: any,
             return res.status(400).json({ error: 'Invalid format' });
         }
 
+        const roInBatch = items.find((it: any) => (it['Type'] || it['type']) === 'RO');
+        const dbRO = await prisma.branch.findFirst({ where: { type: 'RO' } });
+        const roCode = roInBatch ? (roInBatch['SOL'] || roInBatch['code']) : dbRO?.code;
+
         const results = await Promise.all(items.map(async (item: any) => {
-            const { code, officeId, nameEn, nameTa, nameHi, type, populationGroup, specialStatus, riskCategory, riskEffectiveDate, ifsc, address, addressTa, addressHi, openDate, district, sNo, size } = item;
+            // Map CSV Headers to Database Fields
+            const code = item['SOL'] || item['code'];
+            const nameEn = item['English Name'] || item['nameEn'];
+            
             if (!code || !nameEn) return null;
 
+            const data = {
+                nameEn,
+                nameTa: item['Tamil Name'] || item['nameTa'],
+                nameHi: item['Hindi Name'] || item['nameHi'],
+                type: item['Type'] || item['type'] || 'BRANCH',
+                size: item['Size'] || item['size'],
+                openDate: item['Open Date'] || item['openDate'],
+                populationGroup: item['Population Group'] || item['populationGroup'],
+                riskCategory: item['Risk Category'] || item['riskCategory'],
+                riskEffectiveDate: (item['Risk Effective Date'] || item['riskEffectiveDate']) ? new Date(item['Risk Effective Date'] || item['riskEffectiveDate']) : null,
+                prevRiskCategory: item['Prev Risk Category'] || item['prevRiskCategory'],
+                ifsc: item['IFSC'] || item['ifsc'],
+                micr: item['MICR'] || item['micr'],
+                bsrCode: item['BSR Code'] || item['bsrCode'],
+                address1En: item['Add1 English'] || item['address1En'],
+                address2En: item['Add 2 English'] || item['address2En'],
+                districtEn: item['District English'] || item['districtEn'],
+                address1Ta: item['Add1 Tamil'] || item['address1Ta'],
+                address2Ta: item['Add 2 Tamil'] || item['address2Ta'],
+                districtTa: item['District Tamil'] || item['districtTa'],
+                address1Hi: item['Add1 Hindi'] || item['address1Hi'],
+                address2Hi: item['Add 2 Hindi'] || item['address2Hi'],
+                districtHi: item['District Hindi'] || item['districtHi'],
+                pincode: item['Pincode'] || item['pincode'],
+                phone: item['Phone'] || item['phone'],
+                email: item['email'] || item['email'],
+                latitude: parseFloat(item['Latitude'] || item['latitude']) || null,
+                longitude: parseFloat(item['Longitude'] || item['longitude']) || null,
+                officeId: parseInt(item['officeId']) || undefined,
+                parentCode: (item['Type'] || item['type'] || 'BRANCH') !== 'RO' ? roCode : undefined
+            };
+
             return prisma.branch.upsert({
-                where: { code },
-                update: {
-                    officeId: parseInt(officeId) || undefined,
-                    nameEn, nameTa, nameHi, type, populationGroup,
-                    specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
-                    riskCategory,
-                    riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : undefined,
-                    ifsc, address, addressTa, addressHi, openDate, district,
-                    sNo: sNo ? parseInt(sNo) : undefined,
-                    size
-                },
-                create: {
-                    code,
-                    officeId: parseInt(officeId) || 9999,
-                    nameEn, nameTa, nameHi, type, populationGroup,
-                    specialStatus: typeof specialStatus === 'object' ? JSON.stringify(specialStatus) : specialStatus,
-                    riskCategory,
-                    riskEffectiveDate: riskEffectiveDate ? new Date(riskEffectiveDate) : null,
-                    ifsc, address, addressTa, addressHi, openDate, district,
-                    sNo: sNo ? parseInt(sNo) : undefined,
-                    size
-                }
+                where: { code: String(code) },
+                update: data,
+                create: { ...data, code: String(code) }
             });
         }));
 

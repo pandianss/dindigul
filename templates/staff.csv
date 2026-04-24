@@ -1,0 +1,4 @@
+username,fullNameEn,Designation,branchCode,Grade,role,gender
+12345,John Doe,BRANCH MANAGER,0174,SM III,BRANCH_USER,M
+67890,Jane Smith,REGIONAL MANAGER,3933,TEG VI,RO_MANAGER,F
+admin,Administrator,SYSTEM ADMIN,3933,ADMIN,ADMIN,M

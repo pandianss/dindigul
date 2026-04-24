@@ -13,7 +13,10 @@ export const tabGroups: TabGroup[] = [
             { id: 'units', label: 'Units', icon: Building2 },
             { id: 'designations', label: 'Designations', icon: Briefcase },
             { id: 'staff', label: 'Staff', icon: Users },
-            { id: 'atms', label: 'ATMs', icon: Calculator }
+            { id: 'atms', label: 'ATMs', icon: Calculator },
+            { id: 'partners', label: 'Service Partners', icon: Users },
+            { id: 'assets', label: 'Unit Assets', icon: Hash },
+            { id: 'lockers', label: 'Lockers', icon: ShieldCheck }
         ]
     },
     {
@@ -44,6 +47,9 @@ export const getSingularLabel = (tab: Tab) => {
         designations: 'Designation',
         staff: 'Staff Member',
         atms: 'ATM',
+        partners: 'Service Partner',
+        assets: 'Unit Asset',
+        lockers: 'Locker',
         bulletins: 'Bulletin',
         misUpload: 'MIS File',
         budgets: 'Budget Item',
@@ -58,5 +64,8 @@ export const getEndpoint = (tab: Tab) => {
     if (tab === 'units') return '/branches';
     if (tab === 'staff') return '/users';
     if (tab === 'atms') return '/atms';
+    if (tab === 'partners') return '/partners';
+    if (tab === 'assets') return '/assets';
+    if (tab === 'lockers') return '/lockers';
     return `/${tab}`;
 };

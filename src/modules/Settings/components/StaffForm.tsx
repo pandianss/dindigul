@@ -114,7 +114,7 @@ export const StaffForm: React.FC<StaffFormProps> = ({
                     onChange={e => setFormData({ ...formData, branchId: e.target.value })}
                 >
                     <option value="">Select Branch</option>
-                    {branches.map(b => <option key={b.id} value={b.id}>{b.code} - {b.nameEn}</option>)}
+                    {branches.map(b => <option key={b.code} value={b.code}>{b.code} - {b.nameEn}</option>)}
                 </select>
             </div>
             {['RO_USER', 'ADMIN'].includes(formData.role || '') && (
